@@ -1,0 +1,191 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DIMS — Dominion1st Doctrines</title>
+  <style>
+    :root{--dom-blue:#0C1475; --icy1:#E6F0FF; --icy2:#A0CFFF; --icy3:#80BFFF; --text:#0b1220}
+    html,body{margin:0;padding:0;background:#f7f9fc;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+    .sidebar{background:var(--dom-blue);color:#fff;padding:16px 12px}
+    .brand{font-weight:800;letter-spacing:.3px;margin-bottom:12px}
+    .nav-section-title{font-size:.9rem;opacity:.9;margin:14px 8px 6px}
+    .nav-btn{display:block;width:100%;text-align:left;border:1px solid rgba(255,255,255,.2);border-radius:10px;background:transparent;color:#fff;padding:10px 12px;margin:6px 0;cursor:pointer}
+    .nav-btn:hover{box-shadow:0 0 8px var(--icy1),0 0 16px var(--icy2),0 0 24px var(--icy3)}
+    .nav-btn.primary{background:rgba(255,255,255,.06)}
+    .content{padding:16px 18px}
+    .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+    .toolbar .spacer{flex:1 1 auto}
+    .btn{background:var(--dom-blue);color:#fff;border:1px solid rgba(0,0,0,.1);border-radius:10px;padding:8px 12px;cursor:pointer;text-decoration:none;display:inline-block}
+    .btn:hover{box-shadow:0 0 8px var(--icy1),0 0 16px var(--icy2),0 0 24px var(--icy3)}
+    .title{width:100%;font-size:1.15rem;margin:6px 0}
+    .split{display:grid;grid-template-columns:310px 1fr;gap:14px}
+    .list{background:#fff;border:1px solid #e6e9ef;border-radius:12px;overflow:auto;max-height:calc(100vh - 160px)}
+    .search{display:flex;gap:8px;padding:8px;border-bottom:1px solid #e6e9ef}
+    .search input{flex:1;border:1px solid #d5dbe6;border-radius:10px;padding:8px 10px}
+    .row{padding:10px 12px;border-bottom:1px solid #f0f3f7;cursor:pointer}
+    .row:hover{background:#f5f8ff}
+    .row .t{font-weight:700}
+    .row .m{font-size:.9rem;color:#5b6b7a;margin-top:2px}
+    .editor-card{background:#fff;border:1px solid #e6e9ef;border-radius:12px;padding:12px}
+    .preview{border:1px solid #e6e9ef;border-radius:12px;padding:12px;margin-top:10px;background:#fff}
+    h2,h3{color:var(--dom-blue);text-shadow:0 0 6px var(--icy1)}
+    .meta{color:#5b6b7a}
+    @media print{ .sidebar,.toolbar,.list,.title,.search,.btn{display:none !important} body{background:#fff} .preview{border:none;padding:0} }
+    input[type="file"]{display:none} label.file-btn{cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">DIMS</div>
+      <div class="nav-section-title">Tier</div>
+      <button class="nav-btn">Tier 1</button>
+      <button class="nav-btn">Tier 2</button>
+      <button class="nav-btn">Tier 3</button>
+      <div class="nav-section-title">Streams</div>
+      <button id="nav-teachings" class="nav-btn primary">📜 Dominion1st Doctrines</button>
+      <a class="nav-btn" href="/">← Back to Dashboard</a>
+    </aside>
+
+    <main class="content">
+      <div class="toolbar">
+        <h2 style="margin:0">📜 Dominion1st Doctrines</h2>
+        <div class="spacer"></div>
+      </div>
+
+      <div class="toolbar">
+        <a class="btn" id="btn-new">New</a>
+        <a class="btn" id="btn-dup">Duplicate</a>
+        <a class="btn" id="btn-save">Save</a>
+        <a class="btn" id="btn-prev">Preview</a>
+        <a class="btn" id="btn-print">Print</a>
+        <a class="btn" id="btn-export">Export JSON</a>
+        <label for="file-import" class="btn file-btn">Import JSON</label>
+        <input id="file-import" type="file" accept="application/json">
+        <div class="spacer"></div>
+        <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="chk-public"> Public</label>
+      </div>
+
+      <div class="split">
+        <section class="list">
+          <div class="search"><input id="q" placeholder="Search title, tag, scripture…"></div>
+          <div id="list"></div>
+        </section>
+
+        <section class="editor-card">
+          <input id="title" class="title" placeholder="Title">
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <select id="status"><option value="open">🟢 Open</option><option value="in_progress">🟡 In Progress</option><option value="closed">🔴 Closed</option></select>
+            <select id="priority"><option value="high">👑 High</option><option value="medium">🛡 Medium</option><option value="low">🚋 Low</option></select>
+            <input id="tags" placeholder="tags (comma separated)" style="flex:1">
+          </div>
+          <textarea id="md" rows="16" placeholder="Use Markdown. Italicize scripture and include refs in parentheses." style="width:100%"></textarea>
+          <div id="preview" class="preview" style="display:none"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+<script>
+(function(){
+  function $(s){return document.querySelector(s)}
+  const listEl=$('#list'), searchEl=$('#q');
+  let TEACHINGS=[]; let currentId=null;
+
+  async function load(){
+    try{ const r=await fetch('teachings.json',{cache:'no-store'}); const data=await r.json(); TEACHINGS=data.teachings||[]; }catch(e){ TEACHINGS=[]; }
+    renderList(); if(TEACHINGS[0]) setEditor(TEACHINGS[0]);
+  }
+  function statusBadge(s){ return s==='open'?'🟢 Open':s==='in_progress'?'🟡 In Progress':'🔴 Closed'; }
+  function prioBadge(p){ return p==='high'?'👑 High':p==='medium'?'🛡 Medium':'🚋 Low'; }
+
+  function renderList(){
+    const q=(searchEl.value||'').trim().toLowerCase(); listEl.innerHTML='';
+    const items = TEACHINGS.filter(t=>!q || [t.title,...(t.tags||[]),...(t.scriptures||[]).map(s=>s.ref)].join(' ').toLowerCase().includes(q))
+                            .sort((a,b)=>a.title.localeCompare(b.title));
+    items.forEach(t=>{
+      const el=document.createElement('div'); el.className='row'; el.dataset.id=t.id;
+      const meta = `${statusBadge(t.status)} · ${prioBadge(t.priority)} · ${t.public?'🌐 Public':'🔒 Private'}`;
+      el.innerHTML = `<div class="t"><strong>${escapeHTML(t.title)}</strong></div><div class="m">${meta}</div>`;
+      el.addEventListener('click',()=>setEditor(t));
+      listEl.appendChild(el);
+    });
+  }
+  function escapeHTML(s){return (s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+  function setEditor(t){
+    currentId=t.id; $('#title').value=t.title||''; $('#status').value=t.status||'open'; $('#priority').value=t.priority||'high';
+    $('#tags').value=(t.tags||[]).join(', '); $('#md').value=t.content_md||''; $('#chk-public').checked=!!t.public; $('#preview').style.display='none';
+  }
+  function getEditor(){
+    return { id: currentId || ('tch-'+Date.now()), title: $('#title').value.trim(), status: $('#status').value, priority: $('#priority').value,
+      tags: ($('#tags').value||'').split(',').map(s=>s.trim()).filter(Boolean), content_md: $('#md').value, public: $('#chk-public').checked, updated_at: new Date().toISOString() };
+  }
+  function save(){
+    const d=getEditor();
+    const i=TEACHINGS.findIndex(x=>x.id===d.id);
+    if(i>=0) TEACHINGS[i]=Object.assign({},TEACHINGS[i],d); else TEACHINGS.push(d);
+    localStorage.setItem('dims_teaching_'+d.id, JSON.stringify(d));
+    renderList(); alert('Saved locally. Use Export JSON to publish.');
+  }
+  function dup(){
+    const src=getEditor(); const copy=JSON.parse(JSON.stringify(src));
+    copy.id='tch-'+Date.now(); copy.title=(src.title? 'Copy of '+src.title : 'Untitled Copy');
+    TEACHINGS.push(copy); renderList(); setEditor(copy);
+  }
+  function md2html(md){
+    return (md||'')
+      .replace(/^### (.*)$/gm,'<h3>$1</h3>')
+      .replace(/^## (.*)$/gm,'<h2>$1</h2>')
+      .replace(/^# (.*)$/gm,'<h1>$1</h1>')
+      .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g,'<em>$1</em>')
+      .replace(/\n/g,'<br>');
+  }
+  function preview(){
+    const t=getEditor(); const html=md2html(t.content_md);
+    $('#preview').innerHTML = `<article><header><h2>${escapeHTML(t.title)||'(Untitled Doctrine)'}</h2>
+      <div class="meta">${statusBadge(t.status)} · ${prioBadge(t.priority)} · ${$('#chk-public').checked?'🌐 Public':'🔒 Private'}</div>
+    </header><section>${html}</section></article>`;
+    $('#preview').style.display='block';
+  }
+  function printIt(){ preview(); window.print(); }
+  function download(fn,text){ const a=document.createElement('a'); a.href='data:application/json;charset=utf-8,'+encodeURIComponent(text); a.download=fn; a.style.display='none'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+  function gatherData(){
+    const merged=TEACHINGS.map(x=>{
+      try{ const raw=localStorage.getItem('dims_teaching_'+x.id); if(raw){ return Object.assign({}, x, JSON.parse(raw)); } }catch(e){}
+      return x;
+    });
+    return {version:'v1', teachings: merged};
+  }
+  function exportJSON(){ download('teachings.json', JSON.stringify(gatherData(), null, 2)); }
+  function importJSON(file){
+    const reader=new FileReader();
+    reader.onload=(e)=>{
+      try{
+        const data=JSON.parse(e.target.result);
+        if(!data || !Array.isArray(data.teachings)) throw new Error('Invalid file.');
+        Object.keys(localStorage).filter(k=>k.startsWith('dims_teaching_')).forEach(k=>localStorage.removeItem(k));
+        TEACHINGS=data.teachings; renderList(); if(TEACHINGS[0]) setEditor(TEACHINGS[0]);
+        alert('Imported. To publish, replace teachings/teachings.json and redeploy.');
+      }catch(err){ alert('Import failed: '+err.message); }
+    };
+    reader.readAsText(file);
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    load();
+    $('#btn-new').addEventListener('click',()=>{ const t={id:'tch-'+Date.now(), title:'', status:'open', priority:'high', tags:[], scriptures:[], content_md:'', public:false}; TEACHINGS.push(t); renderList(); setEditor(t); });
+    $('#btn-dup').addEventListener('click', dup);
+    $('#btn-save').addEventListener('click', save);
+    $('#btn-prev').addEventListener('click', preview);
+    $('#btn-print').addEventListener('click', printIt);
+    $('#btn-export').addEventListener('click', exportJSON);
+    document.getElementById('file-import').addEventListener('change',(e)=>{ if(e.target.files&&e.target.files[0]) importJSON(e.target.files[0]); e.target.value=''; });
+    searchEl.addEventListener('input', renderList);
+  });
+})();
+</script>
+</body>
+</html>

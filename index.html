@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DIMS — Dominion1st</title>
+  <style>
+    :root{--dom-blue:#0C1475; --icy1:#E6F0FF; --icy2:#A0CFFF; --text:#0b1220}
+    html,body{margin:0;padding:0;background:#f7f9fc;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+    .sidebar{background:var(--dom-blue);color:#fff;padding:16px 12px}
+    .brand{font-weight:800;letter-spacing:.3px;margin-bottom:12px}
+    .nav-section-title{font-size:.9rem;opacity:.9;margin:14px 8px 6px}
+    .nav-btn{display:block;width:100%;text-align:left;border:1px solid rgba(255,255,255,.2);border-radius:10px;background:rgba(255,255,255,.06);color:#fff;padding:10px 12px;margin:6px 0;cursor:pointer;text-decoration:none}
+    .nav-btn:hover{box-shadow:0 0 8px var(--icy1),0 0 16px var(--icy2)}
+    .content{padding:16px 18px}
+    .banner{border:1px solid #e6e9ef;border-radius:14px;background:#fff;padding:14px 16px;margin-bottom:14px}
+    .banner h1{margin:0;color:var(--dom-blue);text-shadow:0 0 8px var(--icy1)}
+    .tagline{font-weight:600;margin-top:6px}
+    .card{border:1px solid #e6e9ef;border-radius:14px;background:#fff;padding:14px 16px;margin:12px 0}
+    h2{color:var(--dom-blue);text-shadow:0 0 6px var(--icy1)}
+    .muted{color:#5b6b7a}
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">DIMS</div>
+      <div class="nav-section-title">Tier</div>
+      <a class="nav-btn">Tier 1</a>
+      <a class="nav-btn">Tier 2</a>
+      <a class="nav-btn">Tier 3</a>
+      <div class="nav-section-title">Streams</div>
+      <a class="nav-btn" href="/teachings/">📜 Dominion1st Doctrines</a>
+      <a class="nav-btn" href="/glossary/">📖 Glossary</a>
+      <a class="nav-btn" id="btn-proph">🕊️ PROPHESY! (AI)</a>
+      <a class="nav-btn" id="btn-brief">⚡ DIMS Brief (AI)</a>
+    </aside>
+
+    <main class="content">
+      <section class="banner">
+        <h1>Dominion1st Integrated Management System (DIMS)</h1>
+        <div class="tagline">“Prophetic Intelligence. Practical Dominion.”</div>
+        <p class="muted">DIMS is the prophetic operating system of Dominion1st — a living command center where revelation meets administration.</p>
+      </section>
+
+      <section class="card">
+        <h2>🕊️ Prophetic Word — Today <span data-gloss="Prophetic" style="font-size:.9rem;opacity:.8">(what does “Prophetic” mean?)</span></h2>
+        <div id="ai-brief" class="muted">Use <strong>⚡ DIMS Brief (AI)</strong> in the sidebar to generate Today’s brief.</div>
+      </section>
+
+      <section class="card">
+        <h2>🔟 Top 10 Tasks & Projects</h2>
+        <ul>
+          <li>Trademark Filing — 🟡 In Progress | 👑 High | Branding & Design</li>
+          <li>508(c)(1)(a) Setup — 🟢 Open | 👑 High | Projects & Tasks</li>
+          <li>IRS Crypto Taxes (2024) — 🟢 Open | 👑 High | Projects & Tasks</li>
+          <li>IRA Financial Transition — 🟢 Open | 🛡 Medium | Projects & Tasks</li>
+          <li>Divine DI Origin Story — Vision & Mission — 🟡 In Progress | 👑 High | Divine Core Framework</li>
+          <li>Well & Decree Library Expansion — 🟢 Open | 🛡 Medium | Wells & Decree Library</li>
+          <li>Milestone Chronicle Development — 🟢 Open | 🛡 Medium | Prophetic Systems</li>
+          <li>Prophecy Flow Integration (Wells & Decrees) — 🟢 Open | 🛡 Medium | Prophetic Systems</li>
+          <li>KuberNēsis Dashboard Refinement — 🟡 In Progress | 👑 High | Prophetic Systems</li>
+          <li>Lion Emblem & Branding Finalization — 🟢 Open | 🛡 Medium | Branding & Design</li>
+        </ul>
+      </section>
+
+      <section id="ai-proph"></section>
+    </main>
+  </div>
+
+  <script src="/orai.js" defer></script>
+  <script src="/ai-buttons-injector.js" defer></script>
+  <script src="/dims-glossary-tooltips.js" defer></script>
+</body>
+</html>

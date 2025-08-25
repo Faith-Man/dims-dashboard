@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DIMS — Glossary</title>
+  <style>
+    :root{--dom-blue:#0C1475; --icy1:#E6F0FF; --icy2:#A0CFFF; --icy3:#80BFFF; --text:#0b1220}
+    html,body{margin:0;padding:0;background:#f7f9fc;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .layout{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+    .sidebar{background:var(--dom-blue);color:#fff;padding:16px 12px}
+    .brand{font-weight:800;letter-spacing:.3px;margin-bottom:12px}
+    .nav-section-title{font-size:.9rem;opacity:.9;margin:14px 8px 6px}
+    .nav-btn{display:block;width:100%;text-align:left;border:1px solid rgba(255,255,255,.2);border-radius:10px;background:transparent;color:#fff;padding:10px 12px;margin:6px 0;cursor:pointer}
+    .nav-btn:hover{box-shadow:0 0 8px var(--icy1),0 0 16px var(--icy2),0 0 24px var(--icy3)}
+    .nav-btn.primary{background:rgba(255,255,255,.06)}
+    .content{padding:16px 18px}
+    .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+    .toolbar .spacer{flex:1 1 auto}
+    .btn{background:var(--dom-blue);color:#fff;border:1px solid rgba(0,0,0,.1);border-radius:10px;padding:8px 12px;cursor:pointer;text-decoration:none;display:inline-block}
+    .btn:hover{box-shadow:0 0 8px var(--icy1),0 0 16px var(--icy2),0 0 24px var(--icy3)}
+    .title{width:100%;font-size:1.15rem;margin:6px 0}
+    .split{display:grid;grid-template-columns:310px 1fr;gap:14px}
+    .list{background:#fff;border:1px solid #e6e9ef;border-radius:12px;overflow:auto;max-height:calc(100vh - 160px)}
+    .search{display:flex;gap:8px;padding:8px;border-bottom:1px solid #e6e9ef}
+    .search input{flex:1;border:1px solid #d5dbe6;border-radius:10px;padding:8px 10px}
+    .row{padding:10px 12px;border-bottom:1px solid #f0f3f7;cursor:pointer}
+    .row:hover{background:#f5f8ff}
+    .row .t{font-weight:700}
+    .row .m{font-size:.9rem;color:#5b6b7a;margin-top:2px}
+    .editor-card{background:#fff;border:1px solid #e6e9ef;border-radius:12px;padding:12px}
+    .preview{border:1px solid #e6e9ef;border-radius:12px;padding:12px;margin-top:10px;background:#fff}
+    h2,h3{color:var(--dom-blue);text-shadow:0 0 6px var(--icy1)}
+    .meta{color:#5b6b7a}
+    @media print{ .sidebar,.toolbar,.list,.title,.search,.btn{display:none !important} body{background:#fff} .preview{border:none;padding:0} }
+    input[type="file"]{display:none} label.file-btn{cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">DIMS</div>
+      <div class="nav-section-title">Tier</div>
+      <button class="nav-btn">Tier 1</button>
+      <button class="nav-btn">Tier 2</button>
+      <button class="nav-btn">Tier 3</button>
+      <div class="nav-section-title">Streams</div>
+      <button id="nav-glossary" class="nav-btn primary">📖 Glossary</button>
+      <a class="nav-btn" href="/">← Back to Dashboard</a>
+    </aside>
+
+    <main class="content">
+      <div class="toolbar">
+        <h2 style="margin:0">📖 Glossary</h2>
+        <div class="spacer"></div>
+      </div>
+
+      <div class="toolbar">
+        <a class="btn" id="btn-new">New</a>
+        <a class="btn" id="btn-save">Save</a>
+        <a class="btn" id="btn-prev">Preview</a>
+        <a class="btn" id="btn-print">Print</a>
+        <a class="btn" id="btn-export">Export JSON</a>
+        <label for="file-import" class="btn file-btn">Import JSON</label>
+        <input id="file-import" type="file" accept="application/json">
+        <div class="spacer"></div>
+      </div>
+
+      <div class="split">
+        <section class="list">
+          <div class="search"><input id="q" placeholder="Search term, tag, scripture…"></div>
+          <div id="list"></div>
+        </section>
+
+        <section class="editor-card">
+          <input id="term" class="title" placeholder="Term (e.g., Prophetic)">
+          <input id="tags" placeholder="tags (comma separated)" style="width:100%;margin-bottom:8px">
+          <textarea id="definition" rows="6" placeholder="Definition…" style="width:100%"></textarea>
+          <textarea id="dimensions" rows="6" placeholder="Dimensions (one per line)" style="width:100%"></textarea>
+          <textarea id="scriptures" rows="6" placeholder="Scripture Anchors (format: Ref — Text)" style="width:100%"></textarea>
+          <div id="preview" class="preview" style="display:none"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+<script>
+(function(){
+  function $(s){return document.querySelector(s)}
+  const listEl=$('#list'), searchEl=$('#q');
+  let GLOSS=[]; let currentId=null;
+
+  async function load(){
+    try{ const r=await fetch('glossary.json',{cache:'no-store'}); const data=await r.json(); GLOSS=data.terms||[]; }catch(e){ GLOSS=[]; }
+    renderList(); if(GLOSS[0]) setEditor(GLOSS[0]);
+  }
+  function renderList(){
+    const q=(searchEl.value||'').trim().toLowerCase(); listEl.innerHTML='';
+    const items=GLOSS.filter(t=>!q || [t.term,...(t.tags||[]),...(t.scriptures||[]).map(s=>s.ref)].join(' ').toLowerCase().includes(q))
+                     .sort((a,b)=>a.term.localeCompare(b.term));
+    items.forEach(t=>{
+      const el=document.createElement('div'); el.className='row'; el.dataset.id=t.id;
+      const meta=(t.tags||[]).join(', ');
+      el.innerHTML=`<div class="t"><strong>${escapeHTML(t.term)}</strong></div><div class="m">${escapeHTML(meta)}</div>`;
+      el.addEventListener('click',()=>setEditor(t));
+      listEl.appendChild(el);
+    });
+  }
+  function escapeHTML(s){return (s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+  function setEditor(t){
+    currentId=t.id; $('#term').value=t.term||''; $('#tags').value=(t.tags||[]).join(', ');
+    $('#definition').value=t.definition||''; $('#dimensions').value=(t.dimensions||[]).join('\n');
+    $('#scriptures').value=(t.scriptures||[]).map(s=>`${s.ref} — ${s.text}`).join('\n'); $('#preview').style.display='none';
+  }
+  function getEditor(){
+    const scr=($('#scriptures').value||'').split('\n').map(s=>s.trim()).filter(Boolean).map(line=>{
+      const parts=line.split('—'); return {ref:(parts[0]||'').trim(), text:(parts.slice(1).join('—')||'').trim()};
+    });
+    return { id: currentId||('gloss-'+Date.now()), term: $('#term').value.trim(), tags: ($('#tags').value||'').split(',').map(s=>s.trim()).filter(Boolean),
+      definition: $('#definition').value, dimensions: ($('#dimensions').value||'').split('\n').map(s=>s.trim()).filter(Boolean), scriptures: scr, updated_at: new Date().toISOString() };
+  }
+  function save(){
+    const d=getEditor(); if(!d.term){ alert('Please enter a term.'); return; }
+    const i=GLOSS.findIndex(x=>x.id===d.id); if(i>=0) GLOSS[i]=Object.assign({},GLOSS[i],d); else GLOSS.push(d);
+    localStorage.setItem('dims_gloss_'+d.id, JSON.stringify(d));
+    renderList(); setEditor(d); alert('Saved locally. Use Export JSON to publish.');
+  }
+  function preview(){
+    const d=getEditor();
+    const dims=(d.dimensions||[]).map(x=>`<li>${escapeHTML(x)}</li>`).join('');
+    const scr=(d.scriptures||[]).map(s=>`<li><em>${escapeHTML(s.text)}</em> (${escapeHTML(s.ref)})</li>`).join('');
+    $('#preview').innerHTML=`<article><h2>${escapeHTML(d.term)}</h2><p>${escapeHTML(d.definition)}</p>${dims?`<h3>Dimensions</h3><ul>${dims}</ul>`:''}${scr?`<h3>Scripture Anchors</h3><ul>${scr}</ul>`:''}</article>`;
+    $('#preview').style.display='block';
+  }
+  function printIt(){ preview(); window.print(); }
+  function download(fn,text){ const a=document.createElement('a'); a.href='data:application/json;charset=utf-8,'+encodeURIComponent(text); a.download=fn; a.style.display='none'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+  function gatherData(){
+    const merged=GLOSS.map(x=>{
+      try{ const raw=localStorage.getItem('dims_gloss_'+x.id); if(raw){ return Object.assign({}, x, JSON.parse(raw)); } }catch(e){}
+      return x;
+    });
+    return {version:'v1', terms: merged};
+  }
+  function exportJSON(){ download('glossary.json', JSON.stringify(gatherData(), null, 2)); }
+  function importJSON(file){
+    const reader=new FileReader();
+    reader.onload=(e)=>{
+      try{
+        const data=JSON.parse(e.target.result);
+        if(!data || !Array.isArray(data.terms)) throw new Error('Invalid file.');
+        Object.keys(localStorage).filter(k=>k.startsWith('dims_gloss_')).forEach(k=>localStorage.removeItem(k));
+        GLOSS=data.terms; renderList(); if(GLOSS[0]) setEditor(GLOSS[0]);
+        alert('Imported. Replace glossary/glossary.json and redeploy to publish.');
+      }catch(err){ alert('Import failed: '+err.message); }
+    };
+    reader.readAsText(file);
+  }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    load();
+    document.getElementById('btn-new').addEventListener('click',()=>{ const d={id:'gloss-'+Date.now(), term:'', tags:[], definition:'', dimensions:[], scriptures:[]}; GLOSS.push(d); renderList(); setEditor(d); });
+    document.getElementById('btn-save').addEventListener('click', save);
+    document.getElementById('btn-prev').addEventListener('click', preview);
+    document.getElementById('btn-print').addEventListener('click', printIt);
+    document.getElementById('btn-export').addEventListener('click', exportJSON);
+    document.getElementById('file-import').addEventListener('change',(e)=>{ if(e.target.files&&e.target.files[0]) importJSON(e.target.files[0]); e.target.value=''; });
+    document.getElementById('q').addEventListener('input', renderList);
+  });
+})();
+</script>
+</body>
+</html>

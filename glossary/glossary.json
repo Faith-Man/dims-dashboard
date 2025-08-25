@@ -1,0 +1,21 @@
+{
+  "version": "v1",
+  "terms": [
+    {
+      "id": "gloss-prophetic",
+      "term": "Prophetic",
+      "definition": "Spirit-led revelation, spoken or acted, that aligns heaven’s perspective with earthly action.",
+      "dimensions": [
+        "Revelation → receiving divine insight (God’s heart, mind, timing).",
+        "Declaration → speaking forth heaven’s word (Now Word).",
+        "Direction → actionable guidance.",
+        "Foresight → Spirit-led anticipation of movement."
+      ],
+      "scriptures": [
+        {"ref": "Amos 3:7", "text": "Surely the Sovereign Lord does nothing without revealing His plan to His servants the prophets."},
+        {"ref": "2 Peter 1:21", "text": "Prophets spoke from God as they were carried along by the Holy Spirit."}
+      ],
+      "tags": ["prophetic","identity"]
+    }
+  ]
+}

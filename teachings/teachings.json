@@ -29,17 +29,68 @@
       "published": true
     },
     {
-      "id": "tch-dominion-revolution",
-      "title": "The Dominion Revolution",
-      "slug": "the-dominion-revolution",
+      "id": "tch-dominion-revolution-1",
+      "title": "Dominion Revolution – Lesson 1: The Call to Dominion",
+      "slug": "dominion-revolution-call-to-dominion",
       "status": "open",
       "priority": "high",
       "tags": ["Dominion1st", "Revolution", "Kingdom"],
       "scriptures": [
-        { "ref": "Daniel 7:27" },
+        { "ref": "Genesis 1:26-28" }
+      ],
+      "content_md": "### Lesson 1: The Call to Dominion\n\nGod’s original mandate for man to rule, subdue, and have dominion.",
+      "published": true
+    },
+    {
+      "id": "tch-dominion-revolution-2",
+      "title": "Dominion Revolution – Lesson 2: The Kingdom and the Thrones",
+      "slug": "dominion-revolution-kingdom-thrones",
+      "status": "open",
+      "priority": "high",
+      "tags": ["Dominion1st", "Revolution", "Kingdom"],
+      "scriptures": [
+        { "ref": "Daniel 7:9-14" }
+      ],
+      "content_md": "### Lesson 2: The Kingdom and the Thrones\n\nUnderstanding the Ancient of Days and the transfer of dominion to the saints.",
+      "published": true
+    },
+    {
+      "id": "tch-dominion-revolution-3",
+      "title": "Dominion Revolution – Lesson 3: Kings and Priests",
+      "slug": "dominion-revolution-kings-priests",
+      "status": "open",
+      "priority": "high",
+      "tags": ["Dominion1st", "Revolution", "Priesthood"],
+      "scriptures": [
         { "ref": "Revelation 5:10" }
       ],
-      "content_md": "## The Dominion Revolution\n\nThis series introduces the Dominion Revolution: a movement to restore Kingdom authority and power to the sons and daughters of God.\n\n### Lesson 1: The Call to Dominion\nScripture: Genesis 1:26–28\nFocus: God’s original mandate for man to rule, subdue, and have dominion.\n\n### Lesson 2: The Kingdom and the Thrones\nScripture: Daniel 7:9–14\nFocus: Understanding the Ancient of Days and the transfer of dominion to the saints.\n\n### Lesson 3: Kings and Priests\nScripture: Revelation 5:10\nFocus: How Christ redeems us not just as servants but as kings and priests in His Kingdom.\n\n### Lesson 4: The Revolution of Voices\nScripture: Revelation 12:10–11\nFocus: Prophetic alignment, testimony, and the overcoming power of the blood of the Lamb.\n\n### Lesson 5: The Nations and the Kingdoms\nScripture: Revelation 11:15\nFocus: The climax of the revolution when the kingdoms of this world become the Kingdom of our Lord and of His Christ.\n\n---\nThis series is designed as a foundation for the Dominion1st Movement, equipping believers to walk in divine authority and identity.",
+      "content_md": "### Lesson 3: Kings and Priests\n\nHow Christ redeems us not just as servants but as kings and priests in His Kingdom.",
+      "published": true
+    },
+    {
+      "id": "tch-dominion-revolution-4",
+      "title": "Dominion Revolution – Lesson 4: The Revolution of Voices",
+      "slug": "dominion-revolution-voices",
+      "status": "open",
+      "priority": "high",
+      "tags": ["Dominion1st", "Revolution", "Voices"],
+      "scriptures": [
+        { "ref": "Revelation 12:10-11" }
+      ],
+      "content_md": "### Lesson 4: The Revolution of Voices\n\nProphetic alignment, testimony, and the overcoming power of the blood of the Lamb.",
+      "published": true
+    },
+    {
+      "id": "tch-dominion-revolution-5",
+      "title": "Dominion Revolution – Lesson 5: The Nations and the Kingdoms",
+      "slug": "dominion-revolution-nations-kingdoms",
+      "status": "open",
+      "priority": "high",
+      "tags": ["Dominion1st", "Revolution", "Nations"],
+      "scriptures": [
+        { "ref": "Revelation 11:15" }
+      ],
+      "content_md": "### Lesson 5: The Nations and the Kingdoms\n\nThe climax of the revolution when the kingdoms of this world become the Kingdom of our Lord and of His Christ.",
       "published": true
     }
   ]

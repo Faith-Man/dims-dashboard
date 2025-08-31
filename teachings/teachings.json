@@ -1,97 +1,10 @@
-{
-  "version": "v1",
-  "teachings": [
-    {
-      "id": "tch-you-have-dominion",
-      "title": "You Have Dominion",
-      "slug": "you-have-dominion",
-      "status": "open",
-      "priority": "high",
-      "tags": ["Dominion1st", "Identity"],
-      "scriptures": [
-        { "ref": "Genesis 1:26-28" },
-        { "ref": "Micah 4:8" }
-      ],
-      "content_md": "## You Have Dominion\n\nThis is the first teaching in the DIMS system.\nIt was inserted as a sample to confirm that Supabase + Netlify are connected.\n\nStay tuned for more teachings!",
-      "published": true
-    },
-    {
-      "id": "tch-origin-words",
-      "title": "Origin Words",
-      "slug": "origin-words",
-      "status": "open",
-      "priority": "medium",
-      "tags": ["Foundations", "Speech"],
-      "scriptures": [
-        { "ref": "John 1:1-5" }
-      ],
-      "content_md": "## Origin Words\n\nIn the beginning was the Word. This teaching explores the foundations of speech and its divine origin.",
-      "published": true
-    },
-    {
-      "id": "tch-dominion-revolution-1",
-      "title": "Dominion Revolution – Lesson 1: The Call to Dominion",
-      "slug": "dominion-revolution-call-to-dominion",
-      "status": "open",
-      "priority": "high",
-      "tags": ["Dominion1st", "Revolution", "Kingdom"],
-      "scriptures": [
-        { "ref": "Genesis 1:26-28" }
-      ],
-      "content_md": "### Lesson 1: The Call to Dominion\n\nGod’s original mandate for man to rule, subdue, and have dominion.",
-      "published": true
-    },
-    {
-      "id": "tch-dominion-revolution-2",
-      "title": "Dominion Revolution – Lesson 2: The Kingdom and the Thrones",
-      "slug": "dominion-revolution-kingdom-thrones",
-      "status": "open",
-      "priority": "high",
-      "tags": ["Dominion1st", "Revolution", "Kingdom"],
-      "scriptures": [
-        { "ref": "Daniel 7:9-14" }
-      ],
-      "content_md": "### Lesson 2: The Kingdom and the Thrones\n\nUnderstanding the Ancient of Days and the transfer of dominion to the saints.",
-      "published": true
-    },
-    {
-      "id": "tch-dominion-revolution-3",
-      "title": "Dominion Revolution – Lesson 3: Kings and Priests",
-      "slug": "dominion-revolution-kings-priests",
-      "status": "open",
-      "priority": "high",
-      "tags": ["Dominion1st", "Revolution", "Priesthood"],
-      "scriptures": [
-        { "ref": "Revelation 5:10" }
-      ],
-      "content_md": "### Lesson 3: Kings and Priests\n\nHow Christ redeems us not just as servants but as kings and priests in His Kingdom.",
-      "published": true
-    },
-    {
-      "id": "tch-dominion-revolution-4",
-      "title": "Dominion Revolution – Lesson 4: The Revolution of Voices",
-      "slug": "dominion-revolution-voices",
-      "status": "open",
-      "priority": "high",
-      "tags": ["Dominion1st", "Revolution", "Voices"],
-      "scriptures": [
-        { "ref": "Revelation 12:10-11" }
-      ],
-      "content_md": "### Lesson 4: The Revolution of Voices\n\nProphetic alignment, testimony, and the overcoming power of the blood of the Lamb.",
-      "published": true
-    },
-    {
-      "id": "tch-dominion-revolution-5",
-      "title": "Dominion Revolution – Lesson 5: The Nations and the Kingdoms",
-      "slug": "dominion-revolution-nations-kingdoms",
-      "status": "open",
-      "priority": "high",
-      "tags": ["Dominion1st", "Revolution", "Nations"],
-      "scriptures": [
-        { "ref": "Revelation 11:15" }
-      ],
-      "content_md": "### Lesson 5: The Nations and the Kingdoms\n\nThe climax of the revolution when the kingdoms of this world become the Kingdom of our Lord and of His Christ.",
-      "published": true
-    }
-  ]
+// teachings-data.js (JSON-only)
+// Loads from /teachings/teachings.json
+
+export async function fetchTeachingsWithFallback() {
+  const res = await fetch('./teachings.json', { cache: 'no-cache' });
+  if (!res.ok) throw new Error(`JSON fetch failed: ${res.status}`);
+  const data = await res.json();
+  // Expecting shape: { "version": "v1", "teachings": [ ... ] }
+  return Array.isArray(data?.teachings) ? data.teachings : [];
 }

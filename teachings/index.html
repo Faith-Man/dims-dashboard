@@ -186,6 +186,25 @@
     searchEl.addEventListener('input', renderList);
   });
 })();
+</script><script type="module">
+  import { fetchTeachingsWithFallback } from './teachings-data.js';
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const list = await fetchTeachingsWithFallback();
+      console.log('[teachings] page received', list);
+
+      // --- quick render so you can SEE it working ---
+      const container = document.querySelector('#teachings-list');
+      if (container && Array.isArray(list)) {
+        container.innerHTML = list
+          .map(t => `<li><strong>${t.title}</strong> <small>(${t.slug})</small></li>`)
+          .join('');
+      }
+    } catch (e) {
+      console.error('[teachings] failed to load', e);
+    }
+  });
 </script>
 </body>
 </html>

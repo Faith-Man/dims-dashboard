@@ -14,6 +14,33 @@
       ],
       "content_md": "## You Have Dominion\n\nThis is the first teaching in the DIMS system.\nIt was inserted as a sample to confirm that Supabase + Netlify are connected.\n\nStay tuned for more teachings!",
       "published": true
+    },
+    {
+      "id": "tch-origin-words",
+      "title": "Origin Words",
+      "slug": "origin-words",
+      "status": "open",
+      "priority": "medium",
+      "tags": ["Foundations", "Speech"],
+      "scriptures": [
+        { "ref": "John 1:1-5" }
+      ],
+      "content_md": "## Origin Words\n\nIn the beginning was the Word. This teaching explores the foundations of speech and its divine origin.",
+      "published": true
+    },
+    {
+      "id": "tch-dominion-revolution",
+      "title": "The Dominion Revolution",
+      "slug": "the-dominion-revolution",
+      "status": "open",
+      "priority": "high",
+      "tags": ["Dominion1st", "Revolution", "Kingdom"],
+      "scriptures": [
+        { "ref": "Daniel 7:27" },
+        { "ref": "Revelation 5:10" }
+      ],
+      "content_md": "## The Dominion Revolution\n\nThis teaching introduces the Dominion Revolution: a movement to restore Kingdom authority and power to the sons and daughters of God. It highlights prophecy, identity, and divine inheritance as the foundation of dominion living.",
+      "published": true
     }
   ]
 }

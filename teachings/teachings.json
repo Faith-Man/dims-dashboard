@@ -1,0 +1,19 @@
+{
+  "version": "v1",
+  "teachings": [
+    {
+      "id": "tch-you-have-dominion",
+      "title": "You Have Dominion",
+      "slug": "you-have-dominion",
+      "status": "open",
+      "priority": "high",
+      "tags": ["Dominion1st", "Identity"],
+      "scriptures": [
+        { "ref": "Genesis 1:26-28" },
+        { "ref": "Micah 4:8" }
+      ],
+      "content_md": "## You Have Dominion\n\nThis is the first teaching in the DIMS system.\nIt was inserted as a sample to confirm that Supabase + Netlify are connected.\n\nStay tuned for more teachings!",
+      "published": true
+    }
+  ]
+}

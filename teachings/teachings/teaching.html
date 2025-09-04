@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dominion1st Doctrines — Public</title>
+  <style>
+    :root{--dom-blue:#0C1475; --icy1:#E6F0FF; --icy2:#A0CFFF; --icy3:#80BFFF}
+    body{max-width:860px;margin:40px auto;padding:0 16px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .btn{background:var(--dom-blue);color:#fff;border:1px solid rgba(0,0,0,.1);border-radius:10px;padding:8px 12px;cursor:pointer;text-decoration:none;display:inline-block}
+    .btn:hover{box-shadow:0 0 8px var(--icy1),0 0 16px var(--icy2),0 0 24px var(--icy3)}
+    h1,h2,h3{color:var(--dom-blue);text-shadow:0 0 6px var(--icy1)}
+    @media print{ .top{display:none} body{margin:0} }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <a class="btn" href="/">← Back to Dashboard</a>
+    <a class="btn" onclick="window.print()">Print / Save PDF</a>
+  </div>
+  <div id="teaching"></div>
+<script>
+async function main(){
+  const id = new URLSearchParams(location.search).get('id');
+  const data = await (await fetch('teachings.json',{cache:'no-store'})).json();
+  const t = (data.teachings||[]).find(x=>x.id===id);
+  if(!t || !t.public){ document.body.innerHTML = '<p>Teaching not found or not public.</p>'; return; }
+  function md2html(md){
+    return (md||'').replace(/^### (.*)$/gm,'<h3>$1</h3>').replace(/^## (.*)$/gm,'<h2>$1</h2>').replace(/^# (.*)$/gm,'<h1>$1</h1>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/\n/g,'<br>');
+  }
+  const scr = (t.scriptures||[]).map(s=>`<li><em>${s.text}</em> <span>(${s.ref})</span></li>`).join('');
+  const block = scr?`<section><h3>Scriptures</h3><ul>${scr}</ul></section>`:'';
+  document.getElementById('teaching').innerHTML = `<article><h1>${t.title}</h1>${block}<section>${md2html(t.content_md)}</section></article>`;
+}
+main();
+</script>
+</body>
+</html>

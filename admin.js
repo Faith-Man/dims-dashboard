@@ -1,8 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-// TODO: set your current project values:
-const SUPABASE_URL = 'https://tfbfkitdenxgcxkxhydw.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmYmZraXRkZW54Z2N4a3hoeWR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2MjY3NDcsImV4cCI6MjA3MjIwMjc0N30.8EtOV90zyP2bn3ZrP35vOwnZkRo4nc72uD1xa964hC4';
+// DIMS-v3 Supabase project values
+const SUPABASE_URL = 'https://sdquzhsylqpbhrmqjqgk.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -33,16 +33,24 @@ supabase.auth.onAuthStateChange((_e, session) => toggleAuth(!!session));
 
 sendLinkBtn.onclick = async () => {
   const email = emailEl.value.trim();
-  if (!email) { authMsg.textContent = 'Enter an email.'; return; }
+  if (!email) {
+    authMsg.textContent = 'Enter an email.';
+    return;
+  }
+
   authMsg.textContent = 'Sending magic link...';
+
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: { emailRedirectTo: window.location.href }
   });
+
   authMsg.textContent = error ? `Error: ${error.message}` : 'Check your email!';
 };
 
-signOutBtn.onclick = async () => { await supabase.auth.signOut(); };
+signOutBtn.onclick = async () => {
+  await supabase.auth.signOut();
+};
 
 function toggleAuth(isAuthed) {
   authCard.classList.toggle('hidden', isAuthed);
@@ -52,17 +60,31 @@ function toggleAuth(isAuthed) {
 function parseScripture() {
   const txt = scriptureEl.value.trim();
   if (!txt) return null;
-  try { return JSON.parse(txt); } catch { return null; }
+
+  try {
+    return JSON.parse(txt);
+  } catch {
+    return null;
+  }
 }
+
 function parseTags() {
   const t = tagsEl.value.trim();
   if (!t) return [];
-  return t.split(',').map(s => s.trim()).filter(Boolean);
+
+  return t
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
 }
-function nowIso() { return new Date().toISOString(); }
+
+function nowIso() {
+  return new Date().toISOString();
+}
 
 async function upsertTeaching(publish) {
   saveMsg.textContent = 'Saving...';
+
   const row = {
     title: titleEl.value.trim(),
     slug: slugEl.value.trim(),
@@ -73,11 +95,21 @@ async function upsertTeaching(publish) {
     published_at: publish ? nowIso() : null,
     updated_at: nowIso()
   };
-  if (!row.title || !row.slug) { saveMsg.textContent = 'Title and Slug are required.'; return; }
 
-  const { error } = await supabase.from('teachings').upsert(row, { onConflict: 'slug' });
-  saveMsg.textContent = error ? `Error: ${error.message}` :
-    (publish ? 'Published ✅' : 'Draft saved ✅');
+  if (!row.title || !row.slug) {
+    saveMsg.textContent = 'Title and Slug are required.';
+    return;
+  }
+
+  const { error } = await supabase
+    .from('teachings')
+    .upsert(row, { onConflict: 'slug' });
+
+  saveMsg.textContent = error
+    ? `Error: ${error.message}`
+    : publish
+      ? 'Published ✅'
+      : 'Draft saved ✅';
 }
 
 saveDraftBtn.onclick = () => upsertTeaching(false);
@@ -85,10 +117,28 @@ publishBtn.onclick = () => upsertTeaching(true);
 
 loadBtn.onclick = async () => {
   const slug = slugEl.value.trim();
-  if (!slug) { saveMsg.textContent = 'Enter a slug to load.'; return; }
-  const { data, error } = await supabase.from('teachings').select('*').eq('slug', slug).maybeSingle();
-  if (error) { saveMsg.textContent = `Error: ${error.message}`; return; }
-  if (!data) { saveMsg.textContent = 'Not found.'; return; }
+
+  if (!slug) {
+    saveMsg.textContent = 'Enter a slug to load.';
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from('teachings')
+    .select('*')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (error) {
+    saveMsg.textContent = `Error: ${error.message}`;
+    return;
+  }
+
+  if (!data) {
+    saveMsg.textContent = 'Not found.';
+    return;
+  }
+
   titleEl.value = data.title ?? '';
   statusEl.value = data.status ?? 'draft';
   scriptureEl.value = data.scripture ? JSON.stringify(data.scripture) : '';
@@ -98,14 +148,20 @@ loadBtn.onclick = async () => {
 };
 
 newBtn.onclick = () => {
-  titleEl.value = ''; slugEl.value = ''; statusEl.value = 'draft';
-  scriptureEl.value = ''; tagsEl.value = ''; contentEl.value = '';
+  titleEl.value = '';
+  slugEl.value = '';
+  statusEl.value = 'draft';
+  scriptureEl.value = '';
+  tagsEl.value = '';
+  contentEl.value = '';
   saveMsg.textContent = 'New entry.';
 };
 
 titleEl.addEventListener('input', () => {
   if (!slugEl.value.trim()) {
-    slugEl.value = titleEl.value.toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    slugEl.value = titleEl.value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
   }
 });

@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DIMS-v3 Command Center</title>
+<style>
+:root{--blue:#0C1475;--gold:#FFD700;--bg:#eef5ff;--card:#fff;--line:#c8d8ff;--text:#0b1733;--muted:#5b6b8d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text)}
+.wrap{max-width:1200px;margin:0 auto;padding:16px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+h1{margin:0;color:var(--blue)}
+.sub{color:var(--muted)}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.card h2{margin:0 0 8px;color:var(--blue)}
+button,.btn{background:var(--blue);color:white;border:0;border-radius:10px;padding:9px 12px;cursor:pointer;text-decoration:none;display:inline-block}
+button:hover,.btn:hover{outline:2px solid var(--gold)}
+table{width:100%;border-collapse:collapse;background:white}
+th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}
+th{color:var(--blue);background:#f7faff}
+input,textarea,select{width:100%;padding:9px;border:1px solid var(--line);border-radius:9px;margin:5px 0}
+textarea{min-height:120px}
+.row{border-bottom:1px solid var(--line);padding:10px;cursor:pointer}
+.row:hover{background:#f4f8ff}
+.reader{white-space:pre-wrap;line-height:1.5}
+.small{font-size:.9rem;color:var(--muted)}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>👑 DIMS-v3 Command Center</h1>
+    <div class="sub">Dominion1st • Daily Briefing • Tasks • Teachings</div>
+  </div>
+  <button onclick="loadAll()">🔄 Refresh</button>
+</header>
+
+<div class="grid">
+  <aside>
+    <section class="card">
+      <h2>🌅 Daily Briefing</h2>
+      <div id="briefing">Loading...</div>
+    </section>
+
+    <section class="card">
+      <h2>🌍 World Intel</h2>
+      <ul id="worldIntel"></ul>
+    </section>
+
+    <section class="card">
+      <h2>🔗 Bridge Intel</h2>
+      <ul id="bridgeIntel"></ul>
+    </section>
+
+    <section class="card">
+      <h2>🙌 Personal / Ministry Intel</h2>
+      <div id="personalIntel"></div>
+    </section>
+  </aside>
+
+  <main>
+    <section class="card">
+      <h2>📊 Top Tasks</h2>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Task</th><th>Status</th><th>Priority</th><th>Stream</th></tr>
+        </thead>
+        <tbody id="taskRows"></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>📜 Teachings Library</h2>
+      <div id="teachingsList">Loading...</div>
+    </section>
+
+    <section class="card">
+      <h2>📖 Teaching Reader</h2>
+      <h3 id="readerTitle">Select a teaching</h3>
+      <div id="readerBody" class="reader small">Teaching content will appear here.</div>
+    </section>
+
+    <section class="card">
+      <h2>✍ Create / Save Teaching</h2>
+      <input id="title" placeholder="Teaching Title">
+      <input id="slug" placeholder="slug-auto-created">
+      <select id="status">
+        <option value="draft">Draft</option>
+        <option value="published">Published</option>
+        <option value="open">Open</option>
+        <option value="in_progress">In Progress</option>
+      </select>
+      <input id="priority" placeholder="priority: high, medium, low" value="high">
+      <input id="tags" placeholder="tags separated by commas">
+      <textarea id="content_md" placeholder="Teaching content..."></textarea>
+      <button onclick="saveTeaching()">💾 Save Teaching</button>
+      <span id="saveMsg" class="small"></span>
+    </section>
+  </main>
+</div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://sdquzhsylqpbhrmqjqgk.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+window.loadAll = loadAll;
+window.saveTeaching = saveTeaching;
+
+const fallbackTasks = [
+  {title:'Trademark Filing',status:'In Progress',priority:'High',stream:'Branding & Design'},
+  {title:'508(c)(1)(a) Setup',status:'Open',priority:'High',stream:'Projects & Tasks'},
+  {title:'IRS Crypto Taxes (2024)',status:'Open',priority:'High',stream:'Projects & Tasks'},
+  {title:'KuberNēsis Dashboard Refinement',status:'In Progress',priority:'High',stream:'Prophetic Systems'}
+];
+
+function badgeStatus(s){
+  const v=(s||'open').toLowerCase();
+  if(v.includes('progress')) return '🟡 In Progress';
+  if(v.includes('closed')) return '🔴 Closed';
+  if(v.includes('draft')) return '⚪ Draft';
+  if(v.includes('published')) return '🟣 Published';
+  return '🟢 Open';
+}
+function badgePriority(p){
+  const v=(p||'medium').toLowerCase();
+  if(v==='high') return '👑 High';
+  if(v==='low') return '🗡 Low';
+  return '🛡 Medium';
+}
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function slugify(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')}
+
+async function loadBriefing(){
+  const {data,error}=await supabase.from('briefings').select('*').order('briefing_date',{ascending:false}).limit(1);
+  const b=data?.[0];
+
+  if(error || !b){
+    document.getElementById('briefing').innerHTML =
+      `<strong>Prophetic Word:</strong><br>I am turning resistance into runway. Step forward — doors are opening in sequence as you move.`;
+    document.getElementById('worldIntel').innerHTML =
+      `<li>Global pressure rising; markets remain volatile.</li><li>AI acceleration reshapes work and communication.</li>`;
+    document.getElementById('bridgeIntel').innerHTML =
+      `<li>Kingdom builders must translate truth clearly at the gates.</li>`;
+    document.getElementById('personalIntel').innerHTML =
+      `Move with measured boldness and decree increase.<br><em>“This is the victory that overcometh the world, even our faith.” — 1 John 5:4</em>`;
+    return;
+  }
+
+  document.getElementById('briefing').innerHTML =
+    `<strong>Logos:</strong><br>${esc(b.logos_word||'')}<br><br><strong>Rhema:</strong><br>${esc(b.rhema_word||'')}<br><br><strong>Directives:</strong><br>${esc(b.directives||'')}`;
+  document.getElementById('worldIntel').innerHTML = `<li>${esc(b.world_intel||'')}</li>`;
+  document.getElementById('bridgeIntel').innerHTML = `<li>${esc(b.bridge_intel||'')}</li>`;
+  document.getElementById('personalIntel').innerHTML = esc(b.personal_intel||'');
+}
+
+async function loadTasks(){
+  const {data,error}=await supabase.from('tasks').select('*').order('created_at',{ascending:false}).limit(10);
+  const tasks = (!error && data && data.length) ? data : fallbackTasks;
+
+  document.getElementById('taskRows').innerHTML = tasks.map((t,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td>${esc(t.title||t.name)}</td>
+      <td>${badgeStatus(t.status)}</td>
+      <td>${badgePriority(t.priority)}</td>
+      <td>${esc(t.stream||'')}</td>
+    </tr>
+  `).join('');
+}
+
+async function loadTeachings(){
+  const {data,error}=await supabase.from('teachings').select('*').order('updated_at',{ascending:false});
+  const box=document.getElementById('teachingsList');
+
+  if(error){
+    box.innerHTML=`<span class="small">Error loading teachings: ${esc(error.message)}</span>`;
+    return;
+  }
+
+  if(!data || !data.length){
+    box.innerHTML=`<span class="small">No teachings saved yet.</span>`;
+    return;
+  }
+
+  box.innerHTML=data.map(t=>`
+    <div class="row" data-id="${esc(t.id)}">
+      <strong>${esc(t.title)}</strong><br>
+      <span class="small">${badgeStatus(t.status)} · ${badgePriority(t.priority)} · ${(t.tags||[]).join(', ')}</span>
+    </div>
+  `).join('');
+
+  box.querySelectorAll('.row').forEach(row=>{
+    row.onclick=()=>{
+      const t=data.find(x=>String(x.id)===row.dataset.id);
+      document.getElementById('readerTitle').textContent=t?.title||'Teaching';
+      document.getElementById('readerBody').textContent=t?.content_md||'(No content)';
+    };
+  });
+}
+
+async function saveTeaching(){
+  const title=document.getElementById('title').value.trim();
+  const slug=document.getElementById('slug').value.trim() || slugify(title);
+  const status=document.getElementById('status').value;
+  const priority=document.getElementById('priority').value.trim() || 'high';
+  const tags=document.getElementById('tags').value.split(',').map(x=>x.trim()).filter(Boolean);
+  const content_md=document.getElementById('content_md').value;
+
+  if(!title){document.getElementById('saveMsg').textContent=' Title required.';return;}
+
+  const row={
+    id: slug,
+    slug,
+    title,
+    status,
+    priority,
+    tags,
+    content_md,
+    updated_at:new Date().toISOString()
+  };
+
+  const {error}=await supabase.from('teachings').upsert(row,{onConflict:'id'});
+  document.getElementById('saveMsg').textContent = error ? ` Error: ${error.message}` : ' Saved ✅';
+
+  if(!error){
+    document.getElementById('slug').value=slug;
+    await loadTeachings();
+  }
+}
+
+document.getElementById('title').addEventListener('input',()=>{
+  const slug=document.getElementById('slug');
+  if(!slug.value.trim()) slug.value=slugify(document.getElementById('title').value);
+});
+
+loadAll();
+
+async function loadAll(){
+  await Promise.all([loadBriefing(),loadTasks(),loadTeachings()]);
+}
+</script>
+</body>
+</html>

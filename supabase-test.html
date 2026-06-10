@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Supabase Test</title>
+</head>
+<body>
+  <h1>DIMS Supabase Test</h1>
+  <button id="test">Save Test Teaching</button>
+  <p id="result"></p>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    const supabase = createClient(
+      'https://sdquzhsylqpbhrmqjqgk.supabase.co',
+      'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How'
+    );
+
+    document.getElementById('test').onclick = async () => {
+      document.getElementById('result').textContent = 'Saving...';
+
+      const { data, error } = await supabase
+        .from('teachings')
+        .insert({
+          id: 'test-teaching-' + Date.now(),
+          slug: 'test-teaching-' + Date.now(),
+          title: 'Test Teaching',
+          status: 'draft',
+          priority: 'high',
+          tags: ['test'],
+          content_md: 'This is a Supabase connection test.',
+          updated_at: new Date().toISOString()
+        })
+        .select();
+
+      document.getElementById('result').textContent = error
+        ? 'Error: ' + error.message
+        : 'Saved successfully ✅';
+    };
+  </script>
+</body>
+</html>

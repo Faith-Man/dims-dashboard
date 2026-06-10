@@ -7,25 +7,30 @@
 <style>
 body{font-family:system-ui,Arial;margin:0;background:#eef5ff;color:#0b1733}
 header{background:#0C1475;color:white;padding:18px}
-main{max-width:1100px;margin:0 auto;padding:16px}
-.grid{display:grid;grid-template-columns:330px 1fr;gap:14px}
+main{max-width:1200px;margin:0 auto;padding:16px}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:14px}
 .card{background:white;border:1px solid #c8d8ff;border-radius:14px;padding:14px}
 input,textarea,select{width:100%;padding:10px;margin:6px 0;border:1px solid #c8d8ff;border-radius:9px}
-textarea{min-height:180px}
+textarea{min-height:150px}
 #content_md{min-height:300px}
 button{background:#0C1475;color:white;border:0;border-radius:10px;padding:10px 14px;margin:4px;cursor:pointer}
 button:hover{outline:2px solid #FFD700}
 .item{padding:10px;border-bottom:1px solid #ddd;cursor:pointer}
 .item:hover{background:#f4f8ff}
 .small{color:#5b6b8d;font-size:.9rem}
-.type-badge{font-weight:700;color:#0C1475}
+.preview{background:#fff;border:1px solid #c8d8ff;border-radius:14px;padding:18px;margin-top:14px;display:none;white-space:pre-wrap;line-height:1.55}
 @media(max-width:800px){.grid{grid-template-columns:1fr}}
+@media print{
+  header,.grid .card:first-child,button,input,select,textarea,#msg{display:none!important}
+  body{background:white}
+  .preview{display:block!important;border:0}
+}
 </style>
 </head>
 <body>
 <header>
 <h1>💡 OrEl Content Studio</h1>
-<div>DIMS-v3 • Create, edit, classify, and publish Dominion1st content</div>
+<div>DIMS-v3 • Create, edit, classify, review, print, and export Dominion1st content</div>
 </header>
 
 <main>
@@ -78,11 +83,18 @@ button:hover{outline:2px solid #FFD700}
 <textarea id="content_md" placeholder="Write content here..."></textarea>
 
 <button onclick="newTeaching()">New</button>
+<button onclick="autoFillMetadata()">✨ Auto-Fill Metadata</button>
 <button onclick="saveTeaching('draft')">Save Draft</button>
 <button onclick="saveTeaching('published')">Publish</button>
 <button onclick="archiveTeaching()">Archive</button>
+<button onclick="previewContent()">👁 Preview</button>
+<button onclick="printContent()">🖨 Print</button>
+<button onclick="exportMarkdown()">⬇ Export MD</button>
+<button onclick="exportJSON()">⬇ Export JSON</button>
+<button onclick="exportHTML()">⬇ Export HTML</button>
 
 <p id="msg" class="small"></p>
+<div id="preview" class="preview"></div>
 </section>
 </div>
 </main>
@@ -101,6 +113,12 @@ let currentId = null;
 window.newTeaching = newTeaching;
 window.saveTeaching = saveTeaching;
 window.archiveTeaching = archiveTeaching;
+window.autoFillMetadata = autoFillMetadata;
+window.previewContent = previewContent;
+window.printContent = printContent;
+window.exportMarkdown = exportMarkdown;
+window.exportJSON = exportJSON;
+window.exportHTML = exportHTML;
 
 function slugify(s){
   return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
@@ -118,9 +136,19 @@ function typeIcon(type){
   return '📖';
 }
 
-function displayTitle(t){
-  const type = t.content_type || 'Teaching';
-  return `${typeIcon(type)} ${esc(type)} — ${esc(t.title || 'Untitled')}`;
+function getEditorData(){
+  return {
+    id: currentId,
+    title: document.getElementById('title').value.trim(),
+    slug: document.getElementById('slug').value.trim(),
+    status: document.getElementById('status').value,
+    content_type: document.getElementById('content_type').value,
+    category: document.getElementById('category').value,
+    series: document.getElementById('series').value.trim(),
+    tags: document.getElementById('tags').value.split(',').map(x=>x.trim()).filter(Boolean),
+    summary: document.getElementById('summary').value.trim(),
+    content_md: document.getElementById('content_md').value
+  };
 }
 
 async function loadTeachings(){
@@ -142,16 +170,9 @@ function renderList(){
   const q=document.getElementById('search').value.toLowerCase().trim();
   const filtered=teachings.filter(t=>{
     const text=[
-      t.title,
-      t.status,
-      t.content_type,
-      t.category,
-      t.series,
-      t.summary,
-      ...(t.tags||[]),
-      t.content_md
+      t.title,t.status,t.content_type,t.category,t.series,t.summary,
+      ...(t.tags||[]),t.content_md
     ].join(' ').toLowerCase();
-
     return !q || text.includes(q);
   });
 
@@ -162,12 +183,8 @@ function renderList(){
 
   document.getElementById('list').innerHTML=filtered.map(t=>`
     <div class="item" data-id="${esc(t.id)}">
-      <strong>${displayTitle(t)}</strong><br>
-      <span class="small">
-        ${esc(t.status||'draft')} · 
-        ${esc(t.category||'Uncategorized')} · 
-        ${esc(t.series||'Standalone')}
-      </span>
+      <strong>${typeIcon(t.content_type)} ${esc(t.content_type||'Teaching')} — ${esc(t.title||'Untitled')}</strong><br>
+      <span class="small">${esc(t.status||'draft')} · ${esc(t.category||'Uncategorized')} · ${esc(t.series||'Standalone')}</span>
     </div>
   `).join('');
 
@@ -190,6 +207,7 @@ function fillEditor(t){
   document.getElementById('tags').value=(t.tags||[]).join(', ');
   document.getElementById('summary').value=t.summary||'';
   document.getElementById('content_md').value=t.content_md||'';
+  document.getElementById('preview').style.display='none';
   document.getElementById('msg').textContent='Loaded.';
 }
 
@@ -204,19 +222,60 @@ function newTeaching(){
   document.getElementById('tags').value='';
   document.getElementById('summary').value='';
   document.getElementById('content_md').value='';
+  document.getElementById('preview').style.display='none';
   document.getElementById('msg').textContent='New content.';
 }
 
-async function saveTeaching(forceStatus){
+function autoFillMetadata(){
   const title=document.getElementById('title').value.trim();
-  const slug=document.getElementById('slug').value.trim() || slugify(title);
-  const status=forceStatus || document.getElementById('status').value;
-  const content_type=document.getElementById('content_type').value;
-  const category=document.getElementById('category').value;
-  const series=document.getElementById('series').value.trim();
-  const tags=document.getElementById('tags').value.split(',').map(x=>x.trim()).filter(Boolean);
-  const summary=document.getElementById('summary').value.trim();
-  const content_md=document.getElementById('content_md').value;
+  const content=document.getElementById('content_md').value.trim();
+  const all=(title+' '+content).toLowerCase();
+
+  if(title && !document.getElementById('slug').value.trim()){
+    document.getElementById('slug').value=slugify(title);
+  }
+
+  if(!document.getElementById('summary').value.trim() && content){
+    const clean=content.replace(/\s+/g,' ').trim();
+    const sentences=clean.match(/[^.!?]+[.!?]+/g);
+    document.getElementById('summary').value=(sentences?sentences.slice(0,2).join(' '):clean.slice(0,260)).trim();
+  }
+
+  if(!document.getElementById('category').value){
+    if(all.includes('identity')||all.includes('image')||all.includes('likeness')) document.getElementById('category').value='Identity';
+    else if(all.includes('dominion')||all.includes('authority')||all.includes('rule')) document.getElementById('category').value='Dominion';
+    else if(all.includes('grace')||all.includes('mercy')) document.getElementById('category').value='Grace';
+    else if(all.includes('faith')||all.includes('believe')) document.getElementById('category').value='Faith';
+    else if(all.includes('culture')||all.includes('government')||all.includes('society')||all.includes('justice')) document.getElementById('category').value='Culture';
+    else if(all.includes('prophecy')||all.includes('prophetic')) document.getElementById('category').value='Prophecy';
+    else if(all.includes('leadership')||all.includes('leader')) document.getElementById('category').value='Leadership';
+    else document.getElementById('category').value='Other';
+  }
+
+  if(!document.getElementById('series').value.trim()){
+    if(all.includes('the connection')) document.getElementById('series').value='The Connection';
+    else if(all.includes('perfect man')) document.getElementById('series').value='The Perfect Man';
+    else if(all.includes('divine design')) document.getElementById('series').value="God's Divine Design";
+    else if(all.includes('dominion revolution')) document.getElementById('series').value='The Dominion Revolution';
+    else document.getElementById('series').value='Standalone';
+  }
+
+  if(!document.getElementById('tags').value.trim()){
+    const tags=[];
+    ['identity','dominion','faith','grace','mercy','truth','justice','kingdom','culture','leadership','prophecy','authority','purpose'].forEach(k=>{
+      if(all.includes(k)) tags.push(k);
+    });
+    document.getElementById('tags').value=[...new Set(tags)].join(', ');
+  }
+
+  document.getElementById('msg').textContent='Metadata auto-filled ✅';
+}
+
+async function saveTeaching(forceStatus){
+  const d=getEditorData();
+  const title=d.title;
+  const slug=d.slug || slugify(title);
+  const status=forceStatus || d.status;
 
   if(!title){
     document.getElementById('msg').textContent='Title is required.';
@@ -228,12 +287,12 @@ async function saveTeaching(forceStatus){
     slug,
     title,
     status,
-    content_type,
-    category,
-    series,
-    tags,
-    summary,
-    content_md,
+    content_type:d.content_type,
+    category:d.category,
+    series:d.series,
+    tags:d.tags,
+    summary:d.summary,
+    content_md:d.content_md,
     published_date: status === 'published' ? new Date().toISOString().slice(0,10) : null,
     archived_at: status === 'archived' ? new Date().toISOString() : null,
     updated_at:new Date().toISOString()
@@ -262,9 +321,71 @@ async function archiveTeaching(){
     document.getElementById('msg').textContent='No content selected.';
     return;
   }
-
   document.getElementById('status').value='archived';
   await saveTeaching('archived');
+}
+
+function previewContent(){
+  const d=getEditorData();
+  const html=`<h1>${esc(d.title||'Untitled')}</h1>
+<p><strong>${esc(d.content_type)}</strong> · ${esc(d.category||'Uncategorized')} · ${esc(d.series||'Standalone')}</p>
+<p><em>${esc(d.summary||'')}</em></p>
+<hr>
+<div>${esc(d.content_md||'').replace(/\n/g,'<br>')}</div>`;
+  const box=document.getElementById('preview');
+  box.innerHTML=html;
+  box.style.display='block';
+}
+
+function printContent(){
+  previewContent();
+  window.print();
+}
+
+function download(filename,text,type){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type}));
+  a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function exportMarkdown(){
+  const d=getEditorData();
+  const md=`# ${d.title}
+
+**Type:** ${d.content_type}  
+**Category:** ${d.category}  
+**Series:** ${d.series}  
+**Status:** ${d.status}  
+**Tags:** ${d.tags.join(', ')}
+
+## Summary
+
+${d.summary}
+
+---
+
+${d.content_md}`;
+  download((d.slug||slugify(d.title)||'content')+'.md',md,'text/markdown');
+}
+
+function exportJSON(){
+  const d=getEditorData();
+  download((d.slug||slugify(d.title)||'content')+'.json',JSON.stringify(d,null,2),'application/json');
+}
+
+function exportHTML(){
+  const d=getEditorData();
+  const html=`<!doctype html><html><head><meta charset="utf-8"><title>${esc(d.title)}</title></head><body>
+<h1>${esc(d.title)}</h1>
+<p><strong>${esc(d.content_type)}</strong> · ${esc(d.category)} · ${esc(d.series)}</p>
+<p><em>${esc(d.summary)}</em></p>
+<hr>
+<div>${esc(d.content_md).replace(/\n/g,'<br>')}</div>
+</body></html>`;
+  download((d.slug||slugify(d.title)||'content')+'.html',html,'text/html');
 }
 
 document.getElementById('title').addEventListener('input',()=>{

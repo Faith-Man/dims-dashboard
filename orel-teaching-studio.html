@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OrEl Teaching Studio</title>
+<title>OrEl Content Studio</title>
 <style>
 body{font-family:system-ui,Arial;margin:0;background:#eef5ff;color:#0b1733}
 header{background:#0C1475;color:white;padding:18px}
@@ -11,57 +11,76 @@ main{max-width:1100px;margin:0 auto;padding:16px}
 .grid{display:grid;grid-template-columns:330px 1fr;gap:14px}
 .card{background:white;border:1px solid #c8d8ff;border-radius:14px;padding:14px}
 input,textarea,select{width:100%;padding:10px;margin:6px 0;border:1px solid #c8d8ff;border-radius:9px}
-textarea{min-height:260px}
+textarea{min-height:180px}
+#content_md{min-height:300px}
 button{background:#0C1475;color:white;border:0;border-radius:10px;padding:10px 14px;margin:4px;cursor:pointer}
 button:hover{outline:2px solid #FFD700}
 .item{padding:10px;border-bottom:1px solid #ddd;cursor:pointer}
 .item:hover{background:#f4f8ff}
 .small{color:#5b6b8d;font-size:.9rem}
+.type-badge{font-weight:700;color:#0C1475}
 @media(max-width:800px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header>
-<h1>💡 OrEl Teaching Studio</h1>
-<div>DIMS-v3 • Create, edit, and publish teachings</div>
+<h1>💡 OrEl Content Studio</h1>
+<div>DIMS-v3 • Create, edit, classify, and publish Dominion1st content</div>
 </header>
 
 <main>
 <div class="grid">
 <section class="card">
-<h2>📚 Teachings</h2>
-<input id="search" placeholder="Search teachings...">
+<h2>📚 Content Library</h2>
+<input id="search" placeholder="Search content...">
 <div id="list">Loading...</div>
 </section>
 
 <section class="card">
-<h2>✍ Teaching Editor</h2>
+<h2>✍ Content Editor</h2>
 
-<input id="title" placeholder="Teaching Title">
+<input id="title" placeholder="Title">
 <input id="slug" placeholder="slug-auto-created">
 
 <select id="status">
 <option value="draft">Draft</option>
 <option value="published">Published</option>
-<option value="open">Open</option>
-<option value="in_progress">In Progress</option>
-<option value="closed">Closed</option>
+<option value="archived">Archived</option>
 </select>
 
-<select id="priority">
-<option value="high">👑 High</option>
-<option value="medium">🛡 Medium</option>
-<option value="low">🗡 Low</option>
+<select id="content_type">
+<option value="Teaching">📖 Teaching</option>
+<option value="Diagnosis">🔍 Diagnosis</option>
+<option value="Perspective">🔥 Perspective</option>
+<option value="Principle">🏛 Principle</option>
+<option value="Briefing">📰 Briefing</option>
 </select>
 
+<select id="category">
+<option value="">Select Category</option>
+<option value="Identity">Identity</option>
+<option value="Dominion">Dominion</option>
+<option value="Kingdom">Kingdom</option>
+<option value="Grace">Grace</option>
+<option value="Faith">Faith</option>
+<option value="Leadership">Leadership</option>
+<option value="Culture">Culture</option>
+<option value="Prophecy">Prophecy</option>
+<option value="End Times">End Times</option>
+<option value="Character">Character</option>
+<option value="Other">Other</option>
+</select>
+
+<input id="series" placeholder="Series Name">
 <input id="tags" placeholder="tags separated by commas">
 
-<textarea id="content_md" placeholder="Write teaching content here..."></textarea>
+<textarea id="summary" placeholder="Summary (50-150 words)"></textarea>
+<textarea id="content_md" placeholder="Write content here..."></textarea>
 
 <button onclick="newTeaching()">New</button>
 <button onclick="saveTeaching('draft')">Save Draft</button>
 <button onclick="saveTeaching('published')">Publish</button>
-<button onclick="deleteTeaching()">Delete</button>
+<button onclick="archiveTeaching()">Archive</button>
 
 <p id="msg" class="small"></p>
 </section>
@@ -81,7 +100,7 @@ let currentId = null;
 
 window.newTeaching = newTeaching;
 window.saveTeaching = saveTeaching;
-window.deleteTeaching = deleteTeaching;
+window.archiveTeaching = archiveTeaching;
 
 function slugify(s){
   return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
@@ -89,6 +108,19 @@ function slugify(s){
 
 function esc(s){
   return String(s ?? '').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+function typeIcon(type){
+  if(type === 'Diagnosis') return '🔍';
+  if(type === 'Perspective') return '🔥';
+  if(type === 'Principle') return '🏛';
+  if(type === 'Briefing') return '📰';
+  return '📖';
+}
+
+function displayTitle(t){
+  const type = t.content_type || 'Teaching';
+  return `${typeIcon(type)} ${esc(type)} — ${esc(t.title || 'Untitled')}`;
 }
 
 async function loadTeachings(){
@@ -109,19 +141,33 @@ async function loadTeachings(){
 function renderList(){
   const q=document.getElementById('search').value.toLowerCase().trim();
   const filtered=teachings.filter(t=>{
-    const text=[t.title,t.status,t.priority,...(t.tags||[]),t.content_md].join(' ').toLowerCase();
+    const text=[
+      t.title,
+      t.status,
+      t.content_type,
+      t.category,
+      t.series,
+      t.summary,
+      ...(t.tags||[]),
+      t.content_md
+    ].join(' ').toLowerCase();
+
     return !q || text.includes(q);
   });
 
   if(!filtered.length){
-    document.getElementById('list').innerHTML='<div class="small">No teachings found.</div>';
+    document.getElementById('list').innerHTML='<div class="small">No content found.</div>';
     return;
   }
 
   document.getElementById('list').innerHTML=filtered.map(t=>`
     <div class="item" data-id="${esc(t.id)}">
-      <strong>${esc(t.title)}</strong><br>
-      <span class="small">${esc(t.status||'')} · ${esc(t.priority||'')} · ${(t.tags||[]).join(', ')}</span>
+      <strong>${displayTitle(t)}</strong><br>
+      <span class="small">
+        ${esc(t.status||'draft')} · 
+        ${esc(t.category||'Uncategorized')} · 
+        ${esc(t.series||'Standalone')}
+      </span>
     </div>
   `).join('');
 
@@ -138,8 +184,11 @@ function fillEditor(t){
   document.getElementById('title').value=t.title||'';
   document.getElementById('slug').value=t.slug||t.id||'';
   document.getElementById('status').value=t.status||'draft';
-  document.getElementById('priority').value=t.priority||'high';
+  document.getElementById('content_type').value=t.content_type||'Teaching';
+  document.getElementById('category').value=t.category||'';
+  document.getElementById('series').value=t.series||'';
   document.getElementById('tags').value=(t.tags||[]).join(', ');
+  document.getElementById('summary').value=t.summary||'';
   document.getElementById('content_md').value=t.content_md||'';
   document.getElementById('msg').textContent='Loaded.';
 }
@@ -149,18 +198,24 @@ function newTeaching(){
   document.getElementById('title').value='';
   document.getElementById('slug').value='';
   document.getElementById('status').value='draft';
-  document.getElementById('priority').value='high';
+  document.getElementById('content_type').value='Teaching';
+  document.getElementById('category').value='';
+  document.getElementById('series').value='';
   document.getElementById('tags').value='';
+  document.getElementById('summary').value='';
   document.getElementById('content_md').value='';
-  document.getElementById('msg').textContent='New teaching.';
+  document.getElementById('msg').textContent='New content.';
 }
 
 async function saveTeaching(forceStatus){
   const title=document.getElementById('title').value.trim();
   const slug=document.getElementById('slug').value.trim() || slugify(title);
   const status=forceStatus || document.getElementById('status').value;
-  const priority=document.getElementById('priority').value;
+  const content_type=document.getElementById('content_type').value;
+  const category=document.getElementById('category').value;
+  const series=document.getElementById('series').value.trim();
   const tags=document.getElementById('tags').value.split(',').map(x=>x.trim()).filter(Boolean);
+  const summary=document.getElementById('summary').value.trim();
   const content_md=document.getElementById('content_md').value;
 
   if(!title){
@@ -173,9 +228,14 @@ async function saveTeaching(forceStatus){
     slug,
     title,
     status,
-    priority,
+    content_type,
+    category,
+    series,
     tags,
+    summary,
     content_md,
+    published_date: status === 'published' ? new Date().toISOString().slice(0,10) : null,
+    archived_at: status === 'archived' ? new Date().toISOString() : null,
     updated_at:new Date().toISOString()
   };
 
@@ -197,24 +257,14 @@ async function saveTeaching(forceStatus){
   await loadTeachings();
 }
 
-async function deleteTeaching(){
+async function archiveTeaching(){
   if(!currentId){
-    document.getElementById('msg').textContent='No teaching selected.';
+    document.getElementById('msg').textContent='No content selected.';
     return;
   }
 
-  if(!confirm('Delete this teaching?')) return;
-
-  const {error}=await supabase.from('teachings').delete().eq('id',currentId);
-
-  if(error){
-    document.getElementById('msg').textContent='Error: '+error.message;
-    return;
-  }
-
-  newTeaching();
-  document.getElementById('msg').textContent='Deleted.';
-  await loadTeachings();
+  document.getElementById('status').value='archived';
+  await saveTeaching('archived');
 }
 
 document.getElementById('title').addEventListener('input',()=>{

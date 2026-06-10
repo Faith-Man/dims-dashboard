@@ -264,6 +264,43 @@ function newTeaching(){
   document.getElementById('msg').textContent='New content.';
 }
 
+function cleanTitleForSummary(title){
+  return String(title||'')
+    .replace(/DOMINION1ST™/gi,'')
+    .replace(/DOMINION1ST/gi,'')
+    .replace(/DIAGNOSIS/gi,'')
+    .replace(/PERSPECTIVE/gi,'')
+    .replace(/PRINCIPLE/gi,'')
+    .replace(/TEACHING/gi,'')
+    .replace(/BRIEFING/gi,'')
+    .replace(/[-–—]+/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
+function generateSmartSummary(title, content){
+  const lower = (title + ' ' + content).toLowerCase();
+
+  let type = 'content';
+  if(lower.includes('diagnosis')) type = 'Diagnosis';
+  else if(lower.includes('perspective')) type = 'Perspective';
+  else if(lower.includes('principle')) type = 'Principle';
+  else if(lower.includes('brief')) type = 'Briefing';
+  else if(lower.includes('teaching')) type = 'Teaching';
+
+  let focus = 'truth, dominion, and Kingdom understanding';
+  if(lower.includes('faith')) focus = 'faith, courage, and spiritual conviction';
+  if(lower.includes('justice') || lower.includes('accountability')) focus = 'truth, justice, accountability, and discernment';
+  if(lower.includes('identity') || lower.includes('image') || lower.includes('likeness')) focus = 'identity, purpose, and dominion';
+  if(lower.includes('history') || lower.includes('erased') || lower.includes('memory')) focus = 'historical memory, truth, power, and accountability';
+  if(lower.includes('grace') || lower.includes('mercy')) focus = 'grace, mercy, and the character of God';
+  if(lower.includes('honor')) focus = 'honor, character, order, and Kingdom conduct';
+
+  const cleanTitle = cleanTitleForSummary(title) || 'this subject';
+
+  return `This Dominion1st ${type} examines ${focus}, using "${cleanTitle}" as the central theme. It is designed to help readers see the issue clearly, understand the underlying principles, and respond with wisdom, conviction, and Kingdom-minded action.`;
+}
+
 function autoFillMetadata(){
   const title=document.getElementById('title').value.trim();
   const content=document.getElementById('content_md').value.trim();
@@ -284,10 +321,8 @@ function autoFillMetadata(){
     document.getElementById('content_type').value='Briefing';
   }
 
-  if(!document.getElementById('summary').value.trim() && content){
-    const clean=content.replace(/\s+/g,' ').trim();
-    const sentences=clean.match(/[^.!?]+[.!?]+/g);
-    document.getElementById('summary').value=(sentences?sentences.slice(0,2).join(' '):clean.slice(0,260)).trim();
+  if(!document.getElementById('summary').value.trim() && (title || content)){
+    document.getElementById('summary').value = generateSmartSummary(title, content);
   }
 
   if(!document.getElementById('category').value){
@@ -311,7 +346,7 @@ function autoFillMetadata(){
 
   if(!document.getElementById('tags').value.trim()){
     const tags=[];
-    ['identity','dominion','faith','grace','mercy','truth','justice','kingdom','culture','leadership','prophecy','authority','purpose'].forEach(k=>{
+    ['identity','dominion','faith','grace','mercy','truth','justice','kingdom','culture','leadership','prophecy','authority','purpose','honor','accountability','discernment'].forEach(k=>{
       if(all.includes(k)) tags.push(k);
     });
     document.getElementById('tags').value=[...new Set(tags)].join(', ');

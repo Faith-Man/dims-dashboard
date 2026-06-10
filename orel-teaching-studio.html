@@ -5,23 +5,41 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OrEl Content Studio</title>
 <style>
-body{font-family:system-ui,Arial;margin:0;background:#eef5ff;color:#0b1733}
-header{background:#0C1475;color:white;padding:18px}
+:root{
+  --blue:#0C1475;
+  --gold:#FFD700;
+  --bg:#eef5ff;
+  --card:#ffffff;
+  --line:#c8d8ff;
+  --text:#0b1733;
+  --muted:#5b6b8d;
+}
+*{box-sizing:border-box}
+body{font-family:system-ui,Arial;margin:0;background:var(--bg);color:var(--text)}
+header{background:var(--blue);color:white;padding:18px}
 main{max-width:1200px;margin:0 auto;padding:16px}
 .grid{display:grid;grid-template-columns:340px 1fr;gap:14px}
-.card{background:white;border:1px solid #c8d8ff;border-radius:14px;padding:14px}
-input,textarea,select{width:100%;padding:10px;margin:6px 0;border:1px solid #c8d8ff;border-radius:9px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+input,textarea,select{width:100%;padding:10px;margin:6px 0;border:1px solid var(--line);border-radius:9px}
 textarea{min-height:150px}
 #content_md{min-height:300px}
-button{background:#0C1475;color:white;border:0;border-radius:10px;padding:10px 14px;margin:4px;cursor:pointer}
-button:hover{outline:2px solid #FFD700}
-.item{padding:10px;border-bottom:1px solid #ddd;cursor:pointer}
+button{background:var(--blue);color:white;border:0;border-radius:10px;padding:10px 14px;margin:4px;cursor:pointer}
+button:hover{outline:2px solid var(--gold)}
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.dropdown{position:relative;display:inline-block}
+.dropdown-content{display:none;position:absolute;background:white;border:1px solid var(--line);border-radius:10px;min-width:180px;z-index:10;box-shadow:0 6px 16px rgba(0,0,0,.12)}
+.dropdown-content button{display:block;width:100%;text-align:left;background:white;color:var(--text);border-radius:0;margin:0}
+.dropdown-content button:hover{background:#f4f8ff;outline:none}
+.dropdown:hover .dropdown-content{display:block}
+.item{padding:12px;border-bottom:1px solid #ddd;cursor:pointer}
 .item:hover{background:#f4f8ff}
-.small{color:#5b6b8d;font-size:.9rem}
-.preview{background:#fff;border:1px solid #c8d8ff;border-radius:14px;padding:18px;margin-top:14px;display:none;white-space:pre-wrap;line-height:1.55}
+.item-type{font-weight:700;color:var(--blue);display:block;margin-bottom:4px}
+.item-title{font-weight:700;display:block}
+.small{color:var(--muted);font-size:.9rem}
+.preview{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:14px;display:none;white-space:pre-wrap;line-height:1.55}
 @media(max-width:800px){.grid{grid-template-columns:1fr}}
 @media print{
-  header,.grid .card:first-child,button,input,select,textarea,#msg{display:none!important}
+  header,.grid .card:first-child,.toolbar,input,select,textarea,#msg{display:none!important}
   body{background:white}
   .preview{display:block!important;border:0}
 }
@@ -30,11 +48,12 @@ button:hover{outline:2px solid #FFD700}
 <body>
 <header>
 <h1>💡 OrEl Content Studio</h1>
-<div>DIMS-v3 • Create, edit, classify, review, print, and export Dominion1st content</div>
+<div>DIMS-v3 • Dominion1st Content Management System</div>
 </header>
 
 <main>
 <div class="grid">
+
 <section class="card">
 <h2>📚 Content Library</h2>
 <input id="search" placeholder="Search content...">
@@ -55,10 +74,10 @@ button:hover{outline:2px solid #FFD700}
 
 <select id="content_type">
 <option value="Teaching">📖 Teaching</option>
-<option value="Diagnosis">🔍 Diagnosis</option>
-<option value="Perspective">🔥 Perspective</option>
-<option value="Principle">🏛 Principle</option>
-<option value="Briefing">📰 Briefing</option>
+<option value="Diagnosis">🩺 Diagnosis</option>
+<option value="Perspective">👁️ Perspective</option>
+<option value="Principle">🏛️ Principle</option>
+<option value="Briefing">🎙️ Briefing</option>
 </select>
 
 <select id="category">
@@ -78,23 +97,38 @@ button:hover{outline:2px solid #FFD700}
 
 <input id="series" placeholder="Series Name">
 <input id="tags" placeholder="tags separated by commas">
-
-<textarea id="summary" placeholder="Summary (50-150 words)"></textarea>
+<textarea id="summary" placeholder="Executive Summary (optional)"></textarea>
 <textarea id="content_md" placeholder="Write content here..."></textarea>
 
+<div class="toolbar">
 <button onclick="newTeaching()">New</button>
-<button onclick="autoFillMetadata()">✨ Auto-Fill Metadata</button>
-<button onclick="saveTeaching('draft')">Save Draft</button>
-<button onclick="saveTeaching('published')">Publish</button>
-<button onclick="archiveTeaching()">Archive</button>
+<button onclick="saveTeaching('draft')">💾 Save</button>
+<button onclick="saveTeaching('published')">🚀 Publish</button>
 <button onclick="previewContent()">👁 Preview</button>
 <button onclick="printContent()">🖨 Print</button>
-<button onclick="exportMarkdown()">⬇ Export MD</button>
-<button onclick="exportJSON()">⬇ Export JSON</button>
-<button onclick="exportHTML()">⬇ Export HTML</button>
+
+<div class="dropdown">
+<button>📤 Export ▼</button>
+<div class="dropdown-content">
+<button onclick="exportMarkdown()">📄 Markdown</button>
+<button onclick="exportJSON()">📋 JSON</button>
+<button onclick="exportHTML()">🌐 HTML</button>
+</div>
+</div>
+
+<div class="dropdown">
+<button>⋮ More ▼</button>
+<div class="dropdown-content">
+<button onclick="archiveTeaching()">📦 Archive</button>
+<button onclick="duplicateTeaching()">📑 Duplicate</button>
+<button onclick="deleteTeaching()">🗑 Delete</button>
+</div>
+</div>
+</div>
 
 <p id="msg" class="small"></p>
 <div id="preview" class="preview"></div>
+
 </section>
 </div>
 </main>
@@ -113,7 +147,8 @@ let currentId = null;
 window.newTeaching = newTeaching;
 window.saveTeaching = saveTeaching;
 window.archiveTeaching = archiveTeaching;
-window.autoFillMetadata = autoFillMetadata;
+window.deleteTeaching = deleteTeaching;
+window.duplicateTeaching = duplicateTeaching;
 window.previewContent = previewContent;
 window.printContent = printContent;
 window.exportMarkdown = exportMarkdown;
@@ -121,7 +156,7 @@ window.exportJSON = exportJSON;
 window.exportHTML = exportHTML;
 
 function slugify(s){
-  return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
 }
 
 function esc(s){
@@ -129,10 +164,10 @@ function esc(s){
 }
 
 function typeIcon(type){
-  if(type === 'Diagnosis') return '🔍';
-  if(type === 'Perspective') return '🔥';
-  if(type === 'Principle') return '🏛';
-  if(type === 'Briefing') return '📰';
+  if(type === 'Diagnosis') return '🩺';
+  if(type === 'Perspective') return '👁️';
+  if(type === 'Principle') return '🏛️';
+  if(type === 'Briefing') return '🎙️';
   return '📖';
 }
 
@@ -168,11 +203,13 @@ async function loadTeachings(){
 
 function renderList(){
   const q=document.getElementById('search').value.toLowerCase().trim();
+
   const filtered=teachings.filter(t=>{
     const text=[
       t.title,t.status,t.content_type,t.category,t.series,t.summary,
       ...(t.tags||[]),t.content_md
     ].join(' ').toLowerCase();
+
     return !q || text.includes(q);
   });
 
@@ -183,7 +220,8 @@ function renderList(){
 
   document.getElementById('list').innerHTML=filtered.map(t=>`
     <div class="item" data-id="${esc(t.id)}">
-      <strong>${typeIcon(t.content_type)} ${esc(t.content_type||'Teaching')} — ${esc(t.title||'Untitled')}</strong><br>
+      <span class="item-type">${typeIcon(t.content_type)} ${esc(t.content_type||'Teaching')}</span>
+      <span class="item-title">${esc(t.title||'Untitled')}</span>
       <span class="small">${esc(t.status||'draft')} · ${esc(t.category||'Uncategorized')} · ${esc(t.series||'Standalone')}</span>
     </div>
   `).join('');
@@ -230,9 +268,20 @@ function autoFillMetadata(){
   const title=document.getElementById('title').value.trim();
   const content=document.getElementById('content_md').value.trim();
   const all=(title+' '+content).toLowerCase();
+  const titleUpper=title.toUpperCase();
 
   if(title && !document.getElementById('slug').value.trim()){
     document.getElementById('slug').value=slugify(title);
+  }
+
+  if(titleUpper.includes('DIAGNOSIS')){
+    document.getElementById('content_type').value='Diagnosis';
+  } else if(titleUpper.includes('PERSPECTIVE')){
+    document.getElementById('content_type').value='Perspective';
+  } else if(titleUpper.includes('PRINCIPLE')){
+    document.getElementById('content_type').value='Principle';
+  } else if(titleUpper.includes('BRIEF')){
+    document.getElementById('content_type').value='Briefing';
   }
 
   if(!document.getElementById('summary').value.trim() && content){
@@ -267,11 +316,11 @@ function autoFillMetadata(){
     });
     document.getElementById('tags').value=[...new Set(tags)].join(', ');
   }
-
-  document.getElementById('msg').textContent='Metadata auto-filled ✅';
 }
 
 async function saveTeaching(forceStatus){
+  autoFillMetadata();
+
   const d=getEditorData();
   const title=d.title;
   const slug=d.slug || slugify(title);
@@ -325,10 +374,46 @@ async function archiveTeaching(){
   await saveTeaching('archived');
 }
 
+async function deleteTeaching(){
+  if(!currentId){
+    document.getElementById('msg').textContent='No content selected.';
+    return;
+  }
+
+  if(!confirm('Delete this content? This cannot be undone.')) return;
+
+  const {error}=await supabase.from('teachings').delete().eq('id',currentId);
+
+  if(error){
+    document.getElementById('msg').textContent='Error: '+error.message;
+    return;
+  }
+
+  newTeaching();
+  document.getElementById('msg').textContent='Deleted.';
+  await loadTeachings();
+}
+
+function duplicateTeaching(){
+  const d=getEditorData();
+
+  if(!d.title){
+    document.getElementById('msg').textContent='Load or create content before duplicating.';
+    return;
+  }
+
+  currentId=null;
+  const newTitle=d.title + ' (Copy)';
+  document.getElementById('title').value=newTitle;
+  document.getElementById('slug').value=slugify(newTitle);
+  document.getElementById('status').value='draft';
+  document.getElementById('msg').textContent='Duplicated as draft. Save when ready.';
+}
+
 function previewContent(){
   const d=getEditorData();
   const html=`<h1>${esc(d.title||'Untitled')}</h1>
-<p><strong>${esc(d.content_type)}</strong> · ${esc(d.category||'Uncategorized')} · ${esc(d.series||'Standalone')}</p>
+<p><strong>${typeIcon(d.content_type)} ${esc(d.content_type)}</strong> · ${esc(d.category||'Uncategorized')} · ${esc(d.series||'Standalone')}</p>
 <p><em>${esc(d.summary||'')}</em></p>
 <hr>
 <div>${esc(d.content_md||'').replace(/\n/g,'<br>')}</div>`;
@@ -353,6 +438,7 @@ function download(filename,text,type){
 
 function exportMarkdown(){
   const d=getEditorData();
+  const name=d.slug||slugify(d.title)||'content';
   const md=`# ${d.title}
 
 **Type:** ${d.content_type}  
@@ -361,31 +447,33 @@ function exportMarkdown(){
 **Status:** ${d.status}  
 **Tags:** ${d.tags.join(', ')}
 
-## Summary
+## Executive Summary
 
 ${d.summary}
 
 ---
 
 ${d.content_md}`;
-  download((d.slug||slugify(d.title)||'content')+'.md',md,'text/markdown');
+  download(name+'.md',md,'text/markdown');
 }
 
 function exportJSON(){
   const d=getEditorData();
-  download((d.slug||slugify(d.title)||'content')+'.json',JSON.stringify(d,null,2),'application/json');
+  const name=d.slug||slugify(d.title)||'content';
+  download(name+'.json',JSON.stringify(d,null,2),'application/json');
 }
 
 function exportHTML(){
   const d=getEditorData();
+  const name=d.slug||slugify(d.title)||'content';
   const html=`<!doctype html><html><head><meta charset="utf-8"><title>${esc(d.title)}</title></head><body>
 <h1>${esc(d.title)}</h1>
-<p><strong>${esc(d.content_type)}</strong> · ${esc(d.category)} · ${esc(d.series)}</p>
+<p><strong>${typeIcon(d.content_type)} ${esc(d.content_type)}</strong> · ${esc(d.category)} · ${esc(d.series)}</p>
 <p><em>${esc(d.summary)}</em></p>
 <hr>
 <div>${esc(d.content_md).replace(/\n/g,'<br>')}</div>
 </body></html>`;
-  download((d.slug||slugify(d.title)||'content')+'.html',html,'text/html');
+  download(name+'.html',html,'text/html');
 }
 
 document.getElementById('title').addEventListener('input',()=>{

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OrEl Teaching Studio</title>
+<style>
+body{font-family:system-ui,Arial;margin:0;background:#eef5ff;color:#0b1733}
+header{background:#0C1475;color:white;padding:18px}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.grid{display:grid;grid-template-columns:330px 1fr;gap:14px}
+.card{background:white;border:1px solid #c8d8ff;border-radius:14px;padding:14px}
+input,textarea,select{width:100%;padding:10px;margin:6px 0;border:1px solid #c8d8ff;border-radius:9px}
+textarea{min-height:260px}
+button{background:#0C1475;color:white;border:0;border-radius:10px;padding:10px 14px;margin:4px;cursor:pointer}
+button:hover{outline:2px solid #FFD700}
+.item{padding:10px;border-bottom:1px solid #ddd;cursor:pointer}
+.item:hover{background:#f4f8ff}
+.small{color:#5b6b8d;font-size:.9rem}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<h1>💡 OrEl Teaching Studio</h1>
+<div>DIMS-v3 • Create, edit, and publish teachings</div>
+</header>
+
+<main>
+<div class="grid">
+<section class="card">
+<h2>📚 Teachings</h2>
+<input id="search" placeholder="Search teachings...">
+<div id="list">Loading...</div>
+</section>
+
+<section class="card">
+<h2>✍ Teaching Editor</h2>
+
+<input id="title" placeholder="Teaching Title">
+<input id="slug" placeholder="slug-auto-created">
+
+<select id="status">
+<option value="draft">Draft</option>
+<option value="published">Published</option>
+<option value="open">Open</option>
+<option value="in_progress">In Progress</option>
+<option value="closed">Closed</option>
+</select>
+
+<select id="priority">
+<option value="high">👑 High</option>
+<option value="medium">🛡 Medium</option>
+<option value="low">🗡 Low</option>
+</select>
+
+<input id="tags" placeholder="tags separated by commas">
+
+<textarea id="content_md" placeholder="Write teaching content here..."></textarea>
+
+<button onclick="newTeaching()">New</button>
+<button onclick="saveTeaching('draft')">Save Draft</button>
+<button onclick="saveTeaching('published')">Publish</button>
+<button onclick="deleteTeaching()">Delete</button>
+
+<p id="msg" class="small"></p>
+</section>
+</div>
+</main>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const supabase = createClient(
+  'https://sdquzhsylqpbhrmqjqgk.supabase.co',
+  'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How'
+);
+
+let teachings = [];
+let currentId = null;
+
+window.newTeaching = newTeaching;
+window.saveTeaching = saveTeaching;
+window.deleteTeaching = deleteTeaching;
+
+function slugify(s){
+  return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+}
+
+function esc(s){
+  return String(s ?? '').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+async function loadTeachings(){
+  const {data,error}=await supabase
+    .from('teachings')
+    .select('*')
+    .order('updated_at',{ascending:false});
+
+  if(error){
+    document.getElementById('list').textContent='Error: '+error.message;
+    return;
+  }
+
+  teachings=data||[];
+  renderList();
+}
+
+function renderList(){
+  const q=document.getElementById('search').value.toLowerCase().trim();
+  const filtered=teachings.filter(t=>{
+    const text=[t.title,t.status,t.priority,...(t.tags||[]),t.content_md].join(' ').toLowerCase();
+    return !q || text.includes(q);
+  });
+
+  if(!filtered.length){
+    document.getElementById('list').innerHTML='<div class="small">No teachings found.</div>';
+    return;
+  }
+
+  document.getElementById('list').innerHTML=filtered.map(t=>`
+    <div class="item" data-id="${esc(t.id)}">
+      <strong>${esc(t.title)}</strong><br>
+      <span class="small">${esc(t.status||'')} · ${esc(t.priority||'')} · ${(t.tags||[]).join(', ')}</span>
+    </div>
+  `).join('');
+
+  document.querySelectorAll('.item').forEach(el=>{
+    el.onclick=()=>{
+      const t=teachings.find(x=>String(x.id)===el.dataset.id);
+      fillEditor(t);
+    };
+  });
+}
+
+function fillEditor(t){
+  currentId=t.id;
+  document.getElementById('title').value=t.title||'';
+  document.getElementById('slug').value=t.slug||t.id||'';
+  document.getElementById('status').value=t.status||'draft';
+  document.getElementById('priority').value=t.priority||'high';
+  document.getElementById('tags').value=(t.tags||[]).join(', ');
+  document.getElementById('content_md').value=t.content_md||'';
+  document.getElementById('msg').textContent='Loaded.';
+}
+
+function newTeaching(){
+  currentId=null;
+  document.getElementById('title').value='';
+  document.getElementById('slug').value='';
+  document.getElementById('status').value='draft';
+  document.getElementById('priority').value='high';
+  document.getElementById('tags').value='';
+  document.getElementById('content_md').value='';
+  document.getElementById('msg').textContent='New teaching.';
+}
+
+async function saveTeaching(forceStatus){
+  const title=document.getElementById('title').value.trim();
+  const slug=document.getElementById('slug').value.trim() || slugify(title);
+  const status=forceStatus || document.getElementById('status').value;
+  const priority=document.getElementById('priority').value;
+  const tags=document.getElementById('tags').value.split(',').map(x=>x.trim()).filter(Boolean);
+  const content_md=document.getElementById('content_md').value;
+
+  if(!title){
+    document.getElementById('msg').textContent='Title is required.';
+    return;
+  }
+
+  const row={
+    id: currentId || slug,
+    slug,
+    title,
+    status,
+    priority,
+    tags,
+    content_md,
+    updated_at:new Date().toISOString()
+  };
+
+  document.getElementById('msg').textContent='Saving...';
+
+  const {error}=await supabase
+    .from('teachings')
+    .upsert(row,{onConflict:'id'});
+
+  if(error){
+    document.getElementById('msg').textContent='Error: '+error.message;
+    return;
+  }
+
+  currentId=row.id;
+  document.getElementById('slug').value=slug;
+  document.getElementById('status').value=status;
+  document.getElementById('msg').textContent=status==='published'?'Published ✅':'Saved ✅';
+  await loadTeachings();
+}
+
+async function deleteTeaching(){
+  if(!currentId){
+    document.getElementById('msg').textContent='No teaching selected.';
+    return;
+  }
+
+  if(!confirm('Delete this teaching?')) return;
+
+  const {error}=await supabase.from('teachings').delete().eq('id',currentId);
+
+  if(error){
+    document.getElementById('msg').textContent='Error: '+error.message;
+    return;
+  }
+
+  newTeaching();
+  document.getElementById('msg').textContent='Deleted.';
+  await loadTeachings();
+}
+
+document.getElementById('title').addEventListener('input',()=>{
+  const slug=document.getElementById('slug');
+  if(!slug.value.trim()) slug.value=slugify(document.getElementById('title').value);
+});
+
+document.getElementById('search').addEventListener('input',renderList);
+
+loadTeachings();
+</script>
+</body>
+</html>

@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>KUBERNĒSIS™ — DIMS-v3 Command Center</title>
+<title>KUBERNĒSIS™ — DIMS-v3 Mission Control</title>
 <style>
 :root{--blue:#0C1475;--gold:#FFD700;--bg:#eef5ff;--card:#fff;--line:#c8d8ff;--text:#0b1733;--muted:#5b6b8d}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text)}
-.wrap{max-width:1200px;margin:0 auto;padding:16px}
+.wrap{max-width:1250px;margin:0 auto;padding:16px}
 header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
 h1{margin:0;color:var(--blue)}
-.sub{color:var(--muted)}
-.grid{display:grid;grid-template-columns:340px 1fr;gap:14px}
+.sub,.small{color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:360px 1fr;gap:14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
 .card h2{margin:0 0 8px;color:var(--blue)}
 button,.btn{background:var(--blue);color:white;border:0;border-radius:10px;padding:9px 12px;cursor:pointer;text-decoration:none;display:inline-block;margin:4px 4px 4px 0}
@@ -25,9 +25,10 @@ textarea{min-height:120px}
 .row{border-bottom:1px solid var(--line);padding:10px;cursor:pointer}
 .row:hover{background:#f4f8ff}
 .reader{white-space:pre-wrap;line-height:1.5}
-.small{font-size:.9rem;color:var(--muted)}
 .pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#f7faff;border:1px solid var(--line);margin:3px}
-@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.progress{height:10px;background:#eef5ff;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.bar{height:100%;background:var(--blue)}
+@media(max-width:850px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 
@@ -54,6 +55,16 @@ textarea{min-height:120px}
 <div class="grid">
 
 <aside>
+  <section class="card">
+    <h2>👑 Current Resume Point</h2>
+    <div id="resumePoint">Loading...</div>
+  </section>
+
+  <section class="card">
+    <h2>📸 Latest Snapshot</h2>
+    <div id="latestSnapshot">Loading...</div>
+  </section>
+
   <section class="card">
     <h2>🌅 Daily Briefing</h2>
     <div id="briefing">Loading...</div>
@@ -82,8 +93,8 @@ textarea{min-height:120px}
   <table>
     <tbody>
       <tr><th>Current Phase</th><td>Phase 2 — KUBERNĒSIS Activation</td></tr>
-      <tr><th>Completed</th><td>OrEl Content Studio operational</td></tr>
-      <tr><th>Next Objective</th><td>Build Mission Control, snapshots, resume points, and reporting</td></tr>
+      <tr><th>Completed</th><td>OrEl Content Studio operational • Resume Engine initialized • Snapshot Engine initialized</td></tr>
+      <tr><th>Next Objective</th><td>Display live projects, tasks, snapshots, and reporting inside Mission Control</td></tr>
       <tr><th>Status</th><td>🟡 Active</td></tr>
     </tbody>
   </table>
@@ -100,6 +111,11 @@ textarea{min-height:120px}
 </section>
 
 <section class="card">
+  <h2>📂 Active Projects</h2>
+  <div id="projectsList">Loading...</div>
+</section>
+
+<section class="card">
   <h2>📊 Top Tasks</h2>
   <table>
     <thead>
@@ -110,18 +126,18 @@ textarea{min-height:120px}
 </section>
 
 <section class="card">
-  <h2>📜 Teachings Library</h2>
+  <h2>📜 Recent Teachings / Content</h2>
   <div id="teachingsList">Loading...</div>
 </section>
 
 <section class="card">
-  <h2>📖 Teaching Reader</h2>
-  <h3 id="readerTitle">Select a teaching</h3>
-  <div id="readerBody" class="reader small">Teaching content will appear here.</div>
+  <h2>📖 Content Reader</h2>
+  <h3 id="readerTitle">Select content</h3>
+  <div id="readerBody" class="reader small">Content will appear here.</div>
 </section>
 
 <section class="card">
-  <h2>✍ Create / Save Teaching</h2>
+  <h2>✍ Quick Save Teaching</h2>
   <input id="title" placeholder="Teaching Title">
   <input id="slug" placeholder="slug-auto-created">
   <select id="status">
@@ -153,15 +169,28 @@ window.saveTeaching = saveTeaching;
 
 const fallbackTasks = [
   {title:'KUBERNĒSIS Dashboard Activation',status:'In Progress',priority:'High',stream:'DIMS-v3'},
-  {title:'OrEl Content Studio Refinement',status:'In Progress',priority:'High',stream:'OrEl'},
-  {title:'Session Snapshot Engine',status:'Open',priority:'High',stream:'Vault Memory'},
+  {title:'Snapshot Engine',status:'In Progress',priority:'High',stream:'Vault Memory'},
   {title:'MARTUREŌ Reporting Layer',status:'Open',priority:'Medium',stream:'Reporting'}
 ];
 
+const fallbackProjects = [
+  {title:'DIMS-v3',status:'active',priority:'high',phase:'Phase 2',progress:35,next_action:'Build KUBERNĒSIS live panels'},
+  {title:'KUBERNĒSIS Mission Control',status:'active',priority:'high',phase:'Phase 2',progress:50,next_action:'Connect resume, snapshots, and projects'},
+  {title:'DivineID Assistant',status:'planning',priority:'high',phase:'Planning',progress:15,next_action:'Build memory architecture'}
+];
+
+function esc(s){
+  return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+function slugify(s){
+  return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+}
+
 function badgeStatus(s){
   const v=(s||'open').toLowerCase();
-  if(v.includes('progress')) return '🟡 In Progress';
-  if(v.includes('closed')) return '🔴 Closed';
+  if(v.includes('progress') || v.includes('active')) return '🟡 Active';
+  if(v.includes('closed') || v.includes('complete')) return '🔴 Closed';
   if(v.includes('draft')) return '⚪ Draft';
   if(v.includes('published')) return '🟣 Published';
   return '🟢 Open';
@@ -174,12 +203,59 @@ function badgePriority(p){
   return '🛡 Medium';
 }
 
-function esc(s){
-  return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function loadResumePoint(){
+  const box=document.getElementById('resumePoint');
+  const {data,error}=await supabase
+    .from('resume_points')
+    .select('*')
+    .eq('active',true)
+    .order('created_at',{ascending:false})
+    .limit(1);
+
+  const r=data?.[0];
+
+  if(error || !r){
+    box.innerHTML=`<div class="small">No active resume point found.</div>`;
+    return;
+  }
+
+  box.innerHTML=`
+    <strong>${esc(r.title)}</strong><br><br>
+    <span class="pill">${esc(r.current_phase||'No phase')}</span><br><br>
+    <strong>Focus:</strong><br>${esc(r.current_focus||'')}<br><br>
+    <strong>Next:</strong><br>${esc(r.next_step||'')}<br><br>
+    <span class="small">Created: ${esc(new Date(r.created_at).toLocaleString())}</span>
+  `;
 }
 
-function slugify(s){
-  return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+async function loadLatestSnapshot(){
+  const box=document.getElementById('latestSnapshot');
+  const {data,error}=await supabase
+    .from('system_snapshots')
+    .select('*')
+    .order('created_at',{ascending:false})
+    .limit(1);
+
+  const s=data?.[0];
+
+  if(error || !s){
+    box.innerHTML=`<div class="small">No system snapshot found.</div>`;
+    return;
+  }
+
+  let next='';
+  if(Array.isArray(s.next_actions)){
+    next='<ul>'+s.next_actions.map(x=>`<li>${esc(x)}</li>`).join('')+'</ul>';
+  }
+
+  box.innerHTML=`
+    <strong>${esc(s.title)}</strong><br>
+    <span class="pill">${esc(s.phase||'')}</span>
+    <span class="pill">${esc(s.status||'')}</span>
+    <p>${esc(s.summary||'')}</p>
+    ${next}
+    <span class="small">Created: ${esc(new Date(s.created_at).toLocaleString())}</span>
+  `;
 }
 
 async function loadBriefing(){
@@ -188,22 +264,40 @@ async function loadBriefing(){
 
   if(error || !b){
     document.getElementById('briefing').innerHTML =
-      `<strong>Prophetic Word:</strong><br>KUBERNĒSIS is now being activated as the operational dashboard for DIMS-v3.`;
+      `<strong>Prophetic Word:</strong><br>KUBERNĒSIS is active. DIMS-v3 is moving from content management into mission control.`;
     document.getElementById('worldIntel').innerHTML =
       `<li>DIMS-v3 build mode active.</li><li>OrEl phase completed and operational.</li>`;
     document.getElementById('bridgeIntel').innerHTML =
-      `<li>Bridge current OrEl functionality into KUBERNĒSIS Mission Control.</li>`;
+      `<li>Bridge OrEl, snapshots, projects, and reporting into one command center.</li>`;
     document.getElementById('personalIntel').innerHTML =
-      `Stay focused. Build forward. Preserve continuity through snapshots and resume points.`;
+      `Stay focused. Build forward. Preserve continuity through resume points and snapshots.`;
     return;
   }
 
   document.getElementById('briefing').innerHTML =
     `<strong>Logos:</strong><br>${esc(b.logos_word||'')}<br><br><strong>Rhema:</strong><br>${esc(b.rhema_word||'')}<br><br><strong>Directives:</strong><br>${esc(b.directives||'')}`;
-
   document.getElementById('worldIntel').innerHTML = `<li>${esc(b.world_intel||'')}</li>`;
   document.getElementById('bridgeIntel').innerHTML = `<li>${esc(b.bridge_intel||'')}</li>`;
   document.getElementById('personalIntel').innerHTML = esc(b.personal_intel||'');
+}
+
+async function loadProjects(){
+  const box=document.getElementById('projectsList');
+  const {data,error}=await supabase.from('projects').select('*').order('updated_at',{ascending:false}).limit(8);
+  const projects=(!error && data && data.length)?data:fallbackProjects;
+
+  box.innerHTML=projects.map(p=>{
+    const progress=Number(p.progress||0);
+    return `
+      <div class="row">
+        <strong>${esc(p.title||p.name)}</strong><br>
+        <span class="small">${badgeStatus(p.status)} · ${badgePriority(p.priority)} · ${esc(p.phase||'')}</span><br><br>
+        <div class="progress"><div class="bar" style="width:${Math.max(0,Math.min(100,progress))}%"></div></div>
+        <span class="small">${progress}% complete</span><br>
+        <strong class="small">Next:</strong> <span class="small">${esc(p.next_action||'')}</span>
+      </div>
+    `;
+  }).join('');
 }
 
 async function loadTasks(){
@@ -216,36 +310,36 @@ async function loadTasks(){
       <td>${esc(t.title||t.name)}</td>
       <td>${badgeStatus(t.status)}</td>
       <td>${badgePriority(t.priority)}</td>
-      <td>${esc(t.stream||'')}</td>
+      <td>${esc(t.stream||t.category||'')}</td>
     </tr>
   `).join('');
 }
 
 async function loadTeachings(){
-  const {data,error}=await supabase.from('teachings').select('*').order('updated_at',{ascending:false});
+  const {data,error}=await supabase.from('teachings').select('*').order('updated_at',{ascending:false}).limit(12);
   const box=document.getElementById('teachingsList');
 
   if(error){
-    box.innerHTML=`<span class="small">Error loading teachings: ${esc(error.message)}</span>`;
+    box.innerHTML=`<span class="small">Error loading content: ${esc(error.message)}</span>`;
     return;
   }
 
   if(!data || !data.length){
-    box.innerHTML=`<span class="small">No teachings saved yet.</span>`;
+    box.innerHTML=`<span class="small">No content saved yet.</span>`;
     return;
   }
 
   box.innerHTML=data.map(t=>`
     <div class="row" data-id="${esc(t.id)}">
       <strong>${esc(t.title)}</strong><br>
-      <span class="small">${badgeStatus(t.status)} · ${badgePriority(t.priority)} · ${(t.tags||[]).join(', ')}</span>
+      <span class="small">${esc(t.content_type||'Teaching')} · ${badgeStatus(t.status)} · ${badgePriority(t.priority)} · ${(t.tags||[]).join(', ')}</span>
     </div>
   `).join('');
 
   box.querySelectorAll('.row').forEach(row=>{
     row.onclick=()=>{
       const t=data.find(x=>String(x.id)===row.dataset.id);
-      document.getElementById('readerTitle').textContent=t?.title||'Teaching';
+      document.getElementById('readerTitle').textContent=t?.title||'Content';
       document.getElementById('readerBody').textContent=t?.content_md||'(No content)';
     };
   });
@@ -290,7 +384,14 @@ document.getElementById('title').addEventListener('input',()=>{
 });
 
 async function loadAll(){
-  await Promise.all([loadBriefing(),loadTasks(),loadTeachings()]);
+  await Promise.all([
+    loadResumePoint(),
+    loadLatestSnapshot(),
+    loadBriefing(),
+    loadProjects(),
+    loadTasks(),
+    loadTeachings()
+  ]);
 }
 
 loadAll();

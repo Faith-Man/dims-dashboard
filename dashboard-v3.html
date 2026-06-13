@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DIMS-v3 Command Center</title>
+<title>KUBERNĒSIS™ — DIMS-v3 Command Center</title>
 <style>
 :root{--blue:#0C1475;--gold:#FFD700;--bg:#eef5ff;--card:#fff;--line:#c8d8ff;--text:#0b1733;--muted:#5b6b8d}
 *{box-sizing:border-box}
@@ -15,7 +15,7 @@ h1{margin:0;color:var(--blue)}
 .grid{display:grid;grid-template-columns:340px 1fr;gap:14px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
 .card h2{margin:0 0 8px;color:var(--blue)}
-button,.btn{background:var(--blue);color:white;border:0;border-radius:10px;padding:9px 12px;cursor:pointer;text-decoration:none;display:inline-block}
+button,.btn{background:var(--blue);color:white;border:0;border-radius:10px;padding:9px 12px;cursor:pointer;text-decoration:none;display:inline-block;margin:4px 4px 4px 0}
 button:hover,.btn:hover{outline:2px solid var(--gold)}
 table{width:100%;border-collapse:collapse;background:white}
 th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}
@@ -26,81 +26,118 @@ textarea{min-height:120px}
 .row:hover{background:#f4f8ff}
 .reader{white-space:pre-wrap;line-height:1.5}
 .small{font-size:.9rem;color:var(--muted)}
+.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#f7faff;border:1px solid var(--line);margin:3px}
 @media(max-width:800px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
+
 <body>
 <div class="wrap">
+
 <header>
   <div>
-    <h1>👑 DIMS-v3 Command Center</h1>
-    <div class="sub">Dominion1st • Daily Briefing • Tasks • Teachings</div>
+    <h1>👑 KUBERNĒSIS™ Mission Control</h1>
+    <div class="sub">DIMS-v3 • Dominion1st Command Center</div>
   </div>
   <button onclick="loadAll()">🔄 Refresh</button>
 </header>
 
+<section class="card">
+  <h2>🧭 Command Navigation</h2>
+  <p class="small">DGC governs • DIMS manages • KUBERNĒSIS visualizes • OrEl creates</p>
+  <a class="btn" href="dashboard-v3.html">🧭 Dashboard</a>
+  <a class="btn" href="orel-teaching-studio.html">💡 OrEl Studio</a>
+  <a class="btn" href="teaching-library-v3.html">📚 Teaching Library</a>
+  <a class="btn" href="supabase-test.html">🧪 Supabase Test</a>
+</section>
+
 <div class="grid">
-  <aside>
-    <section class="card">
-      <h2>🌅 Daily Briefing</h2>
-      <div id="briefing">Loading...</div>
-    </section>
 
-    <section class="card">
-      <h2>🌍 World Intel</h2>
-      <ul id="worldIntel"></ul>
-    </section>
+<aside>
+  <section class="card">
+    <h2>🌅 Daily Briefing</h2>
+    <div id="briefing">Loading...</div>
+  </section>
 
-    <section class="card">
-      <h2>🔗 Bridge Intel</h2>
-      <ul id="bridgeIntel"></ul>
-    </section>
+  <section class="card">
+    <h2>🌍 World Intel</h2>
+    <ul id="worldIntel"></ul>
+  </section>
 
-    <section class="card">
-      <h2>🙌 Personal / Ministry Intel</h2>
-      <div id="personalIntel"></div>
-    </section>
-  </aside>
+  <section class="card">
+    <h2>🔗 Bridge Intel</h2>
+    <ul id="bridgeIntel"></ul>
+  </section>
 
-  <main>
-    <section class="card">
-      <h2>📊 Top Tasks</h2>
-      <table>
-        <thead>
-          <tr><th>#</th><th>Task</th><th>Status</th><th>Priority</th><th>Stream</th></tr>
-        </thead>
-        <tbody id="taskRows"></tbody>
-      </table>
-    </section>
+  <section class="card">
+    <h2>🙌 Personal / Ministry Intel</h2>
+    <div id="personalIntel"></div>
+  </section>
+</aside>
 
-    <section class="card">
-      <h2>📜 Teachings Library</h2>
-      <div id="teachingsList">Loading...</div>
-    </section>
+<main>
 
-    <section class="card">
-      <h2>📖 Teaching Reader</h2>
-      <h3 id="readerTitle">Select a teaching</h3>
-      <div id="readerBody" class="reader small">Teaching content will appear here.</div>
-    </section>
+<section class="card">
+  <h2>👑 Mission Control</h2>
+  <table>
+    <tbody>
+      <tr><th>Current Phase</th><td>Phase 2 — KUBERNĒSIS Activation</td></tr>
+      <tr><th>Completed</th><td>OrEl Content Studio operational</td></tr>
+      <tr><th>Next Objective</th><td>Build Mission Control, snapshots, resume points, and reporting</td></tr>
+      <tr><th>Status</th><td>🟡 Active</td></tr>
+    </tbody>
+  </table>
+</section>
 
-    <section class="card">
-      <h2>✍ Create / Save Teaching</h2>
-      <input id="title" placeholder="Teaching Title">
-      <input id="slug" placeholder="slug-auto-created">
-      <select id="status">
-        <option value="draft">Draft</option>
-        <option value="published">Published</option>
-        <option value="open">Open</option>
-        <option value="in_progress">In Progress</option>
-      </select>
-      <input id="priority" placeholder="priority: high, medium, low" value="high">
-      <input id="tags" placeholder="tags separated by commas">
-      <textarea id="content_md" placeholder="Teaching content..."></textarea>
-      <button onclick="saveTeaching()">💾 Save Teaching</button>
-      <span id="saveMsg" class="small"></span>
-    </section>
-  </main>
+<section class="card">
+  <h2>🏛️ Dominion1st Content Engines</h2>
+  <span class="pill">🏛️ Principle</span>
+  <span class="pill">👁️ Perspective</span>
+  <span class="pill">🩺 Diagnosis</span>
+  <span class="pill">📖 Teaching</span>
+  <span class="pill">🎙️ Briefing</span>
+  <span class="pill">🗣️ Prophecy</span>
+</section>
+
+<section class="card">
+  <h2>📊 Top Tasks</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Task</th><th>Status</th><th>Priority</th><th>Stream</th></tr>
+    </thead>
+    <tbody id="taskRows"></tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>📜 Teachings Library</h2>
+  <div id="teachingsList">Loading...</div>
+</section>
+
+<section class="card">
+  <h2>📖 Teaching Reader</h2>
+  <h3 id="readerTitle">Select a teaching</h3>
+  <div id="readerBody" class="reader small">Teaching content will appear here.</div>
+</section>
+
+<section class="card">
+  <h2>✍ Create / Save Teaching</h2>
+  <input id="title" placeholder="Teaching Title">
+  <input id="slug" placeholder="slug-auto-created">
+  <select id="status">
+    <option value="draft">Draft</option>
+    <option value="published">Published</option>
+    <option value="open">Open</option>
+    <option value="in_progress">In Progress</option>
+  </select>
+  <input id="priority" placeholder="priority: high, medium, low" value="high">
+  <input id="tags" placeholder="tags separated by commas">
+  <textarea id="content_md" placeholder="Teaching content..."></textarea>
+  <button onclick="saveTeaching()">💾 Save Teaching</button>
+  <span id="saveMsg" class="small"></span>
+</section>
+
+</main>
 </div>
 </div>
 
@@ -115,10 +152,10 @@ window.loadAll = loadAll;
 window.saveTeaching = saveTeaching;
 
 const fallbackTasks = [
-  {title:'Trademark Filing',status:'In Progress',priority:'High',stream:'Branding & Design'},
-  {title:'508(c)(1)(a) Setup',status:'Open',priority:'High',stream:'Projects & Tasks'},
-  {title:'IRS Crypto Taxes (2024)',status:'Open',priority:'High',stream:'Projects & Tasks'},
-  {title:'KuberNēsis Dashboard Refinement',status:'In Progress',priority:'High',stream:'Prophetic Systems'}
+  {title:'KUBERNĒSIS Dashboard Activation',status:'In Progress',priority:'High',stream:'DIMS-v3'},
+  {title:'OrEl Content Studio Refinement',status:'In Progress',priority:'High',stream:'OrEl'},
+  {title:'Session Snapshot Engine',status:'Open',priority:'High',stream:'Vault Memory'},
+  {title:'MARTUREŌ Reporting Layer',status:'Open',priority:'Medium',stream:'Reporting'}
 ];
 
 function badgeStatus(s){
@@ -129,14 +166,21 @@ function badgeStatus(s){
   if(v.includes('published')) return '🟣 Published';
   return '🟢 Open';
 }
+
 function badgePriority(p){
   const v=(p||'medium').toLowerCase();
   if(v==='high') return '👑 High';
   if(v==='low') return '🗡 Low';
   return '🛡 Medium';
 }
-function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function slugify(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')}
+
+function esc(s){
+  return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+function slugify(s){
+  return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+}
 
 async function loadBriefing(){
   const {data,error}=await supabase.from('briefings').select('*').order('briefing_date',{ascending:false}).limit(1);
@@ -144,18 +188,19 @@ async function loadBriefing(){
 
   if(error || !b){
     document.getElementById('briefing').innerHTML =
-      `<strong>Prophetic Word:</strong><br>I am turning resistance into runway. Step forward — doors are opening in sequence as you move.`;
+      `<strong>Prophetic Word:</strong><br>KUBERNĒSIS is now being activated as the operational dashboard for DIMS-v3.`;
     document.getElementById('worldIntel').innerHTML =
-      `<li>Global pressure rising; markets remain volatile.</li><li>AI acceleration reshapes work and communication.</li>`;
+      `<li>DIMS-v3 build mode active.</li><li>OrEl phase completed and operational.</li>`;
     document.getElementById('bridgeIntel').innerHTML =
-      `<li>Kingdom builders must translate truth clearly at the gates.</li>`;
+      `<li>Bridge current OrEl functionality into KUBERNĒSIS Mission Control.</li>`;
     document.getElementById('personalIntel').innerHTML =
-      `Move with measured boldness and decree increase.<br><em>“This is the victory that overcometh the world, even our faith.” — 1 John 5:4</em>`;
+      `Stay focused. Build forward. Preserve continuity through snapshots and resume points.`;
     return;
   }
 
   document.getElementById('briefing').innerHTML =
     `<strong>Logos:</strong><br>${esc(b.logos_word||'')}<br><br><strong>Rhema:</strong><br>${esc(b.rhema_word||'')}<br><br><strong>Directives:</strong><br>${esc(b.directives||'')}`;
+
   document.getElementById('worldIntel').innerHTML = `<li>${esc(b.world_intel||'')}</li>`;
   document.getElementById('bridgeIntel').innerHTML = `<li>${esc(b.bridge_intel||'')}</li>`;
   document.getElementById('personalIntel').innerHTML = esc(b.personal_intel||'');
@@ -214,7 +259,10 @@ async function saveTeaching(){
   const tags=document.getElementById('tags').value.split(',').map(x=>x.trim()).filter(Boolean);
   const content_md=document.getElementById('content_md').value;
 
-  if(!title){document.getElementById('saveMsg').textContent=' Title required.';return;}
+  if(!title){
+    document.getElementById('saveMsg').textContent=' Title required.';
+    return;
+  }
 
   const row={
     id: slug,
@@ -241,11 +289,11 @@ document.getElementById('title').addEventListener('input',()=>{
   if(!slug.value.trim()) slug.value=slugify(document.getElementById('title').value);
 });
 
-loadAll();
-
 async function loadAll(){
   await Promise.all([loadBriefing(),loadTasks(),loadTeachings()]);
 }
+
+loadAll();
 </script>
 </body>
 </html>

@@ -22,7 +22,7 @@ th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-
 th{color:var(--blue);background:#f7faff}
 input,textarea,select{width:100%;padding:9px;border:1px solid var(--line);border-radius:9px;margin:5px 0}
 textarea{min-height:120px}
-.row{border-bottom:1px solid var(--line);padding:10px;cursor:pointer}
+.row{border-bottom:1px solid var(--line);padding:10px}
 .row:hover{background:#f4f8ff}
 .reader{white-space:pre-wrap;line-height:1.5}
 .pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#f7faff;border:1px solid var(--line);margin:3px}
@@ -55,6 +55,7 @@ textarea{min-height:120px}
 <aside>
   <section class="card"><h2>👑 Current Resume Point</h2><div id="resumePoint">Loading...</div></section>
   <section class="card"><h2>📸 Latest Snapshot</h2><div id="latestSnapshot">Loading...</div></section>
+  <section class="card"><h2>🏛 Architecture Decisions</h2><div id="architectureDecisions">Loading...</div></section>
   <section class="card"><h2>🌅 Daily Briefing</h2><div id="briefing">Loading...</div></section>
   <section class="card"><h2>🌍 World Intel</h2><ul id="worldIntel"></ul></section>
   <section class="card"><h2>🔗 Bridge Intel</h2><ul id="bridgeIntel"></ul></section>
@@ -68,8 +69,8 @@ textarea{min-height:120px}
   <table>
     <tbody>
       <tr><th>Current Phase</th><td>Phase 2 — KUBERNĒSIS Activation</td></tr>
-      <tr><th>Completed</th><td>OrEl operational • Resume Engine initialized • Snapshot Engine initialized • Project/Task Engine seeded</td></tr>
-      <tr><th>Next Objective</th><td>Connect MARTUREŌ and DDBB engines</td></tr>
+      <tr><th>Completed</th><td>OrEl operational • Resume Engine • Snapshot Engine • Project Engine • Task Engine • Architecture Memory</td></tr>
+      <tr><th>Next Objective</th><td>Build MARTUREŌ Reporting Engine</td></tr>
       <tr><th>Status</th><td>🟡 Active</td></tr>
     </tbody>
   </table>
@@ -186,6 +187,19 @@ async function loadLatestSnapshot(){
   `;
 }
 
+async function loadArchitectureDecisions(){
+  const box=document.getElementById('architectureDecisions');
+  const {data,error}=await supabase.from('architecture_decisions').select('*').order('created_at',{ascending:false}).limit(5);
+  if(error){box.innerHTML=`<div class="small">Decision error: ${esc(error.message)}</div>`;return;}
+  if(!data?.length){box.innerHTML=`<div class="small">No decisions found.</div>`;return;}
+  box.innerHTML=data.map(d=>`
+    <div class="row">
+      <strong>${esc(d.title)}</strong><br>
+      <span class="small">${esc(d.decision)}</span>
+    </div>
+  `).join('');
+}
+
 async function loadBriefing(){
   const {data,error}=await supabase.from('briefings').select('*').order('briefing_date',{ascending:false}).limit(1);
   const b=data?.[0];
@@ -277,7 +291,15 @@ document.getElementById('title').addEventListener('input',()=>{
 });
 
 async function loadAll(){
-  await Promise.all([loadResumePoint(),loadLatestSnapshot(),loadBriefing(),loadProjects(),loadTasks(),loadTeachings()]);
+  await Promise.all([
+    loadResumePoint(),
+    loadLatestSnapshot(),
+    loadArchitectureDecisions(),
+    loadBriefing(),
+    loadProjects(),
+    loadTasks(),
+    loadTeachings()
+  ]);
 }
 
 loadAll();

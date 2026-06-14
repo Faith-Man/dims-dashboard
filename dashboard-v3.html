@@ -26,8 +26,6 @@ textarea{min-height:120px}
 .row:hover{background:#f4f8ff}
 .reader{white-space:pre-wrap;line-height:1.5}
 .pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#f7faff;border:1px solid var(--line);margin:3px}
-.progress{height:10px;background:#eef5ff;border:1px solid var(--line);border-radius:999px;overflow:hidden}
-.bar{height:100%;background:var(--blue)}
 @media(max-width:850px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -55,35 +53,12 @@ textarea{min-height:120px}
 <div class="grid">
 
 <aside>
-  <section class="card">
-    <h2>👑 Current Resume Point</h2>
-    <div id="resumePoint">Loading...</div>
-  </section>
-
-  <section class="card">
-    <h2>📸 Latest Snapshot</h2>
-    <div id="latestSnapshot">Loading...</div>
-  </section>
-
-  <section class="card">
-    <h2>🌅 Daily Briefing</h2>
-    <div id="briefing">Loading...</div>
-  </section>
-
-  <section class="card">
-    <h2>🌍 World Intel</h2>
-    <ul id="worldIntel"></ul>
-  </section>
-
-  <section class="card">
-    <h2>🔗 Bridge Intel</h2>
-    <ul id="bridgeIntel"></ul>
-  </section>
-
-  <section class="card">
-    <h2>🙌 Personal / Ministry Intel</h2>
-    <div id="personalIntel"></div>
-  </section>
+  <section class="card"><h2>👑 Current Resume Point</h2><div id="resumePoint">Loading...</div></section>
+  <section class="card"><h2>📸 Latest Snapshot</h2><div id="latestSnapshot">Loading...</div></section>
+  <section class="card"><h2>🌅 Daily Briefing</h2><div id="briefing">Loading...</div></section>
+  <section class="card"><h2>🌍 World Intel</h2><ul id="worldIntel"></ul></section>
+  <section class="card"><h2>🔗 Bridge Intel</h2><ul id="bridgeIntel"></ul></section>
+  <section class="card"><h2>🙌 Personal / Ministry Intel</h2><div id="personalIntel"></div></section>
 </aside>
 
 <main>
@@ -93,8 +68,8 @@ textarea{min-height:120px}
   <table>
     <tbody>
       <tr><th>Current Phase</th><td>Phase 2 — KUBERNĒSIS Activation</td></tr>
-      <tr><th>Completed</th><td>OrEl Content Studio operational • Resume Engine initialized • Snapshot Engine initialized</td></tr>
-      <tr><th>Next Objective</th><td>Display live projects, tasks, snapshots, and reporting inside Mission Control</td></tr>
+      <tr><th>Completed</th><td>OrEl operational • Resume Engine initialized • Snapshot Engine initialized • Project/Task Engine seeded</td></tr>
+      <tr><th>Next Objective</th><td>Connect MARTUREŌ and DDBB engines</td></tr>
       <tr><th>Status</th><td>🟡 Active</td></tr>
     </tbody>
   </table>
@@ -110,25 +85,17 @@ textarea{min-height:120px}
   <span class="pill">🗣️ Prophecy</span>
 </section>
 
-<section class="card">
-  <h2>📂 Active Projects</h2>
-  <div id="projectsList">Loading...</div>
-</section>
+<section class="card"><h2>📂 Active Projects</h2><div id="projectsList">Loading...</div></section>
 
 <section class="card">
   <h2>📊 Top Tasks</h2>
   <table>
-    <thead>
-      <tr><th>#</th><th>Task</th><th>Status</th><th>Priority</th><th>Stream</th></tr>
-    </thead>
+    <thead><tr><th>#</th><th>Task</th><th>Status</th><th>Priority</th><th>Notes</th></tr></thead>
     <tbody id="taskRows"></tbody>
   </table>
 </section>
 
-<section class="card">
-  <h2>📜 Recent Teachings / Content</h2>
-  <div id="teachingsList">Loading...</div>
-</section>
+<section class="card"><h2>📜 Recent Teachings / Content</h2><div id="teachingsList">Loading...</div></section>
 
 <section class="card">
   <h2>📖 Content Reader</h2>
@@ -167,35 +134,16 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 window.loadAll = loadAll;
 window.saveTeaching = saveTeaching;
 
-const fallbackTasks = [
-  {title:'KUBERNĒSIS Dashboard Activation',status:'In Progress',priority:'High',stream:'DIMS-v3'},
-  {title:'Snapshot Engine',status:'In Progress',priority:'High',stream:'Vault Memory'},
-  {title:'MARTUREŌ Reporting Layer',status:'Open',priority:'Medium',stream:'Reporting'}
-];
-
-const fallbackProjects = [
-  {title:'DIMS-v3',status:'active',priority:'high',phase:'Phase 2',progress:35,next_action:'Build KUBERNĒSIS live panels'},
-  {title:'KUBERNĒSIS Mission Control',status:'active',priority:'high',phase:'Phase 2',progress:50,next_action:'Connect resume, snapshots, and projects'},
-  {title:'DivineID Assistant',status:'planning',priority:'high',phase:'Planning',progress:15,next_action:'Build memory architecture'}
-];
-
-function esc(s){
-  return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-}
-
-function slugify(s){
-  return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
-}
-
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function slugify(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')}
 function badgeStatus(s){
   const v=(s||'open').toLowerCase();
-  if(v.includes('progress') || v.includes('active')) return '🟡 Active';
-  if(v.includes('closed') || v.includes('complete')) return '🔴 Closed';
+  if(v.includes('active')||v.includes('progress')) return '🟡 Active';
+  if(v.includes('closed')||v.includes('complete')) return '🔴 Closed';
   if(v.includes('draft')) return '⚪ Draft';
   if(v.includes('published')) return '🟣 Published';
   return '🟢 Open';
 }
-
 function badgePriority(p){
   const v=(p||'medium').toLowerCase();
   if(v==='high') return '👑 High';
@@ -205,20 +153,10 @@ function badgePriority(p){
 
 async function loadResumePoint(){
   const box=document.getElementById('resumePoint');
-  const {data,error}=await supabase
-    .from('resume_points')
-    .select('*')
-    .eq('active',true)
-    .order('created_at',{ascending:false})
-    .limit(1);
-
+  const {data,error}=await supabase.from('resume_points').select('*').order('created_at',{ascending:false}).limit(1);
+  if(error){box.innerHTML=`<div class="small">Resume error: ${esc(error.message)}</div>`;return;}
   const r=data?.[0];
-
-  if(error || !r){
-    box.innerHTML=`<div class="small">No active resume point found.</div>`;
-    return;
-  }
-
+  if(!r){box.innerHTML=`<div class="small">No resume point found.</div>`;return;}
   box.innerHTML=`
     <strong>${esc(r.title)}</strong><br><br>
     <span class="pill">${esc(r.current_phase||'No phase')}</span><br><br>
@@ -230,24 +168,14 @@ async function loadResumePoint(){
 
 async function loadLatestSnapshot(){
   const box=document.getElementById('latestSnapshot');
-  const {data,error}=await supabase
-    .from('system_snapshots')
-    .select('*')
-    .order('created_at',{ascending:false})
-    .limit(1);
-
+  const {data,error}=await supabase.from('system_snapshots').select('*').order('created_at',{ascending:false}).limit(1);
+  if(error){box.innerHTML=`<div class="small">Snapshot error: ${esc(error.message)}</div>`;return;}
   const s=data?.[0];
-
-  if(error || !s){
-    box.innerHTML=`<div class="small">No system snapshot found.</div>`;
-    return;
-  }
-
+  if(!s){box.innerHTML=`<div class="small">No system snapshot found.</div>`;return;}
   let next='';
   if(Array.isArray(s.next_actions)){
     next='<ul>'+s.next_actions.map(x=>`<li>${esc(x)}</li>`).join('')+'</ul>';
   }
-
   box.innerHTML=`
     <strong>${esc(s.title)}</strong><br>
     <span class="pill">${esc(s.phase||'')}</span>
@@ -261,81 +189,65 @@ async function loadLatestSnapshot(){
 async function loadBriefing(){
   const {data,error}=await supabase.from('briefings').select('*').order('briefing_date',{ascending:false}).limit(1);
   const b=data?.[0];
-
   if(error || !b){
-    document.getElementById('briefing').innerHTML =
-      `<strong>Prophetic Word:</strong><br>KUBERNĒSIS is active. DIMS-v3 is moving from content management into mission control.`;
-    document.getElementById('worldIntel').innerHTML =
-      `<li>DIMS-v3 build mode active.</li><li>OrEl phase completed and operational.</li>`;
-    document.getElementById('bridgeIntel').innerHTML =
-      `<li>Bridge OrEl, snapshots, projects, and reporting into one command center.</li>`;
-    document.getElementById('personalIntel').innerHTML =
-      `Stay focused. Build forward. Preserve continuity through resume points and snapshots.`;
+    document.getElementById('briefing').innerHTML=`<strong>Prophetic Word:</strong><br>KUBERNĒSIS is active. DIMS-v3 is moving from content management into mission control.`;
+    document.getElementById('worldIntel').innerHTML=`<li>DIMS-v3 build mode active.</li><li>OrEl phase completed and operational.</li>`;
+    document.getElementById('bridgeIntel').innerHTML=`<li>Bridge OrEl, snapshots, projects, and reporting into one command center.</li>`;
+    document.getElementById('personalIntel').innerHTML=`Stay focused. Build forward. Preserve continuity through resume points and snapshots.`;
     return;
   }
-
-  document.getElementById('briefing').innerHTML =
-    `<strong>Logos:</strong><br>${esc(b.logos_word||'')}<br><br><strong>Rhema:</strong><br>${esc(b.rhema_word||'')}<br><br><strong>Directives:</strong><br>${esc(b.directives||'')}`;
-  document.getElementById('worldIntel').innerHTML = `<li>${esc(b.world_intel||'')}</li>`;
-  document.getElementById('bridgeIntel').innerHTML = `<li>${esc(b.bridge_intel||'')}</li>`;
-  document.getElementById('personalIntel').innerHTML = esc(b.personal_intel||'');
+  document.getElementById('briefing').innerHTML=`<strong>Logos:</strong><br>${esc(b.logos_word||'')}<br><br><strong>Rhema:</strong><br>${esc(b.rhema_word||'')}<br><br><strong>Directives:</strong><br>${esc(b.directives||'')}`;
+  document.getElementById('worldIntel').innerHTML=`<li>${esc(b.world_intel||'')}</li>`;
+  document.getElementById('bridgeIntel').innerHTML=`<li>${esc(b.bridge_intel||'')}</li>`;
+  document.getElementById('personalIntel').innerHTML=esc(b.personal_intel||'');
 }
 
 async function loadProjects(){
   const box=document.getElementById('projectsList');
-  const {data,error}=await supabase.from('projects').select('*').order('updated_at',{ascending:false}).limit(8);
-  const projects=(!error && data && data.length)?data:fallbackProjects;
-
-  box.innerHTML=projects.map(p=>{
-    const progress=Number(p.progress||0);
-    return `
-      <div class="row">
-        <strong>${esc(p.title||p.name)}</strong><br>
-        <span class="small">${badgeStatus(p.status)} · ${badgePriority(p.priority)} · ${esc(p.phase||'')}</span><br><br>
-        <div class="progress"><div class="bar" style="width:${Math.max(0,Math.min(100,progress))}%"></div></div>
-        <span class="small">${progress}% complete</span><br>
-        <strong class="small">Next:</strong> <span class="small">${esc(p.next_action||'')}</span>
-      </div>
-    `;
-  }).join('');
+  const {data,error}=await supabase.from('projects').select('*').order('created_at',{ascending:false}).limit(10);
+  if(error){box.innerHTML=`<div class="small">Projects error: ${esc(error.message)}</div>`;return;}
+  if(!data?.length){box.innerHTML=`<div class="small">No projects found.</div>`;return;}
+  box.innerHTML=data.map(p=>`
+    <div class="row">
+      <strong>${esc(p.title)}</strong><br>
+      <span class="small">${badgeStatus(p.status)} · ${badgePriority(p.priority)} · ${esc(p.stream||'')}</span>
+      <p class="small">${esc(p.description||'')}</p>
+    </div>
+  `).join('');
 }
 
 async function loadTasks(){
   const {data,error}=await supabase.from('tasks').select('*').order('created_at',{ascending:false}).limit(10);
-  const tasks = (!error && data && data.length) ? data : fallbackTasks;
-
-  document.getElementById('taskRows').innerHTML = tasks.map((t,i)=>`
+  if(error){
+    document.getElementById('taskRows').innerHTML=`<tr><td colspan="5">Tasks error: ${esc(error.message)}</td></tr>`;
+    return;
+  }
+  if(!data?.length){
+    document.getElementById('taskRows').innerHTML=`<tr><td colspan="5">No tasks found.</td></tr>`;
+    return;
+  }
+  document.getElementById('taskRows').innerHTML=data.map((t,i)=>`
     <tr>
       <td>${i+1}</td>
-      <td>${esc(t.title||t.name)}</td>
+      <td>${esc(t.title)}</td>
       <td>${badgeStatus(t.status)}</td>
       <td>${badgePriority(t.priority)}</td>
-      <td>${esc(t.stream||t.category||'')}</td>
+      <td>${esc(t.notes||'')}</td>
     </tr>
   `).join('');
 }
 
 async function loadTeachings(){
-  const {data,error}=await supabase.from('teachings').select('*').order('updated_at',{ascending:false}).limit(12);
   const box=document.getElementById('teachingsList');
-
-  if(error){
-    box.innerHTML=`<span class="small">Error loading content: ${esc(error.message)}</span>`;
-    return;
-  }
-
-  if(!data || !data.length){
-    box.innerHTML=`<span class="small">No content saved yet.</span>`;
-    return;
-  }
-
+  const {data,error}=await supabase.from('teachings').select('*').order('updated_at',{ascending:false}).limit(12);
+  if(error){box.innerHTML=`<span class="small">Content error: ${esc(error.message)}</span>`;return;}
+  if(!data?.length){box.innerHTML=`<span class="small">No content saved yet.</span>`;return;}
   box.innerHTML=data.map(t=>`
     <div class="row" data-id="${esc(t.id)}">
       <strong>${esc(t.title)}</strong><br>
       <span class="small">${esc(t.content_type||'Teaching')} · ${badgeStatus(t.status)} · ${badgePriority(t.priority)} · ${(t.tags||[]).join(', ')}</span>
     </div>
   `).join('');
-
   box.querySelectorAll('.row').forEach(row=>{
     row.onclick=()=>{
       const t=data.find(x=>String(x.id)===row.dataset.id);
@@ -352,30 +264,11 @@ async function saveTeaching(){
   const priority=document.getElementById('priority').value.trim() || 'high';
   const tags=document.getElementById('tags').value.split(',').map(x=>x.trim()).filter(Boolean);
   const content_md=document.getElementById('content_md').value;
-
-  if(!title){
-    document.getElementById('saveMsg').textContent=' Title required.';
-    return;
-  }
-
-  const row={
-    id: slug,
-    slug,
-    title,
-    status,
-    priority,
-    tags,
-    content_md,
-    updated_at:new Date().toISOString()
-  };
-
+  if(!title){document.getElementById('saveMsg').textContent=' Title required.';return;}
+  const row={id:slug,slug,title,status,priority,tags,content_md,updated_at:new Date().toISOString()};
   const {error}=await supabase.from('teachings').upsert(row,{onConflict:'id'});
-  document.getElementById('saveMsg').textContent = error ? ` Error: ${error.message}` : ' Saved ✅';
-
-  if(!error){
-    document.getElementById('slug').value=slug;
-    await loadTeachings();
-  }
+  document.getElementById('saveMsg').textContent=error?` Error: ${error.message}`:' Saved ✅';
+  if(!error){document.getElementById('slug').value=slug;await loadTeachings();}
 }
 
 document.getElementById('title').addEventListener('input',()=>{
@@ -384,14 +277,7 @@ document.getElementById('title').addEventListener('input',()=>{
 });
 
 async function loadAll(){
-  await Promise.all([
-    loadResumePoint(),
-    loadLatestSnapshot(),
-    loadBriefing(),
-    loadProjects(),
-    loadTasks(),
-    loadTeachings()
-  ]);
+  await Promise.all([loadResumePoint(),loadLatestSnapshot(),loadBriefing(),loadProjects(),loadTasks(),loadTeachings()]);
 }
 
 loadAll();

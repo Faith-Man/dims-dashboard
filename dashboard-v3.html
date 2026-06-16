@@ -43,8 +43,11 @@ textarea{min-height:120px}
 
 <section class="card">
   <h2>🧭 Command Navigation</h2>
-  <p class="small">DGC governs • DIMS manages • KUBERNĒSIS visualizes • OrEl creates</p>
+  <p class="small">DGC governs • DIMS manages • KUBERNĒSIS visualizes • OrEl creates • VAULT remembers</p>
+
   <a class="btn" href="dashboard-v3.html">🧭 Dashboard</a>
+  <a class="btn" href="dims-blueprint.html">👑 Blueprint</a>
+  <a class="btn" href="vault-architecture.html">📚 VAULT</a>
   <a class="btn" href="orel-teaching-studio.html">💡 OrEl Studio</a>
   <a class="btn" href="teaching-library-v3.html">📚 Teaching Library</a>
   <a class="btn" href="supabase-test.html">🧪 Supabase Test</a>
@@ -68,22 +71,34 @@ textarea{min-height:120px}
   <h2>👑 Mission Control</h2>
   <table>
     <tbody>
-      <tr><th>Current Phase</th><td>Phase 2 — KUBERNĒSIS Activation</td></tr>
-      <tr><th>Completed</th><td>OrEl operational • Resume Engine • Snapshot Engine • Project Engine • Task Engine • Architecture Memory</td></tr>
-      <tr><th>Next Objective</th><td>Build MARTUREŌ Reporting Engine</td></tr>
+      <tr><th>Current Phase</th><td>Phase 3 — Blueprint + VAULT Architecture</td></tr>
+      <tr><th>Completed</th><td>OrEl operational • KUBERNĒSIS operational • DIMS Blueprint • VAULT Architecture • Resume Engine • Snapshot Engine • Project Engine • Task Engine</td></tr>
+      <tr><th>Next Objective</th><td>Connect DIMS-v3 engines into KUBERNĒSIS Dashboard v3.0</td></tr>
       <tr><th>Status</th><td>🟡 Active</td></tr>
     </tbody>
   </table>
 </section>
 
 <section class="card">
-  <h2>🏛️ Dominion1st Content Engines</h2>
-  <span class="pill">🏛️ Principle</span>
-  <span class="pill">👁️ Perspective</span>
-  <span class="pill">🩺 Diagnosis</span>
-  <span class="pill">📖 Teaching</span>
-  <span class="pill">🎙️ Briefing</span>
-  <span class="pill">🗣️ Prophecy</span>
+  <h2>🏛️ Dominion1st Engines</h2>
+  <span class="pill">⚖️ DGC</span>
+  <span class="pill">📊 DIMS</span>
+  <span class="pill">🧭 KUBERNĒSIS</span>
+  <span class="pill">⚓ ANCHOR</span>
+  <span class="pill">💨 NESHAMAH</span>
+  <span class="pill">🌅 DDBB</span>
+  <span class="pill">🛡️ Peace & Safety</span>
+  <span class="pill">🗣️ MARTUREŌ</span>
+  <span class="pill">📚 VAULT</span>
+  <span class="pill">💡 OrEl</span>
+  <span class="pill">🤖 DivineID</span>
+</section>
+
+<section class="card">
+  <h2>📚 Blueprint / VAULT Quick Access</h2>
+  <p class="small">Use these governing pages before major changes.</p>
+  <a class="btn" href="dims-blueprint.html">👑 Open DIMS Blueprint</a>
+  <a class="btn" href="vault-architecture.html">📚 Open VAULT Architecture</a>
 </section>
 
 <section class="card"><h2>📂 Active Projects</h2><div id="projectsList">Loading...</div></section>
@@ -204,10 +219,10 @@ async function loadBriefing(){
   const {data,error}=await supabase.from('briefings').select('*').order('briefing_date',{ascending:false}).limit(1);
   const b=data?.[0];
   if(error || !b){
-    document.getElementById('briefing').innerHTML=`<strong>Prophetic Word:</strong><br>KUBERNĒSIS is active. DIMS-v3 is moving from content management into mission control.`;
-    document.getElementById('worldIntel').innerHTML=`<li>DIMS-v3 build mode active.</li><li>OrEl phase completed and operational.</li>`;
-    document.getElementById('bridgeIntel').innerHTML=`<li>Bridge OrEl, snapshots, projects, and reporting into one command center.</li>`;
-    document.getElementById('personalIntel').innerHTML=`Stay focused. Build forward. Preserve continuity through resume points and snapshots.`;
+    document.getElementById('briefing').innerHTML=`<strong>Current DDBB:</strong><br>No live briefing loaded yet. DDBB engine pending integration.`;
+    document.getElementById('worldIntel').innerHTML=`<li>DDBB live intel pending.</li>`;
+    document.getElementById('bridgeIntel').innerHTML=`<li>DIMS-v3 Blueprint and VAULT Architecture are now created.</li>`;
+    document.getElementById('personalIntel').innerHTML=`Next focus: connect engines into KUBERNĒSIS Dashboard v3.0.`;
     return;
   }
   document.getElementById('briefing').innerHTML=`<strong>Logos:</strong><br>${esc(b.logos_word||'')}<br><br><strong>Rhema:</strong><br>${esc(b.rhema_word||'')}<br><br><strong>Directives:</strong><br>${esc(b.directives||'')}`;

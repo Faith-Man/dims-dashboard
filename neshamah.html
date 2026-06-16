@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NESHAMAH™ Engine — DIMS-v3</title>
+<style>
+:root{--blue:#0C1475;--gold:#FFD700;--bg:#eef5ff;--card:#fff;--line:#c8d8ff;--text:#0b1733;--muted:#5b6b8d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text)}
+.wrap{max-width:1200px;margin:0 auto;padding:18px}
+h1,h2,h3{color:var(--blue);margin-top:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:360px 1fr;gap:14px}
+.btn,button{background:var(--blue);color:white;text-decoration:none;border:0;border-radius:10px;padding:9px 12px;display:inline-block;margin:4px 4px 4px 0;cursor:pointer}
+.btn:hover,button:hover{outline:2px solid var(--gold)}
+.small{color:var(--muted);font-size:.9rem}
+.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#f7faff;border:1px solid var(--line);margin:3px}
+input,textarea,select{width:100%;padding:9px;border:1px solid var(--line);border-radius:9px;margin:5px 0}
+textarea{min-height:100px}
+.row{border-bottom:1px solid var(--line);padding:10px;cursor:pointer}
+.row:hover{background:#f4f8ff}
+.reader{white-space:pre-wrap;line-height:1.55}
+.section-title{font-weight:800;color:var(--blue);margin-top:12px}
+@media(max-width:850px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<header class="card">
+  <h1>💨 NESHAMAH™ Engine</h1>
+  <p class="small">DIMS-v3 • Prophetic Inspiration Engine • Job 32:8</p>
+  <a class="btn" href="dashboard-v3.html">🧭 KUBERNĒSIS Dashboard</a>
+  <a class="btn" href="dims-blueprint.html">👑 DIMS Blueprint</a>
+  <a class="btn" href="vault-architecture.html">📚 VAULT</a>
+  <a class="btn" href="orel-teaching-studio.html">💡 OrEl Studio</a>
+</header>
+
+<section class="card">
+  <h2>📖 Foundation</h2>
+  <p><strong>Job 32:8 (KJV)</strong></p>
+  <p>“But there is a spirit in man: and the inspiration of the Almighty giveth them understanding.”</p>
+  <p class="small">
+    NESHAMAH receives, discerns, illuminates, and releases divine understanding.
+    It is the successor to the original MARTUREŌ prophetic flow function.
+  </p>
+</section>
+
+<div class="grid">
+
+<aside>
+  <section class="card">
+    <h2>📜 NESHAMAH Records</h2>
+    <button onclick="loadRecords()">🔄 Refresh Records</button>
+    <div id="recordsList">Loading...</div>
+  </section>
+</aside>
+
+<main>
+
+<section class="card">
+  <h2>💨 Current NESHAMAH</h2>
+  <h3 id="readerTitle">Select a record</h3>
+  <div id="readerBody" class="reader small">NESHAMAH content will appear here.</div>
+</section>
+
+<section class="card">
+  <h2>✍ Create / Save NESHAMAH Record</h2>
+
+  <input id="title" placeholder="Title">
+
+  <input id="scripture_reference" placeholder="Scripture Reference e.g. Job 32:8">
+
+  <textarea id="logos_word" placeholder="Logos Word / Scripture emphasis"></textarea>
+
+  <textarea id="rhema_word" placeholder="Rhema Word / Now Word"></textarea>
+
+  <textarea id="understanding" placeholder="Understanding / Illumination"></textarea>
+
+  <textarea id="directives" placeholder="Action Directives"></textarea>
+
+  <textarea id="declaration" placeholder="Declaration / Decree"></textarea>
+
+  <select id="status">
+    <option value="active">Active</option>
+    <option value="draft">Draft</option>
+    <option value="archived">Archived</option>
+  </select>
+
+  <button onclick="saveNeshamah()">💾 Save NESHAMAH</button>
+  <button onclick="clearForm()">🧹 Clear</button>
+  <span id="saveMsg" class="small"></span>
+</section>
+
+<section class="card">
+  <h2>🧭 NESHAMAH Output Pattern</h2>
+  <span class="pill">Logos</span>
+  <span class="pill">Rhema</span>
+  <span class="pill">Understanding</span>
+  <span class="pill">Directives</span>
+  <span class="pill">Declaration</span>
+</section>
+
+</main>
+</div>
+
+<footer class="card small">
+  Dominion1st™ • NESHAMAH™ Engine • You Have Dominion 👑 • Jesus Is Lord ✝️
+</footer>
+
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://sdquzhsylqpbhrmqjqgk.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+window.loadRecords = loadRecords;
+window.saveNeshamah = saveNeshamah;
+window.clearForm = clearForm;
+
+function esc(s){
+  return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+function formatRecord(r){
+  return `
+SCRIPTURE REFERENCE
+${r.scripture_reference || ''}
+
+LOGOS WORD
+${r.logos_word || ''}
+
+RHEMA WORD
+${r.rhema_word || ''}
+
+UNDERSTANDING
+${r.understanding || ''}
+
+ACTION DIRECTIVES
+${r.directives || ''}
+
+DECLARATION
+${r.declaration || ''}
+`;
+}
+
+async function loadRecords(){
+  const box=document.getElementById('recordsList');
+
+  const {data,error}=await supabase
+    .from('neshamah_records')
+    .select('*')
+    .order('created_at',{ascending:false})
+    .limit(20);
+
+  if(error){
+    box.innerHTML=`<div class="small">Error: ${esc(error.message)}</div>`;
+    return;
+  }
+
+  if(!data || !data.length){
+    box.innerHTML=`<div class="small">No NESHAMAH records found.</div>`;
+    return;
+  }
+
+  box.innerHTML=data.map(r=>`
+    <div class="row" data-id="${esc(r.id)}">
+      <strong>${esc(r.title)}</strong><br>
+      <span class="small">${esc(r.scripture_reference||'')} · ${esc(r.status||'active')}</span>
+    </div>
+  `).join('');
+
+  box.querySelectorAll('.row').forEach(row=>{
+    row.onclick=()=>{
+      const r=data.find(x=>String(x.id)===row.dataset.id);
+      document.getElementById('readerTitle').textContent=r?.title || 'NESHAMAH Record';
+      document.getElementById('readerBody').textContent=formatRecord(r || {});
+      fillForm(r || {});
+    };
+  });
+}
+
+function fillForm(r){
+  document.getElementById('title').value=r.title || '';
+  document.getElementById('scripture_reference').value=r.scripture_reference || '';
+  document.getElementById('logos_word').value=r.logos_word || '';
+  document.getElementById('rhema_word').value=r.rhema_word || '';
+  document.getElementById('understanding').value=r.understanding || '';
+  document.getElementById('directives').value=r.directives || '';
+  document.getElementById('declaration').value=r.declaration || '';
+  document.getElementById('status').value=r.status || 'active';
+}
+
+function clearForm(){
+  document.getElementById('title').value='';
+  document.getElementById('scripture_reference').value='Job 32:8';
+  document.getElementById('logos_word').value='';
+  document.getElementById('rhema_word').value='';
+  document.getElementById('understanding').value='';
+  document.getElementById('directives').value='';
+  document.getElementById('declaration').value='';
+  document.getElementById('status').value='active';
+  document.getElementById('saveMsg').textContent='';
+}
+
+async function saveNeshamah(){
+  const row={
+    title:document.getElementById('title').value.trim(),
+    scripture_reference:document.getElementById('scripture_reference').value.trim(),
+    logos_word:document.getElementById('logos_word').value.trim(),
+    rhema_word:document.getElementById('rhema_word').value.trim(),
+    understanding:document.getElementById('understanding').value.trim(),
+    directives:document.getElementById('directives').value.trim(),
+    declaration:document.getElementById('declaration').value.trim(),
+    status:document.getElementById('status').value,
+    updated_at:new Date().toISOString()
+  };
+
+  if(!row.title){
+    document.getElementById('saveMsg').textContent=' Title required.';
+    return;
+  }
+
+  const {error}=await supabase.from('neshamah_records').insert(row);
+
+  document.getElementById('saveMsg').textContent=error ? ` Error: ${error.message}` : ' Saved ✅';
+
+  if(!error){
+    await loadRecords();
+  }
+}
+
+loadRecords();
+</script>
+</body>
+</html>

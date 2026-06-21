@@ -166,19 +166,43 @@ function badgePriority(p){
  if(v==='low') return '🗡 Low';
  return '🛡 Medium';
 }
+function formatDate(value){
+ if(!value) return '';
+ const d = new Date(value);
+ if(Number.isNaN(d.getTime())) return String(value);
+ return d.toLocaleString();
+}
+function shortId(value){
+ if(!value) return '';
+ const s = String(value);
+ return s.length > 12 ? s.slice(0,8) + '...' + s.slice(-4) : s;
+}
  
 async function loadResumePoint(){
  const box=document.getElementById('resumePoint');
- const {data,error}=await supabase.from('resume_points').select('*').order('created_at',{ascending:false}).limit(1);
+ const {data,error}=await supabase
+   .from('resume_points')
+   .select('*')
+   .eq('active', true)
+   .order('created_at',{ascending:false})
+   .limit(1);
+ 
  if(error){box.innerHTML=`<div class="small">Resume error: ${esc(error.message)}</div>`;return;}
  const r=data?.[0];
- if(!r){box.innerHTML=`<div class="small">No resume point found.</div>`;return;}
+ if(!r){box.innerHTML=`<div class="small">No active resume point found.</div>`;return;}
+ 
+ const snapshotLine = r.snapshot_id
+   ? `<strong>Snapshot:</strong><br><span class="small">${esc(shortId(r.snapshot_id))}</span><br><br>`
+   : '';
+ 
  box.innerHTML=`
    <strong>${esc(r.title)}</strong><br><br>
-   <span class="pill">${esc(r.current_phase||'No phase')}</span><br><br>
+   <span class="pill">${esc(r.current_phase||'No phase')}</span>
+   <span class="pill">${r.active ? 'active' : 'inactive'}</span><br><br>
    <strong>Focus:</strong><br>${esc(r.current_focus||'')}<br><br>
    <strong>Next:</strong><br>${esc(r.next_step||'')}<br><br>
-   <span class="small">Created: ${esc(new Date(r.created_at).toLocaleString())}</span>
+   ${snapshotLine}
+   <span class="small">Created: ${esc(formatDate(r.created_at))}</span>
  `;
 }
  
@@ -198,7 +222,7 @@ async function loadLatestSnapshot(){
    <span class="pill">${esc(s.status||'')}</span>
    <p>${esc(s.summary||'')}</p>
    ${next}
-   <span class="small">Created: ${esc(new Date(s.created_at).toLocaleString())}</span>
+   <span class="small">Created: ${esc(formatDate(s.created_at))}</span>
  `;
 }
  
@@ -336,4 +360,3 @@ loadAll();
 </script>
 </body>
 </html>
-

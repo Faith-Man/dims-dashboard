@@ -235,12 +235,19 @@ async function loadBriefing(){
  const b=data?.[0];
  if(error || !b){
 
-document.getElementById('briefing').innerHTML=`<strong>Current DDBB:</strong><br>No live briefing loaded yet. DDBB engine pending integration.`;
-   document.getElementById('worldIntel').innerHTML=`<li>DDBB live intel pending.</li>`;
-   document.getElementById('bridgeIntel').innerHTML=`<li>DIMS-v3 Blueprint and VAULT Architecture are now created.</li>`;
-   document.getElementById('personalIntel').innerHTML=`Next focus: connect engines into KUBERNĒSIS Dashboard v3.0.`;
-   return;
- }
+  if(error || !b){
+  document.getElementById('briefing').innerHTML=
+    `<strong>DEBUG:</strong><br>
+     Error: ${error ? error.message : 'No briefing returned'}<br>
+     Rows Found: ${data ? data.length : 0}`;
+
+  document.getElementById('worldIntel').innerHTML=`<li>Debug Mode</li>`;
+  document.getElementById('bridgeIntel').innerHTML=`<li>Debug Mode</li>`;
+  document.getElementById('personalIntel').innerHTML=`Debug Mode`;
+
+  return;
+}
+
  document.getElementById('briefing').innerHTML=`<strong>Logos:</strong><br>${esc(b.logos_word||'')}<br><br><strong>Rhema:</strong><br>${esc(b.rhema_word||'')}<br><br><strong>Directives:</strong><br>${esc(b.directives||'')}`;
  document.getElementById('worldIntel').innerHTML=`<li>${esc(b.world_intel||'')}</li>`;
  document.getElementById('bridgeIntel').innerHTML=`<li>${esc(b.bridge_intel||'')}</li>`;

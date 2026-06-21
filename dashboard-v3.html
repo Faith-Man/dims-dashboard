@@ -234,7 +234,9 @@ async function loadBriefing(){
  const {data,error}=await supabase.from('briefings').select('*').order('briefing_date',{ascending:false}).limit(1);
  const b=data?.[0];
  if(error || !b){
-   document.getElementById('briefing').innerHTML=`<strong>Current DDBB:</strong><br>No live briefing loaded yet. DDBB engine pending integration.`;
+   
+document.getElementById('briefing').innerHTML=
+`TESTING KUB-0002`;
    document.getElementById('worldIntel').innerHTML=`<li>DDBB live intel pending.</li>`;
    document.getElementById('bridgeIntel').innerHTML=`<li>DIMS-v3 Blueprint and VAULT Architecture are now created.</li>`;
    document.getElementById('personalIntel').innerHTML=`Next focus: connect engines into KUBERNĒSIS Dashboard v3.0.`;

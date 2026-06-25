@@ -1,0 +1,17 @@
+{
+  "id": "e5f2ec9a-faa2-4790-8d1a-15c33bde7f40",
+  "asset_code": "SQL-0010",
+  "asset_name": "Create sync_log Table",
+  "asset_type": "SQL",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "Create sync_log Table",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Database",
+  "description": "Synchronization logging table.",
+  "notes": null,
+  "created_at": "2026-06-25T07:44:11.415529+00:00",
+  "updated_at": "2026-06-25T07:44:11.415529+00:00"
+}

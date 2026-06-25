@@ -1,0 +1,17 @@
+{
+  "id": "307c4b93-a727-474a-a142-5ba16128bf95",
+  "asset_code": "SNP-0002",
+  "asset_name": "Post DEC Baseline",
+  "asset_type": "Snapshot",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "Post DEC Baseline",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Governance",
+  "description": "Governance baseline after DEC adoption",
+  "notes": null,
+  "created_at": "2026-06-20T10:30:39.902132+00:00",
+  "updated_at": "2026-06-20T10:30:39.902132+00:00"
+}

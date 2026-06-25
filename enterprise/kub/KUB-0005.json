@@ -1,0 +1,17 @@
+{
+  "id": "5da47a33-43d9-460c-a8c4-5f6809471b5f",
+  "asset_code": "KUB-0005",
+  "asset_name": "Projects Feed Integration",
+  "asset_type": "KUB",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "Projects Feed Integration",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "KUBERNESIS",
+  "description": "Projects Feed operational.",
+  "notes": null,
+  "created_at": "2026-06-22T20:32:35.958204+00:00",
+  "updated_at": "2026-06-22T20:32:35.958204+00:00"
+}

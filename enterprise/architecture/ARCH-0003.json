@@ -1,0 +1,17 @@
+{
+  "id": "2fded75b-2dfd-4be5-82b6-de6ad7037327",
+  "asset_code": "ARCH-0003",
+  "asset_name": "DIMS",
+  "asset_type": "Architecture",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "DIMS",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "DOME",
+  "description": "Dominion1st Integrated Management System.",
+  "notes": null,
+  "created_at": "2026-06-24T21:03:57.525095+00:00",
+  "updated_at": "2026-06-24T21:03:57.525095+00:00"
+}

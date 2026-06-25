@@ -1,0 +1,17 @@
+{
+  "id": "f4428da7-122f-42d3-99c6-65ad7f6d9d69",
+  "asset_code": "ARCH-0008",
+  "asset_name": "THESAURUS",
+  "asset_type": "Architecture",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "THESAURUS",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "DOME",
+  "description": "Knowledge repository replacing VAULT.",
+  "notes": null,
+  "created_at": "2026-06-24T21:03:58.852379+00:00",
+  "updated_at": "2026-06-24T21:03:58.852379+00:00"
+}

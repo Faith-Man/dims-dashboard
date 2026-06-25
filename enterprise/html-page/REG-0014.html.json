@@ -1,0 +1,17 @@
+{
+  "id": "914b04d2-8663-4c3b-a076-a737d8b06458",
+  "asset_code": "REG-0014",
+  "asset_name": "VAULT Architecture Page",
+  "asset_type": "html-page",
+  "platform": "GitHub / Netlify",
+  "location": "GitHub root / Netlify",
+  "file_name": "vault-architecture.html",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "VAULT",
+  "description": "VAULT architecture and memory system page.",
+  "notes": null,
+  "created_at": "2026-06-18T06:38:15.610149+00:00",
+  "updated_at": "2026-06-18T06:38:15.610149+00:00"
+}

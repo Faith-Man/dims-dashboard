@@ -1,0 +1,17 @@
+{
+  "id": "fd3f47e4-0f09-48fd-b86d-d84d6168d1be",
+  "asset_code": "GS-0002",
+  "asset_name": "SynchronizationEngine.gs",
+  "asset_type": "Google Apps Script",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "SynchronizationEngine.gs",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Automation",
+  "description": "Enterprise synchronization engine.",
+  "notes": null,
+  "created_at": "2026-06-25T07:44:11.732431+00:00",
+  "updated_at": "2026-06-25T07:44:11.732431+00:00"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "157e5b57-bf99-47f9-ae2b-1ff27b951f6b",
+  "asset_code": "SQL-0012",
+  "asset_name": "Enterprise Core Test SQL",
+  "asset_type": "SQL",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "Enterprise Core Test SQL",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Database",
+  "description": "Registered through Enterprise Core.",
+  "notes": null,
+  "created_at": "2026-06-25T08:05:21.186186+00:00",
+  "updated_at": "2026-06-25T08:05:21.186186+00:00"
+}

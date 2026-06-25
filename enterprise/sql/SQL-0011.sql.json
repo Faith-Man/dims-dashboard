@@ -1,0 +1,17 @@
+{
+  "id": "146f6b40-8c0d-483d-94ec-5355a1e52971",
+  "asset_code": "SQL-0011",
+  "asset_name": "Synchronization Log Table",
+  "asset_type": "SQL",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "Synchronization Log Table",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Database",
+  "description": "Automatic SQL registration through EnterpriseRegistrationEngine.",
+  "notes": null,
+  "created_at": "2026-06-25T07:58:57.571996+00:00",
+  "updated_at": "2026-06-25T07:58:57.571996+00:00"
+}

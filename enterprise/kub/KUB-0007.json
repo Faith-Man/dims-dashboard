@@ -1,0 +1,17 @@
+{
+  "id": "440eaf22-ffb5-46d3-b035-c21a10a9bed0",
+  "asset_code": "KUB-0007",
+  "asset_name": "Teaching Feed Integration",
+  "asset_type": "KUB",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "Teaching Feed Integration",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "KUBERNESIS",
+  "description": "Teaching Feed operational.",
+  "notes": null,
+  "created_at": "2026-06-22T20:32:36.173526+00:00",
+  "updated_at": "2026-06-22T20:32:36.173526+00:00"
+}

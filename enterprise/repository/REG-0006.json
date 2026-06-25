@@ -1,0 +1,17 @@
+{
+  "id": "ccbb302d-08fe-40cf-ba89-fe6fed8b7fd5",
+  "asset_code": "REG-0006",
+  "asset_name": "dims-dashboard GitHub Repository",
+  "asset_type": "repository",
+  "platform": "GitHub",
+  "location": "Faith-Man/dims-dashboard",
+  "file_name": null,
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Source Control",
+  "description": "GitHub repository containing DIMS-v3 dashboard and related HTML/JS files.",
+  "notes": null,
+  "created_at": "2026-06-18T05:40:54.013866+00:00",
+  "updated_at": "2026-06-18T05:40:54.013866+00:00"
+}

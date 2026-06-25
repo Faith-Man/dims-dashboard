@@ -1,0 +1,17 @@
+{
+  "id": "7adea897-6e59-4e95-9ff5-69ef7d35051c",
+  "asset_code": "ARCH-0009",
+  "asset_name": "TAMILECHEM",
+  "asset_type": "Architecture",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "TAMILECHEM",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "DOME",
+  "description": "Daily Bread, briefing, directives, tasks, projects, and oversight layer.",
+  "notes": null,
+  "created_at": "2026-06-24T21:03:59.113525+00:00",
+  "updated_at": "2026-06-24T21:03:59.113525+00:00"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "df1d96d9-835a-4e32-bdb4-8ce308e5b159",
+  "asset_code": "KUB-0009",
+  "asset_name": "KUBERNESIS Governance Foundation",
+  "asset_type": "KUB",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "KUBERNESIS Governance Foundation",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "KUBERNESIS",
+  "description": "KUBERN?SIS governance folder and registry file created.",
+  "notes": null,
+  "created_at": "2026-06-22T20:32:36.254202+00:00",
+  "updated_at": "2026-06-22T20:32:36.254202+00:00"
+}

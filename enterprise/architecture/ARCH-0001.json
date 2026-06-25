@@ -1,0 +1,17 @@
+{
+  "id": "57127526-8256-4972-b9c8-d1f01e4d05fa",
+  "asset_code": "ARCH-0001",
+  "asset_name": "DOMINION1ST",
+  "asset_type": "Architecture",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "DOMINION1ST",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "DOME",
+  "description": "Master Dominion1st brand and umbrella authority.",
+  "notes": null,
+  "created_at": "2026-06-24T21:03:56.4284+00:00",
+  "updated_at": "2026-06-24T21:03:56.4284+00:00"
+}

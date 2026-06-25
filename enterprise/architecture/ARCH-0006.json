@@ -1,0 +1,17 @@
+{
+  "id": "1d47feac-bef1-446d-a454-b6e03e202c8f",
+  "asset_code": "ARCH-0006",
+  "asset_name": "MARTUREO",
+  "asset_type": "Architecture",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "MARTUREO",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "DOME",
+  "description": "Reporting, witness, evidence, and status layer.",
+  "notes": null,
+  "created_at": "2026-06-24T21:03:58.312571+00:00",
+  "updated_at": "2026-06-24T21:03:58.312571+00:00"
+}

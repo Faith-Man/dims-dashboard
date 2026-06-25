@@ -1,0 +1,17 @@
+{
+  "id": "b20e6b92-55d7-49d2-95cf-695061cf50cb",
+  "asset_code": "REG-0007",
+  "asset_name": "dominion1st.netlify.app",
+  "asset_type": "site",
+  "platform": "Netlify",
+  "location": "dominion1st.netlify.app",
+  "file_name": null,
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Presentation",
+  "description": "Public Netlify deployment for DIMS-v3 pages.",
+  "notes": null,
+  "created_at": "2026-06-18T05:40:54.013866+00:00",
+  "updated_at": "2026-06-18T05:40:54.013866+00:00"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "da919bf9-faf9-4912-b3e7-003e2d9be81b",
+  "asset_code": "REG-TEST-0001",
+  "asset_name": "DIMS-v3 Supabase Connection Test",
+  "asset_type": "test",
+  "platform": "Apps Script",
+  "location": "Supabase",
+  "file_name": null,
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Integration",
+  "description": "First successful DIMS-v3 write test.",
+  "notes": null,
+  "created_at": "2026-06-19T22:46:01.271252+00:00",
+  "updated_at": "2026-06-19T22:46:01.271252+00:00"
+}

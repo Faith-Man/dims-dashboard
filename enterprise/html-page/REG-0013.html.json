@@ -1,0 +1,17 @@
+{
+  "id": "ff30aa5e-1564-480a-b4e7-c89f1497b147",
+  "asset_code": "REG-0013",
+  "asset_name": "DIMS Blueprint Page",
+  "asset_type": "html-page",
+  "platform": "GitHub / Netlify",
+  "location": "GitHub root / Netlify",
+  "file_name": "dims-blueprint.html",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Architecture",
+  "description": "DIMS-v3 blueprint and architecture page.",
+  "notes": null,
+  "created_at": "2026-06-18T06:38:15.610149+00:00",
+  "updated_at": "2026-06-18T06:38:15.610149+00:00"
+}

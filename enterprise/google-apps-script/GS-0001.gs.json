@@ -1,0 +1,17 @@
+{
+  "id": "5a0a6d31-9e31-431b-b6f7-854847bc91bf",
+  "asset_code": "GS-0001",
+  "asset_name": "NumberingAuthority.gs",
+  "asset_type": "Google Apps Script",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "NumberingAuthority.gs",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Automation",
+  "description": "Enterprise Numbering Authority.",
+  "notes": null,
+  "created_at": "2026-06-25T07:44:11.605712+00:00",
+  "updated_at": "2026-06-25T07:44:11.605712+00:00"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "7ea2af91-c547-4321-990f-0f157ad8fc52",
+  "asset_code": "REG-0008",
+  "asset_name": "DIMS-v3 Supabase Project",
+  "asset_type": "database-project",
+  "platform": "Supabase",
+  "location": "DIMS-v3",
+  "file_name": null,
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Database",
+  "description": "Supabase project used as the DIMS-v3 operational database.",
+  "notes": null,
+  "created_at": "2026-06-18T05:40:54.013866+00:00",
+  "updated_at": "2026-06-18T05:40:54.013866+00:00"
+}

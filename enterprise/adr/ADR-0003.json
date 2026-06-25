@@ -1,0 +1,17 @@
+{
+  "id": "14a525a9-24d3-42f5-a862-64c65dbfa11e",
+  "asset_code": "ADR-0003",
+  "asset_name": "Dominion1st Excellence Continuum",
+  "asset_type": "ADR",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "Dominion1st Excellence Continuum",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Governance",
+  "description": "DEC governance doctrine",
+  "notes": null,
+  "created_at": "2026-06-20T10:30:39.437389+00:00",
+  "updated_at": "2026-06-20T10:30:39.437389+00:00"
+}

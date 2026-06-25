@@ -1,0 +1,17 @@
+{
+  "id": "4fef9b6d-af9e-43dc-ae40-0d8c35d44047",
+  "asset_code": "JSON-0002",
+  "asset_name": "Enterprise Catalog Registry",
+  "asset_type": "JSON",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "Enterprise Catalog Registry",
+  "url": null,
+  "status": "active",
+  "priority": "medium",
+  "system_area": "Configuration",
+  "description": "Automatic JSON registry asset registration.",
+  "notes": null,
+  "created_at": "2026-06-25T07:58:58.067835+00:00",
+  "updated_at": "2026-06-25T07:58:58.067835+00:00"
+}

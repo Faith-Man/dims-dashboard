@@ -1,0 +1,17 @@
+{
+  "id": "7a6ffabf-4090-4b85-89a5-f3e76dec4d62",
+  "asset_code": "TRG-0001",
+  "asset_name": "DIMS-v3 Trigger Registry",
+  "asset_type": "Trigger Registry",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "DIMS-v3 Trigger Registry",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Governance",
+  "description": "Official DIMS-v3 trigger definitions and governance rules.",
+  "notes": null,
+  "created_at": "2026-06-20T18:31:54.344783+00:00",
+  "updated_at": "2026-06-20T18:31:54.344783+00:00"
+}

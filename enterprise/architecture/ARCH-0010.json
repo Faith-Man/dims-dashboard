@@ -1,0 +1,17 @@
+{
+  "id": "e7390562-912a-4b23-a7f4-1e5847585908",
+  "asset_code": "ARCH-0010",
+  "asset_name": "Conversation Continuity Protocol",
+  "asset_type": "Architecture",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "Conversation Continuity Protocol",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "DOME",
+  "description": "Internal ChatGPT checkpoint, snapshot, resume point, and ZOE status protocol.",
+  "notes": null,
+  "created_at": "2026-06-24T21:03:59.33361+00:00",
+  "updated_at": "2026-06-24T21:03:59.33361+00:00"
+}

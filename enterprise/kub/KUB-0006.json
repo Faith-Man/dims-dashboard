@@ -1,0 +1,17 @@
+{
+  "id": "7719a438-2276-433c-82f7-3437ea277940",
+  "asset_code": "KUB-0006",
+  "asset_name": "Tasks Feed Integration",
+  "asset_type": "KUB",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "Tasks Feed Integration",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "KUBERNESIS",
+  "description": "Tasks Feed operational.",
+  "notes": null,
+  "created_at": "2026-06-22T20:32:36.076015+00:00",
+  "updated_at": "2026-06-22T20:32:36.076015+00:00"
+}

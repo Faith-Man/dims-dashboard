@@ -1,0 +1,17 @@
+{
+  "id": "3229d6eb-ad73-44c8-b583-69485f8579c4",
+  "asset_code": "CHK-0002",
+  "asset_name": "DEC Adopted",
+  "asset_type": "Checkpoint",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "DEC Adopted",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Governance",
+  "description": "DEC adoption milestone",
+  "notes": null,
+  "created_at": "2026-06-20T10:30:39.764294+00:00",
+  "updated_at": "2026-06-20T10:30:39.764294+00:00"
+}

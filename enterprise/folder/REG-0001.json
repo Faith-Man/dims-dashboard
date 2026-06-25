@@ -1,0 +1,17 @@
+{
+  "id": "491c1c30-2336-449e-bb9d-10db277b1835",
+  "asset_code": "REG-0001",
+  "asset_name": "DIMS-v3 Google Drive Root",
+  "asset_type": "folder",
+  "platform": "Google Drive",
+  "location": "DIMS-v3",
+  "file_name": null,
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Repository",
+  "description": "Primary Google Drive folder for DIMS-v3 documents, artifacts, archives, backups, and records.",
+  "notes": null,
+  "created_at": "2026-06-18T05:40:54.013866+00:00",
+  "updated_at": "2026-06-18T05:40:54.013866+00:00"
+}

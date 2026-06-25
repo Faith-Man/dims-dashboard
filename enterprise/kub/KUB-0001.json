@@ -1,0 +1,17 @@
+{
+  "id": "361f08bc-0e23-40e3-aeff-42f38a930499",
+  "asset_code": "KUB-0001",
+  "asset_name": "Architecture Feed Integration",
+  "asset_type": "KUB",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "Architecture Feed Integration",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "KUBERNESIS",
+  "description": "Architecture Feed operational.",
+  "notes": null,
+  "created_at": "2026-06-22T20:32:35.221976+00:00",
+  "updated_at": "2026-06-22T20:32:35.221976+00:00"
+}

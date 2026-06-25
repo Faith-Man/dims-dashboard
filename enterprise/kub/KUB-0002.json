@@ -1,0 +1,17 @@
+{
+  "id": "589b846e-d92d-4f58-a9e5-05e9ea9140f5",
+  "asset_code": "KUB-0002",
+  "asset_name": "Daily Briefing Feed Integration",
+  "asset_type": "KUB",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "Daily Briefing Feed Integration",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "KUBERNESIS",
+  "description": "Daily Briefing Feed operational.",
+  "notes": null,
+  "created_at": "2026-06-22T20:32:35.458523+00:00",
+  "updated_at": "2026-06-22T20:32:35.458523+00:00"
+}

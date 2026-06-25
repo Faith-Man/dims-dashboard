@@ -1,0 +1,17 @@
+{
+  "id": "75febc75-1bb1-496d-8ca8-e9cc656eff57",
+  "asset_code": "JSON-0003",
+  "asset_name": "Enterprise Core Configuration",
+  "asset_type": "JSON",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "Enterprise Core Configuration",
+  "url": null,
+  "status": "active",
+  "priority": "medium",
+  "system_area": "Configuration",
+  "description": "Enterprise Core configuration.",
+  "notes": null,
+  "created_at": "2026-06-25T08:05:21.864244+00:00",
+  "updated_at": "2026-06-25T08:05:21.864244+00:00"
+}

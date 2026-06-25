@@ -1,0 +1,17 @@
+{
+  "id": "5c8b0584-7b85-497a-829c-60eccf53412a",
+  "asset_code": "ARCH-0007",
+  "asset_name": "NESHAMAH",
+  "asset_type": "Architecture",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "NESHAMAH",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "DOME",
+  "description": "Inspiration, creativity, ideation, and design layer.",
+  "notes": null,
+  "created_at": "2026-06-24T21:03:58.60616+00:00",
+  "updated_at": "2026-06-24T21:03:58.60616+00:00"
+}

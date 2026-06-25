@@ -1,0 +1,17 @@
+{
+  "id": "c0dbeeba-f0e1-42b7-b8cb-26dd8725cbd6",
+  "asset_code": "JSON-0001",
+  "asset_name": "Enterprise Catalog Registry",
+  "asset_type": "JSON",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "Enterprise Catalog Registry",
+  "url": null,
+  "status": "active",
+  "priority": "medium",
+  "system_area": "Configuration",
+  "description": "Enterprise metadata registry.",
+  "notes": null,
+  "created_at": "2026-06-25T07:44:11.840393+00:00",
+  "updated_at": "2026-06-25T07:44:11.840393+00:00"
+}

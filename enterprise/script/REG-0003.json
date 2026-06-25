@@ -1,0 +1,17 @@
+{
+  "id": "0d09274d-2bb0-43c9-8d60-5ce6c169db32",
+  "asset_code": "REG-0003",
+  "asset_name": "FolderBuilder.gs",
+  "asset_type": "script",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3 Automation Engine",
+  "file_name": "FolderBuilder.gs",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Automation",
+  "description": "Creates and verifies DIMS-v3 Google Drive folder structure.",
+  "notes": null,
+  "created_at": "2026-06-18T05:40:54.013866+00:00",
+  "updated_at": "2026-06-18T05:40:54.013866+00:00"
+}

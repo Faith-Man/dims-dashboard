@@ -1,0 +1,17 @@
+{
+  "id": "e166b201-8e21-40fd-a980-ef4402900530",
+  "asset_code": "REG-0004",
+  "asset_name": "ChronicleBuilder.gs",
+  "asset_type": "script",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3 Automation Engine",
+  "file_name": "ChronicleBuilder.gs",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Chronicles",
+  "description": "Creates DIMS-v3 Chronicle documents in Google Drive.",
+  "notes": null,
+  "created_at": "2026-06-18T05:40:54.013866+00:00",
+  "updated_at": "2026-06-18T05:40:54.013866+00:00"
+}

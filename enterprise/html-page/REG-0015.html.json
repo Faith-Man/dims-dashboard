@@ -1,0 +1,17 @@
+{
+  "id": "28eab13e-8c76-4d53-8115-cc8cdb8edc47",
+  "asset_code": "REG-0015",
+  "asset_name": "Supabase Test Page",
+  "asset_type": "html-page",
+  "platform": "GitHub / Netlify",
+  "location": "GitHub root / Netlify",
+  "file_name": "supabase-test.html",
+  "url": null,
+  "status": "active",
+  "priority": "medium",
+  "system_area": "Testing",
+  "description": "Supabase connection test page.",
+  "notes": null,
+  "created_at": "2026-06-18T06:38:15.610149+00:00",
+  "updated_at": "2026-06-18T06:38:15.610149+00:00"
+}

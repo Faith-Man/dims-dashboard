@@ -1,0 +1,17 @@
+{
+  "id": "45682a48-bb48-4751-9fcd-0a925d649bf0",
+  "asset_code": "REG-0010",
+  "asset_name": "KUBERN?SIS Mission Control Page",
+  "asset_type": "html-page",
+  "platform": "GitHub / Netlify",
+  "location": "GitHub root / Netlify",
+  "file_name": "dashboard-v3.html",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "KUBERN?SIS",
+  "description": "Primary DIMS-v3 mission control dashboard.",
+  "notes": null,
+  "created_at": "2026-06-18T05:40:54.013866+00:00",
+  "updated_at": "2026-06-18T05:40:54.013866+00:00"
+}

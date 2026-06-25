@@ -1,0 +1,17 @@
+{
+  "id": "e4369fa4-230f-4971-af9e-182a3c116a14",
+  "asset_code": "REG-0005",
+  "asset_name": "CHR-0001 DIMS-v3 Recovery Chronicle",
+  "asset_type": "document",
+  "platform": "Google Drive",
+  "location": "DIMS-v3/Chronicles",
+  "file_name": "CHR-0001_DIMS-v3_Recovery_Chronicle_2026-06-17",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Chronicles",
+  "description": "First official recovery chronicle documenting DIMS-v3 recovery and foundation work.",
+  "notes": null,
+  "created_at": "2026-06-18T05:40:54.013866+00:00",
+  "updated_at": "2026-06-18T05:40:54.013866+00:00"
+}

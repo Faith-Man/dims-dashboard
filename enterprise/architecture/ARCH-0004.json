@@ -1,0 +1,17 @@
+{
+  "id": "74618d63-f97c-4b1c-87c4-79e65bf8c93a",
+  "asset_code": "ARCH-0004",
+  "asset_name": "KUBERNESIS",
+  "asset_type": "Architecture",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "KUBERNESIS",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "DOME",
+  "description": "Governance, orchestration, and mission control layer.",
+  "notes": null,
+  "created_at": "2026-06-24T21:03:57.813088+00:00",
+  "updated_at": "2026-06-24T21:03:57.813088+00:00"
+}

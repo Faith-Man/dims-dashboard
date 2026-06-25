@@ -1,0 +1,17 @@
+{
+  "id": "5b87fdfd-5261-4893-85e4-db313f6d5b8a",
+  "asset_code": "GS-0004",
+  "asset_name": "EnterpriseCore.gs",
+  "asset_type": "Google Apps Script",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "EnterpriseCore.gs",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Automation",
+  "description": "Enterprise orchestration layer.",
+  "notes": null,
+  "created_at": "2026-06-25T08:05:21.554268+00:00",
+  "updated_at": "2026-06-25T08:05:21.554268+00:00"
+}

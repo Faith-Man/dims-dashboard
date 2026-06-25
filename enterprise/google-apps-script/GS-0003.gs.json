@@ -1,0 +1,17 @@
+{
+  "id": "7cc6ee1e-12ae-47c5-b356-e91cd81765dc",
+  "asset_code": "GS-0003",
+  "asset_name": "EnterpriseRegistrationEngine.gs",
+  "asset_type": "Google Apps Script",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "EnterpriseRegistrationEngine.gs",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Automation",
+  "description": "Automatic Apps Script registration engine.",
+  "notes": null,
+  "created_at": "2026-06-25T07:58:57.883716+00:00",
+  "updated_at": "2026-06-25T07:58:57.883716+00:00"
+}

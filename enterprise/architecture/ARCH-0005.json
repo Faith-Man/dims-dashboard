@@ -1,0 +1,17 @@
+{
+  "id": "4b5ca7e4-c642-47f6-9e3d-a5e3cd504136",
+  "asset_code": "ARCH-0005",
+  "asset_name": "SHAMARENE",
+  "asset_type": "Architecture",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "SHAMARENE",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "DOME",
+  "description": "Watchman Intelligence and Peace & Safety intelligence layer.",
+  "notes": null,
+  "created_at": "2026-06-24T21:03:58.103696+00:00",
+  "updated_at": "2026-06-24T21:03:58.103696+00:00"
+}

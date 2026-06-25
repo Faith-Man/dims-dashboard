@@ -1,0 +1,17 @@
+{
+  "id": "e4383bf8-4fb4-4a1e-af6d-91d3d7e25300",
+  "asset_code": "ADR-0005",
+  "asset_name": "DIMS-v3 Artifact Lifecycle Standard",
+  "asset_type": "ADR",
+  "platform": "Google Apps Script",
+  "location": "DIMS-v3",
+  "file_name": "DIMS-v3 Artifact Lifecycle Standard",
+  "url": null,
+  "status": "active",
+  "priority": "high",
+  "system_area": "Governance",
+  "description": "Official lifecycle standard for all DIMS-v3 assets.",
+  "notes": null,
+  "created_at": "2026-06-20T11:16:09.710395+00:00",
+  "updated_at": "2026-06-20T11:16:09.710395+00:00"
+}

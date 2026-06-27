@@ -176,6 +176,123 @@ body.dark .kpi strong{color:#dce7ff}
  
 @media(max-width:960px){.grid{grid-template-columns:1fr}.statusbar{grid-template-columns:repeat(2,minmax(0,1fr))}header{flex-direction:column}.actions{justify-content:flex-start}}
 @media(max-width:560px){.wrap{padding:12px}.hero{padding:16px}.statusbar{grid-template-columns:1fr}th,td{font-size:.86rem;padding:8px}.card{padding:12px;border-radius:15px}}
+ 
+ 
+/* ===== v5.1 RESPONSIVE FORMAT FIX ===== */
+html, body{
+ width:100%;
+ max-width:100%;
+ overflow-x:hidden;
+}
+body{
+ background-attachment:fixed;
+}
+.wrap{
+ width:min(100% - 24px, 1180px);
+ max-width:1180px;
+ padding:16px 0;
+}
+.hero,
+.card,
+.grid,
+aside,
+main{
+ min-width:0;
+}
+.hero{
+ width:100%;
+}
+.grid{
+ grid-template-columns:minmax(280px,320px) minmax(0,1fr);
+ align-items:start;
+}
+aside,
+main{
+ width:100%;
+ max-width:100%;
+}
+.card{
+ overflow:hidden;
+}
+table{
+ max-width:100%;
+}
+th,td{
+ overflow-wrap:anywhere;
+ word-break:normal;
+}
+.card > table{
+ display:block;
+ overflow-x:auto;
+ border:1px solid var(--line);
+ border-radius:14px;
+}
+.card > table tbody,
+.card > table tr{
+ width:100%;
+}
+.project-grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+ gap:10px;
+}
+.project-card{
+ border:1px solid var(--line);
+ background:#f8fbff;
+ border-radius:14px;
+ padding:12px;
+ min-width:0;
+}
+.project-card p{
+ margin:.55rem 0 0;
+}
+body.dark .project-card{background:#101b3f}
+.compact-meta{
+ display:flex;
+ flex-wrap:wrap;
+ gap:6px;
+ margin-top:6px;
+}
+.compact-meta span{
+ display:inline-flex;
+}
+ 
+@media(max-width:1250px){
+ .wrap{width:min(100% - 20px, 1060px)}
+ .grid{grid-template-columns:minmax(260px,300px) minmax(0,1fr)}
+ .sub{max-width:100%}
+ .metric b{font-size:.98rem}
+}
+ 
+@media(max-width:1100px), (pointer:coarse){
+ .wrap{width:100%;padding:10px}
+ .grid{grid-template-columns:1fr}
+ aside{order:2}
+ main{order:1}
+ .hero{border-radius:18px;padding:14px}
+ header{flex-direction:column;align-items:stretch}
+ .actions{justify-content:flex-start}
+ .statusbar{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .navbar a,.hero button,.hero .btn{font-size:.86rem;padding:8px 10px}
+ .searchbar{grid-template-columns:1fr}
+ .card{border-radius:15px;padding:12px}
+}
+ 
+@media(max-width:640px){
+ .wrap{padding:6px}
+ h1{font-size:1.25rem;line-height:1.15}
+ .sub{font-size:.78rem}
+ .statusbar{grid-template-columns:1fr}
+ .metric{padding:10px}
+ .navbar{gap:6px}
+ .navbar a{font-size:.78rem;padding:7px 8px}
+ .kpi-grid{grid-template-columns:1fr 1fr}
+ .project-grid{grid-template-columns:1fr}
+ th,td{font-size:.8rem;padding:8px}
+ .table-scroll table{min-width:760px}
+ .progress{width:96px}
+}
+ 
 </style>
 </head>
 <body>
@@ -478,13 +595,17 @@ async function loadProjects(){
 function renderProjects(list){
  const box=$('projectsList');
  if(!list?.length){box.innerHTML=empty('No projects found.');return;}
- box.innerHTML=list.map(p=>`
-   <div class="row">
-     <strong>${esc(p.title)}</strong><br>
-     <span class="small">${badgeStatus(p.status)} ${badgePriority(p.priority)} <span class="pill gray">${esc(p.stream||'No stream')}</span></span>
+ box.innerHTML = '<div class="project-grid">' + list.map(p=>`
+   <article class="project-card">
+     <strong>${esc(p.title)}</strong>
+     <div class="compact-meta small">
+       ${badgeStatus(p.status)}
+       ${badgePriority(p.priority)}
+       <span class="pill gray">${esc(p.stream||'No stream')}</span>
+     </div>
      <p class="small">${esc(p.description||'')}</p>
-     <p class="small">Start: ${esc(p.start_date||'—')} · Target: ${esc(p.target_date||'—')} · Complete: ${esc(p.completed_date||'—')} · Progress: ${esc(p.percent_complete ?? 0)}%</p>
-   </div>`).join('');
+     <p class="small">Start: ${esc(p.start_date||'—')}<br>Target: ${esc(p.target_date||'—')}<br>Complete: ${esc(p.completed_date||'—')}<br>Progress: ${esc(p.percent_complete ?? 0)}%</p>
+   </article>`).join('') + '</div>';
 }
  
 async function loadTasks(){

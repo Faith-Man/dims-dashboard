@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>KUBERNĒSIS™ — Mission Control v5 Enterprise</title>
+<title>KUBERNĒSIS™ — Mission Control v5.2 Vertical List Fix</title>
 <style>
 :root{
  --blue:#0C1475;
@@ -218,7 +218,7 @@ table{
  max-width:100%;
 }
 th,td{
- overflow-wrap:anywhere;
+ overflow-wrap:normal;
  word-break:normal;
 }
 .card > table{
@@ -233,7 +233,7 @@ th,td{
 }
 .project-grid{
  display:grid;
- grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+ grid-template-columns:1fr;
  gap:10px;
 }
 .project-card{
@@ -293,6 +293,34 @@ body.dark .project-card{background:#101b3f}
  .progress{width:96px}
 }
  
+ 
+/* ===== v5.2 VERTICAL LIST + MOBILE READABILITY FIX ===== */
+.item-list{display:grid;gap:10px}
+.item-card{border:1px solid var(--line);background:#f8fbff;border-radius:14px;padding:12px;display:block}
+body.dark .item-card{background:#101b3f}
+.item-title{display:block;font-weight:850;margin-bottom:8px;color:var(--text);line-height:1.25}
+.item-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}
+.item-section{margin-top:10px}
+.item-label{display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:800;margin-bottom:2px}
+.item-text{display:block;color:var(--muted);line-height:1.45}
+.date-line{white-space:nowrap}
+.status-cell,.priority-cell,.date-cell,.progress-cell{white-space:nowrap;min-width:max-content}
+.status-cell .pill,.priority-cell .pill{white-space:nowrap;flex-wrap:nowrap}
+.table-scroll table{min-width:1080px}
+.alert strong{display:block;margin-bottom:6px}.alert .small{display:block}.alert .alert-meta{margin-top:7px;color:var(--muted)}
+@media(max-width:1100px), (pointer:coarse){
+ aside{order:1} main{order:2}
+ .grid{gap:10px}
+ .item-card,.project-card,.row{padding:12px}
+ .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .table-scroll table{min-width:1050px}
+}
+@media(max-width:640px){
+ .table-scroll table{min-width:1020px}
+ .pill{font-size:.8rem;padding:5px 8px}
+ .date-line{font-size:.82rem}
+}
+ 
 </style>
 </head>
 <body>
@@ -300,7 +328,7 @@ body.dark .project-card{background:#101b3f}
  <section class="hero">
    <header>
      <div>
-       <h1>👑 KUBERNĒSIS™ Mission Control v5 Enterprise</h1>
+       <h1>👑 KUBERNĒSIS™ Mission Control v5.2</h1>
        <div class="sub">DIMS-v3 • Dominion1st Enterprise Command Center • DGC governs • DIMS manages • KUBERNĒSIS visualizes • OrEl creates • VAULT remembers</div>
      </div>
      <div class="actions">
@@ -489,7 +517,7 @@ function updateAlerts(){
  if(!panel) return;
  const urgent = state.tasks.filter(t => String(t.priority||'').toLowerCase()==='high' && !String(t.status||'').toLowerCase().includes('complete')).slice(0,5);
  if(!urgent.length){ panel.innerHTML='<div class="empty">No high-priority open alerts loaded.</div>'; return; }
- panel.innerHTML = urgent.map(t=>`<div class="alert"><strong>👑 ${esc(t.title)}</strong><br><span class="small">Target: ${esc(t.target_date||'—')} · Progress: ${esc(t.percent_complete ?? 0)}% · ${esc(t.notes||'')}</span></div>`).join('');
+ panel.innerHTML = urgent.map(t=>`<div class="alert"><strong>👑 ${esc(t.title)}</strong><span class="small">${esc(t.notes||'')}</span><span class="alert-meta small">Target: ${esc(t.target_date||'—')} · Progress: ${esc(t.percent_complete ?? 0)}%</span></div>`).join('');
 }
 function normalizeText(value){ return String(value ?? '').toLowerCase(); }
 function matchesSearch(item, q){
@@ -527,12 +555,18 @@ async function loadResumePoint(){
  const r=data?.[0];
  if(!r){box.innerHTML=empty('No active resume point found.');return;}
  box.innerHTML=`
-   <strong>${esc(r.title)}</strong><br><br>
-   <span class="pill gold">${esc(r.current_phase||'No phase')}</span>
-   <span class="pill green">${r.active ? 'Active' : 'Inactive'}</span><br><br>
-   <strong>Focus:</strong><br><span class="small">${esc(r.current_focus||'—')}</span><br><br>
-   <strong>Next:</strong><br><span class="small">${esc(r.next_step||'—')}</span><br><br>
-   <span class="small">Created: ${esc(formatDate(r.created_at))}</span>`;
+   <div class="item-list">
+     <div class="item-card">
+       <span class="item-title">${esc(r.title)}</span>
+       <div class="item-meta">
+         <span class="pill gold">${esc(r.current_phase||'No phase')}</span>
+         <span class="pill green">${r.active ? 'Active' : 'Inactive'}</span>
+       </div>
+       <div class="item-section"><span class="item-label">Focus</span><span class="item-text">${esc(r.current_focus||'—')}</span></div>
+       <div class="item-section"><span class="item-label">Next</span><span class="item-text">${esc(r.next_step||'—')}</span></div>
+       <div class="item-section"><span class="small">Created: ${esc(formatDate(r.created_at))}</span></div>
+     </div>
+   </div>`;
 }
  
 async function loadLatestSnapshot(){
@@ -544,12 +578,18 @@ async function loadLatestSnapshot(){
  if(!s){box.innerHTML=empty('No system snapshot found.');return;}
  const next=Array.isArray(s.next_actions) && s.next_actions.length ? '<ul>'+s.next_actions.map(x=>`<li>${esc(x)}</li>`).join('')+'</ul>' : '';
  box.innerHTML=`
-   <strong>${esc(s.title)}</strong><br>
-   <span class="pill">${esc(s.phase||'No phase')}</span>
-   <span class="pill gold">${esc(s.status||'No status')}</span>
-   <p class="small">${esc(s.summary||'')}</p>
-   ${next}
-   <span class="small">Created: ${esc(formatDate(s.created_at))}</span>`;
+   <div class="item-list">
+     <div class="item-card">
+       <span class="item-title">${esc(s.title)}</span>
+       <div class="item-meta">
+         <span class="pill">${esc(s.phase||'No phase')}</span>
+         <span class="pill gold">${esc(s.status||'No status')}</span>
+       </div>
+       <div class="item-section"><span class="item-text">${esc(s.summary||'')}</span></div>
+       ${next}
+       <div class="item-section"><span class="small">Created: ${esc(formatDate(s.created_at))}</span></div>
+     </div>
+   </div>`;
 }
  
 async function loadArchitectureDecisions(){
@@ -558,12 +598,12 @@ async function loadArchitectureDecisions(){
  const {data,error}=await supabase.from('asset_registry').select('asset_code,asset_name,asset_type,description,created_at').in('asset_type',['ADR','Trigger Registry']).order('created_at',{ascending:false}).limit(10);
  if(error){box.innerHTML=errorBox('Decision error', error);return;}
  if(!data?.length){box.innerHTML=empty('No architecture decisions found.');return;}
- box.innerHTML=data.map(d=>`
-   <div class="row">
-     <strong>${esc(d.asset_code)} — ${esc(d.asset_name)}</strong><br>
-     <span class="small">${esc(d.asset_type)} · ${esc(d.description||'')}</span><br>
-     <span class="small">${esc(formatDate(d.created_at))}</span>
-   </div>`).join('');
+ box.innerHTML='<div class="item-list">' + data.map(d=>`
+   <div class="item-card">
+     <span class="item-title">${esc(d.asset_code)} — ${esc(d.asset_name)}</span>
+     <span class="item-text">${esc(d.asset_type)} · ${esc(d.description||'')}</span>
+     <div class="item-section"><span class="small">${esc(formatDate(d.created_at))}</span></div>
+   </div>`).join('') + '</div>';
 }
  
 async function loadBriefing(){
@@ -596,15 +636,16 @@ function renderProjects(list){
  const box=$('projectsList');
  if(!list?.length){box.innerHTML=empty('No projects found.');return;}
  box.innerHTML = '<div class="project-grid">' + list.map(p=>`
-   <article class="project-card">
-     <strong>${esc(p.title)}</strong>
-     <div class="compact-meta small">
-       ${badgeStatus(p.status)}
-       ${badgePriority(p.priority)}
-       <span class="pill gray">${esc(p.stream||'No stream')}</span>
+   <article class="project-card item-card">
+     <span class="item-title">${esc(p.title)}</span>
+     <div class="item-meta">${badgeStatus(p.status)} ${badgePriority(p.priority)} <span class="pill gray">${esc(p.stream||'No stream')}</span></div>
+     <div class="item-section"><span class="item-text">${esc(p.description||'')}</span></div>
+     <div class="item-section small">
+       <span class="date-line">Start: ${esc(p.start_date||'—')}</span><br>
+       <span class="date-line">Target: ${esc(p.target_date||'—')}</span><br>
+       <span class="date-line">Complete: ${esc(p.completed_date||'—')}</span><br>
+       <span class="date-line">Progress: ${esc(p.percent_complete ?? 0)}%</span>
      </div>
-     <p class="small">${esc(p.description||'')}</p>
-     <p class="small">Start: ${esc(p.start_date||'—')}<br>Target: ${esc(p.target_date||'—')}<br>Complete: ${esc(p.completed_date||'—')}<br>Progress: ${esc(p.percent_complete ?? 0)}%</p>
    </article>`).join('') + '</div>';
 }
  
@@ -626,11 +667,11 @@ function renderTasks(list){
    <tr>
      <td>${i+1}</td>
      <td><strong>${esc(t.title)}</strong></td>
-     <td>${badgeStatus(t.status)}</td>
-     <td>${badgePriority(t.priority)}</td>
-     <td>${esc(t.start_date||'—')}</td>
-     <td>${esc(t.target_date||'—')}</td>
-     <td>${progressBar(t.percent_complete)}</td>
+     <td class="status-cell">${badgeStatus(t.status)}</td>
+     <td class="priority-cell">${badgePriority(t.priority)}</td>
+     <td class="date-cell"><span class="date-line">${esc(t.start_date||'—')}</span></td>
+     <td class="date-cell"><span class="date-line">${esc(t.target_date||'—')}</span></td>
+     <td class="progress-cell">${progressBar(t.percent_complete)}</td>
      <td>${esc(t.notes||'')}</td>
    </tr>`).join('');
 }
@@ -648,11 +689,13 @@ async function loadTeachings(){
 function renderTeachings(list){
  const box=$('teachingsList');
  if(!list?.length){box.innerHTML=empty('No content saved yet.');return;}
- box.innerHTML=list.map(t=>`
-   <div class="row" data-id="${esc(t.id)}" tabindex="0" role="button" aria-label="Open ${esc(t.title)}">
-     <strong>${esc(t.title)}</strong><br>
-     <span class="small">${esc(t.content_type||'Teaching')} · ${badgeStatus(t.status)} ${badgePriority(t.priority)} · ${joinTags(t.tags)}</span>
-   </div>`).join('');
+ box.innerHTML='<div class="item-list">' + list.map(t=>`
+   <div class="item-card row" data-id="${esc(t.id)}" tabindex="0" role="button" aria-label="Open ${esc(t.title)}">
+     <span class="item-title">${esc(t.title)}</span>
+     <div class="item-section"><span class="item-label">Type</span><span class="item-text">${esc(t.content_type||'Teaching')}</span></div>
+     <div class="item-meta">${badgeStatus(t.status)} ${badgePriority(t.priority)}</div>
+     <div class="item-section"><span class="item-label">Tags</span><span class="item-text">${joinTags(t.tags)}</span></div>
+   </div>`).join('') + '</div>';
  box.querySelectorAll('.row').forEach(row=>{
    const open = () => {
      const t=list.find(x=>String(x.id)===row.dataset.id);

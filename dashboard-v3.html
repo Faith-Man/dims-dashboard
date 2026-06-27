@@ -1,154 +1,452 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>KUBERNĒSIS™ — DIMS-v3 Mission Control</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KUBERNĒSIS™ — Mission Control v5.2 Vertical List Fix</title>
 <style>
-:root{--blue:#0C1475;--gold:#FFD700;--bg:#eef5ff;--card:#fff;--line:#c8d8ff;--text:#0b1733;--muted:#5b6b8d}
+:root{
+ --blue:#0C1475;
+ --blue2:#111C9A;
+ --gold:#FFD700;
+ --gold2:#F5B700;
+ --bg:#edf4ff;
+ --card:#ffffff;
+ --card2:#f8fbff;
+ --line:#c9d9ff;
+ --text:#0b1733;
+ --muted:#5b6b8d;
+ --good:#0c7a43;
+ --warn:#b77900;
+ --danger:#b42318;
+ --shadow:0 14px 38px rgba(12,20,117,.10);
+}
+body.dark{--bg:#081027;--card:#101b3f;--card2:#0d1735;--line:#263b7a;--text:#eef4ff;--muted:#a9b8da;--shadow:0 18px 44px rgba(0,0,0,.35)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text)}
-.wrap{max-width:1250px;margin:0 auto;padding:16px}
-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
-h1{margin:0;color:var(--blue)}
-.sub,.small{color:var(--muted);font-size:.9rem}
-.grid{display:grid;grid-template-columns:360px 1fr;gap:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
-.card h2{margin:0 0 8px;color:var(--blue)}
-button,.btn{background:var(--blue);color:white;border:0;border-radius:10px;padding:9px 12px;cursor:pointer;text-decoration:none;display:inline-block;margin:4px 4px 4px 0}
-button:hover,.btn:hover{outline:2px solid var(--gold)}
-table{width:100%;border-collapse:collapse;background:white}
-th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}
-th{color:var(--blue);background:#f7faff}
-input,textarea,select{width:100%;padding:9px;border:1px solid var(--line);border-radius:9px;margin:5px 0}
+html{scroll-behavior:smooth}
+body{
+ margin:0;
+ color:var(--text);
+ transition:background .2s ease,color .2s ease;
+ background:
+   radial-gradient(circle at top left, rgba(255,215,0,.24), transparent 26rem),
+   radial-gradient(circle at top right, rgba(12,20,117,.20), transparent 32rem),
+   linear-gradient(180deg,#f7fbff 0%,var(--bg) 55%,#e8f0ff 100%);
+ font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+a{color:inherit}
+.wrap{max-width:1280px;margin:0 auto;padding:18px}
+.hero{
+ border:1px solid rgba(255,215,0,.55);
+ border-radius:24px;
+ padding:20px;
+ color:white;
+ background:
+   linear-gradient(135deg,rgba(12,20,117,.97),rgba(17,28,154,.93)),
+   radial-gradient(circle at 80% 20%,rgba(255,215,0,.55),transparent 18rem);
+ box-shadow:var(--shadow);
+ position:relative;
+ overflow:hidden;
+}
+.hero:after{
+ content:"";
+ position:absolute;
+ inset:auto -60px -100px auto;
+ width:240px;height:240px;
+ border:28px solid rgba(255,215,0,.15);
+ border-radius:50%;
+}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;position:relative;z-index:1}
+h1{margin:0;font-size:clamp(1.65rem,3vw,2.55rem);letter-spacing:-.035em;line-height:1.05}
+.sub{color:rgba(255,255,255,.78);font-size:.95rem;margin-top:8px;max-width:780px}
+.small{color:var(--muted);font-size:.9rem;line-height:1.45}
+.hero .small{color:rgba(255,255,255,.78)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+button,.btn{
+ background:var(--blue);
+ color:white;
+ border:0;
+ border-radius:12px;
+ padding:10px 13px;
+ cursor:pointer;
+ text-decoration:none;
+ display:inline-flex;
+ align-items:center;
+ gap:7px;
+ margin:4px 4px 4px 0;
+ font-weight:700;
+ box-shadow:0 8px 18px rgba(12,20,117,.14);
+}
+.hero button,.hero .btn{background:white;color:var(--blue);box-shadow:none}
+button:hover,.btn:hover{outline:3px solid rgba(255,215,0,.65);transform:translateY(-1px)}
+button:disabled{opacity:.65;cursor:not-allowed;transform:none}
+.navbar{
+ display:flex;
+ gap:8px;
+ flex-wrap:wrap;
+ margin-top:16px;
+ position:relative;
+ z-index:1;
+}
+.navbar a{
+ color:white;
+ text-decoration:none;
+ padding:9px 11px;
+ border:1px solid rgba(255,255,255,.22);
+ border-radius:999px;
+ background:rgba(255,255,255,.09);
+ font-size:.92rem;
+ font-weight:650;
+}
+.navbar a:hover{background:rgba(255,255,255,.18);border-color:rgba(255,215,0,.65)}
+.statusbar{
+ display:grid;
+ grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:10px;
+ margin:14px 0;
+}
+.metric{
+ background:rgba(255,255,255,.12);
+ border:1px solid rgba(255,255,255,.18);
+ border-radius:16px;
+ padding:12px;
+ position:relative;
+ z-index:1;
+}
+.metric b{display:block;font-size:1.05rem;color:#fff}
+.metric span{display:block;margin-top:4px;color:rgba(255,255,255,.72);font-size:.82rem}
+.grid{display:grid;grid-template-columns:370px 1fr;gap:14px;margin-top:14px}
+.card{
+ background:rgba(255,255,255,.92);
+ border:1px solid var(--line);
+ border-radius:18px;
+ padding:15px;
+ margin-bottom:12px;
+ box-shadow:0 8px 22px rgba(12,20,117,.06);
+ backdrop-filter:blur(8px);
+}
+.card h2{margin:0 0 10px;color:var(--blue);font-size:1.08rem;letter-spacing:-.015em}
+.card h3{margin:0 0 8px;color:var(--blue)}
+.card-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.table-scroll{width:100%;overflow-x:auto;border-radius:14px;border:1px solid var(--line);background:white}
+table{width:100%;border-collapse:collapse;background:white;border-radius:14px;overflow:hidden}
+.table-scroll table{min-width:860px}
+th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top;font-size:.94rem}
+th{color:var(--blue);background:#f7faff;font-weight:800;white-space:nowrap}
+tr:last-child td,tr:last-child th{border-bottom:0}
+.progress{position:relative;width:120px;height:20px;background:#e6edf8;border:1px solid #d8e4ff;border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),#3d6dff)}
+.progress span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:white;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+input,textarea,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:11px;margin:5px 0;background:white;color:var(--text)}
 textarea{min-height:120px}
-.row{border-bottom:1px solid var(--line);padding:10px}
-.row:hover{background:#f4f8ff}
-.reader{white-space:pre-wrap;line-height:1.5}
-.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#f7faff;border:1px solid var(--line);margin:3px}
-@media(max-width:850px){.grid{grid-template-columns:1fr}}
+.row{border:1px solid transparent;border-bottom-color:var(--line);padding:11px;border-radius:12px;transition:.15s ease}
+.row:hover{background:#f4f8ff;border-color:var(--line);cursor:pointer}
+.row:last-child{border-bottom-color:transparent}
+.reader{white-space:pre-wrap;line-height:1.55;background:var(--card2);border:1px dashed var(--line);border-radius:14px;padding:12px;max-height:520px;overflow:auto}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:999px;background:#f7faff;border:1px solid var(--line);margin:3px;font-size:.86rem;font-weight:700;color:var(--blue)}
+.pill.gold{background:#fff9db;border-color:#ffe083;color:#6b4e00}
+.pill.green{background:#ecfdf3;border-color:#a9efc5;color:var(--good)}
+.pill.red{background:#fff1f0;border-color:#ffc9c2;color:var(--danger)}
+.pill.gray{background:#f5f7fb;color:#4b5877}
+.loading{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.loading:before{content:"";width:12px;height:12px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--blue);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{padding:12px;border:1px dashed var(--line);border-radius:14px;background:#f8fbff;color:var(--muted)}
+.error{padding:12px;border:1px solid #ffc9c2;border-radius:14px;background:#fff1f0;color:#7a271a;font-size:.9rem}
+.engine-grid{display:flex;gap:8px;flex-wrap:wrap}
+.footer-note{text-align:center;color:var(--muted);font-size:.85rem;padding:10px 0 16px}
+ 
+body.dark table, body.dark input, body.dark textarea, body.dark select{background:#111d43;color:var(--text)}
+body.dark th{background:#162453;color:#dce7ff}
+body.dark .row:hover{background:#132353}
+body.dark .empty, body.dark .reader{background:#101b3f}
+.searchbar{display:grid;grid-template-columns:1fr auto;gap:8px;margin:12px 0 0;position:relative;z-index:1}
+.searchbar input{margin:0;border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.12);color:white}
+.searchbar input::placeholder{color:rgba(255,255,255,.70)}
+.alert-list{display:grid;gap:8px}
+.alert{border:1px solid var(--line);background:#f8fbff;border-radius:14px;padding:10px}
+body.dark .alert{background:#101b3f}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.kpi{border:1px solid var(--line);background:linear-gradient(180deg,#fff,#f8fbff);border-radius:16px;padding:13px}
+body.dark .kpi{background:linear-gradient(180deg,#101b3f,#0d1735)}
+.kpi strong{display:block;font-size:1.5rem;color:var(--blue)}
+body.dark .kpi strong{color:#dce7ff}
+.kpi span{color:var(--muted);font-size:.86rem}
+@media(max-width:760px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.searchbar{grid-template-columns:1fr}}
+ 
+@media(max-width:960px){.grid{grid-template-columns:1fr}.statusbar{grid-template-columns:repeat(2,minmax(0,1fr))}header{flex-direction:column}.actions{justify-content:flex-start}}
+@media(max-width:560px){.wrap{padding:12px}.hero{padding:16px}.statusbar{grid-template-columns:1fr}th,td{font-size:.86rem;padding:8px}.card{padding:12px;border-radius:15px}}
+ 
+ 
+/* ===== v5.1 RESPONSIVE FORMAT FIX ===== */
+html, body{
+ width:100%;
+ max-width:100%;
+ overflow-x:hidden;
+}
+body{
+ background-attachment:fixed;
+}
+.wrap{
+ width:min(100% - 24px, 1180px);
+ max-width:1180px;
+ padding:16px 0;
+}
+.hero,
+.card,
+.grid,
+aside,
+main{
+ min-width:0;
+}
+.hero{
+ width:100%;
+}
+.grid{
+ grid-template-columns:minmax(280px,320px) minmax(0,1fr);
+ align-items:start;
+}
+aside,
+main{
+ width:100%;
+ max-width:100%;
+}
+.card{
+ overflow:hidden;
+}
+table{
+ max-width:100%;
+}
+th,td{
+ overflow-wrap:normal;
+ word-break:normal;
+}
+.card > table{
+ display:block;
+ overflow-x:auto;
+ border:1px solid var(--line);
+ border-radius:14px;
+}
+.card > table tbody,
+.card > table tr{
+ width:100%;
+}
+.project-grid{
+ display:grid;
+ grid-template-columns:1fr;
+ gap:10px;
+}
+.project-card{
+ border:1px solid var(--line);
+ background:#f8fbff;
+ border-radius:14px;
+ padding:12px;
+ min-width:0;
+}
+.project-card p{
+ margin:.55rem 0 0;
+}
+body.dark .project-card{background:#101b3f}
+.compact-meta{
+ display:flex;
+ flex-wrap:wrap;
+ gap:6px;
+ margin-top:6px;
+}
+.compact-meta span{
+ display:inline-flex;
+}
+ 
+@media(max-width:1250px){
+ .wrap{width:min(100% - 20px, 1060px)}
+ .grid{grid-template-columns:minmax(260px,300px) minmax(0,1fr)}
+ .sub{max-width:100%}
+ .metric b{font-size:.98rem}
+}
+ 
+@media(max-width:1100px), (pointer:coarse){
+ .wrap{width:100%;padding:10px}
+ .grid{grid-template-columns:1fr}
+ aside{order:2}
+ main{order:1}
+ .hero{border-radius:18px;padding:14px}
+ header{flex-direction:column;align-items:stretch}
+ .actions{justify-content:flex-start}
+ .statusbar{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .navbar a,.hero button,.hero .btn{font-size:.86rem;padding:8px 10px}
+ .searchbar{grid-template-columns:1fr}
+ .card{border-radius:15px;padding:12px}
+}
+ 
+@media(max-width:640px){
+ .wrap{padding:6px}
+ h1{font-size:1.25rem;line-height:1.15}
+ .sub{font-size:.78rem}
+ .statusbar{grid-template-columns:1fr}
+ .metric{padding:10px}
+ .navbar{gap:6px}
+ .navbar a{font-size:.78rem;padding:7px 8px}
+ .kpi-grid{grid-template-columns:1fr 1fr}
+ .project-grid{grid-template-columns:1fr}
+ th,td{font-size:.8rem;padding:8px}
+ .table-scroll table{min-width:760px}
+ .progress{width:96px}
+}
+ 
+ 
+/* ===== v5.2 VERTICAL LIST + MOBILE READABILITY FIX ===== */
+.item-list{display:grid;gap:10px}
+.item-card{border:1px solid var(--line);background:#f8fbff;border-radius:14px;padding:12px;display:block}
+body.dark .item-card{background:#101b3f}
+.item-title{display:block;font-weight:850;margin-bottom:8px;color:var(--text);line-height:1.25}
+.item-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}
+.item-section{margin-top:10px}
+.item-label{display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:800;margin-bottom:2px}
+.item-text{display:block;color:var(--muted);line-height:1.45}
+.date-line{white-space:nowrap}
+.status-cell,.priority-cell,.date-cell,.progress-cell{white-space:nowrap;min-width:max-content}
+.status-cell .pill,.priority-cell .pill{white-space:nowrap;flex-wrap:nowrap}
+.table-scroll table{min-width:1080px}
+.alert strong{display:block;margin-bottom:6px}.alert .small{display:block}.alert .alert-meta{margin-top:7px;color:var(--muted)}
+@media(max-width:1100px), (pointer:coarse){
+ aside{order:1} main{order:2}
+ .grid{gap:10px}
+ .item-card,.project-card,.row{padding:12px}
+ .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .table-scroll table{min-width:1050px}
+}
+@media(max-width:640px){
+ .table-scroll table{min-width:1020px}
+ .pill{font-size:.8rem;padding:5px 8px}
+ .date-line{font-size:.82rem}
+}
+ 
 </style>
 </head>
- 
 <body>
 <div class="wrap">
+ <section class="hero">
+   <header>
+     <div>
+       <h1>👑 KUBERNĒSIS™ Mission Control v5.2</h1>
+       <div class="sub">DIMS-v3 • Dominion1st Enterprise Command Center • DGC governs • DIMS manages • KUBERNĒSIS visualizes • OrEl creates • VAULT remembers</div>
+     </div>
+     <div class="actions">
+       <button id="themeBtn" onclick="toggleTheme()">🌙 Dark</button>
+       <button id="refreshBtn" onclick="loadAll()">🔄 Refresh</button>
+     </div>
+   </header>
  
-<header>
-<div>
-  <h1>👑 KUBERNĒSIS™ Mission Control</h1>
-  <div class="sub">DIMS-v3 • Dominion1st Command Center</div>
-</div>
-<button onclick="loadAll()">🔄 Refresh</button>
-</header>
+   <div class="statusbar">
+     <div class="metric"><b>Phase 3</b><span>Blueprint + VAULT Architecture</span></div>
+     <div class="metric"><b>🟡 Active</b><span>Current Mission State</span></div>
+     <div class="metric"><b>DIMS-v3</b><span>Engine Integration</span></div>
+     <div class="metric"><b>Dashboard v3.0</b><span>Next Objective</span></div>
+   </div>
  
-<section class="card">
-<h2>🧭 Command Navigation</h2>
-<p class="small">DGC governs • DIMS manages • KUBERNĒSIS visualizes • OrEl creates • VAULT remembers</p>
+   <nav class="navbar" aria-label="Command Navigation">
+     <a href="dashboard-v3.html">🧭 Dashboard</a>
+     <a href="dims-blueprint.html">👑 Blueprint</a>
+     <a href="vault-architecture.html">📚 VAULT</a>
+     <a href="orel-teaching-studio.html">💡 OrEl Studio</a>
+     <a href="teaching-library-v3.html">📚 Teaching Library</a>
+     <a href="supabase-test.html">🧪 Supabase Test</a>
+   </nav>
+   <div class="searchbar">
+     <input id="globalSearch" type="search" placeholder="Search projects, tasks, teachings, VAULT notes..." oninput="applyGlobalSearch()" />
+     <button onclick="clearSearch()">Clear Search</button>
+   </div>
+ </section>
  
-<a class="btn" href="dashboard-v3.html">🧭 Dashboard</a>
-<a class="btn" href="dims-blueprint.html">👑 Blueprint</a>
-<a class="btn" href="vault-architecture.html">📚 VAULT</a>
-<a class="btn" href="orel-teaching-studio.html">💡 OrEl Studio</a>
-<a class="btn" href="teaching-library-v3.html">📚 Teaching Library</a>
-<a class="btn" href="supabase-test.html">🧪 Supabase Test</a>
-</section>
+ <div class="grid">
+   <aside>
+     <section class="card"><h2>👑 Current Resume Point</h2><div id="resumePoint" class="loading">Loading...</div></section>
+     <section class="card"><h2>📸 Latest Snapshot</h2><div id="latestSnapshot" class="loading">Loading...</div></section>
+     <section class="card"><h2>🏛 Architecture Decisions</h2><div id="architectureDecisions" class="loading">Loading...</div></section>
+     <section class="card"><h2>🌅 Daily Briefing</h2><div id="briefing" class="loading">Loading...</div></section>
+     <section class="card"><h2>🌍 World Intel</h2><ul id="worldIntel"><li class="loading">Loading...</li></ul></section>
+     <section class="card"><h2>🔗 Bridge Intel</h2><ul id="bridgeIntel"><li class="loading">Loading...</li></ul></section>
+     <section class="card"><h2>🙌 Personal / Ministry Intel</h2><div id="personalIntel" class="loading">Loading...</div></section>
+   </aside>
  
-<div class="grid">
+   <main>
+     <section class="card">
+       <h2>👑 Mission Control</h2>
+       <table>
+         <tbody>
+           <tr><th>Current Phase</th><td>Phase 3 — Blueprint + VAULT Architecture</td></tr>
+           <tr><th>Completed</th><td>OrEl operational • KUBERNĒSIS operational • DIMS Blueprint • VAULT Architecture • Resume Engine • Snapshot Engine • Project Engine • Task Engine</td></tr>
+           <tr><th>Next Objective</th><td>Connect DIMS-v3 engines into KUBERNĒSIS Dashboard v3.0</td></tr>
+           <tr><th>Status</th><td><span class="pill gold">🟡 Active</span></td></tr>
+         </tbody>
+       </table>
+     </section>
  
-<aside>
-<section class="card"><h2>👑 Current Resume Point</h2><div id="resumePoint">Loading...</div></section>
-<section class="card"><h2>📸 Latest Snapshot</h2><div id="latestSnapshot">Loading...</div></section>
-<section class="card"><h2>🏛 Architecture Decisions</h2><div id="architectureDecisions">Loading...</div></section>
-<section class="card"><h2>🌅 Daily Briefing</h2><div id="briefing">Loading...</div></section>
-<section class="card"><h2>🌍 World Intel</h2><ul id="worldIntel"></ul></section>
-<section class="card"><h2>🔗 Bridge Intel</h2><ul id="bridgeIntel"></ul></section>
-<section class="card"><h2>🙌 Personal / Ministry Intel</h2><div id="personalIntel"></div></section>
-</aside>
+     <section class="card">
+       <h2>🏛️ Dominion1st Engines</h2>
+       <div class="engine-grid">
+         <span class="pill">⚖️ DGC</span><span class="pill">📊 DIMS</span><span class="pill">🧭 KUBERNĒSIS</span><span class="pill">⚓ ANCHOR</span><span class="pill">💨 NESHAMAH</span><span class="pill">🌅 DDBB</span><span class="pill">🛡️ Peace & Safety</span><span class="pill">🗣️ MARTUREŌ</span><span class="pill">📚 VAULT</span><span class="pill">💡 OrEl</span><span class="pill">🤖 DivineID</span>
+       </div>
+     </section>
  
-<main>
+     <section class="card">
+       <h2>📚 Blueprint / VAULT Quick Access</h2>
+       <a class="btn" href="dims-blueprint.html">👑 Open DIMS Blueprint</a>
+       <a class="btn" href="vault-architecture.html">📚 Open VAULT Architecture</a>
+     </section>
  
-<section class="card">
-<h2>👑 Mission Control</h2>
-<table>
-  <tbody>
-    <tr><th>Current Phase</th><td>Phase 3 — Blueprint + VAULT Architecture</td></tr>
-    <tr><th>Completed</th><td>OrEl operational • KUBERNĒSIS operational • DIMS Blueprint • VAULT Architecture • Resume Engine • Snapshot Engine • Project Engine • Task Engine</td></tr>
-    <tr><th>Next Objective</th><td>Connect DIMS-v3 engines into KUBERNĒSIS Dashboard v3.0</td></tr>
-    <tr><th>Status</th><td>🟡 Active</td></tr>
-  </tbody>
-</table>
-</section>
+     <section class="card">
+       <h2>📊 Executive KPIs</h2>
+       <div class="kpi-grid">
+         <div class="kpi"><strong id="kpiProjects">—</strong><span>Projects Loaded</span></div>
+         <div class="kpi"><strong id="kpiTasks">—</strong><span>Tasks Loaded</span></div>
+         <div class="kpi"><strong id="kpiTeachings">—</strong><span>Teachings Loaded</span></div>
+         <div class="kpi"><strong id="kpiActive">—</strong><span>Active Items</span></div>
+       </div>
+     </section>
  
-<section class="card">
-<h2>🏛️ Dominion1st Engines</h2>
-<span class="pill">⚖️ DGC</span>
-<span class="pill">📊 DIMS</span>
-<span class="pill">🧭 KUBERNĒSIS</span>
-<span class="pill">⚓ ANCHOR</span>
-<span class="pill">💨 NESHAMAH</span>
-<span class="pill">🌅 DDBB</span>
-<span class="pill">🛡️ Peace & Safety</span>
-<span class="pill">🗣️ MARTUREŌ</span>
-<span class="pill">📚 VAULT</span>
-<span class="pill">💡 OrEl</span>
-<span class="pill">🤖 DivineID</span>
-</section>
+     <section class="card">
+       <h2>🔔 Command Alerts</h2>
+       <div id="alertsPanel" class="alert-list"><div class="loading">Loading alerts...</div></div>
+     </section>
  
-<section class="card">
-<h2>📚 Blueprint / VAULT Quick Access</h2>
-<p class="small">Use these governing pages before major changes.</p>
-<a class="btn" href="dims-blueprint.html">👑 Open DIMS Blueprint</a>
-<a class="btn" href="vault-architecture.html">📚 Open VAULT Architecture</a>
-</section>
+     <section class="card"><h2>📂 Projects</h2><div id="projectsList" class="loading">Loading...</div></section>
  
-<section class="card"><h2>📂 Projects</h2><div id="projectsList">Loading...</div></section>
+     <section class="card">
+       <h2>📊 Top Tasks</h2>
+       <div class="table-scroll">
+         <table>
+           <thead>
+             <tr>
+               <th>#</th>
+               <th>Task</th>
+               <th>Status</th>
+               <th>Priority</th>
+               <th>Start Date</th>
+               <th>Target Date</th>
+               <th>Progress</th>
+               <th>Notes</th>
+             </tr>
+           </thead>
+           <tbody id="taskRows"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody>
+         </table>
+       </div>
+     </section>
  
-<section class="card">
-<h2>📊 Top Tasks</h2>
-<table>
-  <thead>
-    <tr>
-      <th>#</th>
-      <th>Task</th>
-      <th>Status</th>
-      <th>Priority</th>
-      <th>Start Date</th>
-      <th>Target Date</th>
-      <th>Progress</th>
-      <th>Notes</th>
-    </tr>
-  </thead>
-  <tbody id="taskRows"></tbody>
-</table>
-</section>
+     <section class="card"><h2>📜 Recent Teachings / Content</h2><div id="teachingsList" class="loading">Loading...</div></section>
  
-<section class="card"><h2>📜 Recent Teachings / Content</h2><div id="teachingsList">Loading...</div></section>
+     <section class="card">
+       <div class="card-header">
+         <h2>📖 Content Reader</h2>
+         <span id="readerMeta" class="small"></span>
+       </div>
+       <h3 id="readerTitle">Select content</h3>
+       <div id="readerBody" class="reader small">Content will appear here.</div>
+     </section>
+   </main>
+ </div>
  
-<section class="card">
-<h2>📖 Content Reader</h2>
-<h3 id="readerTitle">Select content</h3>
-<div id="readerBody" class="reader small">Content will appear here.</div>
-</section>
- 
-<section class="card">
-<h2>✍ Quick Save Teaching</h2>
-<input id="title" placeholder="Teaching Title">
-<input id="slug" placeholder="slug-auto-created">
-<select id="status">
-  <option value="draft">Draft</option>
-  <option value="published">Published</option>
-  <option value="open">Open</option>
-  <option value="in_progress">In Progress</option>
-</select>
-<input id="priority" placeholder="priority: high, medium, low" value="high">
-<input id="tags" placeholder="tags separated by commas">
-<textarea id="content_md" placeholder="Teaching content..."></textarea>
-<button onclick="saveTeaching()">💾 Save Teaching</button>
-<span id="saveMsg" class="small"></span>
-</section>
- 
-</main>
-</div>
+ <div class="footer-note">KUBERNĒSIS™ Mission Control • Dominion1st Command Center</div>
 </div>
  
 <script type="module">
@@ -159,212 +457,275 @@ const SUPABASE_ANON_KEY = 'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
  
 window.loadAll = loadAll;
-window.saveTeaching = saveTeaching;
+window.toggleTheme = toggleTheme;
+window.applyGlobalSearch = applyGlobalSearch;
+window.clearSearch = clearSearch;
  
-function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function slugify(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')}
+const state = { projects:[], tasks:[], teachings:[] };
+ 
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const loading = text => `<div class="loading">${esc(text || 'Loading...')}</div>`;
+const empty = text => `<div class="empty">${esc(text)}</div>`;
+const errorBox = (label, err) => `<div class="error"><strong>${esc(label)}</strong><br>${esc(err?.message || err || 'Unknown error')}</div>`;
+ 
 function badgeStatus(s){
-const v=(s||'open').toLowerCase();
-if(v.includes('deferred')) return '⚪ Deferred';
-if(v.includes('active')||v.includes('progress')) return '🟡 Active';
-if(v.includes('closed')||v.includes('complete')) return '🔴 Complete';
-if(v.includes('draft')) return '⚪ Draft';
-if(v.includes('published')) return '🟣 Published';
-return '🟢 Open';
+ const v=(s||'open').toLowerCase();
+ if(v.includes('deferred')) return '<span class="pill gray">⚪ Deferred</span>';
+ if(v.includes('active')||v.includes('progress')) return '<span class="pill gold">🟡 Active</span>';
+ if(v.includes('closed')||v.includes('complete')) return '<span class="pill green">✅ Complete</span>';
+ if(v.includes('draft')) return '<span class="pill gray">⚪ Draft</span>';
+ if(v.includes('published')) return '<span class="pill">🟣 Published</span>';
+ return '<span class="pill green">🟢 Open</span>';
 }
 function badgePriority(p){
-const v=(p||'medium').toLowerCase();
-if(v==='high') return '👑 High';
-if(v==='low') return '🗡 Low';
-return '🛡 Medium';
+ const v=(p||'medium').toLowerCase();
+ if(v==='high') return '<span class="pill gold">👑 High</span>';
+ if(v==='low') return '<span class="pill gray">🗡 Low</span>';
+ return '<span class="pill">🛡 Medium</span>';
 }
 function formatDate(value){
-if(!value) return '';
-const d = new Date(value);
-if(Number.isNaN(d.getTime())) return String(value);
-return d.toLocaleString();
+ if(!value) return '—';
+ const d = new Date(value);
+ if(Number.isNaN(d.getTime())) return String(value);
+ return d.toLocaleString([], {dateStyle:'medium', timeStyle:'short'});
 }
-function shortId(value){
-if(!value) return '';
-const s = String(value);
-return s.length > 12 ? s.slice(0,8) + '...' + s.slice(-4) : s;
+function joinTags(tags){
+ if(!Array.isArray(tags) || !tags.length) return 'No tags';
+ return tags.map(esc).join(', ');
+}
+function clampPercent(value){
+ const n = Number(value ?? 0);
+ if(Number.isNaN(n)) return 0;
+ return Math.max(0, Math.min(100, n));
+}
+function progressBar(value){
+ const pct = clampPercent(value);
+ return `<div class="progress" aria-label="${pct}% complete"><div class="progress-fill" style="width:${pct}%"></div><span>${pct}%</span></div>`;
+}
+ 
+function setKPI(id, value){ const el=$(id); if(el) el.textContent = value; }
+function isActiveStatus(s){ const v=(s||'').toLowerCase(); return v.includes('active') || v.includes('progress') || v.includes('open'); }
+function updateKPIs(){
+ setKPI('kpiProjects', state.projects.length);
+ setKPI('kpiTasks', state.tasks.length);
+ setKPI('kpiTeachings', state.teachings.length);
+ setKPI('kpiActive', [...state.projects, ...state.tasks, ...state.teachings].filter(x=>isActiveStatus(x.status)).length);
+}
+function updateAlerts(){
+ const panel=$('alertsPanel');
+ if(!panel) return;
+ const urgent = state.tasks.filter(t => String(t.priority||'').toLowerCase()==='high' && !String(t.status||'').toLowerCase().includes('complete')).slice(0,5);
+ if(!urgent.length){ panel.innerHTML='<div class="empty">No high-priority open alerts loaded.</div>'; return; }
+ panel.innerHTML = urgent.map(t=>`<div class="alert"><strong>👑 ${esc(t.title)}</strong><span class="small">${esc(t.notes||'')}</span><span class="alert-meta small">Target: ${esc(t.target_date||'—')} · Progress: ${esc(t.percent_complete ?? 0)}%</span></div>`).join('');
+}
+function normalizeText(value){ return String(value ?? '').toLowerCase(); }
+function matchesSearch(item, q){
+ if(!q) return true;
+ return [item.title,item.status,item.priority,item.stream,item.description,item.notes,item.content_type,(item.tags||[]).join(' '),item.content_md].some(v=>normalizeText(v).includes(q));
+}
+function applyGlobalSearch(){
+ const q = normalizeText($('globalSearch')?.value).trim();
+ renderProjects(state.projects.filter(p=>matchesSearch(p,q)));
+ renderTasks(state.tasks.filter(t=>matchesSearch(t,q)));
+ renderTeachings(state.teachings.filter(t=>matchesSearch(t,q)));
+}
+function clearSearch(){ const box=$('globalSearch'); if(box){ box.value=''; applyGlobalSearch(); } }
+function toggleTheme(){
+ document.body.classList.toggle('dark');
+ const dark=document.body.classList.contains('dark');
+ localStorage.setItem('kubernesis-theme', dark ? 'dark' : 'light');
+ const btn=$('themeBtn'); if(btn) btn.textContent = dark ? '☀️ Light' : '🌙 Dark';
+}
+function restoreTheme(){
+ if(localStorage.getItem('kubernesis-theme')==='dark') document.body.classList.add('dark');
+ const btn=$('themeBtn'); if(btn) btn.textContent = document.body.classList.contains('dark') ? '☀️ Light' : '🌙 Dark';
+}
+ 
+async function safeLoad(name, fn){
+ try { await fn(); }
+ catch(err){ console.error(name, err); }
 }
  
 async function loadResumePoint(){
-const box=document.getElementById('resumePoint');
-const {data,error}=await supabase
-  .from('resume_points')
-  .select('*')
-  .eq('active', true)
-  .order('created_at',{ascending:false})
-  .limit(1);
- 
-if(error){box.innerHTML=`<div class="small">Resume error: ${esc(error.message)}</div>`;return;}
-const r=data?.[0];
-if(!r){box.innerHTML=`<div class="small">No active resume point found.</div>`;return;}
- 
-const snapshotLine = r.snapshot_id
-  ? `<strong>Snapshot:</strong><br><span class="small">${esc(shortId(r.snapshot_id))}</span><br><br>`
-  : '';
- 
-box.innerHTML=`
-  <strong>${esc(r.title)}</strong><br><br>
-  <span class="pill">${esc(r.current_phase||'No phase')}</span>
-  <span class="pill">${r.active ? 'active' : 'inactive'}</span><br><br>
-  <strong>Focus:</strong><br>${esc(r.current_focus||'')}<br><br>
-  <strong>Next:</strong><br>${esc(r.next_step||'')}<br><br>
-  ${snapshotLine}
-  <span class="small">Created: ${esc(formatDate(r.created_at))}</span>
-`;
+ const box=$('resumePoint');
+ box.innerHTML=loading('Loading resume point...');
+ const {data,error}=await supabase.from('resume_points').select('*').eq('active', true).order('created_at',{ascending:false}).limit(1);
+ if(error){box.innerHTML=errorBox('Resume error', error);return;}
+ const r=data?.[0];
+ if(!r){box.innerHTML=empty('No active resume point found.');return;}
+ box.innerHTML=`
+   <div class="item-list">
+     <div class="item-card">
+       <span class="item-title">${esc(r.title)}</span>
+       <div class="item-meta">
+         <span class="pill gold">${esc(r.current_phase||'No phase')}</span>
+         <span class="pill green">${r.active ? 'Active' : 'Inactive'}</span>
+       </div>
+       <div class="item-section"><span class="item-label">Focus</span><span class="item-text">${esc(r.current_focus||'—')}</span></div>
+       <div class="item-section"><span class="item-label">Next</span><span class="item-text">${esc(r.next_step||'—')}</span></div>
+       <div class="item-section"><span class="small">Created: ${esc(formatDate(r.created_at))}</span></div>
+     </div>
+   </div>`;
 }
  
 async function loadLatestSnapshot(){
-const box=document.getElementById('latestSnapshot');
-const {data,error}=await supabase.from('system_snapshots').select('*').order('created_at',{ascending:false}).limit(1);
-if(error){box.innerHTML=`<div class="small">Snapshot error: ${esc(error.message)}</div>`;return;}
-const s=data?.[0];
-if(!s){box.innerHTML=`<div class="small">No system snapshot found.</div>`;return;}
-let next='';
-if(Array.isArray(s.next_actions)){
-  next='<ul>'+s.next_actions.map(x=>`<li>${esc(x)}</li>`).join('')+'</ul>';
-}
-box.innerHTML=`
-  <strong>${esc(s.title)}</strong><br>
-  <span class="pill">${esc(s.phase||'')}</span>
-  <span class="pill">${esc(s.status||'')}</span>
-  <p>${esc(s.summary||'')}</p>
-  ${next}
-  <span class="small">Created: ${esc(formatDate(s.created_at))}</span>
-`;
+ const box=$('latestSnapshot');
+ box.innerHTML=loading('Loading snapshot...');
+ const {data,error}=await supabase.from('system_snapshots').select('*').order('created_at',{ascending:false}).limit(1);
+ if(error){box.innerHTML=errorBox('Snapshot error', error);return;}
+ const s=data?.[0];
+ if(!s){box.innerHTML=empty('No system snapshot found.');return;}
+ const next=Array.isArray(s.next_actions) && s.next_actions.length ? '<ul>'+s.next_actions.map(x=>`<li>${esc(x)}</li>`).join('')+'</ul>' : '';
+ box.innerHTML=`
+   <div class="item-list">
+     <div class="item-card">
+       <span class="item-title">${esc(s.title)}</span>
+       <div class="item-meta">
+         <span class="pill">${esc(s.phase||'No phase')}</span>
+         <span class="pill gold">${esc(s.status||'No status')}</span>
+       </div>
+       <div class="item-section"><span class="item-text">${esc(s.summary||'')}</span></div>
+       ${next}
+       <div class="item-section"><span class="small">Created: ${esc(formatDate(s.created_at))}</span></div>
+     </div>
+   </div>`;
 }
  
 async function loadArchitectureDecisions(){
-const box=document.getElementById('architectureDecisions');
- 
-const {data,error}=await supabase
-  .from('asset_registry')
-  .select('asset_code,asset_name,asset_type,description,created_at')
-  .in('asset_type',['ADR','Trigger Registry'])
-  .order('created_at',{ascending:false})
-  .limit(10);
- 
-if(error){box.innerHTML=`<div class="small">Decision error: ${esc(error.message)}</div>`;return;}
-if(!data?.length){box.innerHTML=`<div class="small">No decisions found.</div>`;return;}
- 
-box.innerHTML=data.map(d=>`
-  <div class="row">
-    <strong>${esc(d.asset_code)} — ${esc(d.asset_name)}</strong><br>
-    <span class="small">${esc(d.asset_type)} · ${esc(d.description||'')}</span>
-  </div>
-`).join('');
+ const box=$('architectureDecisions');
+ box.innerHTML=loading('Loading decisions...');
+ const {data,error}=await supabase.from('asset_registry').select('asset_code,asset_name,asset_type,description,created_at').in('asset_type',['ADR','Trigger Registry']).order('created_at',{ascending:false}).limit(10);
+ if(error){box.innerHTML=errorBox('Decision error', error);return;}
+ if(!data?.length){box.innerHTML=empty('No architecture decisions found.');return;}
+ box.innerHTML='<div class="item-list">' + data.map(d=>`
+   <div class="item-card">
+     <span class="item-title">${esc(d.asset_code)} — ${esc(d.asset_name)}</span>
+     <span class="item-text">${esc(d.asset_type)} · ${esc(d.description||'')}</span>
+     <div class="item-section"><span class="small">${esc(formatDate(d.created_at))}</span></div>
+   </div>`).join('') + '</div>';
 }
  
 async function loadBriefing(){
-const {data,error}=await supabase.from('briefings').select('*').order('briefing_date',{ascending:false}).limit(1);
-const b=data?.[0];
-if(error || !b){
-  document.getElementById('briefing').innerHTML=`<strong>Current DDBB:</strong><br>No live briefing loaded yet. DDBB engine pending integration.`;
-  document.getElementById('worldIntel').innerHTML=`<li>DDBB live intel pending.</li>`;
-  document.getElementById('bridgeIntel').innerHTML=`<li>DIMS-v3 Blueprint and VAULT Architecture are now created.</li>`;
-  document.getElementById('personalIntel').innerHTML=`Next focus: connect engines into KUBERNĒSIS Dashboard v3.0.`;
-  return;
-}
-document.getElementById('briefing').innerHTML=`<strong>Logos:</strong><br>${esc(b.logos_word||'')}<br><br><strong>Rhema:</strong><br>${esc(b.rhema_word||'')}<br><br><strong>Directives:</strong><br>${esc(b.directives||'')}`;
-document.getElementById('worldIntel').innerHTML=`<li>${esc(b.world_intel||'')}</li>`;
-document.getElementById('bridgeIntel').innerHTML=`<li>${esc(b.bridge_intel||'')}</li>`;
-document.getElementById('personalIntel').innerHTML=esc(b.personal_intel||'');
+ const {data,error}=await supabase.from('briefings').select('*').order('briefing_date',{ascending:false}).limit(1);
+ const b=data?.[0];
+ if(error || !b){
+   $('briefing').innerHTML=`<strong>Current DDBB:</strong><br><span class="small">No live briefing loaded yet.</span>`;
+   $('worldIntel').innerHTML=`<li class="small">DDBB live intel pending.</li>`;
+   $('bridgeIntel').innerHTML=`<li class="small">DIMS-v3 Blueprint and VAULT Architecture are now created.</li>`;
+   $('personalIntel').innerHTML=`<span class="small">Next focus: connect engines into KUBERNĒSIS Dashboard v3.0.</span>`;
+   return;
+ }
+ $('briefing').innerHTML=`<strong>Logos:</strong><br><span class="small">${esc(b.logos_word||'')}</span><br><br><strong>Rhema:</strong><br><span class="small">${esc(b.rhema_word||'')}</span><br><br><strong>Directives:</strong><br><span class="small">${esc(b.directives||'')}</span>`;
+ $('worldIntel').innerHTML=`<li class="small">${esc(b.world_intel||'')}</li>`;
+ $('bridgeIntel').innerHTML=`<li class="small">${esc(b.bridge_intel||'')}</li>`;
+ $('personalIntel').innerHTML=`<span class="small">${esc(b.personal_intel||'')}</span>`;
 }
  
 async function loadProjects(){
-const box=document.getElementById('projectsList');
-const {data,error}=await supabase.from('projects').select('*').order('created_at',{ascending:false}).limit(25);
-if(error){box.innerHTML=`<div class="small">Projects error: ${esc(error.message)}</div>`;return;}
-if(!data?.length){box.innerHTML=`<div class="small">No projects found.</div>`;return;}
-box.innerHTML=data.map(p=>`
-  <div class="row">
-    <strong>${esc(p.title)}</strong><br>
-    <span class="small">${badgeStatus(p.status)} · ${badgePriority(p.priority)} · ${esc(p.stream||'')}</span>
-    <p class="small">${esc(p.description||'')}</p>
-    <p class="small">Start: ${esc(p.start_date||'—')} · Target: ${esc(p.target_date||'—')} · Complete: ${esc(p.completed_date||'—')} · Progress: ${esc(p.percent_complete ?? 0)}%</p>
-  </div>
-`).join('');
+ const box=$('projectsList');
+ box.innerHTML=loading('Loading projects...');
+ const {data,error}=await supabase.from('projects').select('*').order('created_at',{ascending:false}).limit(25);
+ if(error){box.innerHTML=errorBox('Projects error', error);return;}
+ state.projects = data || [];
+ renderProjects(state.projects);
+ updateKPIs();
+}
+ 
+function renderProjects(list){
+ const box=$('projectsList');
+ if(!list?.length){box.innerHTML=empty('No projects found.');return;}
+ box.innerHTML = '<div class="project-grid">' + list.map(p=>`
+   <article class="project-card item-card">
+     <span class="item-title">${esc(p.title)}</span>
+     <div class="item-meta">${badgeStatus(p.status)} ${badgePriority(p.priority)} <span class="pill gray">${esc(p.stream||'No stream')}</span></div>
+     <div class="item-section"><span class="item-text">${esc(p.description||'')}</span></div>
+     <div class="item-section small">
+       <span class="date-line">Start: ${esc(p.start_date||'—')}</span><br>
+       <span class="date-line">Target: ${esc(p.target_date||'—')}</span><br>
+       <span class="date-line">Complete: ${esc(p.completed_date||'—')}</span><br>
+       <span class="date-line">Progress: ${esc(p.percent_complete ?? 0)}%</span>
+     </div>
+   </article>`).join('') + '</div>';
 }
  
 async function loadTasks(){
-const {data,error}=await supabase.from('tasks').select('*').order('created_at',{ascending:false}).limit(25);
-if(error){
-  document.getElementById('taskRows').innerHTML=`<tr><td colspan="8">Tasks error: ${esc(error.message)}</td></tr>`;
-  return;
+ const rows=$('taskRows');
+ rows.innerHTML=`<tr><td colspan="8">${loading('Loading tasks...')}</td></tr>`;
+ const {data,error}=await supabase.from('tasks').select('*').order('created_at',{ascending:false}).limit(25);
+ if(error){rows.innerHTML=`<tr><td colspan="8">${errorBox('Tasks error', error)}</td></tr>`;return;}
+ state.tasks = data || [];
+ renderTasks(state.tasks);
+ updateKPIs();
+ updateAlerts();
 }
-if(!data?.length){
-  document.getElementById('taskRows').innerHTML=`<tr><td colspan="8">No tasks found.</td></tr>`;
-  return;
-}
-document.getElementById('taskRows').innerHTML=data.map((t,i)=>`
-  <tr>
-    <td>${i+1}</td>
-    <td>${esc(t.title)}</td>
-    <td>${badgeStatus(t.status)}</td>
-    <td>${badgePriority(t.priority)}</td>
-    <td>${esc(t.start_date||'—')}</td>
-    <td>${esc(t.target_date||'—')}</td>
-    <td>${esc(t.percent_complete ?? 0)}%</td>
-    <td>${esc(t.notes||'')}</td>
-  </tr>
-`).join('');
+ 
+function renderTasks(list){
+ const rows=$('taskRows');
+ if(!list?.length){rows.innerHTML=`<tr><td colspan="8">${empty('No tasks found.')}</td></tr>`;return;}
+ rows.innerHTML=list.map((t,i)=>`
+   <tr>
+     <td>${i+1}</td>
+     <td><strong>${esc(t.title)}</strong></td>
+     <td class="status-cell">${badgeStatus(t.status)}</td>
+     <td class="priority-cell">${badgePriority(t.priority)}</td>
+     <td class="date-cell"><span class="date-line">${esc(t.start_date||'—')}</span></td>
+     <td class="date-cell"><span class="date-line">${esc(t.target_date||'—')}</span></td>
+     <td class="progress-cell">${progressBar(t.percent_complete)}</td>
+     <td>${esc(t.notes||'')}</td>
+   </tr>`).join('');
 }
  
 async function loadTeachings(){
-const box=document.getElementById('teachingsList');
-const {data,error}=await supabase.from('teachings').select('*').order('updated_at',{ascending:false}).limit(12);
-if(error){box.innerHTML=`<span class="small">Content error: ${esc(error.message)}</span>`;return;}
-if(!data?.length){box.innerHTML=`<span class="small">No content saved yet.</span>`;return;}
-box.innerHTML=data.map(t=>`
-  <div class="row" data-id="${esc(t.id)}">
-    <strong>${esc(t.title)}</strong><br>
-    <span class="small">${esc(t.content_type||'Teaching')} · ${badgeStatus(t.status)} · ${badgePriority(t.priority)} · ${(t.tags||[]).join(', ')}</span>
-  </div>
-`).join('');
-box.querySelectorAll('.row').forEach(row=>{
-  row.onclick=()=>{
-    const t=data.find(x=>String(x.id)===row.dataset.id);
-    document.getElementById('readerTitle').textContent=t?.title||'Content';
-    document.getElementById('readerBody').textContent=t?.content_md||'(No content)';
-  };
-});
+ const box=$('teachingsList');
+ box.innerHTML=loading('Loading content...');
+ const {data,error}=await supabase.from('teachings').select('*').order('updated_at',{ascending:false}).limit(12);
+ if(error){box.innerHTML=errorBox('Content error', error);return;}
+ state.teachings = data || [];
+ renderTeachings(state.teachings);
+ updateKPIs();
 }
  
-async function saveTeaching(){
-const title=document.getElementById('title').value.trim();
-const slug=document.getElementById('slug').value.trim() || slugify(title);
-const status=document.getElementById('status').value;
-const priority=document.getElementById('priority').value.trim() || 'high';
-const tags=document.getElementById('tags').value.split(',').map(x=>x.trim()).filter(Boolean);
-const content_md=document.getElementById('content_md').value;
-if(!title){document.getElementById('saveMsg').textContent=' Title required.';return;}
-const row={id:slug,slug,title,status,priority,tags,content_md,updated_at:new Date().toISOString()};
-const {error}=await supabase.from('teachings').upsert(row,{onConflict:'id'});
-document.getElementById('saveMsg').textContent=error?` Error: ${error.message}`:' Saved ✅';
-if(!error){document.getElementById('slug').value=slug;await loadTeachings();}
+function renderTeachings(list){
+ const box=$('teachingsList');
+ if(!list?.length){box.innerHTML=empty('No content saved yet.');return;}
+ box.innerHTML='<div class="item-list">' + list.map(t=>`
+   <div class="item-card row" data-id="${esc(t.id)}" tabindex="0" role="button" aria-label="Open ${esc(t.title)}">
+     <span class="item-title">${esc(t.title)}</span>
+     <div class="item-section"><span class="item-label">Type</span><span class="item-text">${esc(t.content_type||'Teaching')}</span></div>
+     <div class="item-meta">${badgeStatus(t.status)} ${badgePriority(t.priority)}</div>
+     <div class="item-section"><span class="item-label">Tags</span><span class="item-text">${joinTags(t.tags)}</span></div>
+   </div>`).join('') + '</div>';
+ box.querySelectorAll('.row').forEach(row=>{
+   const open = () => {
+     const t=list.find(x=>String(x.id)===row.dataset.id);
+     $('readerTitle').textContent=t?.title||'Content';
+     $('readerMeta').textContent=`${t?.content_type || 'Teaching'} · Updated ${formatDate(t?.updated_at)}`;
+     $('readerBody').textContent=t?.content_md||'(No content)';
+   };
+   row.onclick=open;
+   row.onkeydown=e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); open(); } };
+ });
 }
- 
-document.getElementById('title').addEventListener('input',()=>{
-const slug=document.getElementById('slug');
-if(!slug.value.trim()) slug.value=slugify(document.getElementById('title').value);
-});
  
 async function loadAll(){
-await Promise.all([
-  loadResumePoint(),
-  loadLatestSnapshot(),
-  loadArchitectureDecisions(),
-  loadBriefing(),
-  loadProjects(),
-  loadTasks(),
-  loadTeachings()
-]);
+ const btn=$('refreshBtn');
+ btn.disabled=true;
+ btn.textContent='Refreshing...';
+ await Promise.all([
+   safeLoad('resume', loadResumePoint),
+   safeLoad('snapshot', loadLatestSnapshot),
+   safeLoad('architecture', loadArchitectureDecisions),
+   safeLoad('briefing', loadBriefing),
+   safeLoad('projects', loadProjects),
+   safeLoad('tasks', loadTasks),
+   safeLoad('teachings', loadTeachings)
+ ]);
+ btn.disabled=false;
+ btn.textContent='🔄 Refresh';
 }
  
+restoreTheme();
 loadAll();
 </script>
 </body>

@@ -29,10 +29,10 @@ textarea{min-height:120px}
 @media(max-width:850px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
- 
+
 <body>
 <div class="wrap">
- 
+
 <header>
  <div>
    <h1>👑 KUBERNĒSIS™ Mission Control</h1>
@@ -40,11 +40,10 @@ textarea{min-height:120px}
  </div>
  <button onclick="loadAll()">🔄 Refresh</button>
 </header>
- 
+
 <section class="card">
  <h2>🧭 Command Navigation</h2>
  <p class="small">DGC governs • DIMS manages • KUBERNĒSIS visualizes • OrEl creates • VAULT remembers</p>
- 
  <a class="btn" href="dashboard-v3.html">🧭 Dashboard</a>
  <a class="btn" href="dims-blueprint.html">👑 Blueprint</a>
  <a class="btn" href="vault-architecture.html">📚 VAULT</a>
@@ -52,9 +51,9 @@ textarea{min-height:120px}
  <a class="btn" href="teaching-library-v3.html">📚 Teaching Library</a>
  <a class="btn" href="supabase-test.html">🧪 Supabase Test</a>
 </section>
- 
+
 <div class="grid">
- 
+
 <aside>
  <section class="card"><h2>👑 Current Resume Point</h2><div id="resumePoint">Loading...</div></section>
  <section class="card"><h2>📸 Latest Snapshot</h2><div id="latestSnapshot">Loading...</div></section>
@@ -64,9 +63,9 @@ textarea{min-height:120px}
  <section class="card"><h2>🔗 Bridge Intel</h2><ul id="bridgeIntel"></ul></section>
  <section class="card"><h2>🙌 Personal / Ministry Intel</h2><div id="personalIntel"></div></section>
 </aside>
- 
+
 <main>
- 
+
 <section class="card">
  <h2>👑 Mission Control</h2>
  <table>
@@ -78,7 +77,7 @@ textarea{min-height:120px}
    </tbody>
  </table>
 </section>
- 
+
 <section class="card">
  <h2>🏛️ Dominion1st Engines</h2>
  <span class="pill">⚖️ DGC</span>
@@ -93,69 +92,50 @@ textarea{min-height:120px}
  <span class="pill">💡 OrEl</span>
  <span class="pill">🤖 DivineID</span>
 </section>
- 
+
 <section class="card">
  <h2>📚 Blueprint / VAULT Quick Access</h2>
- <p class="small">Use these governing pages before major changes.</p>
  <a class="btn" href="dims-blueprint.html">👑 Open DIMS Blueprint</a>
  <a class="btn" href="vault-architecture.html">📚 Open VAULT Architecture</a>
 </section>
- 
-<section class="card"><h2>📂 Active Projects</h2><div id="projectsList">Loading...</div></section>
- 
+
+<section class="card"><h2>📂 Projects</h2><div id="projectsList">Loading...</div></section>
+
 <section class="card">
  <h2>📊 Top Tasks</h2>
  <table>
-   <thead><tr><th>#</th><th>Task</th><th>Status</th><th>Priority</th><th>Notes</th></tr></thead>
+   <thead><tr><th>#</th><th>Task</th><th>Status</th><th>Priority</th><th>Notes / Schedule</th></tr></thead>
    <tbody id="taskRows"></tbody>
  </table>
 </section>
- 
+
 <section class="card"><h2>📜 Recent Teachings / Content</h2><div id="teachingsList">Loading...</div></section>
- 
+
 <section class="card">
  <h2>📖 Content Reader</h2>
  <h3 id="readerTitle">Select content</h3>
  <div id="readerBody" class="reader small">Content will appear here.</div>
 </section>
- 
-<section class="card">
- <h2>✍ Quick Save Teaching</h2>
- <input id="title" placeholder="Teaching Title">
- <input id="slug" placeholder="slug-auto-created">
- <select id="status">
-   <option value="draft">Draft</option>
-   <option value="published">Published</option>
-   <option value="open">Open</option>
-   <option value="in_progress">In Progress</option>
- </select>
- <input id="priority" placeholder="priority: high, medium, low" value="high">
- <input id="tags" placeholder="tags separated by commas">
- <textarea id="content_md" placeholder="Teaching content..."></textarea>
- <button onclick="saveTeaching()">💾 Save Teaching</button>
- <span id="saveMsg" class="small"></span>
-</section>
- 
+
 </main>
 </div>
 </div>
- 
+
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
- 
+
 const SUPABASE_URL = 'https://sdquzhsylqpbhrmqjqgk.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
- 
+
 window.loadAll = loadAll;
-window.saveTeaching = saveTeaching;
- 
+
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function slugify(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')}
 function badgeStatus(s){
  const v=(s||'open').toLowerCase();
+ if(v.includes('deferred')) return '⚪ Deferred';
  if(v.includes('active')||v.includes('progress')) return '🟡 Active';
- if(v.includes('closed')||v.includes('complete')) return '🔴 Closed';
+ if(v.includes('closed')||v.includes('complete')) return '🔴 Complete';
  if(v.includes('draft')) return '⚪ Draft';
  if(v.includes('published')) return '🟣 Published';
  return '🟢 Open';
@@ -177,35 +157,23 @@ function shortId(value){
  const s = String(value);
  return s.length > 12 ? s.slice(0,8) + '...' + s.slice(-4) : s;
 }
- 
+
 async function loadResumePoint(){
  const box=document.getElementById('resumePoint');
- const {data,error}=await supabase
-   .from('resume_points')
-   .select('*')
-   .eq('active', true)
-   .order('created_at',{ascending:false})
-   .limit(1);
- 
+ const {data,error}=await supabase.from('resume_points').select('*').eq('active', true).order('created_at',{ascending:false}).limit(1);
  if(error){box.innerHTML=`<div class="small">Resume error: ${esc(error.message)}</div>`;return;}
  const r=data?.[0];
  if(!r){box.innerHTML=`<div class="small">No active resume point found.</div>`;return;}
- 
- const snapshotLine = r.snapshot_id
-   ? `<strong>Snapshot:</strong><br><span class="small">${esc(shortId(r.snapshot_id))}</span><br><br>`
-   : '';
- 
  box.innerHTML=`
    <strong>${esc(r.title)}</strong><br><br>
    <span class="pill">${esc(r.current_phase||'No phase')}</span>
    <span class="pill">${r.active ? 'active' : 'inactive'}</span><br><br>
    <strong>Focus:</strong><br>${esc(r.current_focus||'')}<br><br>
    <strong>Next:</strong><br>${esc(r.next_step||'')}<br><br>
-   ${snapshotLine}
    <span class="small">Created: ${esc(formatDate(r.created_at))}</span>
  `;
 }
- 
+
 async function loadLatestSnapshot(){
  const box=document.getElementById('latestSnapshot');
  const {data,error}=await supabase.from('system_snapshots').select('*').order('created_at',{ascending:false}).limit(1);
@@ -225,27 +193,12 @@ async function loadLatestSnapshot(){
    <span class="small">Created: ${esc(formatDate(s.created_at))}</span>
  `;
 }
- 
+
 async function loadArchitectureDecisions(){
  const box=document.getElementById('architectureDecisions');
- 
- const {data,error}=await supabase
-   .from('asset_registry')
-   .select('asset_code,asset_name,asset_type,description,created_at')
-   .in('asset_type',['ADR','Trigger Registry'])
-   .order('created_at',{ascending:false})
-   .limit(10);
- 
- if(error){
-   box.innerHTML=`<div class="small">Decision error: ${esc(error.message)}</div>`;
-   return;
- }
- 
- if(!data?.length){
-   box.innerHTML=`<div class="small">No decisions found.</div>`;
-   return;
- }
- 
+ const {data,error}=await supabase.from('asset_registry').select('asset_code,asset_name,asset_type,description,created_at').in('asset_type',['ADR','Trigger Registry']).order('created_at',{ascending:false}).limit(10);
+ if(error){box.innerHTML=`<div class="small">Decision error: ${esc(error.message)}</div>`;return;}
+ if(!data?.length){box.innerHTML=`<div class="small">No decisions found.</div>`;return;}
  box.innerHTML=data.map(d=>`
    <div class="row">
      <strong>${esc(d.asset_code)} — ${esc(d.asset_name)}</strong><br>
@@ -253,12 +206,12 @@ async function loadArchitectureDecisions(){
    </div>
  `).join('');
 }
- 
+
 async function loadBriefing(){
  const {data,error}=await supabase.from('briefings').select('*').order('briefing_date',{ascending:false}).limit(1);
  const b=data?.[0];
  if(error || !b){
-   document.getElementById('briefing').innerHTML=`<strong>Current DDBB:</strong><br>No live briefing loaded yet. DDBB engine pending integration.`;
+   document.getElementById('briefing').innerHTML=`<strong>Current DDBB:</strong><br>No live briefing loaded yet.`;
    document.getElementById('worldIntel').innerHTML=`<li>DDBB live intel pending.</li>`;
    document.getElementById('bridgeIntel').innerHTML=`<li>DIMS-v3 Blueprint and VAULT Architecture are now created.</li>`;
    document.getElementById('personalIntel').innerHTML=`Next focus: connect engines into KUBERNĒSIS Dashboard v3.0.`;
@@ -269,10 +222,10 @@ async function loadBriefing(){
  document.getElementById('bridgeIntel').innerHTML=`<li>${esc(b.bridge_intel||'')}</li>`;
  document.getElementById('personalIntel').innerHTML=esc(b.personal_intel||'');
 }
- 
+
 async function loadProjects(){
  const box=document.getElementById('projectsList');
- const {data,error}=await supabase.from('projects').select('*').order('created_at',{ascending:false}).limit(10);
+ const {data,error}=await supabase.from('projects').select('*').order('created_at',{ascending:false}).limit(25);
  if(error){box.innerHTML=`<div class="small">Projects error: ${esc(error.message)}</div>`;return;}
  if(!data?.length){box.innerHTML=`<div class="small">No projects found.</div>`;return;}
  box.innerHTML=data.map(p=>`
@@ -280,12 +233,13 @@ async function loadProjects(){
      <strong>${esc(p.title)}</strong><br>
      <span class="small">${badgeStatus(p.status)} · ${badgePriority(p.priority)} · ${esc(p.stream||'')}</span>
      <p class="small">${esc(p.description||'')}</p>
+     <p class="small">Start: ${esc(p.start_date||'—')} · Target: ${esc(p.target_date||'—')} · Complete: ${esc(p.completed_date||'—')} · Progress: ${esc(p.percent_complete ?? 0)}%</p>
    </div>
  `).join('');
 }
- 
+
 async function loadTasks(){
- const {data,error}=await supabase.from('tasks').select('*').order('created_at',{ascending:false}).limit(10);
+ const {data,error}=await supabase.from('tasks').select('*').order('created_at',{ascending:false}).limit(25);
  if(error){
    document.getElementById('taskRows').innerHTML=`<tr><td colspan="5">Tasks error: ${esc(error.message)}</td></tr>`;
    return;
@@ -300,11 +254,14 @@ async function loadTasks(){
      <td>${esc(t.title)}</td>
      <td>${badgeStatus(t.status)}</td>
      <td>${badgePriority(t.priority)}</td>
-     <td>${esc(t.notes||'')}</td>
+     <td>
+       ${esc(t.notes||'')}<br>
+       <span class="small">Start: ${esc(t.start_date||'—')} · Target: ${esc(t.target_date||'—')} · Complete: ${esc(t.completed_date||'—')} · Progress: ${esc(t.percent_complete ?? 0)}%</span>
+     </td>
    </tr>
  `).join('');
 }
- 
+
 async function loadTeachings(){
  const box=document.getElementById('teachingsList');
  const {data,error}=await supabase.from('teachings').select('*').order('updated_at',{ascending:false}).limit(12);
@@ -324,26 +281,7 @@ async function loadTeachings(){
    };
  });
 }
- 
-async function saveTeaching(){
- const title=document.getElementById('title').value.trim();
- const slug=document.getElementById('slug').value.trim() || slugify(title);
- const status=document.getElementById('status').value;
- const priority=document.getElementById('priority').value.trim() || 'high';
- const tags=document.getElementById('tags').value.split(',').map(x=>x.trim()).filter(Boolean);
- const content_md=document.getElementById('content_md').value;
- if(!title){document.getElementById('saveMsg').textContent=' Title required.';return;}
- const row={id:slug,slug,title,status,priority,tags,content_md,updated_at:new Date().toISOString()};
- const {error}=await supabase.from('teachings').upsert(row,{onConflict:'id'});
- document.getElementById('saveMsg').textContent=error?` Error: ${error.message}`:' Saved ✅';
- if(!error){document.getElementById('slug').value=slug;await loadTeachings();}
-}
- 
-document.getElementById('title').addEventListener('input',()=>{
- const slug=document.getElementById('slug');
- if(!slug.value.trim()) slug.value=slugify(document.getElementById('title').value);
-});
- 
+
 async function loadAll(){
  await Promise.all([
    loadResumePoint(),
@@ -355,7 +293,7 @@ async function loadAll(){
    loadTeachings()
  ]);
 }
- 
+
 loadAll();
 </script>
 </body>

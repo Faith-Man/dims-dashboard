@@ -1,0 +1,149 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Institutional Queue — DOME™</title>
+<link rel="stylesheet" href="dims-shared.css">
+</head><body>
+<div class="page-header">
+  <div><div class="page-title">⏳ Institutional Queue</div><div class="page-sub">Review, institutionalize, and preserve — TÛNESIS™</div></div>
+  <a href="index.html" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">← Home</a>
+</div>
+<nav class="nav-pills">
+  <a class="nav-pill" href="mission-control.html">🎯 Mission Control</a>
+  <a class="nav-pill" href="dims-blueprint.html">👑 KUBERNĒSIS™</a>
+  <a class="nav-pill active" href="institutional-queue.html">⏳ Inst. Queue</a>
+  <a class="nav-pill" href="projects-tasks.html">✅ Projects & Tasks</a>
+  <a class="nav-pill" href="dashboard-v3.html">⚙ System</a>
+</nav>
+<div class="wrap">
+  <div class="grid2">
+    <div>
+      <div class="card">
+        <div class="card-title">🏛 Architecture Decisions <span id="adrCount" style="color:var(--muted);font-size:.8rem"></span></div>
+        <div id="adrList" class="loading">Loading…</div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title">📋 Session Snapshots <span id="snapCount" style="color:var(--muted);font-size:.8rem"></span></div>
+        <div id="snapList" class="loading">Loading…</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📖 Enterprise Lexicon — TÛNESIS™ <span id="glossCount" style="color:var(--muted);font-size:.8rem"></span></div>
+    <input id="glossSearch" placeholder="Search terms…" oninput="filterGloss()" style="max-width:300px;margin-bottom:12px">
+    <div id="glossList" class="loading">Loading…</div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">+ Add Architecture Decision</div>
+      <input id="adr_title" placeholder="Decision title">
+      <input id="adr_module" placeholder="Related module">
+      <textarea id="adr_context" placeholder="Context — why this decision was needed…" style="min-height:60px"></textarea>
+      <textarea id="adr_rationale" placeholder="Rationale — why this was the right decision…" style="min-height:60px"></textarea>
+      <button class="btn" onclick="saveADR()">💾 Save Decision</button>
+      <span id="adrMsg" class="loading" style="margin-left:8px"></span>
+    </div>
+    <div class="card">
+      <div class="card-title">+ Add Session Snapshot</div>
+      <input id="snap_title" placeholder="Session title">
+      <textarea id="snap_summary" placeholder="What was accomplished this session…" style="min-height:60px"></textarea>
+      <textarea id="snap_resume" placeholder="Resume point — where to continue next…" style="min-height:60px"></textarea>
+      <button class="btn" onclick="saveSnap()">💾 Save Snapshot</button>
+      <span id="snapMsg" class="loading" style="margin-left:8px"></span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">+ Add Lexicon Term</div>
+    <div class="grid2">
+      <input id="g_term" placeholder="Term (e.g. TÛNESIS™)">
+      <input id="g_tags" placeholder="Tags (comma separated)">
+    </div>
+    <textarea id="g_def" placeholder="Definition…" style="min-height:60px"></textarea>
+    <button class="btn" onclick="saveGloss()">💾 Save Term</button>
+    <span id="glossMsg" class="loading" style="margin-left:8px"></span>
+  </div>
+</div>
+<div class="scripture-bar">"Sound wisdom is stored up for the righteous…" <strong>— Proverbs 2:7 (Tûshiyyāh)</strong></div>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkcXV6aHN5bHFwYmhybXFqcWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTA4MzYsImV4cCI6MjA5NjU4NjgzNn0.MKwTvnLQ5Xr1vl-L0ngrJ5yi73-uPaaJUGyUggKEo1Y');
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function fmt(d){return d?new Date(d).toLocaleDateString():'—'}
+
+async function loadADRs(){
+  const {data}=await sb.from('architecture_decisions').select('*').order('created_at',{ascending:false});
+  const el=document.getElementById('adrList');
+  if(!data?.length){el.innerHTML='<span class="loading">No decisions yet.</span>';return;}
+  document.getElementById('adrCount').textContent=`(${data.length})`;
+  el.innerHTML=data.map(d=>`<div class="row-item">
+    <div class="row-title">${esc(d.decision_title)} <span class="badge badge-green">${esc(d.decision_status||'approved')}</span></div>
+    ${d.related_module?`<div style="color:var(--gold);font-size:.8rem;margin:3px 0">📦 ${esc(d.related_module)}</div>`:''}
+    ${d.rationale?`<div class="row-meta">${esc(d.rationale.substring(0,120))}${d.rationale.length>120?'…':''}</div>`:''}
+    <div class="row-meta">${fmt(d.created_at)}</div>
+  </div>`).join('');
+}
+
+async function loadSnapshots(){
+  const {data}=await sb.from('session_snapshots').select('*').order('created_at',{ascending:false});
+  const el=document.getElementById('snapList');
+  if(!data?.length){el.innerHTML='<span class="loading">No sessions yet.</span>';return;}
+  document.getElementById('snapCount').textContent=`(${data.length})`;
+  el.innerHTML=data.map(s=>`<div class="row-item">
+    <div class="row-title">${esc(s.session_title||'Session')}</div>
+    <div class="row-meta">${s.session_date||fmt(s.created_at)}</div>
+    ${s.summary?`<div class="row-meta" style="margin-top:4px">${esc(s.summary.substring(0,100))}${s.summary.length>100?'…':''}</div>`:''}
+    ${s.resume_point?`<div style="margin-top:6px;padding:6px;background:rgba(212,175,55,.08);border-left:2px solid var(--gold);font-size:.82rem">▶ ${esc(s.resume_point.substring(0,100))}</div>`:''}
+  </div>`).join('');
+}
+
+let GLOSS=[];
+async function loadGloss(){
+  const {data}=await sb.from('glossary_terms').select('*').order('term',{ascending:true});
+  GLOSS=data||[];
+  document.getElementById('glossCount').textContent=`(${GLOSS.length})`;
+  renderGloss(GLOSS);
+}
+function renderGloss(data){
+  const el=document.getElementById('glossList');
+  if(!data.length){el.innerHTML='<span class="loading">No terms yet.</span>';return;}
+  el.innerHTML=`<table><thead><tr><th>Term</th><th>Definition</th><th>Tags</th></tr></thead><tbody>`+
+    data.map(g=>`<tr>
+      <td><strong style="color:var(--gold)">${esc(g.term)}</strong></td>
+      <td class="row-meta">${g.definition?esc(g.definition.substring(0,120))+(g.definition.length>120?'…':''):''}</td>
+      <td>${(g.tags||[]).map(t=>`<span class="badge badge-grey" style="margin:2px">${esc(t)}</span>`).join('')}</td>
+    </tr>`).join('')+'</tbody></table>';
+}
+window.filterGloss=function(){
+  const q=document.getElementById('glossSearch').value.toLowerCase();
+  renderGloss(q?GLOSS.filter(g=>(g.term||'').toLowerCase().includes(q)||(g.definition||'').toLowerCase().includes(q)):GLOSS);
+};
+
+window.saveADR=async function(){
+  const title=document.getElementById('adr_title').value.trim();
+  if(!title){document.getElementById('adrMsg').textContent='Title required.';return;}
+  const {error}=await sb.from('architecture_decisions').insert({decision_title:title,related_module:document.getElementById('adr_module').value,context:document.getElementById('adr_context').value,rationale:document.getElementById('adr_rationale').value,decision_status:'approved',created_at:new Date().toISOString()});
+  document.getElementById('adrMsg').textContent=error?`Error: ${error.message}`:'Saved ✅';
+  if(!error){['adr_title','adr_module','adr_context','adr_rationale'].forEach(id=>document.getElementById(id).value='');loadADRs();}
+};
+
+window.saveSnap=async function(){
+  const title=document.getElementById('snap_title').value.trim();
+  if(!title){document.getElementById('snapMsg').textContent='Title required.';return;}
+  const {error}=await sb.from('session_snapshots').insert({session_title:title,session_date:new Date().toISOString().split('T')[0],summary:document.getElementById('snap_summary').value,resume_point:document.getElementById('snap_resume').value,created_at:new Date().toISOString()});
+  document.getElementById('snapMsg').textContent=error?`Error: ${error.message}`:'Saved ✅';
+  if(!error){['snap_title','snap_summary','snap_resume'].forEach(id=>document.getElementById(id).value='');loadSnapshots();}
+};
+
+window.saveGloss=async function(){
+  const term=document.getElementById('g_term').value.trim();
+  if(!term){document.getElementById('glossMsg').textContent='Term required.';return;}
+  const id=term.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+  const tags=document.getElementById('g_tags').value.split(',').map(x=>x.trim()).filter(Boolean);
+  const {error}=await sb.from('glossary_terms').upsert({id,term,definition:document.getElementById('g_def').value,tags,updated_at:new Date().toISOString()},{onConflict:'id'});
+  document.getElementById('glossMsg').textContent=error?`Error: ${error.message}`:'Saved ✅';
+  if(!error){['g_term','g_tags','g_def'].forEach(id=>document.getElementById(id).value='');loadGloss();}
+};
+
+Promise.all([loadADRs(),loadSnapshots(),loadGloss()]);
+</script>
+</body></html>

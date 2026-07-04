@@ -1,118 +1,110 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DIMS Teaching Library v3</title>
-  <style>
-    body{font-family:system-ui,Arial;margin:0;background:#eef5ff;color:#0b1733}
-    header{background:#0C1475;color:white;padding:18px}
-    main{max-width:1000px;margin:0 auto;padding:16px}
-    input{width:100%;padding:12px;border-radius:10px;border:1px solid #c8d8ff;margin:12px 0}
-    .grid{display:grid;grid-template-columns:320px 1fr;gap:14px}
-    .card{background:white;border:1px solid #c8d8ff;border-radius:14px;padding:14px}
-    .item{padding:10px;border-bottom:1px solid #ddd;cursor:pointer}
-    .item:hover{background:#f4f8ff}
-    .muted{color:#5b6b8d;font-size:.9rem}
-    pre{white-space:pre-wrap;font-family:inherit;line-height:1.55}
-    @media(max-width:800px){.grid{grid-template-columns:1fr}}
-  </style>
-</head>
-<body>
-<header>
-  <h1>📚 DIMS Teaching Library</h1>
-  <div>Dominion1st Integrated Management System</div>
-</header>
-
-<main>
-  <input id="search" placeholder="Search teachings by title, tag, or content...">
-
-  <div class="grid">
-    <section class="card">
-      <h2>Teachings</h2>
-      <div id="list">Loading...</div>
-    </section>
-
-    <section class="card">
-      <h2 id="title">Select a Teaching</h2>
-      <div id="meta" class="muted"></div>
-      <pre id="body">Teaching content will appear here.</pre>
-    </section>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teaching Center — DOME™</title>
+<link rel="stylesheet" href="dims-shared.css">
+<style>
+.teaching-reader{background:var(--navy);border:1px solid var(--line);border-radius:4px;padding:16px;white-space:pre-wrap;line-height:1.7;font-size:.9rem;min-height:200px;margin-top:8px}
+.tag{display:inline-block;padding:2px 8px;background:rgba(212,175,55,.1);border:1px solid var(--gold3);color:var(--gold);font-size:.75rem;border-radius:2px;margin:2px}
+</style>
+</head><body>
+<div class="page-header">
+  <div><div class="page-title">📖 Teaching Center</div><div class="page-sub">Kingdom teachings, content, and NESHAMAH records</div></div>
+  <a href="index.html" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">← Home</a>
+</div>
+<nav class="nav-pills">
+  <a class="nav-pill" href="mission-control.html">🎯 Mission Control</a>
+  <a class="nav-pill active" href="teaching-library-v3.html">📖 Teaching Center</a>
+  <a class="nav-pill" href="neshamah.html">💨 NESHAMAH</a>
+  <a class="nav-pill" href="dashboard-v3.html">⚙ System</a>
+</nav>
+<div class="wrap">
+  <div class="grid2">
+    <div>
+      <div class="card">
+        <div class="card-title">📜 Recent Teachings <span id="teachCount" style="color:var(--muted);font-size:.8rem"></span></div>
+        <input id="searchTeach" placeholder="Search teachings…" oninput="filterTeachings()" style="margin-bottom:10px">
+        <div id="teachingsList" class="loading">Loading…</div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title">📖 Content Reader</div>
+        <div id="readerTitle" style="font-family:'Cinzel',serif;color:var(--gold);margin-bottom:8px">Select a teaching</div>
+        <div id="readerTags"></div>
+        <div id="readerBody" class="teaching-reader">Content will appear here when you select a teaching.</div>
+      </div>
+    </div>
   </div>
-</main>
-
+  <div class="card">
+    <div class="card-title">✍ Save Teaching / Content</div>
+    <div class="grid2">
+      <input id="t_title" placeholder="Title">
+      <input id="t_slug" placeholder="slug-auto-created">
+    </div>
+    <div class="grid2">
+      <select id="t_status"><option value="draft">Draft</option><option value="published">Published</option><option value="open">Open</option><option value="in_progress">In Progress</option></select>
+      <select id="t_type"><option value="Teaching">Teaching</option><option value="Diagnosis">Diagnosis</option><option value="Principle">Principle</option><option value="Revelation">Revelation</option><option value="Briefing">Briefing</option></select>
+    </div>
+    <div class="grid2">
+      <input id="t_priority" placeholder="Priority: high, medium, low" value="high">
+      <input id="t_tags" placeholder="Tags (comma separated)">
+    </div>
+    <input id="t_summary" placeholder="Brief summary…">
+    <textarea id="t_content" placeholder="Full teaching content…"></textarea>
+    <button class="btn" onclick="saveTeaching()">💾 Save Teaching</button>
+    <span id="tMsg" class="loading" style="margin-left:8px"></span>
+  </div>
+</div>
+<div class="scripture-bar">"My people are destroyed for lack of knowledge." <strong>— Hosea 4:6</strong></div>
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkcXV6aHN5bHFwYmhybXFqcWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTA4MzYsImV4cCI6MjA5NjU4NjgzNn0.MKwTvnLQ5Xr1vl-L0ngrJ5yi73-uPaaJUGyUggKEo1Y');
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function slugify(s){return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')}
+function badge(s){const v=(s||'').toLowerCase();if(v.includes('published'))return`<span class="badge badge-green">${esc(s)}</span>`;if(v.includes('draft'))return`<span class="badge badge-grey">${esc(s)}</span>`;return`<span class="badge badge-blue">${esc(s)}</span>`;}
 
-const supabase = createClient(
-  'https://sdquzhsylqpbhrmqjqgk.supabase.co',
-  'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How'
-);
-
-let teachings = [];
-
-function esc(s){
-  return String(s ?? '').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-}
-
-function renderList(){
-  const q = document.getElementById('search').value.toLowerCase().trim();
-
-  const filtered = teachings.filter(t => {
-    const haystack = [
-      t.title,
-      t.status,
-      t.priority,
-      ...(t.tags || []),
-      t.content_md
-    ].join(' ').toLowerCase();
-
-    return !q || haystack.includes(q);
-  });
-
-  const list = document.getElementById('list');
-
-  if (!filtered.length) {
-    list.innerHTML = '<div class="muted">No teachings found.</div>';
-    return;
-  }
-
-  list.innerHTML = filtered.map(t => `
-    <div class="item" data-id="${esc(t.id)}">
-      <strong>${esc(t.title)}</strong><br>
-      <span class="muted">${esc(t.status || '')} · ${esc(t.priority || '')} · ${(t.tags || []).join(', ')}</span>
-    </div>
-  `).join('');
-
-  list.querySelectorAll('.item').forEach(el => {
-    el.onclick = () => {
-      const t = teachings.find(x => String(x.id) === el.dataset.id);
-      document.getElementById('title').textContent = t.title || 'Untitled';
-      document.getElementById('meta').textContent =
-        `${t.status || ''} · ${t.priority || ''} · ${(t.tags || []).join(', ')}`;
-      document.getElementById('body').textContent = t.content_md || '';
-    };
-  });
-}
-
+let ALL_TEACH=[];
 async function loadTeachings(){
-  const { data, error } = await supabase
-    .from('teachings')
-    .select('*')
-    .order('updated_at', { ascending:false });
-
-  if (error) {
-    document.getElementById('list').textContent = 'Error: ' + error.message;
-    return;
-  }
-
-  teachings = data || [];
-  renderList();
+  const {data}=await sb.from('teachings').select('*').order('updated_at',{ascending:false});
+  ALL_TEACH=data||[];
+  document.getElementById('teachCount').textContent=`(${ALL_TEACH.length})`;
+  renderTeachings(ALL_TEACH);
 }
+function renderTeachings(data){
+  const el=document.getElementById('teachingsList');
+  if(!data.length){el.innerHTML='<span class="loading">No teachings found.</span>';return;}
+  el.innerHTML=data.map(t=>`<div class="row-item" style="cursor:pointer" onclick="readTeaching('${esc(t.id)}')">
+    <div class="row-title">${esc(t.title)}</div>
+    <div style="margin:4px 0">${badge(t.status||'draft')} <span class="badge badge-blue">${esc(t.content_type||'Teaching')}</span></div>
+    <div>${(t.tags||[]).map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div>
+  </div>`).join('');
+}
+window.filterTeachings=function(){
+  const q=document.getElementById('searchTeach').value.toLowerCase();
+  renderTeachings(q?ALL_TEACH.filter(t=>(t.title||'').toLowerCase().includes(q)||(t.content_md||'').toLowerCase().includes(q)||(t.tags||[]).some(x=>x.toLowerCase().includes(q))):ALL_TEACH);
+};
+window.readTeaching=function(id){
+  const t=ALL_TEACH.find(x=>String(x.id)===id);
+  if(!t)return;
+  document.getElementById('readerTitle').textContent=t.title||'Teaching';
+  document.getElementById('readerTags').innerHTML=(t.tags||[]).map(x=>`<span class="tag">${esc(x)}</span>`).join('');
+  document.getElementById('readerBody').textContent=t.content_md||'(No content)';
+};
 
-document.getElementById('search').addEventListener('input', renderList);
+window.saveTeaching=async function(){
+  const title=document.getElementById('t_title').value.trim();
+  const slug=document.getElementById('t_slug').value.trim()||slugify(title);
+  if(!title){document.getElementById('tMsg').textContent='Title required.';return;}
+  const tags=document.getElementById('t_tags').value.split(',').map(x=>x.trim()).filter(Boolean);
+  const {error}=await sb.from('teachings').upsert({id:slug,slug,title,status:document.getElementById('t_status').value,content_type:document.getElementById('t_type').value,priority:document.getElementById('t_priority').value,tags,summary:document.getElementById('t_summary').value,content_md:document.getElementById('t_content').value,updated_at:new Date().toISOString()},{onConflict:'id'});
+  document.getElementById('tMsg').textContent=error?`Error: ${error.message}`:'Saved ✅';
+  if(!error){document.getElementById('t_slug').value=slug;loadTeachings();}
+};
+
+document.getElementById('t_title').addEventListener('input',()=>{
+  const s=document.getElementById('t_slug');
+  if(!s.value.trim())s.value=slugify(document.getElementById('t_title').value);
+});
 
 loadTeachings();
 </script>
-</body>
-</html>
+</body></html>

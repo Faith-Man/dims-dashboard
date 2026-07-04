@@ -1,0 +1,115 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mission Control — DOME™</title>
+<link rel="stylesheet" href="dims-shared.css">
+</head><body>
+<div class="page-header">
+  <div><div class="page-title">🎯 Mission Control</div><div class="page-sub">Command and execute Kingdom missions</div></div>
+  <a href="index.html" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">← Home</a>
+</div>
+<nav class="nav-pills">
+  <a class="nav-pill active" href="mission-control.html">🎯 Mission Control</a>
+  <a class="nav-pill" href="dims-blueprint.html">👑 KUBERNĒSIS™</a>
+  <a class="nav-pill" href="projects-tasks.html">✅ Projects & Tasks</a>
+  <a class="nav-pill" href="institutional-queue.html">⏳ Inst. Queue</a>
+  <a class="nav-pill" href="dashboard-v3.html">⚙ System</a>
+</nav>
+<div class="wrap">
+  <div class="grid2">
+    <div>
+      <div class="card">
+        <div class="card-title">👑 Current Resume Point</div>
+        <div id="resumePoint" class="loading">Loading…</div>
+      </div>
+      <div class="card">
+        <div class="card-title">📸 Latest Snapshot</div>
+        <div id="latestSnapshot" class="loading">Loading…</div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title">📋 All Snapshots</div>
+        <div id="allSnapshots" class="loading">Loading…</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📊 MARTUREŌ Reports</div>
+    <div id="martureoReports" class="loading">Loading…</div>
+  </div>
+  <div class="card">
+    <div class="card-title">+ Create Resume Point</div>
+    <input id="rp_title" placeholder="Title">
+    <input id="rp_phase" placeholder="Current phase">
+    <input id="rp_focus" placeholder="Current focus">
+    <input id="rp_next" placeholder="Next step">
+    <button class="btn" onclick="saveResumePoint()">💾 Save Resume Point</button>
+    <span id="rpMsg" class="loading" style="margin-left:8px"></span>
+  </div>
+</div>
+<div class="scripture-bar">"Write the vision and make it plain…" <strong>— Habakkuk 2:2</strong></div>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkcXV6aHN5bHFwYmhybXFqcWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTA4MzYsImV4cCI6MjA5NjU4NjgzNn0.MKwTvnLQ5Xr1vl-L0ngrJ5yi73-uPaaJUGyUggKEo1Y');
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function fmt(d){return d?new Date(d).toLocaleString():'—'}
+function badge(s){const v=(s||'').toLowerCase();if(v.includes('active')||v.includes('open'))return`<span class="badge badge-green">${esc(s)}</span>`;if(v.includes('complete'))return`<span class="badge badge-blue">${esc(s)}</span>`;return`<span class="badge badge-grey">${esc(s)}</span>`;}
+
+async function loadResumePoint(){
+  const {data}=await sb.from('resume_points').select('*').eq('active',true).order('created_at',{ascending:false}).limit(1);
+  const r=data?.[0];const el=document.getElementById('resumePoint');
+  if(!r){el.innerHTML='<span class="loading">No active resume point.</span>';return;}
+  el.innerHTML=`<div class="row-title">${esc(r.title)}</div>
+    <div style="margin:8px 0">${badge(r.current_phase||'active')}</div>
+    ${r.current_focus?`<div style="margin:8px 0"><strong style="color:var(--gold)">Focus:</strong><br>${esc(r.current_focus)}</div>`:''}
+    ${r.next_step?`<div style="margin:8px 0"><strong style="color:var(--gold)">Next:</strong><br>${esc(r.next_step)}</div>`:''}
+    <div class="row-meta">${fmt(r.created_at)}</div>`;
+}
+
+async function loadLatestSnapshot(){
+  const {data}=await sb.from('system_snapshots').select('*').order('created_at',{ascending:false}).limit(1);
+  const s=data?.[0];const el=document.getElementById('latestSnapshot');
+  if(!s){el.innerHTML='<span class="loading">No snapshots found.</span>';return;}
+  let next='';if(Array.isArray(s.next_actions)&&s.next_actions.length){next='<ul style="margin-top:8px;padding-left:16px">'+s.next_actions.map(x=>`<li style="font-size:.85rem;margin-bottom:3px">${esc(x)}</li>`).join('')+'</ul>';}
+  el.innerHTML=`<div class="row-title">${esc(s.title)}</div>
+    <div style="margin:6px 0">${badge(s.status||'active')} ${s.phase?`<span class="badge badge-blue">${esc(s.phase)}</span>`:''}</div>
+    ${s.summary?`<div style="margin:8px 0;font-size:.85rem">${esc(s.summary)}</div>`:''}${next}
+    <div class="row-meta">${fmt(s.created_at)}</div>`;
+}
+
+async function loadAllSnapshots(){
+  const {data}=await sb.from('system_snapshots').select('*').order('created_at',{ascending:false}).limit(20);
+  const el=document.getElementById('allSnapshots');
+  if(!data?.length){el.innerHTML='<span class="loading">No snapshots.</span>';return;}
+  el.innerHTML=data.map(s=>`<div class="row-item">
+    <div class="row-title">${esc(s.title)}</div>
+    <div style="margin:4px 0">${badge(s.status||'')} ${s.phase?`<span class="badge badge-blue">${esc(s.phase)}</span>`:''}</div>
+    ${s.summary?`<div class="row-meta">${esc(s.summary.substring(0,100))}${s.summary.length>100?'…':''}</div>`:''}
+    <div class="row-meta">${fmt(s.created_at)}</div>
+  </div>`).join('');
+}
+
+async function loadMartureo(){
+  const {data}=await sb.from('martureo_reports').select('*').order('created_at',{ascending:false});
+  const el=document.getElementById('martureoReports');
+  if(!data?.length){el.innerHTML='<span class="loading">No reports found.</span>';return;}
+  el.innerHTML=`<table><thead><tr><th>Title</th><th>Phase</th><th>Status</th><th>Date</th></tr></thead><tbody>`+
+    data.map(r=>`<tr>
+      <td><strong>${esc(r.title)}</strong>${r.next_actions?`<div class="row-meta">${esc(r.next_actions.substring(0,80))}</div>`:''}</td>
+      <td>${esc(r.phase||'—')}</td>
+      <td>${badge(r.status||'')}</td>
+      <td class="row-meta">${fmt(r.created_at)}</td>
+    </tr>`).join('')+'</tbody></table>';
+}
+
+window.saveResumePoint=async function(){
+  const title=document.getElementById('rp_title').value.trim();
+  if(!title){document.getElementById('rpMsg').textContent='Title required.';return;}
+  await sb.from('resume_points').update({active:false}).eq('active',true);
+  const {error}=await sb.from('resume_points').insert({title,current_phase:document.getElementById('rp_phase').value,current_focus:document.getElementById('rp_focus').value,next_step:document.getElementById('rp_next').value,active:true,created_at:new Date().toISOString()});
+  document.getElementById('rpMsg').textContent=error?`Error: ${error.message}`:'Saved ✅';
+  if(!error){['rp_title','rp_phase','rp_focus','rp_next'].forEach(id=>document.getElementById(id).value='');loadResumePoint();}
+};
+
+Promise.all([loadResumePoint(),loadLatestSnapshot(),loadAllSnapshots(),loadMartureo()]);
+</script>
+</body></html>

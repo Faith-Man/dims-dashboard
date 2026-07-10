@@ -1,13 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Projects & Tasks — DOME™</title>
 <link rel="stylesheet" href="dims-shared.css">
-<style>
-  .table-wrap{width:100%;overflow-x:auto}
-  .header-filter{display:block;width:100%;min-width:110px;margin-top:6px;padding:5px 6px;font-size:.72rem}
-  .search-row{margin:10px 0 14px}
-  .search-row input{width:100%}
-  #projectsList table,#tasksList table{min-width:900px}
-</style>
 </head><body>
 <div class="page-header">
   <div><div class="page-title">✅ Projects & Tasks</div><div class="page-sub">Track projects, tasks, and activities</div></div>
@@ -22,16 +15,10 @@
 <div class="wrap">
   <div class="card">
     <div class="card-title">📂 Projects <span id="projCount" style="color:var(--muted);font-size:.8rem"></span></div>
-    <div class="search-row">
-      <input id="projectSearch" type="search" placeholder="Search projects..." oninput="filterProjectRows()">
-    </div>
     <div id="projectsList" class="loading">Loading…</div>
   </div>
   <div class="card">
     <div class="card-title">✅ Tasks <span id="taskCount" style="color:var(--muted);font-size:.8rem"></span></div>
-    <div class="search-row">
-      <input id="taskSearch" type="search" placeholder="Search tasks and notes..." oninput="filterTaskRows()">
-    </div>
     <div id="tasksList" class="loading">Loading…</div>
   </div>
   <div class="grid2">
@@ -70,38 +57,17 @@ async function loadProjects(){
   const el=document.getElementById('projectsList');
   if(error||!data?.length){el.innerHTML=`<span class="loading">${error?error.message:'No projects found.'}</span>`;return;}
   document.getElementById('projCount').textContent=`(${data.length})`;
-  el.innerHTML=`<div class="table-wrap"><table><thead><tr>
-    <th>#</th>
-    <th>Project</th>
-    <th>Stream</th>
-    <th>Status
-      <select id="projectStatusFilter" class="header-filter" onchange="filterProjectRows()">
-        <option value="">All</option><option value="open">Open</option><option value="active">Active</option><option value="in_progress">In Progress</option><option value="complete">Complete</option><option value="completed">Completed</option><option value="deferred">Deferred</option>
-      </select>
-    </th>
-    <th>Priority
-      <select id="projectPriorityFilter" class="header-filter" onchange="filterProjectRows()">
-        <option value="">All</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
-      </select>
-    </th>
-    <th>Project Type
-      <select id="projectTypeFilter" class="header-filter" onchange="filterProjectRows()">
-        <option value="">All</option><option value="operational">Operational</option><option value="deferred">Deferred</option><option value="research">Research</option><option value="governance">Governance</option><option value="enhancement">Enhancement</option>
-      </select>
-    </th>
-    <th>Start</th><th>Target</th><th>Progress</th>
-  </tr></thead><tbody>`+
-    data.map((p,i)=>`<tr data-project-type="${esc(p.project_type||'operational')}">
+  el.innerHTML=`<table><thead><tr><th>#</th><th>Project</th><th>Stream</th><th>Status</th><th>Priority</th><th>Start</th><th>Target</th><th>Progress</th></tr></thead><tbody>`+
+    data.map((p,i)=>`<tr>
       <td style="color:var(--muted)">${i+1}</td>
       <td><strong>${esc(p.title)}</strong>${p.description?`<div class="row-meta">${esc(p.description.substring(0,60))}${p.description.length>60?'…':''}</div>`:''}</td>
       <td class="row-meta">${esc(p.stream||'—')}</td>
       <td>${badge(p.status||'open')}</td>
       <td>${pri(p.priority)}</td>
-      <td class="row-meta">${esc(p.project_type||'operational')}</td>
       <td class="row-meta">${fmt(p.start_date)}</td>
       <td class="row-meta">${fmt(p.target_date)}</td>
       <td><div class="progress-bar"><div class="progress-fill" style="width:${p.percent_complete||0}%"></div></div><div class="row-meta">${p.percent_complete||0}%</div></td>
-    </tr>`).join('')+'</tbody></table></div>';
+    </tr>`).join('')+'</tbody></table>';
 }
 
 async function loadTasks(){
@@ -109,37 +75,17 @@ async function loadTasks(){
   const el=document.getElementById('tasksList');
   if(error||!data?.length){el.innerHTML=`<span class="loading">${error?error.message:'No tasks found.'}</span>`;return;}
   document.getElementById('taskCount').textContent=`(${data.length})`;
-  el.innerHTML=`<div class="table-wrap"><table><thead><tr>
-    <th>#</th>
-    <th>Task</th>
-    <th>Status
-      <select id="taskStatusFilter" class="header-filter" onchange="filterTaskRows()">
-        <option value="">All</option><option value="open">Open</option><option value="active">Active</option><option value="in_progress">In Progress</option><option value="complete">Complete</option><option value="completed">Completed</option><option value="deferred">Deferred</option>
-      </select>
-    </th>
-    <th>Priority
-      <select id="taskPriorityFilter" class="header-filter" onchange="filterTaskRows()">
-        <option value="">All</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
-      </select>
-    </th>
-    <th>Task Type
-      <select id="taskTypeFilter" class="header-filter" onchange="filterTaskRows()">
-        <option value="">All</option><option value="operational">Operational</option><option value="deferred">Deferred</option><option value="research">Research</option><option value="governance">Governance</option><option value="enhancement">Enhancement</option>
-      </select>
-    </th>
-    <th>Start</th><th>Target</th><th>Progress</th><th>Notes</th>
-  </tr></thead><tbody>`+
-    data.map((t,i)=>`<tr data-task-type="${esc(t.task_type||'operational')}">
+  el.innerHTML=`<table><thead><tr><th>#</th><th>Task</th><th>Status</th><th>Priority</th><th>Start</th><th>Target</th><th>Progress</th><th>Notes</th></tr></thead><tbody>`+
+    data.map((t,i)=>`<tr>
       <td style="color:var(--muted)">${i+1}</td>
       <td><strong>${esc(t.title)}</strong></td>
       <td>${badge(t.status||'open')}</td>
       <td>${pri(t.priority)}</td>
-      <td class="row-meta">${esc(t.task_type||'operational')}</td>
       <td class="row-meta">${fmt(t.start_date)}</td>
       <td class="row-meta">${fmt(t.target_date)}</td>
       <td><div class="progress-bar"><div class="progress-fill" style="width:${t.percent_complete||0}%"></div></div><div class="row-meta">${t.percent_complete||0}%</div></td>
       <td class="row-meta">${esc(t.notes||'')}</td>
-    </tr>`).join('')+'</tbody></table></div>';
+    </tr>`).join('')+'</tbody></table>';
 }
 
 window.saveProject=async function(){
@@ -156,56 +102,6 @@ window.saveTask=async function(){
   const {error}=await sb.from('tasks').insert({title,notes:document.getElementById('t_notes').value,status:document.getElementById('t_status').value,priority:document.getElementById('t_priority').value,created_at:new Date().toISOString()});
   document.getElementById('tMsg').textContent=error?`Error: ${error.message}`:'Saved ✅';
   if(!error){['t_title','t_notes'].forEach(id=>document.getElementById(id).value='');loadTasks();}
-};
-
-window.filterProjectRows=function(){
-  const query=String(document.getElementById('projectSearch')?.value||'').trim().toLowerCase();
-  const status=String(document.getElementById('projectStatusFilter')?.value||'').trim().toLowerCase();
-  const priority=String(document.getElementById('projectPriorityFilter')?.value||'').trim().toLowerCase();
-  const projectType=String(document.getElementById('projectTypeFilter')?.value||'').trim().toLowerCase();
-  const rows=document.querySelectorAll('#projectsList tbody tr');
-  let visible=0;
-  rows.forEach(row=>{
-    const text=row.textContent.toLowerCase();
-    const cells=row.querySelectorAll('td');
-    const rowStatus=String(cells[3]?.textContent||'').trim().toLowerCase();
-    const rowPriority=String(cells[4]?.textContent||'').trim().toLowerCase();
-    const rowType=String(row.dataset.projectType||'operational').trim().toLowerCase();
-    const matchesSearch=!query||text.includes(query);
-    const matchesStatus=!status||rowStatus.includes(status.replace('_',' '));
-    const matchesPriority=!priority||rowPriority.includes(priority);
-    const matchesType=!projectType||rowType===projectType;
-    const matches=matchesSearch&&matchesStatus&&matchesPriority&&matchesType;
-    row.style.display=matches?'':'none';
-    if(matches)visible++;
-  });
-  const count=document.getElementById('projCount');
-  if(count&&rows.length)count.textContent=(query||status||priority||projectType)?`(${visible} of ${rows.length})`:`(${rows.length})`;
-};
-
-window.filterTaskRows=function(){
-  const query=String(document.getElementById('taskSearch')?.value||'').trim().toLowerCase();
-  const status=String(document.getElementById('taskStatusFilter')?.value||'').trim().toLowerCase();
-  const priority=String(document.getElementById('taskPriorityFilter')?.value||'').trim().toLowerCase();
-  const taskType=String(document.getElementById('taskTypeFilter')?.value||'').trim().toLowerCase();
-  const rows=document.querySelectorAll('#tasksList tbody tr');
-  let visible=0;
-  rows.forEach(row=>{
-    const text=row.textContent.toLowerCase();
-    const cells=row.querySelectorAll('td');
-    const rowStatus=String(cells[2]?.textContent||'').trim().toLowerCase();
-    const rowPriority=String(cells[3]?.textContent||'').trim().toLowerCase();
-    const rowType=String(row.dataset.taskType||'operational').trim().toLowerCase();
-    const matchesSearch=!query||text.includes(query);
-    const matchesStatus=!status||rowStatus.includes(status.replace('_',' '));
-    const matchesPriority=!priority||rowPriority.includes(priority);
-    const matchesType=!taskType||rowType===taskType;
-    const matches=matchesSearch&&matchesStatus&&matchesPriority&&matchesType;
-    row.style.display=matches?'':'none';
-    if(matches)visible++;
-  });
-  const count=document.getElementById('taskCount');
-  if(count&&rows.length)count.textContent=(query||status||priority||taskType)?`(${visible} of ${rows.length})`:`(${rows.length})`;
 };
 
 Promise.all([loadProjects(),loadTasks()]);

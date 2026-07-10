@@ -15,12 +15,20 @@
 <div class="wrap">
   <div class="card">
     <div class="card-title">📂 Projects <span id="projCount" style="color:var(--muted);font-size:.8rem"></span></div>
-    <input id="projectSearch" type="search" placeholder="Search projects..." oninput="filterProjectRows()" style="width:100%;margin:10px 0 14px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0 14px">
+      <input id="projectSearch" type="search" placeholder="Search projects..." oninput="filterProjectRows()" style="width:100%">
+      <select id="projectStatusFilter" onchange="filterProjectRows()"><option value="">All status</option><option value="open">Open</option><option value="active">Active</option><option value="in_progress">In Progress</option><option value="complete">Complete</option><option value="completed">Completed</option><option value="deferred">Deferred</option></select>
+      <select id="projectPriorityFilter" onchange="filterProjectRows()"><option value="">All priority</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+    </div>
     <div id="projectsList" class="loading">Loading…</div>
   </div>
   <div class="card">
     <div class="card-title">✅ Tasks <span id="taskCount" style="color:var(--muted);font-size:.8rem"></span></div>
-    <input id="taskSearch" type="search" placeholder="Search tasks and notes..." oninput="filterTaskRows()" style="width:100%;margin:10px 0 14px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0 14px">
+      <input id="taskSearch" type="search" placeholder="Search tasks and notes..." oninput="filterTaskRows()" style="width:100%">
+      <select id="taskStatusFilter" onchange="filterTaskRows()"><option value="">All status</option><option value="open">Open</option><option value="active">Active</option><option value="in_progress">In Progress</option><option value="complete">Complete</option><option value="completed">Completed</option><option value="deferred">Deferred</option></select>
+      <select id="taskPriorityFilter" onchange="filterTaskRows()"><option value="">All priority</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+    </div>
     <div id="tasksList" class="loading">Loading…</div>
   </div>
   <div class="grid2">
@@ -108,20 +116,46 @@ window.saveTask=async function(){
 
 window.filterProjectRows=function(){
   const query=String(document.getElementById('projectSearch')?.value||'').trim().toLowerCase();
+  const status=String(document.getElementById('projectStatusFilter')?.value||'').trim().toLowerCase();
+  const priority=String(document.getElementById('projectPriorityFilter')?.value||'').trim().toLowerCase();
   const rows=document.querySelectorAll('#projectsList tbody tr');
   let visible=0;
-  rows.forEach(row=>{const matches=row.textContent.toLowerCase().includes(query);row.style.display=matches?'':'none';if(matches)visible++;});
+  rows.forEach(row=>{
+    const text=row.textContent.toLowerCase();
+    const cells=row.querySelectorAll('td');
+    const rowStatus=String(cells[3]?.textContent||'').trim().toLowerCase();
+    const rowPriority=String(cells[4]?.textContent||'').trim().toLowerCase();
+    const matchesSearch=!query||text.includes(query);
+    const matchesStatus=!status||rowStatus.includes(status.replace('_',' '));
+    const matchesPriority=!priority||rowPriority.includes(priority);
+    const matches=matchesSearch&&matchesStatus&&matchesPriority;
+    row.style.display=matches?'':'none';
+    if(matches)visible++;
+  });
   const count=document.getElementById('projCount');
-  if(count&&rows.length)count.textContent=query?`(${visible} of ${rows.length})`:`(${rows.length})`;
+  if(count&&rows.length)count.textContent=(query||status||priority)?`(${visible} of ${rows.length})`:`(${rows.length})`;
 };
 
 window.filterTaskRows=function(){
   const query=String(document.getElementById('taskSearch')?.value||'').trim().toLowerCase();
+  const status=String(document.getElementById('taskStatusFilter')?.value||'').trim().toLowerCase();
+  const priority=String(document.getElementById('taskPriorityFilter')?.value||'').trim().toLowerCase();
   const rows=document.querySelectorAll('#tasksList tbody tr');
   let visible=0;
-  rows.forEach(row=>{const matches=row.textContent.toLowerCase().includes(query);row.style.display=matches?'':'none';if(matches)visible++;});
+  rows.forEach(row=>{
+    const text=row.textContent.toLowerCase();
+    const cells=row.querySelectorAll('td');
+    const rowStatus=String(cells[2]?.textContent||'').trim().toLowerCase();
+    const rowPriority=String(cells[3]?.textContent||'').trim().toLowerCase();
+    const matchesSearch=!query||text.includes(query);
+    const matchesStatus=!status||rowStatus.includes(status.replace('_',' '));
+    const matchesPriority=!priority||rowPriority.includes(priority);
+    const matches=matchesSearch&&matchesStatus&&matchesPriority;
+    row.style.display=matches?'':'none';
+    if(matches)visible++;
+  });
   const count=document.getElementById('taskCount');
-  if(count&&rows.length)count.textContent=query?`(${visible} of ${rows.length})`:`(${rows.length})`;
+  if(count&&rows.length)count.textContent=(query||status||priority)?`(${visible} of ${rows.length})`:`(${rows.length})`;
 };
 
 Promise.all([loadProjects(),loadTasks()]);

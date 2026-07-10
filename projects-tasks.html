@@ -15,10 +15,12 @@
 <div class="wrap">
   <div class="card">
     <div class="card-title">📂 Projects <span id="projCount" style="color:var(--muted);font-size:.8rem"></span></div>
+    <input id="projectSearch" type="search" placeholder="Search projects..." oninput="filterProjectRows()" style="width:100%;margin:10px 0 14px">
     <div id="projectsList" class="loading">Loading…</div>
   </div>
   <div class="card">
     <div class="card-title">✅ Tasks <span id="taskCount" style="color:var(--muted);font-size:.8rem"></span></div>
+    <input id="taskSearch" type="search" placeholder="Search tasks and notes..." oninput="filterTaskRows()" style="width:100%;margin:10px 0 14px">
     <div id="tasksList" class="loading">Loading…</div>
   </div>
   <div class="grid2">
@@ -102,6 +104,24 @@ window.saveTask=async function(){
   const {error}=await sb.from('tasks').insert({title,notes:document.getElementById('t_notes').value,status:document.getElementById('t_status').value,priority:document.getElementById('t_priority').value,created_at:new Date().toISOString()});
   document.getElementById('tMsg').textContent=error?`Error: ${error.message}`:'Saved ✅';
   if(!error){['t_title','t_notes'].forEach(id=>document.getElementById(id).value='');loadTasks();}
+};
+
+window.filterProjectRows=function(){
+  const query=String(document.getElementById('projectSearch')?.value||'').trim().toLowerCase();
+  const rows=document.querySelectorAll('#projectsList tbody tr');
+  let visible=0;
+  rows.forEach(row=>{const matches=row.textContent.toLowerCase().includes(query);row.style.display=matches?'':'none';if(matches)visible++;});
+  const count=document.getElementById('projCount');
+  if(count&&rows.length)count.textContent=query?`(${visible} of ${rows.length})`:`(${rows.length})`;
+};
+
+window.filterTaskRows=function(){
+  const query=String(document.getElementById('taskSearch')?.value||'').trim().toLowerCase();
+  const rows=document.querySelectorAll('#tasksList tbody tr');
+  let visible=0;
+  rows.forEach(row=>{const matches=row.textContent.toLowerCase().includes(query);row.style.display=matches?'':'none';if(matches)visible++;});
+  const count=document.getElementById('taskCount');
+  if(count&&rows.length)count.textContent=query?`(${visible} of ${rows.length})`:`(${rows.length})`;
 };
 
 Promise.all([loadProjects(),loadTasks()]);

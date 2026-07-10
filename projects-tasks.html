@@ -1,18 +1,9 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Projects & Tasks — DOME™</title>
 <link rel="stylesheet" href="dims-shared.css">
-<style>
-  .toolbar{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:10px 0 16px}
-  .toolbar input,.toolbar select{width:100%}
-  .mini{font-size:.72rem;color:var(--muted);margin-top:4px;line-height:1.35}
-  .queue-chip{display:inline-block;border:1px solid var(--gold3);color:var(--gold);padding:3px 7px;border-radius:999px;font-size:.72rem;white-space:nowrap}
-  .type-chip{display:inline-block;border:1px solid rgba(255,255,255,.18);padding:3px 7px;border-radius:999px;font-size:.72rem;color:var(--muted);white-space:nowrap}
-  .table-wrap{overflow-x:auto}
-  .hint{color:var(--muted);font-size:.8rem;margin-top:6px}
-</style>
 </head><body>
 <div class="page-header">
-  <div><div class="page-title">✅ Projects & Tasks</div><div class="page-sub">Track projects, tasks, deferred work, queue position, and execution priorities</div></div>
+  <div><div class="page-title">✅ Projects & Tasks</div><div class="page-sub">Track projects, tasks, and activities</div></div>
   <a href="index.html" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">← Home</a>
 </div>
 <nav class="nav-pills">
@@ -24,28 +15,12 @@
 <div class="wrap">
   <div class="card">
     <div class="card-title">📂 Projects <span id="projCount" style="color:var(--muted);font-size:.8rem"></span></div>
-    <div class="toolbar">
-      <input id="projectSearch" placeholder="Search projects…" oninput="renderProjects()">
-      <select id="projectStatusFilter" onchange="renderProjects()"><option value="">All status</option><option value="open">Open</option><option value="active">Active</option><option value="in_progress">In Progress</option><option value="complete">Complete</option><option value="completed">Completed</option><option value="deferred">Deferred</option></select>
-      <select id="projectPriorityFilter" onchange="renderProjects()"><option value="">All priority</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
-      <select id="projectTypeFilter" onchange="renderProjects()"><option value="">All project types</option><option value="operational">Operational</option><option value="deferred">Deferred</option><option value="research">Research</option><option value="governance">Governance</option><option value="enhancement">Enhancement</option></select>
-      <input id="projectStreamFilter" placeholder="Filter stream…" oninput="renderProjects()">
-    </div>
     <div id="projectsList" class="loading">Loading…</div>
   </div>
-
   <div class="card">
     <div class="card-title">✅ Tasks <span id="taskCount" style="color:var(--muted);font-size:.8rem"></span></div>
-    <div class="toolbar">
-      <input id="taskSearch" placeholder="Search tasks / notes / origin…" oninput="renderTasks()">
-      <select id="taskStatusFilter" onchange="renderTasks()"><option value="">All status</option><option value="open">Open</option><option value="active">Active</option><option value="in_progress">In Progress</option><option value="complete">Complete</option><option value="completed">Completed</option><option value="deferred">Deferred</option></select>
-      <select id="taskPriorityFilter" onchange="renderTasks()"><option value="">All priority</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
-      <select id="taskTypeFilter" onchange="renderTasks()"><option value="">All task types</option><option value="operational">Operational</option><option value="deferred">Deferred</option><option value="research">Research</option><option value="governance">Governance</option><option value="enhancement">Enhancement</option></select>
-      <select id="taskProjectFilter" onchange="renderTasks()"><option value="">All projects</option></select>
-    </div>
     <div id="tasksList" class="loading">Loading…</div>
   </div>
-
   <div class="grid2">
     <div class="card">
       <div class="card-title">+ Add Project</div>
@@ -53,8 +28,6 @@
       <input id="p_desc" placeholder="Description">
       <select id="p_status"><option value="open">Open</option><option value="active">Active</option><option value="in_progress">In Progress</option><option value="complete">Complete</option><option value="deferred">Deferred</option></select>
       <select id="p_priority"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
-      <select id="p_project_type"><option value="operational">Operational</option><option value="deferred">Deferred</option><option value="research">Research</option><option value="governance">Governance</option><option value="enhancement">Enhancement</option></select>
-      <input id="p_queue" type="number" placeholder="Queue position">
       <input id="p_stream" placeholder="Stream (e.g. DIMS, VAULT)">
       <button class="btn" onclick="saveProject()">💾 Save Project</button>
       <span id="pMsg" class="loading" style="margin-left:8px"></span>
@@ -63,82 +36,74 @@
       <div class="card-title">+ Add Task</div>
       <input id="t_title" placeholder="Task title">
       <input id="t_notes" placeholder="Notes">
-      <select id="t_project"><option value="">No project / standalone</option></select>
       <select id="t_status"><option value="open">Open</option><option value="active">Active</option><option value="in_progress">In Progress</option><option value="complete">Complete</option><option value="deferred">Deferred</option></select>
       <select id="t_priority"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
-      <select id="t_task_type"><option value="operational">Operational</option><option value="deferred">Deferred</option><option value="research">Research</option><option value="governance">Governance</option><option value="enhancement">Enhancement</option></select>
-      <input id="t_queue" type="number" placeholder="Queue position">
-      <input id="t_review_date" type="date" placeholder="Review date">
-      <input id="t_origin" placeholder="Origin (chat, DDBB, merge, etc.)">
       <button class="btn" onclick="saveTask()">💾 Save Task</button>
       <span id="tMsg" class="loading" style="margin-left:8px"></span>
-      <div class="hint">Deferred items should use task type “deferred” and include a review date.</div>
     </div>
   </div>
 </div>
 <div class="scripture-bar">"Commit your works to the Lord, and your thoughts will be established." <strong>— Proverbs 16:3</strong></div>
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXF1emhzeWxxcGJocm1xanFnayIsInJlZiI6InNkcXV6aHN5bHFwYmhybXFqcWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTA4MzYsImV4cCI6MjA5NjU4NjgzNn0.MKwTvnLQ5Xr1vl-L0ngrJ5yi73-uPaaJUGyUggKEo1Y');
-let projects=[], tasks=[], projectById={};
+const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkcXV6aHN5bHFwYmhybXFqcWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTA4MzYsImV4cCI6MjA5NjU4NjgzNn0.MKwTvnLQ5Xr1vl-L0ngrJ5yi73-uPaaJUGyUggKEo1Y');
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function fmt(d){return d?new Date(d).toLocaleDateString():'—'}
 function badge(s){const v=(s||'').toLowerCase();if(v.includes('active')||v.includes('progress'))return`<span class="badge badge-amber">${esc(s)}</span>`;if(v.includes('complete'))return`<span class="badge badge-blue">${esc(s)}</span>`;if(v.includes('deferred'))return`<span class="badge badge-grey">${esc(s)}</span>`;return`<span class="badge badge-green">${esc(s)}</span>`;}
 function pri(p){const v=(p||'').toLowerCase();if(v==='high')return'<span class="badge badge-amber">👑 High</span>';if(v==='low')return'<span class="badge badge-grey">Low</span>';return'<span class="badge badge-blue">Medium</span>';}
-function norm(s){return String(s??'').toLowerCase();}
-function queueSort(a,b){const aq=a.queue_position??999999,bq=b.queue_position??999999;if(aq!==bq)return aq-bq;return new Date(b.created_at||0)-new Date(a.created_at||0);}
-function fillProjectDropdowns(){
-  const opts=projects.map(p=>`<option value="${esc(p.id)}">${esc(p.title)}</option>`).join('');
-  document.getElementById('t_project').innerHTML='<option value="">No project / standalone</option>'+opts;
-  document.getElementById('taskProjectFilter').innerHTML='<option value="">All projects</option><option value="__standalone">Standalone / No project</option>'+opts;
-}
+
 async function loadProjects(){
   const {data,error}=await sb.from('projects').select('*').order('created_at',{ascending:false});
   const el=document.getElementById('projectsList');
-  if(error){el.innerHTML=`<span class="loading">${error.message}</span>`;return;}
-  projects=data||[]; projectById=Object.fromEntries(projects.map(p=>[p.id,p])); fillProjectDropdowns(); renderProjects();
+  if(error||!data?.length){el.innerHTML=`<span class="loading">${error?error.message:'No projects found.'}</span>`;return;}
+  document.getElementById('projCount').textContent=`(${data.length})`;
+  el.innerHTML=`<table><thead><tr><th>#</th><th>Project</th><th>Stream</th><th>Status</th><th>Priority</th><th>Start</th><th>Target</th><th>Progress</th></tr></thead><tbody>`+
+    data.map((p,i)=>`<tr>
+      <td style="color:var(--muted)">${i+1}</td>
+      <td><strong>${esc(p.title)}</strong>${p.description?`<div class="row-meta">${esc(p.description.substring(0,60))}${p.description.length>60?'…':''}</div>`:''}</td>
+      <td class="row-meta">${esc(p.stream||'—')}</td>
+      <td>${badge(p.status||'open')}</td>
+      <td>${pri(p.priority)}</td>
+      <td class="row-meta">${fmt(p.start_date)}</td>
+      <td class="row-meta">${fmt(p.target_date)}</td>
+      <td><div class="progress-bar"><div class="progress-fill" style="width:${p.percent_complete||0}%"></div></div><div class="row-meta">${p.percent_complete||0}%</div></td>
+    </tr>`).join('')+'</tbody></table>';
 }
-window.renderProjects=function(){
-  const q=norm(document.getElementById('projectSearch').value), st=norm(document.getElementById('projectStatusFilter').value), pr=norm(document.getElementById('projectPriorityFilter').value), ty=norm(document.getElementById('projectTypeFilter').value), stream=norm(document.getElementById('projectStreamFilter').value);
-  const data=projects.filter(p=>(!q||norm(`${p.title} ${p.description} ${p.stream} ${p.project_type}`).includes(q))&&(!st||norm(p.status)===st)&&(!pr||norm(p.priority)===pr)&&(!ty||norm(p.project_type||'operational')===ty)&&(!stream||norm(p.stream).includes(stream))).sort(queueSort);
-  document.getElementById('projCount').textContent=`(${data.length}/${projects.length})`;
-  const el=document.getElementById('projectsList');
-  if(!data.length){el.innerHTML='<span class="loading">No matching projects found.</span>';return;}
-  el.innerHTML=`<div class="table-wrap"><table><thead><tr><th>#</th><th>Queue</th><th>Project</th><th>Type</th><th>Stream</th><th>Status</th><th>Priority</th><th>Start</th><th>Target</th><th>Progress</th></tr></thead><tbody>`+
-    data.map((p,i)=>`<tr><td style="color:var(--muted)">${i+1}</td><td>${p.queue_position?`<span class="queue-chip">#${esc(p.queue_position)}</span>`:'—'}</td><td><strong>${esc(p.title)}</strong>${p.description?`<div class="mini">${esc(p.description.substring(0,80))}${p.description.length>80?'…':''}</div>`:''}</td><td><span class="type-chip">${esc(p.project_type||'operational')}</span></td><td class="row-meta">${esc(p.stream||'—')}</td><td>${badge(p.status||'open')}</td><td>${pri(p.priority)}</td><td class="row-meta">${fmt(p.start_date)}</td><td class="row-meta">${fmt(p.target_date)}</td><td><div class="progress-bar"><div class="progress-fill" style="width:${p.percent_complete||0}%"></div></div><div class="row-meta">${p.percent_complete||0}%</div></td></tr>`).join('')+'</tbody></table></div>';
-}
+
 async function loadTasks(){
   const {data,error}=await sb.from('tasks').select('*').order('created_at',{ascending:false});
   const el=document.getElementById('tasksList');
-  if(error){el.innerHTML=`<span class="loading">${error.message}</span>`;return;}
-  tasks=data||[]; renderTasks();
+  if(error||!data?.length){el.innerHTML=`<span class="loading">${error?error.message:'No tasks found.'}</span>`;return;}
+  document.getElementById('taskCount').textContent=`(${data.length})`;
+  el.innerHTML=`<table><thead><tr><th>#</th><th>Task</th><th>Status</th><th>Priority</th><th>Start</th><th>Target</th><th>Progress</th><th>Notes</th></tr></thead><tbody>`+
+    data.map((t,i)=>`<tr>
+      <td style="color:var(--muted)">${i+1}</td>
+      <td><strong>${esc(t.title)}</strong></td>
+      <td>${badge(t.status||'open')}</td>
+      <td>${pri(t.priority)}</td>
+      <td class="row-meta">${fmt(t.start_date)}</td>
+      <td class="row-meta">${fmt(t.target_date)}</td>
+      <td><div class="progress-bar"><div class="progress-fill" style="width:${t.percent_complete||0}%"></div></div><div class="row-meta">${t.percent_complete||0}%</div></td>
+      <td class="row-meta">${esc(t.notes||'')}</td>
+    </tr>`).join('')+'</tbody></table>';
 }
-window.renderTasks=function(){
-  const q=norm(document.getElementById('taskSearch').value), st=norm(document.getElementById('taskStatusFilter').value), pr=norm(document.getElementById('taskPriorityFilter').value), ty=norm(document.getElementById('taskTypeFilter').value), pj=document.getElementById('taskProjectFilter').value;
-  const data=tasks.filter(t=>{
-    const p=projectById[t.project_id];
-    return (!q||norm(`${t.title} ${t.notes} ${t.origin} ${t.task_type} ${p?.title||''}`).includes(q))&&(!st||norm(t.status)===st)&&(!pr||norm(t.priority)===pr)&&(!ty||norm(t.task_type||'operational')===ty)&&(!pj||(pj==='__standalone'?!t.project_id:t.project_id===pj));
-  }).sort(queueSort);
-  document.getElementById('taskCount').textContent=`(${data.length}/${tasks.length})`;
-  const el=document.getElementById('tasksList');
-  if(!data.length){el.innerHTML='<span class="loading">No matching tasks found.</span>';return;}
-  el.innerHTML=`<div class="table-wrap"><table><thead><tr><th>#</th><th>Queue</th><th>Task</th><th>Project</th><th>Type</th><th>Status</th><th>Priority</th><th>Review</th><th>Start</th><th>Target</th><th>Progress</th><th>Origin</th><th>Notes</th></tr></thead><tbody>`+
-    data.map((t,i)=>{const p=projectById[t.project_id];return`<tr><td style="color:var(--muted)">${i+1}</td><td>${t.queue_position?`<span class="queue-chip">#${esc(t.queue_position)}</span>`:'—'}</td><td><strong>${esc(t.title)}</strong></td><td class="row-meta">${esc(p?.title||'Standalone')}</td><td><span class="type-chip">${esc(t.task_type||'operational')}</span></td><td>${badge(t.status||'open')}</td><td>${pri(t.priority)}</td><td class="row-meta">${fmt(t.review_date)}</td><td class="row-meta">${fmt(t.start_date)}</td><td class="row-meta">${fmt(t.target_date)}</td><td><div class="progress-bar"><div class="progress-fill" style="width:${t.percent_complete||0}%"></div></div><div class="row-meta">${t.percent_complete||0}%</div></td><td class="row-meta">${esc(t.origin||'')}</td><td class="row-meta">${esc(t.notes||'')}</td></tr>`}).join('')+'</tbody></table></div>';
-}
+
 window.saveProject=async function(){
-  const title=document.getElementById('p_title').value.trim(); if(!title){document.getElementById('pMsg').textContent='Title required.';return;}
-  const q=document.getElementById('p_queue').value;
-  const {error}=await sb.from('projects').insert({title,description:document.getElementById('p_desc').value,status:document.getElementById('p_status').value,priority:document.getElementById('p_priority').value,stream:document.getElementById('p_stream').value,project_type:document.getElementById('p_project_type').value,queue_position:q?Number(q):null,created_at:new Date().toISOString()});
+  const title=document.getElementById('p_title').value.trim();
+  if(!title){document.getElementById('pMsg').textContent='Title required.';return;}
+  const {error}=await sb.from('projects').insert({title,description:document.getElementById('p_desc').value,status:document.getElementById('p_status').value,priority:document.getElementById('p_priority').value,stream:document.getElementById('p_stream').value,created_at:new Date().toISOString()});
   document.getElementById('pMsg').textContent=error?`Error: ${error.message}`:'Saved ✅';
-  if(!error){['p_title','p_desc','p_stream','p_queue'].forEach(id=>document.getElementById(id).value='');await loadProjects();}
+  if(!error){['p_title','p_desc','p_stream'].forEach(id=>document.getElementById(id).value='');loadProjects();}
 };
+
 window.saveTask=async function(){
-  const title=document.getElementById('t_title').value.trim(); if(!title){document.getElementById('tMsg').textContent='Title required.';return;}
-  const q=document.getElementById('t_queue').value, project_id=document.getElementById('t_project').value||null;
-  const {error}=await sb.from('tasks').insert({project_id,title,notes:document.getElementById('t_notes').value,status:document.getElementById('t_status').value,priority:document.getElementById('t_priority').value,task_type:document.getElementById('t_task_type').value,queue_position:q?Number(q):null,review_date:document.getElementById('t_review_date').value||null,origin:document.getElementById('t_origin').value,created_at:new Date().toISOString()});
+  const title=document.getElementById('t_title').value.trim();
+  if(!title){document.getElementById('tMsg').textContent='Title required.';return;}
+  const {error}=await sb.from('tasks').insert({title,notes:document.getElementById('t_notes').value,status:document.getElementById('t_status').value,priority:document.getElementById('t_priority').value,created_at:new Date().toISOString()});
   document.getElementById('tMsg').textContent=error?`Error: ${error.message}`:'Saved ✅';
-  if(!error){['t_title','t_notes','t_queue','t_review_date','t_origin'].forEach(id=>document.getElementById(id).value='');await loadTasks();}
+  if(!error){['t_title','t_notes'].forEach(id=>document.getElementById(id).value='');loadTasks();}
 };
+
 Promise.all([loadProjects(),loadTasks()]);
 </script>
 </body></html>

@@ -1,0 +1,72 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Intelligence Briefing — DOME™</title>
+<link rel="stylesheet" href="dims-shared.css">
+</head><body>
+<div class="page-header">
+  <div><div class="page-title">🌐 Intelligence Briefing</div><div class="page-sub">Daily intelligence overview</div></div>
+  <a href="index.html" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">← Home</a>
+</div>
+<nav class="nav-pills">
+  <a class="nav-pill" href="mission-control.html">🎯 Mission Control</a>
+  <a class="nav-pill" href="dims-blueprint.html">👑 KUBERNĒSIS™</a>
+  <a class="nav-pill" href="institutional-queue.html">⏳ Inst. Queue</a>
+  <a class="nav-pill" href="enterprise-forms.html">📋 Enterprise Forms</a>
+  <a class="nav-pill active" href="intelligence-briefing.html">🌐 Intelligence</a>
+  <a class="nav-pill" href="dashboard-v3.html">⚙ System</a>
+</nav>
+<div class="wrap">
+  <div class="card">
+    <div class="card-title">🕊 Latest Briefing</div>
+    <div id="latestBrief" class="loading">Loading…</div>
+  </div>
+  <div class="card">
+    <div class="card-title">🗄 Briefing History <span id="briefCount" style="color:var(--muted);font-size:.8rem"></span></div>
+    <div id="briefHistory" class="loading">Loading…</div>
+  </div>
+</div>
+<div class="scripture-bar">"Watchmen on the walls...shall never hold their peace day or night." <strong>— Isaiah 62:6</strong></div>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkcXV6aHN5bHFwYmhybXFqcWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTA4MzYsImV4cCI6MjA5NjU4NjgzNn0.MKwTvnLQ5Xr1vl-L0ngrJ5yi73-uPaaJUGyUggKEo1Y');
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function fmt(d){return d?new Date(d).toLocaleDateString():'—'}
+
+function renderBrief(b){
+  const rows=[
+    ['🔥 Logos Word',b.logos_word],
+    ['💬 Rhema Word',b.rhema_word],
+    ['🌍 World Intel',b.world_intel],
+    ['🌉 Bridge Intel',b.bridge_intel],
+    ['💠 Personal Intel',b.personal_intel],
+    ['📜 Directives',b.directives],
+    ['🙏 Confession',b.confession]
+  ].filter(([,v])=>v);
+  return `<div class="row-meta" style="margin-bottom:8px">${fmt(b.briefing_date||b.created_at)}${b.dominion_status?` · <span class="badge badge-green">${esc(b.dominion_status)}</span>`:''}</div>`+
+    rows.map(([label,val])=>`
+      <div style="margin-bottom:12px">
+        <div style="color:var(--gold);font-size:.8rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">${label}</div>
+        <div style="white-space:pre-wrap">${esc(val)}</div>
+      </div>`).join('');
+}
+
+async function loadBriefings(){
+  const {data}=await sb.from('briefings').select('*').order('briefing_date',{ascending:false});
+  const el=document.getElementById('latestBrief');
+  const histEl=document.getElementById('briefHistory');
+  if(!data?.length){
+    el.innerHTML='<span class="loading">No briefings yet.</span>';
+    histEl.innerHTML='<span class="loading">No history yet.</span>';
+    return;
+  }
+  el.innerHTML=renderBrief(data[0]);
+  document.getElementById('briefCount').textContent=`(${data.length})`;
+  histEl.innerHTML=data.slice(1).map(b=>`
+    <div class="row-item">
+      <div class="row-title">${fmt(b.briefing_date||b.created_at)}</div>
+      ${b.world_intel?`<div class="row-meta">${esc(b.world_intel.substring(0,120))}${b.world_intel.length>120?'…':''}</div>`:''}
+    </div>`).join('')||'<span class="loading">No earlier briefings.</span>';
+}
+
+loadBriefings();
+</script>
+</body></html>

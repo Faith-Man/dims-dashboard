@@ -1,0 +1,91 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Enterprise Forms — DOME™</title>
+<link rel="stylesheet" href="dims-shared.css">
+</head><body>
+<div class="page-header">
+  <div><div class="page-title">📋 Enterprise Forms</div><div class="page-sub">Create, manage, and deploy enterprise assets</div></div>
+  <a href="index.html" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">← Home</a>
+</div>
+<nav class="nav-pills">
+  <a class="nav-pill" href="mission-control.html">🎯 Mission Control</a>
+  <a class="nav-pill" href="dims-blueprint.html">👑 KUBERNĒSIS™</a>
+  <a class="nav-pill" href="institutional-queue.html">⏳ Inst. Queue</a>
+  <a class="nav-pill active" href="enterprise-forms.html">📋 Enterprise Forms</a>
+  <a class="nav-pill" href="executive-dashboard.html">📊 Executive</a>
+  <a class="nav-pill" href="dashboard-v3.html">⚙ System</a>
+</nav>
+<div class="wrap">
+  <div class="card">
+    <div class="card-title">🗄 Asset Registry <span id="assetCount" style="color:var(--muted);font-size:.8rem"></span></div>
+    <input id="assetSearch" placeholder="Search assets…" oninput="filterAssets()" style="max-width:300px;margin-bottom:12px">
+    <div id="assetList" class="loading">Loading…</div>
+  </div>
+  <div class="card">
+    <div class="card-title">+ Register New Asset</div>
+    <div class="grid2">
+      <input id="a_code" placeholder="Asset code (e.g. DIMS-001)">
+      <input id="a_name" placeholder="Asset name">
+    </div>
+    <div class="grid2">
+      <input id="a_type" placeholder="Asset type (e.g. HTML page, script)">
+      <input id="a_platform" placeholder="Platform (e.g. Cloudflare, Supabase)">
+    </div>
+    <div class="grid2">
+      <input id="a_location" placeholder="Location / path">
+      <input id="a_url" placeholder="URL (optional)">
+    </div>
+    <textarea id="a_desc" placeholder="Description…" style="min-height:60px"></textarea>
+    <button class="btn" onclick="saveAsset()">💾 Register Asset</button>
+    <span id="assetMsg" class="loading" style="margin-left:8px"></span>
+  </div>
+</div>
+<div class="scripture-bar">"Whatever your hand finds to do, do it with all your might." <strong>— Ecclesiastes 9:10</strong></div>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkcXV6aHN5bHFwYmhybXFqcWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTA4MzYsImV4cCI6MjA5NjU4NjgzNn0.MKwTvnLQ5Xr1vl-L0ngrJ5yi73-uPaaJUGyUggKEo1Y');
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+let ASSETS=[];
+async function loadAssets(){
+  const {data}=await sb.from('asset_registry').select('*').order('updated_at',{ascending:false});
+  ASSETS=data||[];
+  document.getElementById('assetCount').textContent=`(${ASSETS.length})`;
+  renderAssets(ASSETS);
+}
+function renderAssets(data){
+  const el=document.getElementById('assetList');
+  if(!data.length){el.innerHTML='<span class="loading">No assets registered yet.</span>';return;}
+  el.innerHTML=`<table><thead><tr><th>Code</th><th>Name</th><th>Type</th><th>Platform</th><th>Status</th></tr></thead><tbody>`+
+    data.map(a=>`<tr>
+      <td><strong style="color:var(--gold)">${esc(a.asset_code)}</strong></td>
+      <td>${esc(a.asset_name)}${a.url?` <a href="${esc(a.url)}" target="_blank" style="color:var(--muted)">🔗</a>`:''}</td>
+      <td class="row-meta">${esc(a.asset_type||'—')}</td>
+      <td class="row-meta">${esc(a.platform||'—')}</td>
+      <td><span class="badge ${a.status==='active'?'badge-green':'badge-grey'}">${esc(a.status||'active')}</span></td>
+    </tr>`).join('')+'</tbody></table>';
+}
+window.filterAssets=function(){
+  const q=document.getElementById('assetSearch').value.toLowerCase();
+  renderAssets(q?ASSETS.filter(a=>(a.asset_name||'').toLowerCase().includes(q)||(a.asset_code||'').toLowerCase().includes(q)||(a.asset_type||'').toLowerCase().includes(q)):ASSETS);
+};
+
+window.saveAsset=async function(){
+  const code=document.getElementById('a_code').value.trim();
+  const name=document.getElementById('a_name').value.trim();
+  if(!code||!name){document.getElementById('assetMsg').textContent='Code and name required.';return;}
+  const {error}=await sb.from('asset_registry').insert({
+    asset_code:code,asset_name:name,
+    asset_type:document.getElementById('a_type').value,
+    platform:document.getElementById('a_platform').value,
+    location:document.getElementById('a_location').value,
+    url:document.getElementById('a_url').value,
+    description:document.getElementById('a_desc').value,
+    status:'active',created_at:new Date().toISOString(),updated_at:new Date().toISOString()
+  });
+  document.getElementById('assetMsg').textContent=error?`Error: ${error.message}`:'Registered ✅';
+  if(!error){['a_code','a_name','a_type','a_platform','a_location','a_url','a_desc'].forEach(id=>document.getElementById(id).value='');loadAssets();}
+};
+
+loadAssets();
+</script>
+</body></html>

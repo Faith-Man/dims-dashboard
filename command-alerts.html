@@ -1,0 +1,64 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Command Alerts — DOME™</title>
+<link rel="stylesheet" href="dims-shared.css">
+</head><body>
+<div class="page-header">
+  <div><div class="page-title">🚨 Command Alerts</div><div class="page-sub">Active resume points and system status</div></div>
+  <a href="index.html" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">← Home</a>
+</div>
+<nav class="nav-pills">
+  <a class="nav-pill" href="mission-control.html">🎯 Mission Control</a>
+  <a class="nav-pill" href="dims-blueprint.html">👑 KUBERNĒSIS™</a>
+  <a class="nav-pill" href="institutional-queue.html">⏳ Inst. Queue</a>
+  <a class="nav-pill" href="executive-dashboard.html">📊 Executive</a>
+  <a class="nav-pill active" href="command-alerts.html">🚨 Alerts</a>
+  <a class="nav-pill" href="dashboard-v3.html">⚙ System</a>
+</nav>
+<div class="wrap">
+  <div class="card">
+    <div class="card-title">🔴 Active Resume Points <span id="rpCount" style="color:var(--muted);font-size:.8rem"></span></div>
+    <div id="rpList" class="loading">Loading…</div>
+  </div>
+  <div class="card">
+    <div class="card-title">🗂 Recent System Snapshots <span id="snapCount" style="color:var(--muted);font-size:.8rem"></span></div>
+    <div id="snapList" class="loading">Loading…</div>
+  </div>
+</div>
+<div class="scripture-bar">"Watchman, what of the night?" <strong>— Isaiah 21:11</strong></div>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkcXV6aHN5bHFwYmhybXFqcWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTA4MzYsImV4cCI6MjA5NjU4NjgzNn0.MKwTvnLQ5Xr1vl-L0ngrJ5yi73-uPaaJUGyUggKEo1Y');
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function fmt(d){return d?new Date(d).toLocaleString():'—'}
+
+async function loadResumePoints(){
+  const {data}=await sb.from('resume_points').select('*').eq('active',true).order('created_at',{ascending:false});
+  const el=document.getElementById('rpList');
+  if(!data?.length){el.innerHTML='<span class="loading">No active resume points.</span>';return;}
+  document.getElementById('rpCount').textContent=`(${data.length})`;
+  el.innerHTML=data.map(r=>`
+    <div class="row-item">
+      <div class="row-title">${esc(r.title||'Resume Point')} <span class="badge badge-amber">${esc(r.current_phase||'active')}</span></div>
+      ${r.current_focus?`<div class="row-meta" style="margin-top:4px">🎯 Focus: ${esc(r.current_focus)}</div>`:''}
+      ${r.next_step?`<div style="margin-top:6px;padding:6px;background:rgba(212,175,55,.08);border-left:2px solid var(--gold);font-size:.82rem">▶ ${esc(r.next_step)}</div>`:''}
+      <div class="row-meta">${fmt(r.created_at)}</div>
+    </div>`).join('');
+}
+
+async function loadSnapshots(){
+  const {data}=await sb.from('system_snapshots').select('*').order('created_at',{ascending:false}).limit(10);
+  const el=document.getElementById('snapList');
+  if(!data?.length){el.innerHTML='<span class="loading">No snapshots yet.</span>';return;}
+  document.getElementById('snapCount').textContent=`(${data.length})`;
+  el.innerHTML=data.map(s=>`
+    <div class="row-item">
+      <div class="row-title">${esc(s.title)} <span class="badge ${s.status==='active'?'badge-green':'badge-grey'}">${esc(s.status||'active')}</span></div>
+      ${s.phase?`<div class="row-meta">${esc(s.phase)}</div>`:''}
+      ${s.summary?`<div class="row-meta" style="margin-top:4px">${esc(s.summary.substring(0,140))}${s.summary.length>140?'…':''}</div>`:''}
+      <div class="row-meta">${fmt(s.created_at)}</div>
+    </div>`).join('');
+}
+
+Promise.all([loadResumePoints(),loadSnapshots()]);
+</script>
+</body></html>

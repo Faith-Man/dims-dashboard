@@ -1,0 +1,92 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Executive Dashboard — DOME™</title>
+<link rel="stylesheet" href="dims-shared.css">
+</head><body>
+<div class="page-header">
+  <div><div class="page-title">📊 Executive Dashboard</div><div class="page-sub">Executive KPI's — full operational system view</div></div>
+  <a href="index.html" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">← Home</a>
+</div>
+<nav class="nav-pills">
+  <a class="nav-pill" href="mission-control.html">🎯 Mission Control</a>
+  <a class="nav-pill" href="dims-blueprint.html">👑 KUBERNĒSIS™</a>
+  <a class="nav-pill" href="institutional-queue.html">⏳ Inst. Queue</a>
+  <a class="nav-pill" href="projects-tasks.html">✅ Projects & Tasks</a>
+  <a class="nav-pill active" href="executive-dashboard.html">📊 Executive</a>
+  <a class="nav-pill" href="dashboard-v3.html">⚙ System</a>
+</nav>
+<div class="wrap">
+  <div class="grid3" id="kpiCards">
+    <div class="card"><div class="card-title">Projects Active</div><div id="kpiProjects" class="loading">Loading…</div></div>
+    <div class="card"><div class="card-title">Tasks Open</div><div id="kpiTasks" class="loading">Loading…</div></div>
+    <div class="card"><div class="card-title">Avg % Complete</div><div id="kpiAvg" class="loading">Loading…</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">📂 Projects by Status <span id="projCount" style="color:var(--muted);font-size:.8rem"></span></div>
+      <div id="projStatusList" class="loading">Loading…</div>
+    </div>
+    <div class="card">
+      <div class="card-title">✅ Tasks by Priority <span id="taskCount" style="color:var(--muted);font-size:.8rem"></span></div>
+      <div id="taskPriorityList" class="loading">Loading…</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📈 Active Projects — Progress</div>
+    <div id="projList" class="loading">Loading…</div>
+  </div>
+</div>
+<div class="scripture-bar">"Commit your works to the Lord, and your thoughts will be established." <strong>— Proverbs 16:3</strong></div>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkcXV6aHN5bHFwYmhybXFqcWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTA4MzYsImV4cCI6MjA5NjU4NjgzNn0.MKwTvnLQ5Xr1vl-L0ngrJ5yi73-uPaaJUGyUggKEo1Y');
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function badgeClass(status){
+  status=(status||'').toLowerCase();
+  if(status.includes('complete')||status.includes('done')) return 'badge-green';
+  if(status.includes('progress')||status.includes('active')) return 'badge-blue';
+  if(status.includes('block')||status.includes('defer')) return 'badge-amber';
+  return 'badge-grey';
+}
+
+async function loadKPIs(){
+  const [{data:projects},{data:tasks}]=await Promise.all([
+    sb.from('projects').select('*'),
+    sb.from('tasks').select('*')
+  ]);
+  const P=projects||[], T=tasks||[];
+
+  const activeProjects=P.filter(p=>!['complete','completed','done'].includes((p.status||'').toLowerCase()));
+  document.getElementById('kpiProjects').innerHTML=`<div style="font-size:2.2rem;font-weight:900;color:var(--gold)">${activeProjects.length}</div><div class="row-meta">of ${P.length} total</div>`;
+
+  const openTasks=T.filter(t=>!['complete','completed','done'].includes((t.status||'').toLowerCase()));
+  document.getElementById('kpiTasks').innerHTML=`<div style="font-size:2.2rem;font-weight:900;color:var(--gold)">${openTasks.length}</div><div class="row-meta">of ${T.length} total</div>`;
+
+  const avg=P.length?Math.round(P.reduce((s,p)=>s+(p.percent_complete||0),0)/P.length):0;
+  document.getElementById('kpiAvg').innerHTML=`<div style="font-size:2.2rem;font-weight:900;color:var(--gold)">${avg}%</div><div class="progress-bar"><div class="progress-fill" style="width:${avg}%"></div></div>`;
+
+  document.getElementById('projCount').textContent=`(${P.length})`;
+  const statusCounts={};
+  P.forEach(p=>{const s=p.status||'open';statusCounts[s]=(statusCounts[s]||0)+1;});
+  document.getElementById('projStatusList').innerHTML=Object.entries(statusCounts).map(([s,c])=>
+    `<div class="row-item" style="display:flex;justify-content:space-between"><span class="badge ${badgeClass(s)}">${esc(s)}</span><span>${c}</span></div>`
+  ).join('')||'<span class="loading">No projects yet.</span>';
+
+  document.getElementById('taskCount').textContent=`(${T.length})`;
+  const prioCounts={};
+  T.forEach(t=>{const p=t.priority||'medium';prioCounts[p]=(prioCounts[p]||0)+1;});
+  document.getElementById('taskPriorityList').innerHTML=Object.entries(prioCounts).map(([p,c])=>
+    `<div class="row-item" style="display:flex;justify-content:space-between"><span class="badge badge-blue">${esc(p)}</span><span>${c}</span></div>`
+  ).join('')||'<span class="loading">No tasks yet.</span>';
+
+  document.getElementById('projList').innerHTML=activeProjects.slice(0,10).map(p=>`
+    <div class="row-item">
+      <div class="row-title">${esc(p.title)} <span class="badge ${badgeClass(p.status)}">${esc(p.status||'open')}</span></div>
+      ${p.stream?`<div class="row-meta">🧭 ${esc(p.stream)}</div>`:''}
+      <div class="progress-bar"><div class="progress-fill" style="width:${p.percent_complete||0}%"></div></div>
+      <div class="row-meta">${p.percent_complete||0}% complete</div>
+    </div>`).join('')||'<span class="loading">No active projects.</span>';
+}
+
+loadKPIs();
+</script>
+</body></html>

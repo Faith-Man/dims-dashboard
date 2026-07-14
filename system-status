@@ -1,0 +1,71 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>System Status — DOME™</title>
+<link rel="stylesheet" href="dims-shared.css">
+</head><body>
+<div class="page-header">
+  <div><div class="page-title">🩺 System Status</div><div class="page-sub">Live infrastructure health — verified, not assumed</div></div>
+  <a href="index.html" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">← Home</a>
+</div>
+<nav class="nav-pills">
+  <a class="nav-pill" href="mission-control.html">🎯 Mission Control</a>
+  <a class="nav-pill" href="command-alerts.html">🚨 Alerts</a>
+  <a class="nav-pill active" href="system-status.html">🩺 System Status</a>
+  <a class="nav-pill" href="peace-safety-intelligence.html">🕊 Peace & Safety</a>
+  <a class="nav-pill" href="dashboard-v3.html">⚙ KUBERNĒSIS</a>
+</nav>
+<div class="wrap">
+  <div class="card">
+    <div class="card-title">🔌 Connected Services <span id="checkedAt" style="color:var(--muted);font-size:.8rem"></span></div>
+    <div id="serviceGrid" class="loading">Loading…</div>
+    <div class="row-meta" style="margin-top:10px">Status is only updated when a real check is run — nothing here is a static claim.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">🗂 Checkpoint History <span id="snapCount" style="color:var(--muted);font-size:.8rem"></span></div>
+    <div id="checkpointList" class="loading">Loading…</div>
+  </div>
+</div>
+<div class="scripture-bar">"Let all things be done decently and in order." <strong>— 1 Corinthians 14:40</strong></div>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkcXV6aHN5bHFwYmhybXFqcWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTA4MzYsImV4cCI6MjA5NjU4NjgzNn0.MKwTvnLQ5Xr1vl-L0ngrJ5yi73-uPaaJUGyUggKEo1Y');
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function fmt(d){return d?new Date(d).toLocaleString():'—'}
+
+async function loadStatus(){
+  const {data}=await sb.from('system_snapshots').select('*').order('created_at',{ascending:false});
+  const all=data||[];
+  const health=all.find(s=>s.snapshot_type==='infra_health');
+  const grid=document.getElementById('serviceGrid');
+
+  if(health){
+    document.getElementById('checkedAt').textContent=`Last checked: ${fmt(health.created_at)}`;
+    let checks=[];
+    try{checks=JSON.parse(health.content).checks||[];}catch(e){}
+    grid.innerHTML=checks.map(c=>{
+      const ok=c.status==='verified';
+      return `<div class="row-item" style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="row-title">${ok?'🟢':'⚪'} ${esc(c.service)}</div>
+          <div class="row-meta">${esc(c.detail)}</div>
+        </div>
+        <span class="badge ${ok?'badge-green':'badge-grey'}">${ok?'verified':'unverified'}</span>
+      </div>`;
+    }).join('')||'<span class="loading">No check data.</span>';
+  } else {
+    grid.innerHTML='<span class="loading">No infrastructure check logged yet.</span>';
+  }
+
+  const checkpoints=all.filter(s=>s.snapshot_type!=='infra_health').slice(0,10);
+  document.getElementById('snapCount').textContent=`(${checkpoints.length})`;
+  document.getElementById('checkpointList').innerHTML=checkpoints.map(s=>`
+    <div class="row-item">
+      <div class="row-title">${esc(s.title)} <span class="badge ${s.status==='active'?'badge-green':'badge-grey'}">${esc(s.status||'active')}</span></div>
+      ${s.phase?`<div class="row-meta">${esc(s.phase)}</div>`:''}
+      ${s.summary?`<div class="row-meta" style="margin-top:4px">${esc(s.summary)}</div>`:''}
+      <div class="row-meta">${fmt(s.created_at)}</div>
+    </div>`).join('')||'<span class="loading">No checkpoint history yet.</span>';
+}
+
+loadStatus();
+</script>
+</body></html>

@@ -5,98 +5,107 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Projects & Tasks — DOME™</title>
   <link rel="stylesheet" href="dims-shared.css">
+
   <style>
-/* DIMS Enterprise Grid — theme-preserving extension */
-.dims-grid-wrap{
-  width:100%;
-  overflow-x:auto;
-}
+    /* DIMS Enterprise Grid — permanent-number display update */
+    .dims-grid-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
 
-.dims-grid{
-  width:100%;
-  min-width:980px;
-  border-collapse:collapse;
-}
+    .dims-grid {
+      width: 100%;
+      min-width: 1080px;
+      border-collapse: collapse;
+    }
 
-.dims-grid th,
-.dims-grid td{
-  padding:10px 12px;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  text-align:left;
-  vertical-align:top;
-}
+    .dims-grid th,
+    .dims-grid td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      text-align: left;
+      vertical-align: top;
+    }
 
-.dims-grid th{
-  position:relative;
-  white-space:nowrap;
-  user-select:none;
-}
+    .dims-grid th {
+      white-space: nowrap;
+      user-select: none;
+    }
 
-.dims-grid-header{
-  display:inline-flex;
-  align-items:center;
-  gap:4px;
-  cursor:pointer;
-}
+    .dims-grid-header {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
 
-.dims-grid-arrow{
-  font-size:.62rem;
-  opacity:.8;
-}
+    .dims-grid-arrow {
+      font-size: .62rem;
+      opacity: .8;
+    }
 
-.dims-grid-header.active .dims-grid-arrow{
-  color:var(--gold);
-}
+    .dims-grid-header.active .dims-grid-arrow {
+      color: var(--gold);
+    }
 
-.dims-grid-menu{
-  position:fixed;
-  z-index:9999;
-  min-width:190px;
-  max-width:280px;
-  background:var(--panel, #071629);
-  color:inherit;
-  border:1px solid var(--gold3);
-  border-radius:10px;
-  box-shadow:0 18px 40px rgba(0,0,0,.45);
-  padding:8px;
-}
+    .dims-grid-menu {
+      position: fixed;
+      z-index: 9999;
+      min-width: 190px;
+      max-width: 280px;
+      max-height: 360px;
+      overflow-y: auto;
+      background: var(--panel, #071629);
+      color: inherit;
+      border: 1px solid var(--gold3);
+      border-radius: 10px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.45);
+      padding: 8px;
+    }
 
-.dims-grid-menu button{
-  display:block;
-  width:100%;
-  border:0;
-  background:transparent;
-  color:inherit;
-  text-align:left;
-  padding:8px 10px;
-  border-radius:7px;
-  cursor:pointer;
-  font-size:.8rem;
-}
+    .dims-grid-menu button {
+      display: block;
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: .8rem;
+    }
 
-.dims-grid-menu button:hover{
-  background:rgba(255,255,255,.07);
-}
+    .dims-grid-menu button:hover {
+      background: rgba(255,255,255,.07);
+    }
 
-.dims-grid-menu .dims-grid-clear{
-  color:var(--gold);
-  border-top:1px solid rgba(255,255,255,.08);
-  margin-top:5px;
-  padding-top:10px;
-}
+    .dims-grid-menu .dims-grid-clear {
+      color: var(--gold);
+      border-top: 1px solid rgba(255,255,255,.08);
+      margin-top: 5px;
+      padding-top: 10px;
+    }
 
-.dims-grid-empty{
-  color:var(--muted);
-  padding:18px;
-}
+    .dims-grid-empty {
+      color: var(--muted);
+      padding: 18px;
+    }
 
-.dims-grid-search{
-  width:100%;
-  margin:10px 0 14px;
-}
+    .dims-grid-search {
+      width: 100%;
+      margin: 10px 0 14px;
+    }
 
+    .permanent-number {
+      color: var(--gold);
+      font-weight: 700;
+      white-space: nowrap;
+      letter-spacing: .02em;
+    }
   </style>
 </head>
+
 <body>
 
 <div class="page-header">
@@ -132,7 +141,7 @@
       id="projectSearch"
       class="dims-grid-search"
       type="search"
-      placeholder="Search projects..."
+      placeholder="Search project number, project, stream, status, or priority..."
     >
 
     <div id="projectsList" class="loading">Loading…</div>
@@ -148,7 +157,7 @@
       id="taskSearch"
       class="dims-grid-search"
       type="search"
-      placeholder="Search tasks and notes..."
+      placeholder="Search task number, task, notes, status, or priority..."
     >
 
     <div id="tasksList" class="loading">Loading…</div>
@@ -168,11 +177,12 @@
         <option value="in_progress">In Progress</option>
         <option value="complete">Complete</option>
         <option value="deferred">Deferred</option>
+        <option value="blocked">Blocked</option>
       </select>
 
       <select id="p_priority">
         <option value="high">High</option>
-        <option value="medium">Medium</option>
+        <option value="medium" selected>Medium</option>
         <option value="low">Low</option>
       </select>
 
@@ -195,11 +205,12 @@
         <option value="in_progress">In Progress</option>
         <option value="complete">Complete</option>
         <option value="deferred">Deferred</option>
+        <option value="blocked">Blocked</option>
       </select>
 
       <select id="t_priority">
         <option value="high">High</option>
-        <option value="medium">Medium</option>
+        <option value="medium" selected>Medium</option>
         <option value="low">Low</option>
       </select>
 
@@ -219,18 +230,66 @@
 <script type="module">
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-class DIMSGrid {
-  constructor(options){
-    this.container = typeof options.container === 'string'
-      ? document.querySelector(options.container)
-      : options.container;
 
+const SUPABASE_URL = 'https://sdquzhsylqpbhrmqjqgk.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How';
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function esc(value) {
+  return String(value ?? '').replace(
+    /[&<>"']/g,
+    character => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[character])
+  );
+}
+
+function fmt(value) {
+  return value ? new Date(value).toLocaleDateString() : '—';
+}
+
+function badge(status) {
+  const value = String(status || '').toLowerCase();
+
+  if (value.includes('active') || value.includes('progress')) {
+    return `<span class="badge badge-amber">${esc(status)}</span>`;
+  }
+
+  if (value.includes('complete')) {
+    return `<span class="badge badge-blue">${esc(status)}</span>`;
+  }
+
+  if (value.includes('deferred') || value.includes('blocked')) {
+    return `<span class="badge badge-grey">${esc(status)}</span>`;
+  }
+
+  return `<span class="badge badge-green">${esc(status || 'open')}</span>`;
+}
+
+function priorityBadge(priority) {
+  const value = String(priority || '').toLowerCase();
+
+  if (value === 'high') {
+    return '<span class="badge badge-amber">👑 High</span>';
+  }
+
+  if (value === 'low') {
+    return '<span class="badge badge-grey">Low</span>';
+  }
+
+  return '<span class="badge badge-blue">Medium</span>';
+}
+
+class DIMSGrid {
+  constructor(options) {
+    this.container = document.querySelector(options.container);
+    this.searchInput = document.querySelector(options.searchInput);
     this.columns = options.columns || [];
     this.rows = options.rows || [];
-    this.searchInput = options.searchInput
-      ? document.querySelector(options.searchInput)
-      : null;
-
     this.filters = {};
     this.sort = { key: null, direction: 'asc' };
     this.menu = null;
@@ -239,56 +298,61 @@ class DIMSGrid {
       throw new Error('DIMSGrid container not found.');
     }
 
-    this.onDocumentClick = this.onDocumentClick.bind(this);
-    document.addEventListener('click', this.onDocumentClick);
+    this.searchInput?.addEventListener('input', () => this.render());
 
-    if (this.searchInput) {
-      this.searchInput.addEventListener('input', () => this.render());
-    }
+    document.addEventListener('click', event => {
+      if (
+        this.menu &&
+        !this.menu.contains(event.target) &&
+        !event.target.closest('.dims-grid-header')
+      ) {
+        this.closeMenu();
+      }
+    });
 
     this.render();
   }
 
-  setRows(rows){
+  setRows(rows) {
     this.rows = Array.isArray(rows) ? rows : [];
     this.render();
   }
 
-  onDocumentClick(event){
-    if (
-      this.menu &&
-      !this.menu.contains(event.target) &&
-      !event.target.closest('.dims-grid-header')
-    ) {
-      this.closeMenu();
-    }
+  getCellValue(row, column) {
+    return typeof column.value === 'function'
+      ? column.value(row)
+      : row[column.key] ?? '';
   }
 
-  getCellValue(row, column){
-    if (typeof column.value === 'function') {
-      return column.value(row);
-    }
-    return row[column.key] ?? '';
-  }
-
-  getFilteredRows(){
-    const query = String(this.searchInput?.value || '').trim().toLowerCase();
+  getFilteredRows() {
+    const query = String(this.searchInput?.value || '')
+      .trim()
+      .toLowerCase();
 
     let data = this.rows.filter(row => {
-      const searchMatch = !query || this.columns.some(column => {
-        return String(this.getCellValue(row, column))
-          .toLowerCase()
-          .includes(query);
-      });
+      const searchMatch =
+        !query ||
+        this.columns.some(column =>
+          String(this.getCellValue(row, column))
+            .toLowerCase()
+            .includes(query)
+        );
 
-      if (!searchMatch) return false;
+      if (!searchMatch) {
+        return false;
+      }
 
       return Object.entries(this.filters).every(([key, expected]) => {
         const column = this.columns.find(item => item.key === key);
-        if (!column) return true;
 
-        const actual = String(this.getCellValue(row, column)).toLowerCase();
-        return actual === String(expected).toLowerCase();
+        if (!column) {
+          return true;
+        }
+
+        return (
+          String(this.getCellValue(row, column)).toLowerCase() ===
+          String(expected).toLowerCase()
+        );
       });
     });
 
@@ -299,42 +363,35 @@ class DIMSGrid {
         const av = this.getCellValue(a, column);
         const bv = this.getCellValue(b, column);
 
-        const an = Number(av);
-        const bn = Number(bv);
+        const comparison = String(av).localeCompare(
+          String(bv),
+          undefined,
+          { numeric: true, sensitivity: 'base' }
+        );
 
-        let result;
-
-        if (
-          av !== '' &&
-          bv !== '' &&
-          !Number.isNaN(an) &&
-          !Number.isNaN(bn)
-        ) {
-          result = an - bn;
-        } else {
-          result = String(av).localeCompare(
-            String(bv),
-            undefined,
-            { numeric: true, sensitivity: 'base' }
-          );
-        }
-
-        return this.sort.direction === 'asc' ? result : -result;
+        return this.sort.direction === 'asc'
+          ? comparison
+          : -comparison;
       });
     }
 
     return data;
   }
 
-  openFilterMenu(column, headerElement){
+  openFilterMenu(column, headerElement) {
     this.closeMenu();
 
-    const values = [...new Set(
-      this.rows
-        .map(row => String(this.getCellValue(row, column)).trim())
-        .filter(Boolean)
-    )].sort((a, b) =>
-      a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+    const values = [
+      ...new Set(
+        this.rows
+          .map(row => String(this.getCellValue(row, column)).trim())
+          .filter(Boolean)
+      )
+    ].sort((a, b) =>
+      a.localeCompare(b, undefined, {
+        numeric: true,
+        sensitivity: 'base'
+      })
     );
 
     const menu = document.createElement('div');
@@ -398,15 +455,23 @@ class DIMSGrid {
     this.menu = menu;
   }
 
-  closeMenu(){
-    if (this.menu) {
-      this.menu.remove();
-      this.menu = null;
-    }
+  closeMenu() {
+    this.menu?.remove();
+    this.menu = null;
   }
 
-  render(){
+  render() {
     const data = this.getFilteredRows();
+
+    this.container.innerHTML = '';
+
+    if (!data.length) {
+      const empty = document.createElement('div');
+      empty.className = 'dims-grid-empty';
+      empty.textContent = 'No matching records found.';
+      this.container.appendChild(empty);
+      return;
+    }
 
     const wrapper = document.createElement('div');
     wrapper.className = 'dims-grid-wrap';
@@ -472,84 +537,18 @@ class DIMSGrid {
 
     table.appendChild(tbody);
     wrapper.appendChild(table);
-
-    this.container.innerHTML = '';
-
-    if (!data.length) {
-      const empty = document.createElement('div');
-      empty.className = 'dims-grid-empty';
-      empty.textContent = 'No matching records found.';
-      this.container.appendChild(empty);
-      return;
-    }
-
     this.container.appendChild(wrapper);
   }
-}
-
-
-
-const sb = createClient(
-  'https://sdquzhsylqpbhrmqjqgk.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkcXV6aHN5bHFwYmhybXFqcWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTA4MzYsImV4cCI6MjA5NjU4NjgzNn0.MKwTvnLQ5Xr1vl-L0ngrJ5yi73-uPaaJUGyUggKEo1Y'
-);
-
-function esc(value){
-  return String(value ?? '').replace(
-    /[&<>"]/g,
-    character => ({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;'
-    }[character])
-  );
-}
-
-function fmt(value){
-  return value ? new Date(value).toLocaleDateString() : '—';
-}
-
-function badge(status){
-  const value = String(status || '').toLowerCase();
-
-  if (value.includes('active') || value.includes('progress')) {
-    return `<span class="badge badge-amber">${esc(status)}</span>`;
-  }
-
-  if (value.includes('complete')) {
-    return `<span class="badge badge-blue">${esc(status)}</span>`;
-  }
-
-  if (value.includes('deferred')) {
-    return `<span class="badge badge-grey">${esc(status)}</span>`;
-  }
-
-  return `<span class="badge badge-green">${esc(status || 'open')}</span>`;
-}
-
-function priorityBadge(priority){
-  const value = String(priority || '').toLowerCase();
-
-  if (value === 'high') {
-    return '<span class="badge badge-amber">👑 High</span>';
-  }
-
-  if (value === 'low') {
-    return '<span class="badge badge-grey">Low</span>';
-  }
-
-  return '<span class="badge badge-blue">Medium</span>';
 }
 
 let projectsGrid;
 let tasksGrid;
 
-async function loadProjects(){
+async function loadProjects() {
   const { data, error } = await sb
     .from('projects')
     .select('*')
-    .order('created_at', { ascending:false });
+    .order('created_at', { ascending: false });
 
   const container = document.getElementById('projectsList');
 
@@ -566,9 +565,16 @@ async function loadProjects(){
 
   const columns = [
     {
-      key:'title',
-      label:'Project',
-      render:project =>
+      key: 'project_number',
+      label: 'Project No.',
+      value: project => project.project_number || '—',
+      render: project =>
+        `<span class="permanent-number">${esc(project.project_number || '—')}</span>`
+    },
+    {
+      key: 'title',
+      label: 'Project',
+      render: project =>
         `<strong>${esc(project.title)}</strong>` +
         (
           project.description
@@ -577,53 +583,53 @@ async function loadProjects(){
         )
     },
     {
-      key:'stream',
-      label:'Stream',
-      value:project => project.stream || '—'
+      key: 'stream',
+      label: 'Stream',
+      value: project => project.stream || '—'
     },
     {
-      key:'status',
-      label:'Status',
-      value:project => project.status || 'open',
-      render:project => badge(project.status || 'open')
+      key: 'status',
+      label: 'Status',
+      value: project => project.status || 'open',
+      render: project => badge(project.status || 'open')
     },
     {
-      key:'priority',
-      label:'Priority',
-      value:project => project.priority || 'medium',
-      render:project => priorityBadge(project.priority)
+      key: 'priority',
+      label: 'Priority',
+      value: project => project.priority || 'medium',
+      render: project => priorityBadge(project.priority)
     },
     {
-      key:'project_type',
-      label:'Project Type',
-      value:project => project.project_type || 'operational'
+      key: 'project_type',
+      label: 'Project Type',
+      value: project => project.project_type || 'operational'
     },
     {
-      key:'start_date',
-      label:'Start',
-      value:project => fmt(project.start_date)
+      key: 'start_date',
+      label: 'Start',
+      value: project => fmt(project.start_date)
     },
     {
-      key:'target_date',
-      label:'Target',
-      value:project => fmt(project.target_date)
+      key: 'target_date',
+      label: 'Target',
+      value: project => fmt(project.target_date)
     },
     {
-      key:'percent_complete',
-      label:'Progress',
-      value:project => project.percent_complete || 0,
-      render:project =>
+      key: 'percent_complete',
+      label: 'Progress',
+      value: project => project.percent_complete || 0,
+      render: project =>
         `<div class="progress-bar">` +
-        `<div class="progress-fill" style="width:${project.percent_complete || 0}%"></div>` +
+        `<div class="progress-fill" style="width:${Number(project.percent_complete) || 0}%"></div>` +
         `</div>` +
-        `<div class="row-meta">${project.percent_complete || 0}%</div>`
+        `<div class="row-meta">${Number(project.percent_complete) || 0}%</div>`
     }
   ];
 
   if (!projectsGrid) {
     projectsGrid = new DIMSGrid({
-      container:'#projectsList',
-      searchInput:'#projectSearch',
+      container: '#projectsList',
+      searchInput: '#projectSearch',
       columns,
       rows
     });
@@ -632,11 +638,11 @@ async function loadProjects(){
   }
 }
 
-async function loadTasks(){
+async function loadTasks() {
   const { data, error } = await sb
     .from('tasks')
     .select('*')
-    .order('created_at', { ascending:false });
+    .order('created_at', { ascending: false });
 
   const container = document.getElementById('tasksList');
 
@@ -653,58 +659,65 @@ async function loadTasks(){
 
   const columns = [
     {
-      key:'title',
-      label:'Task',
-      render:task => `<strong>${esc(task.title)}</strong>`
+      key: 'task_number',
+      label: 'Task No.',
+      value: task => task.task_number || '—',
+      render: task =>
+        `<span class="permanent-number">${esc(task.task_number || '—')}</span>`
     },
     {
-      key:'status',
-      label:'Status',
-      value:task => task.status || 'open',
-      render:task => badge(task.status || 'open')
+      key: 'title',
+      label: 'Task',
+      render: task => `<strong>${esc(task.title)}</strong>`
     },
     {
-      key:'priority',
-      label:'Priority',
-      value:task => task.priority || 'medium',
-      render:task => priorityBadge(task.priority)
+      key: 'status',
+      label: 'Status',
+      value: task => task.status || 'open',
+      render: task => badge(task.status || 'open')
     },
     {
-      key:'task_type',
-      label:'Task Type',
-      value:task => task.task_type || 'operational'
+      key: 'priority',
+      label: 'Priority',
+      value: task => task.priority || 'medium',
+      render: task => priorityBadge(task.priority)
     },
     {
-      key:'start_date',
-      label:'Start',
-      value:task => fmt(task.start_date)
+      key: 'task_type',
+      label: 'Task Type',
+      value: task => task.task_type || 'operational'
     },
     {
-      key:'target_date',
-      label:'Target',
-      value:task => fmt(task.target_date)
+      key: 'start_date',
+      label: 'Start',
+      value: task => fmt(task.start_date)
     },
     {
-      key:'percent_complete',
-      label:'Progress',
-      value:task => task.percent_complete || 0,
-      render:task =>
+      key: 'target_date',
+      label: 'Target',
+      value: task => fmt(task.target_date)
+    },
+    {
+      key: 'percent_complete',
+      label: 'Progress',
+      value: task => task.percent_complete || 0,
+      render: task =>
         `<div class="progress-bar">` +
-        `<div class="progress-fill" style="width:${task.percent_complete || 0}%"></div>` +
+        `<div class="progress-fill" style="width:${Number(task.percent_complete) || 0}%"></div>` +
         `</div>` +
-        `<div class="row-meta">${task.percent_complete || 0}%</div>`
+        `<div class="row-meta">${Number(task.percent_complete) || 0}%</div>`
     },
     {
-      key:'notes',
-      label:'Notes',
-      value:task => task.notes || '—'
+      key: 'notes',
+      label: 'Notes',
+      value: task => task.notes || '—'
     }
   ];
 
   if (!tasksGrid) {
     tasksGrid = new DIMSGrid({
-      container:'#tasksList',
-      searchInput:'#taskSearch',
+      container: '#tasksList',
+      searchInput: '#taskSearch',
       columns,
       rows
     });
@@ -713,13 +726,12 @@ async function loadTasks(){
   }
 }
 
-window.saveProject = async function(){
-  const title =
-    document.getElementById('p_title').value.trim();
+window.saveProject = async function() {
+  const title = document.getElementById('p_title').value.trim();
+  const message = document.getElementById('pMsg');
 
   if (!title) {
-    document.getElementById('pMsg').textContent =
-      'Title required.';
+    message.textContent = 'Title required.';
     return;
   }
 
@@ -727,20 +739,19 @@ window.saveProject = async function(){
     .from('projects')
     .insert({
       title,
-      description:document.getElementById('p_desc').value,
-      status:document.getElementById('p_status').value,
-      priority:document.getElementById('p_priority').value,
-      stream:document.getElementById('p_stream').value,
-      created_at:new Date().toISOString()
+      description: document.getElementById('p_desc').value,
+      status: document.getElementById('p_status').value,
+      priority: document.getElementById('p_priority').value,
+      stream: document.getElementById('p_stream').value,
+      created_at: new Date().toISOString()
     });
 
-  document.getElementById('pMsg').textContent =
-    error
-      ? `Error: ${error.message}`
-      : 'Saved ✅';
+  message.textContent = error
+    ? `Error: ${error.message}`
+    : 'Saved ✅';
 
   if (!error) {
-    ['p_title','p_desc','p_stream'].forEach(
+    ['p_title', 'p_desc', 'p_stream'].forEach(
       id => document.getElementById(id).value = ''
     );
 
@@ -748,13 +759,12 @@ window.saveProject = async function(){
   }
 };
 
-window.saveTask = async function(){
-  const title =
-    document.getElementById('t_title').value.trim();
+window.saveTask = async function() {
+  const title = document.getElementById('t_title').value.trim();
+  const message = document.getElementById('tMsg');
 
   if (!title) {
-    document.getElementById('tMsg').textContent =
-      'Title required.';
+    message.textContent = 'Title required.';
     return;
   }
 
@@ -762,19 +772,18 @@ window.saveTask = async function(){
     .from('tasks')
     .insert({
       title,
-      notes:document.getElementById('t_notes').value,
-      status:document.getElementById('t_status').value,
-      priority:document.getElementById('t_priority').value,
-      created_at:new Date().toISOString()
+      notes: document.getElementById('t_notes').value,
+      status: document.getElementById('t_status').value,
+      priority: document.getElementById('t_priority').value,
+      created_at: new Date().toISOString()
     });
 
-  document.getElementById('tMsg').textContent =
-    error
-      ? `Error: ${error.message}`
-      : 'Saved ✅';
+  message.textContent = error
+    ? `Error: ${error.message}`
+    : 'Saved ✅';
 
   if (!error) {
-    ['t_title','t_notes'].forEach(
+    ['t_title', 't_notes'].forEach(
       id => document.getElementById(id).value = ''
     );
 

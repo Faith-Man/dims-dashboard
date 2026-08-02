@@ -1,0 +1,118 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Peace & Safety Intelligence — DOME™</title>
+<link rel="stylesheet" href="dims-shared.css">
+</head><body>
+<div class="page-header">
+  <div><div class="page-title">🕊 Peace & Safety Intelligence</div><div class="page-sub">World conditions impacting faith, family, and governance</div></div>
+  <a href="index.html" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">← Home</a>
+</div>
+<nav class="nav-pills">
+  <a class="nav-pill" href="mission-control.html">🎯 Mission Control</a>
+  <a class="nav-pill" href="command-alerts.html">🚨 Alerts</a>
+  <a class="nav-pill" href="system-status.html">🩺 System Status</a>
+  <a class="nav-pill active" href="peace-safety-intelligence.html">🕊 Peace & Safety</a>
+  <a class="nav-pill" href="dashboard-v3.html">⚙ KUBERNĒSIS</a>
+</nav>
+<div class="wrap">
+  <div class="card">
+    <div class="card-title">🌍 Global Status Overview <span id="briefDate" style="color:var(--muted);font-size:.8rem"></span></div>
+    <div id="overview" class="loading">Loading…</div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">📊 Risk Barometer</div>
+      <div id="riskBarometer" class="loading">Loading…</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗺 Regional Status</div>
+      <div id="regions" class="loading">Loading…</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📋 Peace & Safety Trackers</div>
+    <div id="trackers" class="loading">Loading…</div>
+  </div>
+  <div class="card">
+    <div class="card-title">🎯 Strategic Watchpoints</div>
+    <div id="watchpoints" class="loading">Loading…</div>
+  </div>
+  <div class="card">
+    <div class="card-title">📜 Scripture Anchor</div>
+    <div id="scripture" class="loading">Loading…</div>
+  </div>
+  <div class="card">
+    <div class="card-title">🔗 Sources</div>
+    <div id="sources" class="loading">Loading…</div>
+    <div class="row-meta" style="margin-top:8px">This brief reflects real-world research at time of writing, refreshed on request — not a live automated feed.</div>
+  </div>
+</div>
+<div class="scripture-bar">"And the effect of righteousness shall be peace." <strong>— Isaiah 32:17</strong></div>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkcXV6aHN5bHFwYmhybXFqcWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTA4MzYsImV4cCI6MjA5NjU4NjgzNn0.MKwTvnLQ5Xr1vl-L0ngrJ5yi73-uPaaJUGyUggKEo1Y');
+function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function fmt(d){return d?new Date(d).toLocaleDateString():'—'}
+function riskClass(v){
+  v=(v||'').toLowerCase();
+  if(v.includes('high')||v.includes('elevated')||v.includes('declin')) return 'badge-amber';
+  if(v.includes('low')) return 'badge-green';
+  return 'badge-blue';
+}
+function trendClass(t){
+  t=(t||'').toLowerCase();
+  if(t.includes('deteriorat')) return 'badge-amber';
+  if(t.includes('improv')) return 'badge-green';
+  return 'badge-blue';
+}
+
+async function loadBrief(){
+  const {data}=await sb.from('peace_safety_briefs').select('*').order('brief_date',{ascending:false}).limit(1);
+  const brief=data?.[0];
+  if(!brief){
+    document.getElementById('overview').innerHTML='<span class="loading">No brief available yet.</span>';
+    return;
+  }
+  document.getElementById('briefDate').textContent=fmt(brief.brief_date);
+  document.getElementById('overview').innerHTML=`<div>${esc(brief.global_overview)}</div>`;
+
+  const rb=brief.risk_barometer||{};
+  document.getElementById('riskBarometer').innerHTML=`
+    <div class="row-item" style="display:flex;justify-content:space-between"><span>Peace Index</span><span class="badge ${riskClass(rb.peace_index)}">${esc(rb.peace_index)}</span></div>
+    <div class="row-item" style="display:flex;justify-content:space-between"><span>Security Volatility</span><span class="badge ${riskClass(rb.security_volatility)}">${esc(rb.security_volatility)}</span></div>
+    <div class="row-item" style="display:flex;justify-content:space-between"><span>Diplomatic Momentum</span><span class="badge ${riskClass(rb.diplomatic_momentum)}">${esc(rb.diplomatic_momentum)}</span></div>
+    <div class="row-item" style="display:flex;justify-content:space-between"><span>Global Risk</span><span class="badge ${riskClass(rb.global_risk)}">${esc(rb.global_risk)}</span></div>
+    ${rb.note?`<div class="row-meta" style="margin-top:8px">${esc(rb.note)}</div>`:''}
+  `;
+
+  const regions=brief.regions||[];
+  document.getElementById('regions').innerHTML=regions.map(r=>`
+    <div class="row-item">
+      <div class="row-title">${esc(r.name)} <span class="badge ${trendClass(r.trend)}">${esc(r.trend)}</span></div>
+      <div class="row-meta" style="margin-top:2px">${esc(r.status)}</div>
+      <div style="margin-top:4px;font-size:.85rem">${esc(r.detail)}</div>
+    </div>`).join('')||'<span class="loading">No region data.</span>';
+
+  const trackers=brief.trackers||[];
+  document.getElementById('trackers').innerHTML=`<table><thead><tr><th>Theme</th><th>Current Action</th><th>Next Trigger</th></tr></thead><tbody>`+
+    trackers.map(t=>`<tr>
+      <td><strong style="color:var(--gold)">${esc(t.theme)}</strong></td>
+      <td style="font-size:.85rem">${esc(t.current_action)}</td>
+      <td style="font-size:.85rem">${esc(t.next_trigger)}</td>
+    </tr>`).join('')+'</tbody></table>';
+
+  const watchpoints=(brief.watchpoints||[]).sort((a,b)=>a.rank-b.rank);
+  document.getElementById('watchpoints').innerHTML=watchpoints.map(w=>`
+    <div class="row-item">
+      <div class="row-title">${w.rank}. ${esc(w.title)} <span class="badge ${w.priority==='high'?'badge-amber':'badge-blue'}">${esc(w.priority)}</span></div>
+      <div class="row-meta" style="margin-top:4px">${esc(w.description)}</div>
+    </div>`).join('')||'<span class="loading">No watchpoints.</span>';
+
+  document.getElementById('scripture').innerHTML=`<div style="font-style:italic;white-space:pre-wrap">${esc(brief.scripture_anchor)}</div>`;
+
+  const sources=brief.sources||[];
+  document.getElementById('sources').innerHTML=sources.map(s=>`<div class="row-meta">• ${esc(s)}</div>`).join('')||'<span class="loading">No sources listed.</span>';
+}
+
+loadBrief();
+</script>
+</body></html>

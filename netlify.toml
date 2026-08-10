@@ -1,3 +1,4 @@
 [build]
-  publish = "."
+  command = "node scripts/build-production.mjs"
+  publish = "dist"
   functions = "netlify/functions"

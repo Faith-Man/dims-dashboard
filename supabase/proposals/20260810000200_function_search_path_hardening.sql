@@ -1,0 +1,7 @@
+-- PROPOSAL ONLY — DO NOT APPLY WITHOUT the exact verified function signatures.
+-- ALTER FUNCTION requires argument types, which the captured baseline omits.
+-- Once obtained from pg_get_function_identity_arguments(), review and add:
+-- alter function public.dims_task_progress_from_status(<signature>) set search_path = public, pg_temp;
+-- alter function public.dims_normalize_task_progress(<signature>) set search_path = public, pg_temp;
+-- alter function public.dims_recalculate_project_progress(<signature>) set search_path = public, pg_temp;
+-- alter function public.dims_refresh_parent_project_progress(<signature>) set search_path = public, pg_temp;

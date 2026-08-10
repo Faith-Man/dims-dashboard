@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YARATHĒKĒ™ v2 Prototype</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./portability.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">DOME™ · KNOWLEDGE LIBRARY</div>
+      <h1>YARATHĒKĒ™</h1>
+      <p>Reader-centered canonical knowledge library</p>
+    </div>
+    <button class="icon-btn" id="menuBtn" aria-label="Open navigation">☰</button>
+  </header>
+
+  <nav class="nav" id="nav">
+    <button data-view="library" class="active">Library</button>
+    <button data-view="series">KEEP THE GARDEN</button>
+    <button data-view="garden">Lesson One</button>
+    <button data-view="shamar">SHAMAR</button>
+    <button data-view="formats">Content Types</button>
+    <button data-view="writer">OrEl Writer</button>
+    <button data-view="editor">Editor/Admin</button>
+  </nav>
+
+  <main id="app" class="app" tabindex="-1"></main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="./app.js"></script>
+  <script src="./portability.js"></script>
+</body>
+</html>

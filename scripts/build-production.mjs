@@ -4,7 +4,7 @@ import { cp, mkdir, rm } from 'node:fs/promises';
 // backups, and superseded HTML variants never enter the deployable artifact.
 const runtimeFiles = [
   '_redirects', 'index.html', 'admin.html', 'admin.js', 'ai-buttons-injector.js',
-  'orai.js', 'dims-shared.css', 'dims-glossary-tooltips.js',
+  'orai.js', 'dims-auth.js', 'dims-shared.css', 'dims-glossary-tooltips.js',
   'command-alerts.html', 'enterprise-forms.html', 'executive-dashboard.html',
   'institutional-queue.html', 'intelligence-briefing.html', 'mission-control.html',
   'neshamah.html', 'orel-studio.html', 'orel-teaching-studio.html',

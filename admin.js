@@ -1,10 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-// DIMS-v3 Supabase project values
-const SUPABASE_URL = 'https://sdquzhsylqpbhrmqjqgk.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How';
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+import { requireSession, supabase } from './dims-auth.js';
 
 // --- auth UI ---
 const authCard = document.getElementById('auth-card');
@@ -83,6 +77,7 @@ function nowIso() {
 }
 
 async function upsertTeaching(publish) {
+  if (!await requireSession(saveMsg)) return;
   saveMsg.textContent = 'Saving...';
 
   const row = {

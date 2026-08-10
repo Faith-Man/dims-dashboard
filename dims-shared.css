@@ -9,6 +9,11 @@ body{background:var(--navy);color:var(--ink);font-family:'Inter',system-ui,sans-
 .nav-pill{font-size:.75rem;color:var(--gold);border:1px solid var(--gold3);padding:5px 12px;text-decoration:none;letter-spacing:1px;white-space:nowrap;border-radius:9px}
 .nav-pill:hover,.nav-pill.active{background:var(--gold3);color:#fff}
 .wrap{max-width:1200px;margin:0 auto;padding:20px}
+.dims-auth{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;margin:0 0 16px;border:1px solid var(--gold3);border-radius:10px;background:rgba(255,255,255,.7)}
+.dims-auth form{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto}
+.dims-auth input{width:min(260px,70vw);margin:0}
+.dims-auth [data-auth-status]{color:var(--muted);font-size:.82rem}
+[data-auth-write]:disabled{opacity:.55;cursor:not-allowed}
 .card{background:var(--navy2);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
 .card-title{font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}

@@ -13,6 +13,7 @@
   <a class="nav-pill" href="dashboard-v3.html">⚙ System</a>
 </nav>
 <div class="wrap">
+  <div data-dims-auth></div>
   <div class="card">
     <div class="card-title">💨 NESHAMAH Records <span id="nCount" style="color:var(--muted);font-size:.8rem"></span></div>
     <div id="neshamahList" class="loading">Loading…</div>
@@ -28,15 +29,15 @@
     <textarea id="n_directives" placeholder="Directives — What to do…" style="min-height:60px"></textarea>
     <textarea id="n_declaration" placeholder="Declaration — Confession of faith…" style="min-height:60px"></textarea>
     <input id="n_scripture" placeholder="Scripture reference (e.g. John 1:1)">
-    <button class="btn" onclick="saveNeshamah()">💾 Save Record</button>
+    <button class="btn" data-auth-write disabled onclick="saveNeshamah()">💾 Save Record</button>
     <span id="nMsg" class="loading" style="margin-left:8px"></span>
   </div>
 </div>
 <div class="scripture-bar">"But there is a spirit in man, and the breath of the Almighty gives him understanding." <strong>— Job 32:8</strong></div>
 <script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkcXV6aHN5bHFwYmhybXFqcWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTA4MzYsImV4cCI6MjA5NjU4NjgzNn0.MKwTvnLQ5Xr1vl-L0ngrJ5yi73-uPaaJUGyUggKEo1Y');
-function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+import { mountAuthUI, requireSession, supabase as sb } from './dims-auth.js';
+mountAuthUI();
+function esc(s){return String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]))}
 function fmt(d){return d?new Date(d).toLocaleString():'—'}
 
 async function loadNeshamah(){
@@ -55,6 +56,7 @@ async function loadNeshamah(){
 }
 
 window.saveNeshamah=async function(){
+  if(!await requireSession(document.getElementById('nMsg'))) return;
   const title=document.getElementById('n_title').value.trim();
   if(!title){document.getElementById('nMsg').textContent='Title required.';return;}
   const {error}=await sb.from('neshamah_records').insert({title,logos_word:document.getElementById('n_logos').value,rhema_word:document.getElementById('n_rhema').value,understanding:document.getElementById('n_understanding').value,directives:document.getElementById('n_directives').value,declaration:document.getElementById('n_declaration').value,scripture_reference:document.getElementById('n_scripture').value,status:'active',created_at:new Date().toISOString(),updated_at:new Date().toISOString()});

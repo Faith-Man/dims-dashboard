@@ -131,6 +131,8 @@
 
 <div class="wrap">
 
+  <div data-dims-auth></div>
+
   <div class="card">
     <div class="card-title">
       📂 Projects
@@ -188,7 +190,7 @@
 
       <input id="p_stream" placeholder="Stream (e.g. DIMS, VAULT)">
 
-      <button class="btn" onclick="saveProject()">💾 Save Project</button>
+      <button class="btn" data-auth-write disabled onclick="saveProject()">💾 Save Project</button>
 
       <span id="pMsg" class="loading" style="margin-left:8px"></span>
     </div>
@@ -214,7 +216,7 @@
         <option value="low">Low</option>
       </select>
 
-      <button class="btn" onclick="saveTask()">💾 Save Task</button>
+      <button class="btn" data-auth-write disabled onclick="saveTask()">💾 Save Task</button>
 
       <span id="tMsg" class="loading" style="margin-left:8px"></span>
     </div>
@@ -229,11 +231,9 @@
 
 <script type="module">
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { mountAuthUI, requireSession, supabase as sb } from './dims-auth.js';
 
-const SUPABASE_URL = 'https://sdquzhsylqpbhrmqjqgk.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How';
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+mountAuthUI();
 
 function esc(value) {
   return String(value ?? '').replace(
@@ -727,6 +727,7 @@ async function loadTasks() {
 }
 
 window.saveProject = async function() {
+  if (!await requireSession(document.getElementById('pMsg'))) return;
   const title = document.getElementById('p_title').value.trim();
   const message = document.getElementById('pMsg');
 
@@ -760,6 +761,7 @@ window.saveProject = async function() {
 };
 
 window.saveTask = async function() {
+  if (!await requireSession(document.getElementById('tMsg'))) return;
   const title = document.getElementById('t_title').value.trim();
   const message = document.getElementById('tMsg');
 

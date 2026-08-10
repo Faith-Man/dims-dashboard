@@ -52,6 +52,7 @@
 </nav>
 
 <div class="wrap">
+<div data-dims-auth></div>
 
 <div class="tabbar">
   <button class="tabbtn active" id="tabWriteBtn" onclick="showView('write')">✍ Write</button>
@@ -112,8 +113,8 @@
 
 <div class="toolbar">
 <button class="btn" onclick="newTeaching()">New</button>
-<button class="btn" onclick="saveTeaching('draft')">💾 Save</button>
-<button class="btn" onclick="saveTeaching('published')">🚀 Publish</button>
+<button class="btn" data-auth-write disabled onclick="saveTeaching('draft')">💾 Save</button>
+<button class="btn" data-auth-write disabled onclick="saveTeaching('published')">🚀 Publish</button>
 <button class="btn" onclick="previewContent()">👁 Preview</button>
 <button class="btn" onclick="printContent()">🖨 Print</button>
 
@@ -129,9 +130,9 @@
 <div class="dropdown">
 <button class="btn">⋮ More ▼</button>
 <div class="dropdown-content">
-<button class="btn" onclick="archiveTeaching()">📦 Archive</button>
+<button class="btn" data-auth-write disabled onclick="archiveTeaching()">📦 Archive</button>
 <button class="btn" onclick="duplicateTeaching()">📑 Duplicate</button>
-<button class="btn" onclick="deleteTeaching()">🗑 Delete</button>
+<button class="btn" data-auth-write disabled onclick="deleteTeaching()">🗑 Delete</button>
 </div>
 </div>
 </div>
@@ -166,12 +167,9 @@
 <div class="scripture-bar">"My people are destroyed for lack of knowledge." <strong>— Hosea 4:6</strong></div>
 
 <script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { mountAuthUI, requireSession, supabase } from './dims-auth.js';
 
-const supabase = createClient(
-  'https://sdquzhsylqpbhrmqjqgk.supabase.co',
-  'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How'
-);
+mountAuthUI();
 
 let teachings = [];
 let currentId = null;
@@ -203,7 +201,7 @@ function slugify(s){
 }
 
 function esc(s){
-  return String(s ?? '').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  return String(s ?? '').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));
 }
 
 function typeIcon(type){
@@ -356,6 +354,7 @@ function newTeaching(){
 }
 
 async function saveTeaching(forceStatus){
+  if(!await requireSession(document.getElementById('msg'))) return;
   const d=getEditorData();
   const title=d.title;
   const slug=d.slug || slugify(title);
@@ -411,6 +410,7 @@ async function archiveTeaching(){
 }
 
 async function deleteTeaching(){
+  if(!await requireSession(document.getElementById('msg'))) return;
   if(!currentId){
     document.getElementById('msg').textContent='No content selected.';
     return;

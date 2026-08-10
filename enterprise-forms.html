@@ -15,6 +15,7 @@
   <a class="nav-pill" href="dashboard-v3.html">⚙ System</a>
 </nav>
 <div class="wrap">
+  <div data-dims-auth></div>
   <div class="card">
     <div class="card-title">🗄 Asset Registry <span id="assetCount" style="color:var(--muted);font-size:.8rem"></span></div>
     <input id="assetSearch" placeholder="Search assets…" oninput="filterAssets()" style="max-width:300px;margin-bottom:12px">
@@ -35,15 +36,15 @@
       <input id="a_url" placeholder="URL (optional)">
     </div>
     <textarea id="a_desc" placeholder="Description…" style="min-height:60px"></textarea>
-    <button class="btn" onclick="saveAsset()">💾 Register Asset</button>
+    <button class="btn" data-auth-write disabled onclick="saveAsset()">💾 Register Asset</button>
     <span id="assetMsg" class="loading" style="margin-left:8px"></span>
   </div>
 </div>
 <div class="scripture-bar">"Whatever your hand finds to do, do it with all your might." <strong>— Ecclesiastes 9:10</strong></div>
 <script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkcXV6aHN5bHFwYmhybXFqcWdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMTA4MzYsImV4cCI6MjA5NjU4NjgzNn0.MKwTvnLQ5Xr1vl-L0ngrJ5yi73-uPaaJUGyUggKEo1Y');
-function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+import { mountAuthUI, requireSession, supabase as sb } from './dims-auth.js';
+mountAuthUI();
+function esc(s){return String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]))}
 
 let ASSETS=[];
 async function loadAssets(){
@@ -70,6 +71,7 @@ window.filterAssets=function(){
 };
 
 window.saveAsset=async function(){
+  if(!await requireSession(document.getElementById('assetMsg'))) return;
   const code=document.getElementById('a_code').value.trim();
   const name=document.getElementById('a_name').value.trim();
   if(!code||!name){document.getElementById('assetMsg').textContent='Code and name required.';return;}

@@ -27,6 +27,14 @@
  * TEACHING_GITHUB_REPO       e.g. Faith-Man/dims-dashboard
  * TEACHING_GITHUB_BASE_PATH  e.g. docs/teachings
  *
+ * Compatibility / EBYC
+ * --------------------
+ * All private Supabase helpers are prefixed `teachingSync` so this
+ * extension cannot collide with the existing project-wide
+ * `supabaseRequest_(table, method, payload, query)` implementation.
+ * Existing RepositoryService, ERBI, SynchronizationEngine, and
+ * GitHub publishing services are preserved.
+ *
  * Security
  * --------
  * Service role credentials MUST remain in Script Properties.
@@ -35,7 +43,7 @@
 
 function processTeachingArtifactSyncQueue(limit) {
   limit = Number(limit || 10);
-  var jobs = supabaseSelect_(
+  var jobs = teachingSyncSelect_(
     'sync_log',
     'id,asset_code,asset_name,sync_status,message,source,created_at',
     'sync_status=eq.queued&source=eq.TeachingArtifactSyncTrigger&order=created_at.asc&limit=' + limit
@@ -56,7 +64,7 @@ function processOneTeachingArtifactSync_(job) {
   markSyncJob_(job.id, 'processing', 'Teaching artifact synchronization started.');
 
   try {
-    var teachingRows = supabaseSelect_(
+    var teachingRows = teachingSyncSelect_(
       'teachings',
       '*',
       'id=eq.' + encodeURIComponent(job.asset_code) + '&limit=1'
@@ -70,7 +78,7 @@ function processOneTeachingArtifactSync_(job) {
       throw new Error('Teaching has no content_md: ' + teaching.id);
     }
 
-    var registryRows = supabaseSelect_(
+    var registryRows = teachingSyncSelect_(
       'asset_registry',
       '*',
       'asset_code=eq.' + encodeURIComponent(teaching.id) + '&limit=1'
@@ -83,7 +91,7 @@ function processOneTeachingArtifactSync_(job) {
     var verifyResult = verifyTeachingPersistence_(teaching, driveResult, registryResult);
 
     var evidence = {
-      event: 'teaching_artifact_sync_complete',
+      event: 'teaching_artifact_sync_verified',
       teaching_id: teaching.id,
       drive: driveResult,
       asset_registry: registryResult,
@@ -92,8 +100,8 @@ function processOneTeachingArtifactSync_(job) {
       completed_at: new Date().toISOString()
     };
 
-    markSyncJob_(job.id, 'complete', JSON.stringify(evidence));
-    return { job_id: job.id, status: 'complete', evidence: evidence };
+    markSyncJob_(job.id, 'verified', JSON.stringify(evidence));
+    return { job_id: job.id, status: 'verified', evidence: evidence };
   } catch (err) {
     var failure = {
       event: 'teaching_artifact_sync_failed',
@@ -136,7 +144,8 @@ function persistTeachingToDrive_(teaching, registry) {
     url: 'https://docs.google.com/document/d/' + doc.getId() + '/edit',
     title: teaching.title,
     platform: 'Google Drive',
-    location: 'DOME / YARATHĒKĒ'
+    location: 'DOME / YARATHĒKĒ',
+    folder_id: folderId
   };
 }
 
@@ -144,7 +153,6 @@ function writeDominion1stTeachingDocument_(doc, teaching) {
   var body = doc.getBody();
   body.clear();
 
-  // Dominion1st teaching baseline palette.
   var ROYAL = '#14258F';
   var ELECTRIC = '#55C7FF';
   var GOLD = '#9C7A2E';
@@ -155,11 +163,7 @@ function writeDominion1stTeachingDocument_(doc, teaching) {
        .setAlignment(DocumentApp.HorizontalAlignment.CENTER);
   title.editAsText().setForegroundColor(ROYAL).setBold(true);
 
-  var meta = body.appendParagraph([
-    teaching.series ? 'Series: ' + teaching.series : null,
-    teaching.category ? 'Category: ' + teaching.category : null,
-    teaching.id ? 'Artifact: ' + teaching.id : null
-  ].filter(Boolean).join('  •  '));
+  var meta = body.appendParagraph(teachingSyncMetaText_(teaching));
   meta.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
   meta.editAsText().setForegroundColor(ELECTRIC).setBold(true);
 
@@ -169,6 +173,14 @@ function writeDominion1stTeachingDocument_(doc, teaching) {
   }
 
   appendMarkdownAsTeaching_(body, teaching.content_md, ROYAL, GOLD, DARK);
+}
+
+function teachingSyncMetaText_(teaching) {
+  return [
+    teaching.series ? 'Series: ' + teaching.series : null,
+    teaching.category ? 'Category: ' + teaching.category : null,
+    teaching.id ? 'Artifact: ' + teaching.id : null
+  ].filter(Boolean).join('  •  ');
 }
 
 function appendMarkdownAsTeaching_(body, markdown, royal, gold, dark) {
@@ -223,11 +235,11 @@ function reconcileTeachingAssetRegistry_(teaching, driveResult, registry) {
   };
 
   if (registry) {
-    supabasePatch_('asset_registry', 'asset_code=eq.' + encodeURIComponent(teaching.id), payload);
+    teachingSyncPatch_('asset_registry', 'asset_code=eq.' + encodeURIComponent(teaching.id), payload);
     return { action: 'updated', asset_code: teaching.id, url: driveResult.url };
   }
 
-  supabaseInsert_('asset_registry', payload);
+  teachingSyncInsert_('asset_registry', payload);
   return { action: 'created', asset_code: teaching.id, url: driveResult.url };
 }
 
@@ -237,7 +249,6 @@ function publishTeachingMarkdownIfConfigured_(teaching) {
   var base = props.getProperty('TEACHING_GITHUB_BASE_PATH');
   if (!repo || !base) return { status: 'not_applicable_or_not_configured' };
 
-  // Reuse the governed GitHub publish service when present.
   if (typeof githubPutFile !== 'function') {
     return { status: 'blocked', reason: 'githubPutFile helper not available in Apps Script project.' };
   }
@@ -264,52 +275,116 @@ function publishTeachingMarkdownIfConfigured_(teaching) {
 }
 
 function verifyTeachingPersistence_(teaching, driveResult, registryResult) {
-  var driveFile = DriveApp.getFileById(driveResult.file_id);
-  var registryRows = supabaseSelect_(
+  var file = DriveApp.getFileById(driveResult.file_id);
+  var parents = [];
+  var parentIterator = file.getParents();
+  while (parentIterator.hasNext()) parents.push(parentIterator.next().getId());
+
+  var docText = DocumentApp.openById(driveResult.file_id).getBody().getText();
+  var expectedText = teachingSyncExpectedDocumentText_(teaching);
+  var contentMatches = teachingSyncNormalizeText_(docText) === teachingSyncNormalizeText_(expectedText);
+  var folderMatches = parents.indexOf(driveResult.folder_id) !== -1;
+
+  var registryRows = teachingSyncSelect_(
     'asset_registry',
     'asset_code,asset_name,status,url,platform,location',
     'asset_code=eq.' + encodeURIComponent(teaching.id) + '&limit=1'
   );
-  var teachingRows = supabaseSelect_(
+  var teachingRows = teachingSyncSelect_(
     'teachings',
     'id,title,status,slug,updated_at',
     'id=eq.' + encodeURIComponent(teaching.id) + '&limit=1'
   );
 
-  var ok = !!driveFile && !!registryRows.length && !!teachingRows.length;
-  if (!ok) throw new Error('Read-back verification failed for ' + teaching.id);
+  var registryMatches = !!registryRows.length &&
+    registryRows[0].asset_code === teaching.id &&
+    registryRows[0].url === driveResult.url;
+  var teachingMatches = !!teachingRows.length && teachingRows[0].id === teaching.id;
+
+  if (!contentMatches || !folderMatches || !registryMatches || !teachingMatches) {
+    throw new Error(
+      'Read-back verification failed for ' + teaching.id +
+      ' content=' + contentMatches +
+      ' folder=' + folderMatches +
+      ' registry=' + registryMatches +
+      ' teaching=' + teachingMatches
+    );
+  }
 
   return {
     verified: true,
     drive_file_id: driveResult.file_id,
+    content_matches: contentMatches,
+    folder_matches: folderMatches,
+    registry_matches: registryMatches,
     registry_asset_code: registryRows[0].asset_code,
+    teaching_matches: teachingMatches,
     teaching_id: teachingRows[0].id,
     verified_at: new Date().toISOString()
   };
 }
 
+function teachingSyncExpectedDocumentText_(teaching) {
+  var lines = [
+    teaching.title || 'Dominion1st Teaching',
+    teachingSyncMetaText_(teaching)
+  ];
+
+  if (teaching.summary) lines.push(teaching.summary);
+
+  String(teaching.content_md || '').split(/\r?\n/).forEach(function(raw) {
+    var line = raw.trim();
+    if (!line) {
+      lines.push('');
+      return;
+    }
+    line = line
+      .replace(/^###\s+/, '')
+      .replace(/^##\s+/, '')
+      .replace(/^#\s+/, '')
+      .replace(/^[-*]\s+/, '')
+      .replace(/^>\s*/, '')
+      .replace(/\*\*/g, '');
+    lines.push(line);
+  });
+
+  return lines.join('\n');
+}
+
+function teachingSyncNormalizeText_(value) {
+  return String(value || '')
+    .replace(/\r\n/g, '\n')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function markSyncJob_(jobId, status, message) {
-  supabasePatch_('sync_log', 'id=eq.' + encodeURIComponent(jobId), {
+  teachingSyncPatch_('sync_log', 'id=eq.' + encodeURIComponent(jobId), {
     sync_status: status,
     message: message,
     source: 'TeachingArtifactSyncExtension.gs'
   });
 }
 
-function supabaseSelect_(table, select, query) {
-  var response = supabaseRequest_('GET', table + '?select=' + encodeURIComponent(select) + '&' + query, null);
+function teachingSyncSelect_(table, select, query) {
+  var response = teachingSyncSupabaseRequest_(
+    'GET',
+    table + '?select=' + encodeURIComponent(select) + '&' + query,
+    null
+  );
   return JSON.parse(response.getContentText() || '[]');
 }
 
-function supabaseInsert_(table, payload) {
-  return supabaseRequest_('POST', table, payload, { Prefer: 'return=representation' });
+function teachingSyncInsert_(table, payload) {
+  return teachingSyncSupabaseRequest_('POST', table, payload, { Prefer: 'return=representation' });
 }
 
-function supabasePatch_(table, filterQuery, payload) {
-  return supabaseRequest_('PATCH', table + '?' + filterQuery, payload, { Prefer: 'return=representation' });
+function teachingSyncPatch_(table, filterQuery, payload) {
+  return teachingSyncSupabaseRequest_('PATCH', table + '?' + filterQuery, payload, { Prefer: 'return=representation' });
 }
 
-function supabaseRequest_(method, path, payload, extraHeaders) {
+function teachingSyncSupabaseRequest_(method, path, payload, extraHeaders) {
   var props = PropertiesService.getScriptProperties();
   var base = props.getProperty('SUPABASE_URL');
   var key = props.getProperty('SUPABASE_SERVICE_ROLE_KEY');
@@ -344,14 +419,24 @@ function extractGoogleFileId_(url) {
 }
 
 /**
- * Install an hourly trigger (the maximum cadence needed here is typically
- * much lower; change only through governed configuration).
+ * Install the worker trigger only when it does not already exist.
+ * Existing triggers are never deleted by this function.
  */
 function installTeachingArtifactSyncTrigger() {
   var handler = 'processTeachingArtifactSyncQueue';
-  ScriptApp.getProjectTriggers().forEach(function(t) {
-    if (t.getHandlerFunction() === handler) ScriptApp.deleteTrigger(t);
+  var existing = ScriptApp.getProjectTriggers().filter(function(t) {
+    return t.getHandlerFunction() === handler;
   });
+
+  if (existing.length) {
+    return {
+      installed: false,
+      already_present: true,
+      handler: handler,
+      existing_count: existing.length
+    };
+  }
+
   ScriptApp.newTrigger(handler).timeBased().everyHours(1).create();
-  return { installed: true, handler: handler, cadence: 'hourly' };
+  return { installed: true, already_present: false, handler: handler, cadence: 'hourly' };
 }

@@ -1,0 +1,14 @@
+{
+  "asset_code": "SQL-0013",
+  "asset_name": "Teaching Artifact Sync Queue Trigger",
+  "asset_type": "SQL / Database Automation",
+  "platform": "Supabase PostgreSQL",
+  "location": "public.teachings → public.sync_log",
+  "file_name": "teaching_artifact_sync_queue_v1",
+  "url": null,
+  "status": "operational",
+  "priority": "high",
+  "system_area": "Automation / Institutionalization",
+  "description": "Supabase trigger and function that automatically enqueue governed teaching synchronization jobs when active teaching content or metadata changes.",
+  "notes": "Applied as Supabase migration teaching_artifact_sync_queue_v1 under TASK-0076. Controlled insert test verified queue creation and was removed after verification."
+}

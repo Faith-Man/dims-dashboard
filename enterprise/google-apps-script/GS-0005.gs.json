@@ -1,0 +1,14 @@
+{
+  "asset_code": "GS-0005",
+  "asset_name": "TeachingArtifactSyncExtension.gs",
+  "asset_type": "Google Apps Script",
+  "platform": "Google Apps Script / GitHub",
+  "location": "DIMS-v3 / enterprise/google-apps-script",
+  "file_name": "TeachingArtifactSyncExtension.gs",
+  "url": "https://github.com/Faith-Man/dims-dashboard/blob/main/enterprise/google-apps-script/TeachingArtifactSyncExtension.gs",
+  "status": "implementation-ready",
+  "priority": "high",
+  "system_area": "Automation / Institutionalization",
+  "description": "Extension to GS-0002 SynchronizationEngine.gs that consumes queued teaching synchronization jobs and persists/validates governed teaching artifacts.",
+  "notes": "Created under TASK-0076. Requires deployment into the authorized Google Apps Script project and Script Properties before end-to-end automation is operational."
+}

@@ -1,10 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600;700&display=swap');
-:root{--navy:#eef5ff;--navy2:#ffffff;--navy3:#c8d8ff;--gold:#0C1475;--gold2:#3d4fb5;--gold3:#0C1475;--ink:#0b1733;--muted:#5b6b8d;--line:#c8d8ff;--card:#ffffff;--green:#16803d;--amber:#b45309;--red:#dc2626}
+:root{--navy:#eef5ff;--navy2:#ffffff;--navy3:#c8d8ff;--gold:#0C1475;--gold2:#3d4fb5;--gold3:#0C1475;--dominion:#08155f;--dominion2:#102a86;--header-light:#d9e7ff;--ink:#0b1733;--muted:#5b6b8d;--line:#c8d8ff;--card:#ffffff;--green:#16803d;--amber:#b45309;--red:#dc2626}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--navy);color:var(--ink);font-family:'Inter',system-ui,sans-serif;min-height:100vh}
-.page-header{background:linear-gradient(180deg,#dce8ff,var(--navy));border-bottom:2px solid var(--gold3);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.page-title{font-family:'Cinzel',serif;font-size:clamp(18px,4vw,28px);font-weight:900;color:var(--gold);letter-spacing:2px}
-.page-sub{font-size:.8rem;color:var(--muted);margin-top:2px;letter-spacing:1px}
+.page-header{background:linear-gradient(135deg,var(--dominion),var(--dominion2));border-bottom:2px solid #6f9cff;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;color:#fff;box-shadow:0 6px 20px rgba(8,21,95,.18)}
+.page-title{font-family:'Cinzel',serif;font-size:clamp(20px,4vw,30px);font-weight:900;color:#fff;letter-spacing:2px}
+.page-sub{font-size:.82rem;color:var(--header-light);margin-top:4px;letter-spacing:1px}
+.page-header .nav-pill{color:#fff;border-color:#8db0ff;background:rgba(255,255,255,.06)}
+.page-header .nav-pill:hover{background:#fff;color:var(--dominion)}
+.module-meaning{margin-top:7px;font-size:.78rem;color:#fff;opacity:.95}.module-meaning strong{color:#b9d4ff}.module-scripture{margin-top:4px;font-size:.75rem;color:var(--header-light);font-style:italic}
 .nav-pills{display:flex;flex-wrap:wrap;gap:6px;padding:10px 20px;background:var(--navy2);border-bottom:1px solid var(--line)}
 .nav-pill{font-size:.75rem;color:var(--gold);border:1px solid var(--gold3);padding:5px 12px;text-decoration:none;letter-spacing:1px;white-space:nowrap;border-radius:9px}
 .nav-pill:hover,.nav-pill.active{background:var(--gold3);color:#fff}
@@ -13,7 +16,7 @@ body{background:var(--navy);color:var(--ink);font-family:'Inter',system-ui,sans-
 .card-title{font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}}
+@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}.page-header{align-items:flex-start;flex-direction:column}.page-header .nav-pill{align-self:flex-start}}
 table{width:100%;border-collapse:collapse}
 th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top;font-size:.85rem}
 th{color:var(--gold);background:#f4f8ff;font-size:.75rem;letter-spacing:1px;text-transform:uppercase}

@@ -1,6 +1,10 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>YARATHĒKĒ™ — Teaching Repository</title><link rel="stylesheet" href="dims-shared.css"><style>
 /* YARATHĒKĒ publication system */
+
+/* YARATHĒKĒ isolated mobile overflow repair */
+html,body{max-width:100%;overflow-x:hidden}.reader-grid,.reader-grid>*,.reader-grid main,.publication,.library{min-width:0;max-width:100%}.entry strong{display:block;max-width:100%;overflow-wrap:anywhere;word-break:normal}.document-actions,.audio{max-width:100%}
+@media(max-width:800px){.document-actions,.audio{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}.document-actions .action-label,.audio .action-label,.doc-status,.audio-status{grid-column:1/-1;width:100%;margin-left:0}.document-actions .btn-outline,.audio .btn-outline,.audio .btn,.document-actions a,.audio label{width:100%;min-width:0;max-width:100%;white-space:normal;text-align:center;justify-content:center}.audio select{width:100%;max-width:100%}}
 /* YARATHĒKĒ isolated Dominion header repair */
 .page-header{width:100%;max-width:none;background:linear-gradient(135deg,#08155f,#102a86);border-bottom:2px solid #6f9cff;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;color:#fff;box-shadow:0 6px 20px rgba(8,21,95,.18)}
 .page-header .page-title{color:#fff}.page-header .page-sub{color:#d9e7ff}.page-header .nav-pill{color:#fff;border-color:#8db0ff;background:rgba(255,255,255,.06)}.page-header .nav-pill:hover{background:#fff;color:#08155f}

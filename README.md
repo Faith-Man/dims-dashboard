@@ -1,15 +1,27 @@
 # DIMS — Dominion1st (Dashboard + Doctrines + Glossary + AI)
 
-## Deploy (Netlify)
-1. Push this folder to a new GitHub repo.
-2. In Netlify: **Add new site → Import from Git** → pick this repo.
-3. In **Site settings → Environment variables**, add:
-   - `OPENAI_API_KEY` = your key
-4. Deploy. You’ll have:
-   - Dashboard with **⚡ DIMS Brief** + **🕊️ PROPHESY!** buttons
-   - **📜 Dominion1st Doctrines** editor (print/export/import)
-   - **📖 Glossary** editor (tooltips feed)
+## Deployment authority
+Cloudflare Workers is the primary deployment platform for DIMS / DOME.
+
+Repository configuration:
+- Worker: `dims-dashboard`
+- Wrangler configuration: `wrangler.jsonc`
+- Production branch: `main`
+- Non-production feature branches should be verified through Cloudflare preview versions before merge.
+
+### Cloudflare production
+Production changes are promoted only after branch/PR verification. `main` is the production source of truth.
+
+### Cloudflare previews
+For non-production review, use Cloudflare Workers preview versions rather than promoting feature code to production. The intended preview command is:
+
+`npx wrangler versions upload`
+
+Preview verification should include desktop/mobile rendering, navigation, runtime diagnostics, and regression checks for previously verified DIMS/DOME functions.
+
+## Netlify transition status
+Netlify is retained temporarily as a secondary/fallback environment while Cloudflare preview, production deployment, rollback, and RB-001 recovery procedures are fully verified. Netlify is not the authoritative release target and should not be removed until the Cloudflare path is certified end to end.
 
 ## Publish content updates
-- Doctrines: in the editor **Export JSON**, replace `teachings/teachings.json`, commit → Netlify redeploys.
-- Glossary: in the editor **Export JSON**, replace `glossary/glossary.json`, commit → redeploy.
+- Doctrines: in the editor **Export JSON**, replace `teachings/teachings.json`, commit, then verify through the governed deployment path.
+- Glossary: in the editor **Export JSON**, replace `glossary/glossary.json`, commit, then verify through the governed deployment path.

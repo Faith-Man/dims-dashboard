@@ -6,6 +6,11 @@
 <title>OrEl™ Studio — DOME™</title>
 <link rel="stylesheet" href="dims-shared.css">
 <style>
+/* OrEl isolated Dominion header */
+.page-header{width:100%;max-width:none;background:linear-gradient(135deg,#08155f,#102a86);border-bottom:2px solid #6f9cff;color:#fff;box-shadow:0 6px 20px rgba(8,21,95,.18)}
+.page-header .page-title{color:#fff}.page-header .page-sub{color:#d9e7ff}.page-header>a{color:#fff!important;border-color:#8db0ff!important;background:rgba(255,255,255,.06)}.page-header>a:hover{background:#fff;color:#08155f!important}
+@media(max-width:700px){.page-header{align-items:flex-start;flex-direction:column;padding:18px 16px}.page-header>div{width:100%}}
+
 .tabbar{display:flex;gap:8px;margin-bottom:16px}
 .tabbtn{background:#fff;color:var(--gold);border:1px solid var(--gold3);border-radius:9px;padding:9px 18px;cursor:pointer;font-weight:700;font-size:.85rem;letter-spacing:1px}
 .tabbtn.active{background:var(--gold3);color:#fff}
@@ -46,7 +51,7 @@
 
 <nav class="nav-pills">
   <a class="nav-pill" href="mission-control.html">🎯 Mission Control</a>
-  <a class="nav-pill active" href="orel-studio.html">💡 OrEl™ / YARATHĒKĒ™</a>
+  <a class="nav-pill active" href="orel-studio.html">💡 OrEl™ Studio</a>\n  <a class="nav-pill" href="yaratheke.html">📜 YARATHĒKĒ™</a>
   <a class="nav-pill" href="neshamah.html">💨 NESHAMAH</a>
   <a class="nav-pill" href="dashboard-v3.html">⚙ System</a>
 </nav>
@@ -306,11 +311,19 @@ function loadIntoEditor(t){
   document.getElementById('preview').style.display='none';
 }
 
+function teachingDate(t){
+  const raw=t.teaching_date||t.published_at||t.created_at;
+  if(!raw)return '';
+  const d=new Date(raw);
+  return Number.isNaN(d.getTime())?'':d.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric',timeZone:'UTC'});
+}
+
 function renderTeachings(data){
   const el=document.getElementById('teachingsList');
   if(!data.length){el.innerHTML='<span class="loading">No teachings found.</span>';return;}
   el.innerHTML=data.map(t=>`<div class="row-item" style="cursor:pointer" onclick="readTeaching('${esc(t.id)}')">
     <div class="row-title">${esc(t.title)}</div>
+    ${teachingDate(t)?`<div class="row-meta" style="margin:3px 0 5px">${esc(teachingDate(t))}</div>`:''}
     <div style="margin:4px 0">${badge(t.status||'draft')} <span class="badge badge-blue">${esc(t.content_type||'Teaching')}</span></div>
     <div>${(t.tags||[]).map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div>
   </div>`).join('');

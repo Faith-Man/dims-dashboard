@@ -55,11 +55,11 @@
       max-width: 280px;
       max-height: 360px;
       overflow-y: auto;
-      background: var(--panel, #071629);
-      color: inherit;
+      background: #ffffff;
+      color: var(--ink);
       border: 1px solid var(--gold3);
       border-radius: 10px;
-      box-shadow: 0 18px 40px rgba(0,0,0,.45);
+      box-shadow: 0 18px 40px rgba(11,23,51,.22);
       padding: 8px;
     }
 
@@ -76,13 +76,16 @@
       font-size: .8rem;
     }
 
-    .dims-grid-menu button:hover {
-      background: rgba(255,255,255,.07);
+    .dims-grid-menu button:hover,
+    .dims-grid-menu button:focus-visible {
+      background: #eef5ff;
+      color: #0c1475;
+      outline: none;
     }
 
     .dims-grid-menu .dims-grid-clear {
-      color: var(--gold);
-      border-top: 1px solid rgba(255,255,255,.08);
+      color: #0c1475;
+      border-top: 1px solid var(--line);
       margin-top: 5px;
       padding-top: 10px;
     }

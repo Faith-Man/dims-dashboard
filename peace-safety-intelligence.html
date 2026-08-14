@@ -56,7 +56,7 @@ function badgeClass(v){v=String(v||'').toLowerCase();if(/low|improv|stable|healt
 function setConnection(state,label){$('liveDot').className='live-dot '+state;$('liveStatus').textContent=label}
 function sourceLink(source){const raw=String(source||''),match=raw.match(/https?:\/\/\S+/);if(match){const url=match[0];return`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(raw)}</a>`}return`<div class="row-meta">• ${esc(raw)}</div>`}
 function render(brief){
-  $('briefDate').textContent=dateOnly(brief.brief_date);$('updatedAt').textContent=dateTime(brief.created_at);$('screenRefresh').textContent=new Date().toLocaleTimeString();
+  $('briefDate').textContent=dateOnly(brief.brief_date);$('updatedAt').textContent=dateTime(brief.updated_at||brief.created_at);$('screenRefresh').textContent=new Date().toLocaleTimeString();
   $('overview').className='overview';$('overview').textContent=brief.global_overview||'No global overview supplied.';
   const rb=brief.risk_barometer||{};const risks=[['Peace Index',rb.peace_index],['Security Volatility',rb.security_volatility],['Diplomatic Momentum',rb.diplomatic_momentum],['Global Risk',rb.global_risk]];
   $('riskBarometer').className='risk-grid';$('riskBarometer').innerHTML=risks.map(([k,v])=>`<div class="risk"><strong>${esc(k)}</strong><span class="badge ${badgeClass(v)}">${esc(v||'Not assessed')}</span></div>`).join('')+(rb.note?`<div class="row-meta" style="grid-column:1/-1">${esc(rb.note)}</div>`:'');

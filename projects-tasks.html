@@ -15,7 +15,6 @@
 
     .dims-grid {
       width: 100%;
-      min-width: 1080px;
       border-collapse: collapse;
     }
 
@@ -105,6 +104,54 @@
       font-weight: 700;
       white-space: nowrap;
       letter-spacing: .02em;
+    }
+
+    #projectsList td:nth-child(2) strong {
+      color: #0c1475;
+    }
+
+    #tasksList td:nth-child(9) {
+      overflow-wrap: anywhere;
+    }
+
+    @media (min-width: 901px) {
+      .dims-grid {
+        min-width: 0;
+        table-layout: fixed;
+      }
+
+      .dims-grid th,
+      .dims-grid td {
+        padding: 9px 7px;
+        font-size: clamp(.7rem, .72vw, .82rem);
+        overflow-wrap: anywhere;
+      }
+
+      #projectsList th:nth-child(1), #projectsList td:nth-child(1) { width: 10%; }
+      #projectsList th:nth-child(2), #projectsList td:nth-child(2) { width: 25%; }
+      #projectsList th:nth-child(3), #projectsList td:nth-child(3) { width: 8%; }
+      #projectsList th:nth-child(4), #projectsList td:nth-child(4) { width: 9%; }
+      #projectsList th:nth-child(5), #projectsList td:nth-child(5) { width: 9%; }
+      #projectsList th:nth-child(6), #projectsList td:nth-child(6) { width: 11%; }
+      #projectsList th:nth-child(7), #projectsList td:nth-child(7) { width: 8%; }
+      #projectsList th:nth-child(8), #projectsList td:nth-child(8) { width: 9%; }
+      #projectsList th:nth-child(9), #projectsList td:nth-child(9) { width: 11%; }
+
+      #tasksList th:nth-child(1), #tasksList td:nth-child(1) { width: 10%; }
+      #tasksList th:nth-child(2), #tasksList td:nth-child(2) { width: 18%; }
+      #tasksList th:nth-child(3), #tasksList td:nth-child(3) { width: 9%; }
+      #tasksList th:nth-child(4), #tasksList td:nth-child(4) { width: 9%; }
+      #tasksList th:nth-child(5), #tasksList td:nth-child(5) { width: 10%; }
+      #tasksList th:nth-child(6), #tasksList td:nth-child(6) { width: 8%; }
+      #tasksList th:nth-child(7), #tasksList td:nth-child(7) { width: 9%; }
+      #tasksList th:nth-child(8), #tasksList td:nth-child(8) { width: 10%; }
+      #tasksList th:nth-child(9), #tasksList td:nth-child(9) { width: 17%; }
+    }
+
+    @media (max-width: 900px) {
+      .dims-grid {
+        min-width: 1080px;
+      }
     }
   </style>
 </head>
@@ -281,10 +328,10 @@ function priorityBadge(priority) {
   }
 
   if (value === 'low') {
-    return '<span class="badge badge-grey">Low</span>';
+    return '<span class="badge badge-grey">⚔️ Low</span>';
   }
 
-  return '<span class="badge badge-blue">Medium</span>';
+  return '<span class="badge badge-blue">🛡️ Medium</span>';
 }
 
 class DIMSGrid {

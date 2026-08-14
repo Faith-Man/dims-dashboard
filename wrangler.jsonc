@@ -8,5 +8,5 @@
   "assets": { "directory": ".", "binding": "ASSETS", "run_worker_first": ["/api/*"] },
   "ai": { "binding": "AI" },
   "vars": { "SUPABASE_URL": "https://sdquzhsylqpbhrmqjqgk.supabase.co" },
-  "triggers": { "crons": ["0 */6 * * *", "*/1 * * * *"] }
+  "triggers": { "crons": ["0 */6 * * *"] }
 }

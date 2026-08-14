@@ -37,3 +37,28 @@ input::placeholder,textarea::placeholder{color:var(--muted)}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold2));border-radius:3px}
 .scripture-bar{background:linear-gradient(90deg,var(--navy),var(--navy2),var(--navy));border-top:1px solid var(--gold3);text-align:center;padding:12px 16px;font-style:italic;font-size:.8rem;color:var(--muted)}
 .scripture-bar strong{color:var(--gold)}
+
+/* DOME governed shared-header standard */
+.page-header{
+  background:linear-gradient(135deg,#071654 0%,#102a86 65%,#081a63 100%);
+  border-bottom-color:#5374df;
+  box-shadow:0 4px 14px rgba(7,22,84,.18);
+}
+.page-header .page-title{color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.18)}
+.page-header .page-sub{color:#dbe7ff}
+.page-header>a{
+  color:#fff!important;
+  border-color:#8db0ff!important;
+  background:rgba(255,255,255,.07);
+  border-radius:9px;
+}
+.page-header>a:hover,.page-header>a:focus-visible{
+  background:#fff;
+  color:#0c1475!important;
+  outline:2px solid #dbe7ff;
+  outline-offset:2px;
+}
+@media(max-width:700px){
+  .page-header{align-items:flex-start;padding:16px}
+  .page-header>a{align-self:flex-start}
+}

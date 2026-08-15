@@ -1,13 +1,16 @@
 # RB-001 Recovery Evidence & Audit Record
 
-Status: IN PROGRESS  
+Status: COMPLETE — GOVERNED LIVING EVIDENCE LEDGER  
 Program: RB-001 Backup & Recovery  
 Control: RB-001-10 Recovery Evidence & Audit Record  
-Initialized: 2026-08-15
+Initialized: 2026-08-15  
+Certified: 2026-08-15
 
 ## Purpose
 
 Maintain a single controlled record of RB-001 recovery evidence, checksums, verification outcomes, exceptions, blockers, and certification boundaries. This record is append-only in intent: existing verified evidence is preserved; later recovery tests add evidence rather than overwrite earlier results.
+
+RB-001-10 is certified COMPLETE because the governed evidence mechanism is established and objectively contains the required evidence classes. Completion of this control does not freeze the ledger: subsequent RB-001 controls and tests continue to append evidence here until program closeout.
 
 ## Evidence standards
 
@@ -26,7 +29,7 @@ A recovery control may be recorded as complete only when objective read-back or 
 | RB-001-07 System Health Backup & Recovery Integration | COMPLETE | Backup & Recovery readiness is surfaced in DSCC/System Health; live production rendering verified on iPhone. | Authoritative Supabase task record RB-001-07 |
 | RB-001-08 Automated Backup Verification | COMPLETE | Recurring RB-001 Completion Watch performs a Google Drive backup-health check on every run. It finds the newest DIMS full backup plus companion daily checkpoint/snapshot evidence and treats a full backup older than 30 hours, a missing expected backup set, or missing/unreadable companion evidence as actionable degradation. Current read-back on 2026-08-15 found `FULL_BACKUP_2026-08-15_06-33` with companion checkpoint and snapshot evidence; all were present and fresh. | Current full backup folder id `1jFrvzuCCHNeR5nQQFzKP-vY4ADQJU1cJ`; checkpoint doc id `1mto1ACuVz2c-9QeYS6R1PeG-xGskzLZuPFIepIiSUGg`; snapshot doc id `1KY8kM7IIX9k7wvqC6WITUYB_NgbtjmoD2FYBlt0isOI` |
 | RB-001-09 Isolated Full-System Restore Test | OPEN | End-to-end isolated DIMS/DOME restoration not yet completed. | Pending |
-| RB-001-10 Recovery Evidence & Audit Record | IN PROGRESS | This governed record has been initialized with verified existing evidence and blockers and is being extended as controls complete. | This file |
+| RB-001-10 Recovery Evidence & Audit Record | COMPLETE | Governed living evidence ledger established with verified control outcomes, checksums/immutable identifiers, backup-health observations, exceptions, blockers, and certification boundaries. Future recovery evidence continues to append here. | This file |
 | RB-001-11 Certification & Closeout | OPEN | May close only after complete environment restoration and evidence capture. | Pending |
 
 ## Recorded checksums and immutable identifiers
@@ -62,6 +65,10 @@ Cloudflare and Netlify source configuration preservation is verified. Their cont
 
 RB-001-08 is certified as an active monitoring control. The recurring health check evaluates Google Drive backup freshness and companion evidence each run. A healthy check is silent unless another RB-001 item completes; stale, missing, or unreadable backup evidence is surfaced as actionable degradation with the latest observed backup timestamp.
 
+## RB-001-10 certification evidence
+
+On 2026-08-15, the evidence ledger was read back and verified to contain all required record classes defined by this control: recovery evidence, checksum/immutable identifiers, verification outcomes, exceptions, blockers, backup-health observations, and certification boundaries. The ledger is therefore operational and this control is COMPLETE. Later test evidence remains append-only and does not reopen RB-001-10 unless the evidence mechanism itself fails.
+
 ## Certification boundary
 
-This record does not itself certify RB-001. It is the evidence ledger supporting certification. RB-001-11 remains open until all required controls are completed and the complete environment has been successfully restored with evidence recorded.
+Completion of RB-001-10 certifies the evidence-record mechanism, not the RB-001 program. RB-001-11 remains open until all required recovery controls are completed and the complete environment has been successfully restored with evidence recorded.

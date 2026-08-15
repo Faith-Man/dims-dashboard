@@ -7,6 +7,9 @@
   "observability": { "enabled": true, "head_sampling_rate": 1 },
   "assets": { "directory": ".", "binding": "ASSETS", "run_worker_first": ["/api/*"] },
   "ai": { "binding": "AI" },
-  "vars": { "SUPABASE_URL": "https://sdquzhsylqpbhrmqjqgk.supabase.co" },
+  "vars": {
+    "SUPABASE_URL": "https://sdquzhsylqpbhrmqjqgk.supabase.co",
+    "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How"
+  },
   "triggers": { "crons": ["0 */6 * * *"] }
 }

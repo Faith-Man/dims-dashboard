@@ -8,7 +8,6 @@ const CLOSED = new Set(['verified_closed', 'cancelled', 'canceled', 'deferred'])
 const OWNER = {
   dominion1st_di: '🚀 Dominion1st DI',
   pastor_michael: '👑 Pastor H. Michael Daniels',
-  herman: '👑 Pastor H. Michael Daniels',
   shared: '🤝 Shared',
   external: '↗ External'
 };
@@ -83,7 +82,7 @@ export function rankInfo(row) {
   add(row.readiness === 'ready' ? 70 : row.readiness === 'blocked' ? -160 : -60, 'readiness');
   add(Math.min(45, Math.max(0, ageDays(row.created_at)) / 7), 'age');
   add(row.action_owner === 'dominion1st_di' && row.readiness === 'ready' ? 70 : 0, 'DI-ready');
-  add(['pastor_michael', 'herman'].includes(row.action_owner) ? 40 : 0, 'manual action');
+  add(row.action_owner === 'pastor_michael' ? 40 : 0, 'manual action');
   return { score, reason: reasons.slice(0, 3).join(' + ') || 'Standard queue' };
 }
 
@@ -247,7 +246,7 @@ function renderSummary() {
   const active = all.filter(row => !rankInfo(row).excluded);
   const stats = [
     ['🚀 Ready for DI execution', active.filter(row => row.action_owner === 'dominion1st_di' && row.readiness === 'ready').length],
-    ['👑 Pastor Michael action', active.filter(row => ['pastor_michael', 'herman'].includes(row.action_owner)).length],
+    ['👑 Pastor H. Michael Daniels action', active.filter(row => row.action_owner === 'pastor_michael').length],
     ['⛔ Blocked items', active.filter(row => row.readiness === 'blocked' || norm(row.status) === 'blocked').length],
     ['⏰ Follow-ups due', active.filter(row => row.next_follow_up_date && new Date(row.next_follow_up_date) <= new Date()).length],
     ['🔎 Awaiting verification', all.filter(row => ['awaiting_verification', 'legacy_complete_review_required', 'verification_failed'].includes(row.verification_status)).length],
@@ -301,6 +300,8 @@ function openDrawer(kind, id, source) {
     ${field('Related documents/links', row.related_links || 'None recorded', true)}
   </dl><p class="identity-note">✝️ Faithman is the platform identity for Pastor H. Michael Daniels, not a separate action owner.</p>`;
   byId('drawerBackdrop').classList.add('open');
+  byId('detailDrawer').dataset.selected = 'true';
+  byId('detailDrawer').dataset.recordId = row.id;
   byId('drawerBackdrop').setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
   setTimeout(() => byId('drawerClose').focus(), 0);
@@ -309,6 +310,8 @@ function openDrawer(kind, id, source) {
 function closeDrawer() {
   byId('drawerBackdrop').classList.remove('open');
   byId('drawerBackdrop').setAttribute('aria-hidden', 'true');
+  delete byId('detailDrawer').dataset.selected;
+  delete byId('detailDrawer').dataset.recordId;
   document.body.style.overflow = '';
   lastFocus?.focus();
 }
@@ -350,6 +353,13 @@ async function load() {
   new CompactGrid({ container: '#projectsList', search: '#projectSearch', rows: projects, kind: 'project' });
   new CompactGrid({ container: '#tasksList', search: '#taskSearch', rows: tasks, kind: 'task' });
   renderSummary();
+  const requestedNumber = decodeURIComponent(location.hash.slice(1));
+  if (requestedNumber) {
+    const project = projects.find(row => row.project_number === requestedNumber);
+    const task = tasks.find(row => row.task_number === requestedNumber);
+    if (project) openDrawer('project', project.id, document.activeElement);
+    else if (task) openDrawer('task', task.id, document.activeElement);
+  }
 }
 
 window.saveProject = async function saveProject() {

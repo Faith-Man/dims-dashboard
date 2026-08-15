@@ -24,9 +24,9 @@ A recovery control may be recorded as complete only when objective read-back or 
 | RB-001-05 Netlify Configuration Recovery | OPEN | Pending preservation of required configuration plus isolated reconstruction verification. | Pending |
 | RB-001-06 DIMS Configuration & Secrets Recovery Procedure | COMPLETE | Controlled recovery procedure defines configuration-vs-secret classification, EBYC recovery sources, reissue/rotation rules, secret-name-only evidence, prohibited secret-bearing evidence, runtime inventory, and verification checklist. Repository ignore rules exclude `.env*` and `.dev.vars*`; runtime retrieves OPENAI_API_KEY from environment rather than source. | `docs/recovery/RB-001-06-CONFIGURATION-SECRETS-RECOVERY.md`; merge commit `072545a92ebbc55cb15ce1dd8194d8ed971ebcfe` |
 | RB-001-07 System Health Backup & Recovery Integration | COMPLETE | Backup & Recovery readiness is surfaced in DSCC/System Health; live production rendering verified on iPhone. | Authoritative Supabase task record RB-001-07 |
-| RB-001-08 Automated Backup Verification | OPEN | Must automatically detect failed, missing, or stale backups and surface actionable status. | Pending certification |
+| RB-001-08 Automated Backup Verification | COMPLETE | Recurring RB-001 Completion Watch now performs a Google Drive backup-health check on every run. It finds the newest DIMS full backup plus companion daily checkpoint/snapshot evidence and treats a full backup older than 30 hours, a missing expected backup set, or missing/unreadable companion evidence as actionable degradation. Initial certification read-back found `FULL_BACKUP_2026-08-14_06-33` with companion `CHK_2026-08-14_06-33_DIMS-v3_Daily_Checkpoint` and `SNP_2026-08-14_06-33_DIMS-v3_Daily_Snapshot`; all were present inside the freshness window at certification time. | RB-001 Completion Watch; Google Drive evidence ids `1h-3djpB1qxB4pD-lSd5XKyYk1iyrnc1K`, `1A5qtKOY5Gd0z_nMYxq9mnp-PN6UNhsz01tOS1ywzxAM`, `1birMcm9fky6k_jbrBQ7t8rNDqBKjyXNlFUXKB5Z_3_Q` |
 | RB-001-09 Isolated Full-System Restore Test | OPEN | End-to-end isolated DIMS/DOME restoration not yet completed. | Pending |
-| RB-001-10 Recovery Evidence & Audit Record | IN PROGRESS | This governed record has been initialized with verified existing evidence and blockers. | This file |
+| RB-001-10 Recovery Evidence & Audit Record | IN PROGRESS | This governed record has been initialized with verified existing evidence and blockers and is being extended as controls complete. | This file |
 | RB-001-11 Certification & Closeout | OPEN | May close only after complete environment restoration and evidence capture. | Pending |
 
 ## Recorded checksums and immutable identifiers
@@ -34,6 +34,9 @@ A recovery control may be recorded as complete only when objective read-back or 
 - RB-001-02 recovery archive digest: `sha256:8d724c7c2c2d30be85d30d00b6356545d2e57f760849bf3005a77a471dde6809`
 - RB-001-02 GitHub Actions artifact id: `9243031424`
 - RB-001-06 merge commit: `072545a92ebbc55cb15ce1dd8194d8ed971ebcfe`
+- RB-001-08 latest full-backup evidence at certification: Drive folder id `1h-3djpB1qxB4pD-lSd5XKyYk1iyrnc1K`
+- RB-001-08 companion checkpoint evidence: Drive document id `1A5qtKOY5Gd0z_nMYxq9mnp-PN6UNhsz01tOS1ywzxAM`
+- RB-001-08 companion snapshot evidence: Drive document id `1birMcm9fky6k_jbrBQ7t8rNDqBKjyXNlFUXKB5Z_3_Q`
 
 ## Exceptions and blockers
 
@@ -47,7 +50,7 @@ Cloudflare and Netlify reconstruction controls remain open until required config
 
 ### Automated verification
 
-The presence of successful historical backups is not sufficient for RB-001-08. Certification requires a running control that evaluates freshness/failure conditions and produces actionable status.
+RB-001-08 is certified as an active monitoring control. The recurring health check evaluates Google Drive backup freshness and companion evidence each run. A healthy check is silent unless another RB-001 item completes; stale, missing, or unreadable backup evidence is surfaced as actionable degradation with the latest observed backup timestamp.
 
 ## Certification boundary
 

@@ -20,11 +20,11 @@ A recovery control may be recorded as complete only when objective read-back or 
 | RB-001-01 Google Drive Backup & Restore Verification | COMPLETE | Daily Drive backup operation verified through 2026-08-14; isolated restoration of ADR-2026-07-05-001 succeeded; restored artifact reopened and content integrity verified. | Authoritative Supabase task record RB-001-01 |
 | RB-001-02 GitHub Repository Backup & Restore Rehearsal | COMPLETE | Repository bundle created and verified; SHA-256 validated; isolated clone restored from bundle; `git fsck` succeeded; restored HEAD matched source HEAD; evidence externally preserved in Google Drive. | Drive: `DIMS_GitHub_Recovery_Evidence/2026-08-15_RB-001-02`; GitHub artifact id `9243031424`; archive digest `sha256:8d724c7c2c2d30be85d30d00b6356545d2e57f760849bf3005a77a471dde6809` |
 | RB-001-03 Supabase Backup & Restore Certification | BLOCKED | Production database backup/restore certification requires an authorized secure backup path and isolated restore target. No production-destructive substitute is accepted. | Authoritative Supabase task record RB-001-03 |
-| RB-001-04 Cloudflare Configuration Recovery | OPEN | Pending preservation of required configuration plus isolated reconstruction verification. | Pending |
-| RB-001-05 Netlify Configuration Recovery | OPEN | Pending preservation of required configuration plus isolated reconstruction verification. | Pending |
+| RB-001-04 Cloudflare Configuration Recovery | IN PROGRESS | Governed Worker configuration and reconstruction procedure are preserved in source; isolated/non-destructive deployment verification is still required. | `docs/recovery/RB-001-04-CLOUDFLARE-CONFIGURATION-RECOVERY.md`; repository-root `wrangler.jsonc` |
+| RB-001-05 Netlify Configuration Recovery | IN PROGRESS | Governed Netlify configuration and reconstruction procedure are preserved in source; isolated/non-production deployment verification is still required. | `docs/recovery/RB-001-05-NETLIFY-CONFIGURATION-RECOVERY.md`; `netlify.toml`; `netlify/functions/orai.js` |
 | RB-001-06 DIMS Configuration & Secrets Recovery Procedure | COMPLETE | Controlled recovery procedure defines configuration-vs-secret classification, EBYC recovery sources, reissue/rotation rules, secret-name-only evidence, prohibited secret-bearing evidence, runtime inventory, and verification checklist. Repository ignore rules exclude `.env*` and `.dev.vars*`; runtime retrieves OPENAI_API_KEY from environment rather than source. | `docs/recovery/RB-001-06-CONFIGURATION-SECRETS-RECOVERY.md`; merge commit `072545a92ebbc55cb15ce1dd8194d8ed971ebcfe` |
 | RB-001-07 System Health Backup & Recovery Integration | COMPLETE | Backup & Recovery readiness is surfaced in DSCC/System Health; live production rendering verified on iPhone. | Authoritative Supabase task record RB-001-07 |
-| RB-001-08 Automated Backup Verification | COMPLETE | Recurring RB-001 Completion Watch now performs a Google Drive backup-health check on every run. It finds the newest DIMS full backup plus companion daily checkpoint/snapshot evidence and treats a full backup older than 30 hours, a missing expected backup set, or missing/unreadable companion evidence as actionable degradation. Initial certification read-back found `FULL_BACKUP_2026-08-14_06-33` with companion `CHK_2026-08-14_06-33_DIMS-v3_Daily_Checkpoint` and `SNP_2026-08-14_06-33_DIMS-v3_Daily_Snapshot`; all were present inside the freshness window at certification time. | RB-001 Completion Watch; Google Drive evidence ids `1h-3djpB1qxB4pD-lSd5XKyYk1iyrnc1K`, `1A5qtKOY5Gd0z_nMYxq9mnp-PN6UNhsz01tOS1ywzxAM`, `1birMcm9fky6k_jbrBQ7t8rNDqBKjyXNlFUXKB5Z_3_Q` |
+| RB-001-08 Automated Backup Verification | COMPLETE | Recurring RB-001 Completion Watch performs a Google Drive backup-health check on every run. It finds the newest DIMS full backup plus companion daily checkpoint/snapshot evidence and treats a full backup older than 30 hours, a missing expected backup set, or missing/unreadable companion evidence as actionable degradation. Current read-back on 2026-08-15 found `FULL_BACKUP_2026-08-15_06-33` with companion checkpoint and snapshot evidence; all were present and fresh. | Current full backup folder id `1jFrvzuCCHNeR5nQQFzKP-vY4ADQJU1cJ`; checkpoint doc id `1mto1ACuVz2c-9QeYS6R1PeG-xGskzLZuPFIepIiSUGg`; snapshot doc id `1KY8kM7IIX9k7wvqC6WITUYB_NgbtjmoD2FYBlt0isOI` |
 | RB-001-09 Isolated Full-System Restore Test | OPEN | End-to-end isolated DIMS/DOME restoration not yet completed. | Pending |
 | RB-001-10 Recovery Evidence & Audit Record | IN PROGRESS | This governed record has been initialized with verified existing evidence and blockers and is being extended as controls complete. | This file |
 | RB-001-11 Certification & Closeout | OPEN | May close only after complete environment restoration and evidence capture. | Pending |
@@ -34,9 +34,19 @@ A recovery control may be recorded as complete only when objective read-back or 
 - RB-001-02 recovery archive digest: `sha256:8d724c7c2c2d30be85d30d00b6356545d2e57f760849bf3005a77a471dde6809`
 - RB-001-02 GitHub Actions artifact id: `9243031424`
 - RB-001-06 merge commit: `072545a92ebbc55cb15ce1dd8194d8ed971ebcfe`
-- RB-001-08 latest full-backup evidence at certification: Drive folder id `1h-3djpB1qxB4pD-lSd5XKyYk1iyrnc1K`
-- RB-001-08 companion checkpoint evidence: Drive document id `1A5qtKOY5Gd0z_nMYxq9mnp-PN6UNhsz01tOS1ywzxAM`
-- RB-001-08 companion snapshot evidence: Drive document id `1birMcm9fky6k_jbrBQ7t8rNDqBKjyXNlFUXKB5Z_3_Q`
+- RB-001-08 current full-backup evidence: Drive folder id `1jFrvzuCCHNeR5nQQFzKP-vY4ADQJU1cJ`
+- RB-001-08 current companion checkpoint evidence: Drive document id `1mto1ACuVz2c-9QeYS6R1PeG-xGskzLZuPFIepIiSUGg`
+- RB-001-08 current companion snapshot evidence: Drive document id `1KY8kM7IIX9k7wvqC6WITUYB_NgbtjmoD2FYBlt0isOI`
+
+## Backup-health observations
+
+### 2026-08-15
+
+- Full backup observed: `FULL_BACKUP_2026-08-15_06-33`
+- Full backup created: `2026-08-15T11:33:57.151Z`
+- Companion checkpoint observed: `CHK_2026-08-15_06-33_DIMS-v3_Daily_Checkpoint`
+- Companion snapshot observed: `SNP_2026-08-15_06-33_DIMS-v3_Daily_Snapshot`
+- Health outcome: PASS — full backup is within the 30-hour freshness threshold and both expected companion evidence classes are present.
 
 ## Exceptions and blockers
 
@@ -46,7 +56,7 @@ RB-001-03 remains blocked until an authorized secure database-backup mechanism a
 
 ### Remaining provider recovery controls
 
-Cloudflare and Netlify reconstruction controls remain open until required configuration has been preserved and reconstruction can be verified in an isolated or otherwise non-destructive target.
+Cloudflare and Netlify source configuration preservation is verified. Their controls remain open until reconstruction is verified on isolated/non-production targets with objective deployment and functional evidence.
 
 ### Automated verification
 

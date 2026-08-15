@@ -1,0 +1,47 @@
+name: RB-001 GitHub Recovery Artifact
+
+on:
+  push:
+    branches:
+      - rb-001-github-recovery
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recovery-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create repository bundle and checksum
+        run: |
+          git fetch --all --tags --prune
+          git bundle create dims-dashboard.bundle --all
+          sha256sum dims-dashboard.bundle > dims-dashboard.bundle.sha256
+          git bundle verify dims-dashboard.bundle
+
+      - name: Rehearse isolated restoration from bundle
+        run: |
+          mkdir -p /tmp/rb001-restore
+          git clone dims-dashboard.bundle /tmp/rb001-restore/dims-dashboard
+          git -C /tmp/rb001-restore/dims-dashboard fsck --full
+          git -C /tmp/rb001-restore/dims-dashboard rev-parse HEAD > restored-head.txt
+          git rev-parse HEAD > source-head.txt
+          diff -u source-head.txt restored-head.txt
+
+      - name: Upload recovery evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: rb-001-github-recovery-artifact
+          path: |
+            dims-dashboard.bundle
+            dims-dashboard.bundle.sha256
+            source-head.txt
+            restored-head.txt
+          if-no-files-found: error
+          retention-days: 30

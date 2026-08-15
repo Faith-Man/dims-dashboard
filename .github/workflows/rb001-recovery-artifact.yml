@@ -3,6 +3,7 @@ name: RB-001 GitHub Recovery Artifact
 on:
   push:
     branches:
+      - main
       - rb-001-github-recovery
   workflow_dispatch:
 

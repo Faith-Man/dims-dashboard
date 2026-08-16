@@ -1,31 +1,15 @@
-// DEA™ risk matrix prototype. Labels follow the current DAF-style 4x5 model.
-export const DEA_RISK_MATRIX = {
-  I:  { A:'extremely_high', B:'extremely_high', C:'high', D:'high', E:'medium' },
-  II: { A:'extremely_high', B:'high', C:'high', D:'medium', E:'low' },
-  III:{ A:'high', B:'medium', C:'medium', D:'low', E:'low' },
-  IV: { A:'medium', B:'low', C:'low', D:'low', E:'low' }
-};
-
-export const DEA_SEVERITY = {
-  I:'Catastrophic', II:'Critical', III:'Moderate', IV:'Negligible'
-};
-export const DEA_PROBABILITY = {
-  A:'Frequent', B:'Likely', C:'Occasional', D:'Seldom', E:'Rarely'
-};
-
-export function deaRiskLevel(severity, probability) {
-  return DEA_RISK_MATRIX[severity]?.[probability] || null;
+// Dominion1st / DEA™ RAC model adapted from the DAFI 91-202 4x4 Safety and Ergonomic Hazard RAC matrix.
+// System RAC remains authoritative. This interactive matrix supports transparency/training/user assessment.
+export const RAC_MATRIX={I:{A:1,B:1,C:2,D:4},II:{A:1,B:2,C:3,D:4},III:{A:2,B:3,C:4,D:5},IV:{A:4,B:4,C:5,D:5}};
+export const RAC_LABEL={1:'Critical / Imminent',2:'Serious',3:'Moderate',4:'Minor',5:'Negligible'};
+export const RAC_SEVERITY={I:'Mission Critical',II:'Major',III:'Moderate',IV:'Minor'};
+export const RAC_PROBABILITY={A:'Likely to occur immediately',B:'Probably will occur in time',C:'Possible to occur in time',D:'Unlikely to occur'};
+export function racCode(severity,probability){return RAC_MATRIX[severity]?.[probability]??null}
+export function racDefinition(code){return code?RAC_LABEL[code]||'—':'—'}
+export function renderDeaRiskMatrix(systemSeverity='',systemProbability=''){
+ const probabilities=Object.entries(RAC_PROBABILITY);
+ const rows=Object.entries(RAC_SEVERITY).map(([s,label])=>`<tr><th scope="row"><strong>${s}</strong><span>${label}</span></th>${probabilities.map(([p])=>{const code=racCode(s,p);const system=s===systemSeverity&&p===systemProbability?' system-selected':'';return`<td><button type="button" class="risk-cell rac-${code}${system}" data-rac-severity="${s}" data-rac-probability="${p}" data-rac-code="${code}" aria-label="Severity ${s}, Probability ${p}, RAC ${code} ${RAC_LABEL[code]}"><strong>RAC ${code}</strong><span>${RAC_LABEL[code]}</span></button></td>`}).join('')}</tr>`).join('');
+ const systemCode=racCode(systemSeverity,systemProbability);
+ return `<div class="rac-workspace"><div class="rac-intro"><div><span class="rac-kicker">DEA™ RISK CONTROL</span><h3>Risk Assessment Code (RAC)</h3><p>Select a severity and probability intersection to perform a user assessment. The System RAC remains authoritative unless a governed review approves a change.</p></div><div class="system-rac"><span>SYSTEM RAC</span><strong>${systemCode?`RAC ${systemCode}`:'Not assessed'}</strong><small>${systemCode?RAC_LABEL[systemCode]:'Awaiting system assessment'}</small></div></div><div class="dea-matrix-wrap"><table class="dea-matrix"><caption>Dominion1st™ RAC Matrix — Severity × Probability</caption><thead><tr><th>Severity / Probability</th>${probabilities.map(([k,label])=>`<th><strong>${k}</strong><span>${label}</span></th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div><div class="rac-result" id="racUserResult"><span>USER ASSESSMENT</span><strong>Select a matrix cell</strong><p>Your assessment is informational until submitted through the governed RAC Challenge / Review process.</p></div><p class="dea-matrix-note">System RAC → DEA™ input. User RAC → training/assessment. A disagreement may be challenged and reviewed, but never silently overwrites System RAC.</p></div>`;
 }
-
-export function renderDeaRiskMatrix(selectedSeverity='', selectedProbability='') {
-  const probabilities = Object.entries(DEA_PROBABILITY);
-  const rows = Object.entries(DEA_SEVERITY).map(([severity,label]) => {
-    const cells = probabilities.map(([probability]) => {
-      const level = deaRiskLevel(severity, probability);
-      const selected = severity === selectedSeverity && probability === selectedProbability ? ' selected' : '';
-      return `<td class="risk-cell risk-${level}${selected}" data-severity="${severity}" data-probability="${probability}"><strong>${level.replaceAll('_',' ')}</strong></td>`;
-    }).join('');
-    return `<tr><th scope="row">${severity} — ${label}</th>${cells}</tr>`;
-  }).join('');
-  return `<div class="dea-matrix-wrap"><table class="dea-matrix"><caption>DEA™ Risk Assessment Matrix — Severity × Probability</caption><thead><tr><th>Severity / Probability</th>${probabilities.map(([key,label])=>`<th>${key} — ${label}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table><p class="dea-matrix-note">Color is supplemental. Every cell carries a written risk classification.</p></div>`;
-}
+export function activateRacAssessment(root=document){root.querySelectorAll('[data-rac-code]').forEach(btn=>btn.addEventListener('click',()=>{root.querySelectorAll('[data-rac-code].user-selected').forEach(x=>x.classList.remove('user-selected'));btn.classList.add('user-selected');const code=Number(btn.dataset.racCode),s=btn.dataset.racSeverity,p=btn.dataset.racProbability,out=root.querySelector('#racUserResult');if(out)out.innerHTML=`<span>USER ASSESSMENT</span><strong>RAC ${code} — ${RAC_LABEL[code]}</strong><p>Severity ${s}: ${RAC_SEVERITY[s]} · Probability ${p}: ${RAC_PROBABILITY[p]}</p><button type="button" class="rac-challenge" disabled title="Governed RAC Challenge workflow pending protected backend activation">Challenge / Request Review</button>`}))}

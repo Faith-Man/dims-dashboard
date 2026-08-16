@@ -1,34 +1,34 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-const sb=createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How');
-
-const css=`
+// Presentation-only finishing layer. Core RAC, status, filters, and ranking are rendered natively in tetelestai-closed-loop.js.
+const css = `
 .dims-grid-menu{min-width:290px!important;max-width:380px!important;padding:10px!important}
-.dims-grid-menu .menu-label{padding:7px 10px 5px!important;text-align:left!important}
-.dims-grid-menu button{padding:9px 10px!important;text-align:left!important;border-radius:7px!important}
-.dims-grid-menu .filter-option{display:grid!important;grid-template-columns:18px minmax(0,1fr)!important;align-items:start!important;gap:10px!important;padding:8px 10px!important;margin:1px 0!important}
+.dims-grid-menu .menu-label{display:block;padding:7px 10px 5px!important;text-align:left!important;color:#667085;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.dims-grid-menu button{display:block;width:100%;padding:9px 10px!important;text-align:left!important;border:0;background:transparent;border-radius:7px!important;cursor:pointer}
+.dims-grid-menu button:hover{background:#f0efff}
+.dims-grid-menu .filter-option{display:grid!important;grid-template-columns:18px minmax(0,1fr)!important;align-items:start!important;gap:10px!important;padding:8px 10px!important;margin:1px 0!important;border-radius:7px;cursor:pointer}
+.dims-grid-menu .filter-option:hover{background:#f0efff}
 .dims-grid-menu .filter-option input{margin:2px 0 0!important;width:16px!important;height:16px!important;justify-self:start!important}
 .dims-grid-menu .filter-option span{display:block!important;text-align:left!important;line-height:1.3!important;overflow-wrap:anywhere!important}
-.dims-grid-menu .menu-divider{margin:8px 0!important}
-.rac-main{font-weight:900;color:#0c1475;white-space:nowrap}.rac-main small{display:block;font-weight:700;color:#667085;margin-top:2px}.rac-na{color:#8b94a7}.rac-header{cursor:pointer}.status-completed{display:inline-flex;align-items:center;justify-content:center;min-width:88px;padding:5px 10px;border-radius:999px;background:#d9e8ff;color:#123b8f;font-weight:800;text-transform:lowercase}.rac-filter-menu{position:fixed;z-index:10001;min-width:230px;background:#fff;border:1px solid #c9a33b;border-radius:10px;box-shadow:0 18px 40px rgba(11,23,51,.22);padding:10px}.rac-filter-menu strong{display:block;padding:5px 8px;color:#667085;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}.rac-filter-menu button{display:block;width:100%;border:0;background:transparent;text-align:left;padding:8px;border-radius:7px;cursor:pointer}.rac-filter-menu button:hover{background:#f0efff}
-@media(min-width:901px){.dims-grid th:nth-child(1),.dims-grid td:nth-child(1){width:6%!important}.dims-grid th:nth-child(2),.dims-grid td:nth-child(2){width:8%!important}.dims-grid th:nth-child(3),.dims-grid td:nth-child(3){width:19%!important}.dims-grid th:nth-child(4),.dims-grid td:nth-child(4){width:9%!important}.dims-grid th:nth-child(5),.dims-grid td:nth-child(5){width:9%!important}.dims-grid th:nth-child(6),.dims-grid td:nth-child(6){width:8%!important}.dims-grid th:nth-child(7),.dims-grid td:nth-child(7){width:9%!important}.dims-grid th:nth-child(8),.dims-grid td:nth-child(8){width:9%!important}.dims-grid th:nth-child(9),.dims-grid td:nth-child(9){width:9%!important}.dims-grid th:nth-child(10),.dims-grid td:nth-child(10){width:9%!important}.dims-grid th:nth-child(11),.dims-grid td:nth-child(11){width:5%!important}}
-@media(max-width:900px){.dims-grid td[data-label="RAC"]{display:grid!important;grid-template-columns:34% 1fr!important;gap:8px!important}.dims-grid-menu{left:12px!important;right:12px!important;width:auto!important;max-width:none!important}}
+.dims-grid-menu .menu-divider{height:1px;background:#d9deea;margin:8px 0!important}
+.rac-main{font-weight:900;color:#0c1475;white-space:nowrap}
+.rac-main small{display:block;font-weight:700;color:#667085;margin-top:2px}
+.rac-na{color:#8b94a7}
+@media(min-width:901px){
+  .dims-grid th:nth-child(1),.dims-grid td:nth-child(1){width:6%!important}
+  .dims-grid th:nth-child(2),.dims-grid td:nth-child(2){width:8%!important}
+  .dims-grid th:nth-child(3),.dims-grid td:nth-child(3){width:19%!important}
+  .dims-grid th:nth-child(4),.dims-grid td:nth-child(4){width:9%!important}
+  .dims-grid th:nth-child(5),.dims-grid td:nth-child(5){width:9%!important}
+  .dims-grid th:nth-child(6),.dims-grid td:nth-child(6){width:8%!important}
+  .dims-grid th:nth-child(7),.dims-grid td:nth-child(7){width:9%!important}
+  .dims-grid th:nth-child(8),.dims-grid td:nth-child(8){width:9%!important}
+  .dims-grid th:nth-child(9),.dims-grid td:nth-child(9){width:9%!important}
+  .dims-grid th:nth-child(10),.dims-grid td:nth-child(10){width:9%!important}
+  .dims-grid th:nth-child(11),.dims-grid td:nth-child(11){width:5%!important}
+}
+@media(max-width:900px){
+  .dims-grid-menu{left:12px!important;right:12px!important;width:auto!important;max-width:none!important}
+}
 `;
-const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
-
-let projects=[],tasks=[];let racFilter={projects:null,tasks:null};
-const keyOf=r=>String(r.project_number||r.task_number||'').trim();
-const notation=r=>r.system_rac&&r.risk_severity&&r.risk_probability?`${r.system_rac} (${r.risk_severity}, ${r.risk_probability})`:r.system_rac?String(r.system_rac):'—';
-const band=r=>({1:'High',2:'Serious',3:'Medium',4:'Low',5:'Low'})[Number(r.system_rac)]||'';
-async function loadData(){const [{data:p},{data:t}]=await Promise.all([sb.from('projects').select('id,project_number,system_rac,risk_severity,risk_probability,status,verification_status'),sb.from('tasks').select('id,task_number,system_rac,risk_severity,risk_probability,status,verification_status')]);projects=p||[];tasks=t||[];enhanceAll()}
-function sourceFor(container){return container.id==='projectsList'?projects:tasks}
-function filterKey(container){return container.id==='projectsList'?'projects':'tasks'}
-function recordForRow(row,records){const number=row.querySelector('td:nth-child(2)')?.textContent?.trim();return records.find(r=>keyOf(r)===number)}
-function normalizeCompleted(row){for(const td of row.querySelectorAll('td')){if(td.dataset.label==='Status'||td.cellIndex===5){const txt=(td.textContent||'').trim().toLowerCase().replaceAll('_',' ');if(txt==='reported complete'||txt==='complete'||txt==='completed'){td.innerHTML='<span class="status-completed">completed</span>';td.dataset.label='Status'}}}}
-function insertRacHeader(table,container){const hr=table.querySelector('thead tr');if(!hr||hr.querySelector('[data-rac-injected]'))return;const th=document.createElement('th');th.dataset.racInjected='1';th.className='rac-header';th.innerHTML='<span class="dims-grid-header"><span>RAC</span><span class="dims-grid-arrow">▾</span></span>';const ref=hr.children[3];hr.insertBefore(th,ref);th.addEventListener('click',e=>{e.stopPropagation();openRacFilter(th,container)})}
-function insertRacCells(table,container){const records=sourceFor(container);for(const row of table.querySelectorAll('tbody tr')){if(row.querySelector('[data-rac-cell]')){normalizeCompleted(row);continue}const r=recordForRow(row,records);const td=document.createElement('td');td.dataset.racCell='1';td.dataset.label='RAC';td.innerHTML=r&&notation(r)!=='—'?`<span class="rac-main">${notation(r)}<small>${band(r)}</small></span>`:'<span class="rac-na">—</span>';row.insertBefore(td,row.children[3]);normalizeCompleted(row)}applyRacFilter(container)}
-function openRacFilter(anchor,container){document.querySelector('.rac-filter-menu')?.remove();const menu=document.createElement('div');menu.className='rac-filter-menu';menu.innerHTML='<strong>Filter RAC</strong>';const options=[['All RAC',null],['RAC 1','1'],['RAC 2','2'],['RAC 3','3'],['RAC 4','4'],['RAC 5','5'],['Not assessed','—']];for(const [label,val] of options){const b=document.createElement('button');b.textContent=label;b.onclick=()=>{racFilter[filterKey(container)]=val;menu.remove();applyRacFilter(container)};menu.appendChild(b)}document.body.appendChild(menu);const r=anchor.getBoundingClientRect();menu.style.left=`${Math.max(8,Math.min(r.left,innerWidth-menu.offsetWidth-12))}px`;menu.style.top=`${Math.min(r.bottom+5,innerHeight-menu.offsetHeight-12)}px`}
-function applyRacFilter(container){const val=racFilter[filterKey(container)];for(const row of container.querySelectorAll('tbody tr')){if(val==null){row.hidden=false;continue}const text=row.querySelector('[data-rac-cell]')?.textContent?.trim()||'—';row.hidden=val==='—'?text==='—':!text.startsWith(val)}}
-function enhanceContainer(container){const table=container.querySelector('.dims-grid');if(!table)return;insertRacHeader(table,container);insertRacCells(table,container)}
-function enhanceAll(){for(const id of ['projectsList','tasksList']){const c=document.getElementById(id);if(c)enhanceContainer(c)}}
-const obs=new MutationObserver(()=>enhanceAll());for(const id of ['projectsList','tasksList']){const c=document.getElementById(id);if(c)obs.observe(c,{childList:true,subtree:true})}
-loadData();
+const style = document.createElement('style');
+style.textContent = css;
+document.head.appendChild(style);

@@ -18,7 +18,7 @@
     @media(max-width:640px){.row{grid-template-columns:1fr}}
   </style>
 </head>
-<body>
+<body data-auth-gate="server-verified-v2">
   <h1>DIMS Admin</h1>
 
   <div id="auth-card" class="card">
@@ -35,7 +35,7 @@
     <p id="auth-msg" class="mono"></p>
   </div>
 
-  <div id="security-card" class="card hidden">
+  <div id="security-card" class="card hidden" hidden aria-hidden="true">
     <h2>Account Security</h2>
     <p class="muted">Set or change the password for the currently authenticated DOME account.</p>
     <label>New password</label>
@@ -48,7 +48,7 @@
     <p id="security-msg" class="mono"></p>
   </div>
 
-  <div id="editor-card" class="card hidden">
+  <div id="editor-card" class="card hidden" hidden aria-hidden="true">
     <div style="display:flex;justify-content:space-between;align-items:center">
       <h2>Teaching Editor</h2>
       <button id="sign-out" style="background:#666">Sign out</button>
@@ -62,6 +62,6 @@
     <p id="save-msg" class="mono"></p>
   </div>
 
-  <script type="module" src="./admin.js"></script>
+  <script type="module" src="./admin.js?v=server-verified-v2"></script>
 </body>
 </html>

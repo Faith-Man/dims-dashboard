@@ -20,13 +20,16 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: Checkout main
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Deploy DOME Worker
-        run: npx --yes wrangler@latest deploy
+      - name: Trigger Cloudflare production build from main
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_DEPLOY_HOOK_URL: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$CLOUDFLARE_DEPLOY_HOOK_URL" ]; then
+            echo "CLOUDFLARE_DEPLOY_HOOK_URL is not configured."
+            exit 1
+          fi
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            "$CLOUDFLARE_DEPLOY_HOOK_URL"
+          echo
+          echo "Cloudflare deploy hook accepted."

@@ -106,6 +106,9 @@ signOutBtn.onclick = async () => {
 
 function toggleAuth(isAuthed) {
   const authenticated = isAuthed === true;
+  authCard.hidden = authenticated;
+  securityCard.hidden = !authenticated;
+  editorCard.hidden = !authenticated;
   authCard.classList.toggle('hidden', authenticated);
   securityCard.classList.toggle('hidden', !authenticated);
   editorCard.classList.toggle('hidden', !authenticated);

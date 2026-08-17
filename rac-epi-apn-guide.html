@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RAC • EPI • APN — How It Works | DOME</title>
+<link rel="stylesheet" href="dims-shared.css">
+<style>
+:root{--sapphire:#0F52BA;--navy:#0c1475;--ink:#172033;--muted:#667085;--line:#d7dfec;--soft:#f7faff;--gold:#c99a35}
+body{margin:0;background:#f3f6fb;color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.guide{max-width:1180px;margin:0 auto;padding:22px 16px 60px}
+.hero{background:linear-gradient(135deg,#071a42,#0F52BA);color:#fff;border-radius:18px;padding:24px;box-shadow:0 16px 40px rgba(15,82,186,.18)}
+.hero h1{margin:0 0 8px;font-size:clamp(1.65rem,4vw,2.5rem)}.hero p{margin:0;max-width:850px;line-height:1.55}.back{display:inline-block;margin-bottom:14px;color:#ffe29a;text-decoration:none;font-weight:800}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0}.cardx{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 8px 24px rgba(19,39,76,.06)}.cardx h2{margin:0 0 8px;color:var(--navy);font-size:1.1rem}.badge{display:inline-block;background:#eaf2ff;color:var(--sapphire);border:1px solid #b8cff4;border-radius:999px;padding:4px 9px;font-size:.72rem;font-weight:900}.formula{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f4f7fb;border:1px solid var(--line);border-radius:9px;padding:10px;margin:10px 0;overflow-wrap:anywhere}.section{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin:16px 0}.section h2{margin:0 0 10px;color:var(--navy)}.section h3{color:var(--navy)}
+.matrix-wrap{overflow-x:auto}.matrix{width:100%;border-collapse:collapse;min-width:620px}.matrix th,.matrix td{border:1px solid #cbd5e3;padding:10px;text-align:center}.matrix th{background:var(--sapphire);color:#fff}.matrix td:first-child{font-weight:900;color:var(--navy);background:#eef4ff}.note{background:#fff7df;border-left:4px solid var(--gold);padding:11px 12px;border-radius:7px;color:#5b470e}.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.step{border:1px solid #bfd0eb;background:#f8fbff;color:var(--navy);font-weight:850;border-radius:9px;padding:9px 11px}.arrow{font-weight:900;color:var(--sapphire)}.epi-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.factor{border:1px solid #c8d6ea;border-radius:12px;padding:13px;background:#f8fbff}.factor strong{display:block;color:var(--navy);margin-bottom:4px}.status{margin-top:12px;border:1px dashed #8ba7cf;background:#f7fbff;border-radius:10px;padding:12px}.small{font-size:.82rem;color:var(--muted);line-height:1.5}@media(max-width:780px){.cards,.epi-grid{grid-template-columns:1fr}.guide{padding:14px 10px 40px}.hero{padding:18px}}
+</style>
+</head>
+<body>
+<main class="guide">
+<section class="hero">
+<a class="back" href="projects-tasks.html">← Back to TETELESTAI™</a>
+<h1>RAC • EPI • APN — How It Works</h1>
+<p>DOME uses RAC as the common risk foundation. Standard DIMS execution records use EPI for relative execution priority; genuine safety hazards may use the Air Force-style APN method instead.</p>
+</section>
+
+<div class="cards">
+<article class="cardx"><span class="badge">FOUNDATION</span><h2>RAC — Risk Assessment Code</h2><p>RAC is produced by the intersection of Severity and Probability. Lower RAC numbers represent higher primary risk.</p></article>
+<article class="cardx"><span class="badge">DIMS EXECUTION</span><h2>EPI — Execution Priority Index</h2><p>EPI breaks ties and guides execution sequencing for normal DIMS projects, tasks, defects, and corrective actions.</p></article>
+<article class="cardx"><span class="badge">SAFETY HAZARD</span><h2>APN — Abatement Priority Number</h2><p>APN is used when a record is classified as a genuine safety hazard and the safety abatement methodology applies.</p></article>
+</div>
+
+<section class="section">
+<h2>1. RAC — Risk First</h2>
+<div class="flow"><span class="step">Severity</span><span class="arrow">×</span><span class="step">Probability</span><span class="arrow">→</span><span class="step">RAC 1–5</span><span class="arrow">→</span><span class="step">EPI or APN</span></div>
+<p class="small">RAC remains the primary risk classification. EPI/APN do not replace RAC; they provide the next level of priority discrimination.</p>
+</section>
+
+<section class="section">
+<h2>2. APN — Safety-Hazard Priority</h2>
+<p>DOME preserves the adopted Air Force method:</p>
+<div class="formula">APN = RAC (CEI) &nbsp;&nbsp; | &nbsp;&nbsp; CEI = C ÷ (M × E)</div>
+<p><strong>C</strong> = abatement cost; <strong>M</strong> = Severity/Probability multiplier; <strong>E</strong> = average personnel exposed daily.</p>
+<h3>Severity / Probability Multiplier Matrix (M)</h3>
+<div class="matrix-wrap"><table class="matrix" aria-label="APN severity probability multiplier matrix">
+<thead><tr><th>Severity</th><th>A</th><th>B</th><th>C</th><th>D</th></tr></thead>
+<tbody>
+<tr><td>I</td><td>188</td><td>63</td><td>21</td><td>7</td></tr>
+<tr><td>II</td><td>63</td><td>21</td><td>7</td><td>2</td></tr>
+<tr><td>III</td><td>21</td><td>7</td><td>2</td><td>1</td></tr>
+<tr><td>IV</td><td>7</td><td>2</td><td>1</td><td>0.26</td></tr>
+</tbody></table></div>
+<div class="note"><strong>Priority rule:</strong> compare CEI values only among records with the same RAC. Within the same RAC, the lower CEI receives the higher relative abatement priority.</div>
+</section>
+
+<section class="section">
+<h2>3. EPI — DIMS Execution Priority</h2>
+<p>EPI uses the same visual logic as APN, but its governed factors reflect DIMS work rather than physical-hazard abatement.</p>
+<div class="epi-grid">
+<div class="factor"><strong>Impact</strong><span>How broadly and seriously the unresolved issue affects DIMS/DOME operations, dependencies, mission, users, or deliverables.</span></div>
+<div class="factor"><strong>AIT — AI Time</strong><span>Estimated AI work required to diagnose, build, test, correct, document, and verify the action.</span></div>
+<div class="factor"><strong>HIT — Human Interaction Time</strong><span>Estimated human time required for review, decisions, manual actions, confirmations, credentials, testing, and back-and-forth interaction.</span></div>
+</div>
+<div class="formula">ERE = AIT + HIT</div>
+<div class="status"><strong>Stage 1 governance:</strong> EPI currently discloses its governed factors and estimated resolution effort. The final numerical EPI formula/matrix remains under validation and will not be presented as institutional doctrine until approved.</div>
+</section>
+
+<section class="section">
+<h2>4. User Experience</h2>
+<p><strong>Desktop:</strong> hover over a RAC value for immediate RAC/EPI/APN guidance. <strong>Mobile:</strong> tap the RAC value to open the same explanation. Use this page when you want the full methodology, formulas, and matrices without overcrowding the record View panel.</p>
+</section>
+</main>
+</body>
+</html>

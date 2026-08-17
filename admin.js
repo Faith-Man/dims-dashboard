@@ -3,6 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const SUPABASE_URL = 'https://sdquzhsylqpbhrmqjqgk.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const DOME_HOME = '/index.html';
 
 const authCard = document.getElementById('auth-card');
 const securityCard = document.getElementById('security-card');
@@ -30,6 +31,14 @@ const loadBtn = document.getElementById('load');
 const newBtn = document.getElementById('new');
 const saveMsg = document.getElementById('save-msg');
 
+function shouldReturnHome() {
+  return new URLSearchParams(window.location.search).get('return') === 'home';
+}
+
+function redirectToDomeHome() {
+  window.location.replace(DOME_HOME);
+}
+
 // Fail closed: authenticated controls stay hidden until Supabase verifies the
 // current user with the Auth server. Do not trust cached session data alone.
 let authResolved = false;
@@ -42,6 +51,10 @@ const { data: authListener } = supabase.auth.onAuthStateChange((event, session) 
     return;
   }
   if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+    if (shouldReturnHome()) {
+      redirectToDomeHome();
+      return;
+    }
     toggleAuth(true);
   }
 });
@@ -51,6 +64,10 @@ async function initializeAuth() {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data?.user) {
       toggleAuth(false);
+      return;
+    }
+    if (shouldReturnHome()) {
+      redirectToDomeHome();
       return;
     }
     toggleAuth(true);
@@ -71,14 +88,20 @@ passwordSignInBtn.onclick = async () => {
   if (!email || !password) { authMsg.textContent = 'Enter your email and password.'; return; }
   authMsg.textContent = 'Signing in...';
   const { error } = await supabase.auth.signInWithPassword({ email, password });
-  authMsg.textContent = error ? `Error: ${error.message}` : 'Signed in.';
+  if (error) {
+    authMsg.textContent = `Error: ${error.message}`;
+    return;
+  }
+  authMsg.textContent = 'Signed in. Opening DOME Home...';
+  redirectToDomeHome();
 };
 
 sendLinkBtn.onclick = async () => {
   const email = emailEl.value.trim();
   if (!email) { authMsg.textContent = 'Enter an email.'; return; }
   authMsg.textContent = 'Sending magic link...';
-  const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href } });
+  const emailRedirectTo = `${window.location.origin}${window.location.pathname}?return=home`;
+  const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo } });
   authMsg.textContent = error ? `Error: ${error.message}` : 'Check your email!';
 };
 
@@ -93,7 +116,7 @@ setPasswordBtn.onclick = async () => {
   if (error) { securityMsg.textContent = `Error: ${error.message}`; return; }
   newPasswordEl.value = '';
   confirmPasswordEl.value = '';
-  securityMsg.textContent = 'Password set successfully. Keep this session open until we test password sign-in.';
+  securityMsg.textContent = 'Password set successfully.';
 };
 
 signOutBtn.onclick = async () => {

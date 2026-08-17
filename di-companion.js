@@ -6,6 +6,80 @@
   };
   const page = location.pathname.split('/').pop();
   const moduleName = MODULES[page] || document.title.split('—')[0].trim() || 'DOME™';
+
+  // Stage 1 RAC / EPI / APN bridge. The worker injects this script into every DOME HTML page,
+  // so TETELESTAI receives these fixes even if an older page-level presentation script is cached.
+  if (page === 'projects-tasks.html') {
+    const stageStyle = document.createElement('style');
+    stageStyle.id = 'tetelestai-stage1-bridge';
+    stageStyle.textContent = `
+      .view-button{display:inline-flex!important;align-items:center!important;justify-content:center!important;box-sizing:border-box!important;min-width:64px!important;width:auto!important;padding:6px 10px!important;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
+      .dims-grid td:last-child{min-width:74px!important;overflow:visible!important}
+      .stage1-rac-popover{position:fixed;z-index:12000;width:min(440px,calc(100vw - 24px));background:#fff;color:#172033;border:2px solid #0F52BA;border-radius:12px;box-shadow:0 18px 46px rgba(11,23,51,.28);padding:14px 16px;line-height:1.4}
+      .stage1-rac-popover h3{margin:0 0 8px;color:#0c1475;font-size:1rem}.stage1-rac-popover p{margin:6px 0;font-size:.8rem}.stage1-rac-popover strong{color:#0c1475}.stage1-rac-popover .code{font-size:1.05rem;font-weight:900;color:#0F52BA}.stage1-rac-popover .close{position:absolute;top:7px;right:9px;border:0;background:transparent;color:#0c1475;font-size:1.15rem;cursor:pointer}.stage1-rac-popover .guide{display:inline-flex;margin-top:7px;color:#fff;background:#0F52BA;border-radius:8px;padding:7px 10px;text-decoration:none;font-size:.76rem;font-weight:850}
+      .stage1-guide-link{display:inline-flex;align-items:center;gap:5px;color:#0F52BA;font-size:.74rem;font-weight:850;text-decoration:none;border-bottom:1px dotted #0F52BA;margin-top:4px}
+      @media(max-width:900px){.view-button{width:100%!important;min-width:0!important}.dims-grid td:last-child{min-width:0!important}.stage1-rac-popover{left:12px!important;right:12px!important;width:auto!important}}
+    `;
+    document.head.appendChild(stageStyle);
+
+    const ensureGuideNav = () => {
+      const nav = document.querySelector('.nav-pills');
+      if (nav && !nav.querySelector('a[href="rac-epi-apn-guide.html"]')) {
+        const link = document.createElement('a');
+        link.className = 'nav-pill';
+        link.href = 'rac-epi-apn-guide.html';
+        link.textContent = 'ⓘ RAC / EPI / APN Guide';
+        nav.appendChild(link);
+      }
+      const row = document.querySelector('#drawerContent .priority-method-row dd');
+      if (row && !row.querySelector('.stage1-guide-link')) {
+        const link = document.createElement('a');
+        link.className = 'stage1-guide-link';
+        link.href = 'rac-epi-apn-guide.html';
+        link.textContent = 'How RAC, EPI & APN are calculated';
+        row.appendChild(link);
+      }
+    };
+    ensureGuideNav();
+    const drawer = document.getElementById('drawerContent');
+    if (drawer) new MutationObserver(ensureGuideNav).observe(drawer,{childList:true,subtree:true});
+
+    let stagePopover = null;
+    const closeStagePopover = () => { stagePopover?.remove(); stagePopover = null; };
+    const openStagePopover = target => {
+      const cell = target.closest('td[data-label="RAC"]');
+      if (!cell) return;
+      closeStagePopover();
+      const code = cell.querySelector('.rac-main')?.childNodes?.[0]?.textContent?.trim() || cell.textContent.trim() || 'Not assessed';
+      const pop = document.createElement('div');
+      pop.className = 'stage1-rac-popover';
+      pop.setAttribute('role','dialog');
+      pop.setAttribute('aria-label','RAC, EPI and APN explanation');
+      pop.innerHTML = `<button class="close" type="button" aria-label="Close explanation">×</button><h3>RAC • EPI • APN</h3><div class="code">${code}</div><p><strong>RAC — Risk Assessment Code</strong> comes from Severity × Probability. Lower RAC numbers receive higher primary risk priority.</p><p><strong>EPI — Execution Priority Index</strong> is the normal DIMS method for equal-RAC records. Its governed inputs are Impact and Estimated Resolution Effort, with <strong>ERE = AIT + HIT</strong>. The final numerical EPI formula remains under validation.</p><p><strong>APN — Abatement Priority Number</strong> is the safety-hazard method. <strong>APN = RAC (CEI)</strong>, where <strong>CEI = Cost ÷ (Multiplier × Exposure)</strong>.</p><a class="guide" href="rac-epi-apn-guide.html">Open full RAC / EPI / APN guide</a>`;
+      document.body.appendChild(pop);
+      const rect = cell.getBoundingClientRect();
+      if (innerWidth > 900) {
+        pop.style.left = `${Math.max(12,Math.min(rect.left,innerWidth-pop.offsetWidth-12))}px`;
+        let top = rect.bottom + 8;
+        if (top + pop.offsetHeight > innerHeight - 12) top = Math.max(12,rect.top-pop.offsetHeight-8);
+        pop.style.top = `${top}px`;
+      } else {
+        pop.style.top = `${Math.max(12,Math.min(rect.bottom+8,innerHeight-pop.offsetHeight-12))}px`;
+      }
+      pop.querySelector('.close').onclick = closeStagePopover;
+      stagePopover = pop;
+    };
+    document.addEventListener('click',e=>{
+      const rac = e.target.closest?.('td[data-label="RAC"] .rac-main');
+      if (rac) { e.preventDefault(); e.stopImmediatePropagation(); openStagePopover(rac); return; }
+      if (!e.target.closest?.('.stage1-rac-popover')) closeStagePopover();
+    },true);
+    document.addEventListener('mouseover',e=>{
+      const rac = e.target.closest?.('td[data-label="RAC"] .rac-main');
+      if (rac && innerWidth > 900) { e.stopImmediatePropagation(); openStagePopover(rac); }
+    },true);
+  }
+
   const memoryKey = 'dominion1st-di-conversation-v1';
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const token = () => {

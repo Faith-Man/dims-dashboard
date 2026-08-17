@@ -30,8 +30,40 @@ const loadBtn = document.getElementById('load');
 const newBtn = document.getElementById('new');
 const saveMsg = document.getElementById('save-msg');
 
-supabase.auth.getSession().then(({ data }) => toggleAuth(!!data.session));
-supabase.auth.onAuthStateChange((_e, session) => toggleAuth(!!session));
+// Fail closed: authenticated controls stay hidden until Supabase verifies the
+// current user with the Auth server. Do not trust cached session data alone.
+let authResolved = false;
+toggleAuth(false);
+
+const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'INITIAL_SESSION' && !authResolved) return;
+  if (event === 'SIGNED_OUT' || !session?.user) {
+    toggleAuth(false);
+    return;
+  }
+  if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+    toggleAuth(true);
+  }
+});
+
+async function initializeAuth() {
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data?.user) {
+      toggleAuth(false);
+      return;
+    }
+    toggleAuth(true);
+  } catch (error) {
+    console.error('Auth initialization failed.', error);
+    toggleAuth(false);
+  } finally {
+    authResolved = true;
+  }
+}
+
+void initializeAuth();
+window.addEventListener('pagehide', () => authListener.subscription.unsubscribe(), { once: true });
 
 passwordSignInBtn.onclick = async () => {
   const email = emailEl.value.trim();
@@ -64,12 +96,22 @@ setPasswordBtn.onclick = async () => {
   securityMsg.textContent = 'Password set successfully. Keep this session open until we test password sign-in.';
 };
 
-signOutBtn.onclick = async () => { await supabase.auth.signOut(); };
+signOutBtn.onclick = async () => {
+  signOutBtn.disabled = true;
+  const { error } = await supabase.auth.signOut({ scope: 'local' });
+  toggleAuth(false);
+  signOutBtn.disabled = false;
+  if (error) authMsg.textContent = `Sign-out warning: ${error.message}`;
+};
 
 function toggleAuth(isAuthed) {
-  authCard.classList.toggle('hidden', isAuthed);
-  securityCard.classList.toggle('hidden', !isAuthed);
-  editorCard.classList.toggle('hidden', !isAuthed);
+  const authenticated = isAuthed === true;
+  authCard.classList.toggle('hidden', authenticated);
+  securityCard.classList.toggle('hidden', !authenticated);
+  editorCard.classList.toggle('hidden', !authenticated);
+  securityCard.setAttribute('aria-hidden', String(!authenticated));
+  editorCard.setAttribute('aria-hidden', String(!authenticated));
+  authCard.setAttribute('aria-hidden', String(authenticated));
 }
 
 function parseScripture() { const txt = scriptureEl.value.trim(); if (!txt) return null; try { return JSON.parse(txt); } catch { return null; } }

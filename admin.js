@@ -99,9 +99,10 @@ setPasswordBtn.onclick = async () => {
 signOutBtn.onclick = async () => {
   signOutBtn.disabled = true;
   const { error } = await supabase.auth.signOut({ scope: 'local' });
+  loginPasswordEl.value = '';
   toggleAuth(false);
   signOutBtn.disabled = false;
-  if (error) authMsg.textContent = `Sign-out warning: ${error.message}`;
+  authMsg.textContent = error ? `Sign-out warning: ${error.message}` : 'Signed out.';
 };
 
 function toggleAuth(isAuthed) {

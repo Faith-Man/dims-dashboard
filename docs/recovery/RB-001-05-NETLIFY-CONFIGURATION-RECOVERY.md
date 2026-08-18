@@ -49,7 +49,9 @@ Secret values are intentionally excluded from this document and source control. 
 
 Source preservation is VERIFIED: `netlify.toml` is present on `main` and declares the publish root and functions directory; `netlify/functions/orai.js` is present and reads `OPENAI_API_KEY` from the runtime environment rather than source control.
 
-Isolated reconstruction is NOT YET CERTIFIED. This control remains open until a non-production Netlify target is available and the reconstruction procedure above is executed successfully with objective evidence.
+Existing non-production deployment evidence is also VERIFIED: Netlify's Git integration reported a successful Deploy Preview for PR #9 at commit `ac805cc402a5d54a0f3ca27c6384edbbb1ac7805`, including the `dominion1st` preview target `deploy-preview-9--dominion1st.netlify.app`. Additional preview targets were also produced for the same commit. This demonstrates that the governed source can be built and deployed to isolated/non-production Netlify preview infrastructure without promoting the branch to production.
+
+Certification remains IN PROGRESS because direct functional read-back of the recovery preview is still required: representative static-page response verification and a non-destructive response from `/.netlify/functions/orai`. Live OpenAI execution is not required for this recovery check and must not be invoked merely to certify the control, thereby avoiding unnecessary upstream cost. The source inspection already verifies that any live upstream credential is obtained from provider-managed `OPENAI_API_KEY` rather than committed source.
 
 ## Certification rule
 

@@ -50,7 +50,9 @@ Secret values are intentionally excluded from this document and from source cont
 
 Source preservation is VERIFIED: the authoritative `wrangler.jsonc` is present on `main` and contains the recoverable Worker identity, entrypoint, compatibility settings, observability configuration, assets binding/routing behavior, Workers AI binding, non-secret Supabase URL, and six-hour cron trigger.
 
-Isolated reconstruction is NOT YET CERTIFIED. This control remains open until a non-production Cloudflare target is available and the reconstruction procedure above is executed successfully with objective evidence.
+Existing non-production deployment evidence is also VERIFIED: Cloudflare's Git integration successfully deployed PR #9 commit `ac805cc402a5d54a0f3ca27c6384edbbb1ac7805` to both a commit preview URL and the branch preview `feature-dscc-orbital-intelligence-dims-dashboard.dominion1st-integrated-management-system-dims.workers.dev` on 2026-08-13 at 20:06 UTC. This demonstrates that the source-controlled Worker configuration can produce a non-production preview deployment through the existing governed integration without promoting that branch to production.
+
+Certification remains IN PROGRESS because the RB-001 recovery boundary requires additional runtime proof on an isolated/non-production target: representative static asset read-back, `/api/*` execution through the Worker, Workers AI binding verification where exercised, and confirmation of the six-hour cron schedule on the isolated target. The existing preview-deploy evidence must not be over-interpreted as proof of those runtime checks.
 
 ## Certification rule
 

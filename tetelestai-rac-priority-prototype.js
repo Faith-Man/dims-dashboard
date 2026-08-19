@@ -1,4 +1,4 @@
-// TETELESTAI UI prototype — command-oriented table + compact RAC priority spectrum.
+// TETELESTAI UI prototype — command-oriented table + RAC-aligned priority spectrum.
 // Presentation-only enhancement. It does not change System RAC or database values.
 
 const PROTOTYPE_STYLE = document.createElement('style');
@@ -9,8 +9,8 @@ PROTOTYPE_STYLE.textContent = `
     .dims-grid{table-layout:fixed!important}
     .dims-grid th,.dims-grid td{vertical-align:middle!important}
     .dims-grid th[data-proto-col="created"],.dims-grid td[data-label="Date Entered"]{width:10%!important}
-    .dims-grid th[data-proto-col="number"],.dims-grid td[data-label="Number"]{width:9%!important}
-    .dims-grid th[data-proto-col="title"],.dims-grid td[data-label="Project/Task"]{width:24%!important}
+    .dims-grid th[data-proto-col="number"],.dims-grid td[data-label="Number"]{width:6%!important}
+    .dims-grid th[data-proto-col="title"],.dims-grid td[data-label="Project/Task"]{width:27%!important}
     .dims-grid th[data-proto-col="rac"],.dims-grid td[data-label="RAC"]{width:8%!important}
     .dims-grid th[data-proto-col="priority"],.dims-grid td[data-label="Priority"]{width:11%!important}
     .dims-grid th[data-proto-col="status"],.dims-grid td[data-label="Status"]{width:9%!important}
@@ -18,29 +18,35 @@ PROTOTYPE_STYLE.textContent = `
     .dims-grid th[data-proto-col="follow"],.dims-grid td[data-label="Follow-Up"]{width:9%!important}
     .dims-grid th[data-proto-col="progress"],.dims-grid td[data-label="Progress"]{width:7%!important}
     .dims-grid th[data-proto-col="view"],.dims-grid td[data-label="View"]{width:6%!important}
+
+    /* Desktop RAC should be click-first, not hover-first. */
+    .rac-v2-pop{display:none!important}
   }
 
   .dims-grid td[data-label="RAC"]{white-space:nowrap!important;font-weight:850;color:#0c1475}
   .dims-grid td[data-label="Status"],.dims-grid td[data-label="Date Entered"],.dims-grid td[data-label="Follow-Up"]{white-space:nowrap!important}
   .dims-grid td[data-label="Priority"]{min-width:128px!important}
   .dims-grid td[data-label="Owner"]{overflow-wrap:anywhere}
+  .view-button{position:relative!important;z-index:3!important;pointer-events:auto!important}
 
-  /* RAC-aligned priority spectrum: High / Serious / Medium / Low. */
-  .epi-priority{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;align-items:center;min-width:118px;max-width:158px}
-  .epi-priority-seg{height:10px;border-radius:999px;background:#e4e7ec;border:1px solid rgba(12,20,117,.13)}
-  .epi-priority-seg[data-band="high"]{background:#dc2626}
-  .epi-priority-seg[data-band="serious"]{background:#f97316}
-  .epi-priority-seg[data-band="medium"]{background:#facc15}
-  .epi-priority-seg[data-band="low"]{background:#16a34a}
-  .epi-priority-label{grid-column:1/-1;font-size:.63rem;font-weight:900;color:#0c1475;white-space:nowrap;margin-top:2px;text-align:center;letter-spacing:.02em}
-  .epi-priority[data-level="high"] .epi-priority-seg:not([data-band="high"]),
-  .epi-priority[data-level="serious"] .epi-priority-seg:not([data-band="serious"]),
-  .epi-priority[data-level="medium"] .epi-priority-seg:not([data-band="medium"]),
-  .epi-priority[data-level="low"] .epi-priority-seg:not([data-band="low"]){opacity:.22;filter:saturate(.35)}
+  /* RAC-aligned priority progression: High / Serious / Medium / Low. */
+  .epi-priority{display:grid;grid-template-columns:repeat(4,1fr);gap:0;align-items:center;min-width:122px;max-width:166px;position:relative;padding-top:5px}
+  .epi-priority-track{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:2px;padding:3px;border:1px solid rgba(12,20,117,.28);border-radius:999px;background:linear-gradient(180deg,#fff,#eef2f8);box-shadow:inset 0 1px 2px rgba(255,255,255,.9),0 2px 5px rgba(17,24,39,.14);position:relative}
+  .epi-priority-seg{height:10px;min-width:0;border-radius:999px;opacity:.38;filter:saturate(.55);transition:.15s ease}
+  .epi-priority-seg[data-band="high"]{background:linear-gradient(180deg,#ff4b4b,#c91818)}
+  .epi-priority-seg[data-band="serious"]{background:linear-gradient(180deg,#ff9b35,#e76300)}
+  .epi-priority-seg[data-band="medium"]{background:linear-gradient(180deg,#ffe45b,#eab900)}
+  .epi-priority-seg[data-band="low"]{background:linear-gradient(180deg,#50d97a,#13913e)}
+  .epi-priority-marker{position:absolute;top:-4px;width:3px;height:24px;background:#fff;border:1px solid #0c1475;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.9),0 0 8px rgba(12,20,117,.72);transform:translateX(-50%);pointer-events:none}
+  .epi-priority-label{grid-column:1/-1;font-size:.63rem;font-weight:900;color:#0c1475;white-space:nowrap;margin-top:3px;text-align:center;letter-spacing:.03em}
   .epi-priority[data-level="high"] .epi-priority-seg[data-band="high"],
   .epi-priority[data-level="serious"] .epi-priority-seg[data-band="serious"],
   .epi-priority[data-level="medium"] .epi-priority-seg[data-band="medium"],
-  .epi-priority[data-level="low"] .epi-priority-seg[data-band="low"]{outline:2px solid #172033;outline-offset:1px}
+  .epi-priority[data-level="low"] .epi-priority-seg[data-band="low"]{opacity:1;filter:saturate(1.15);box-shadow:0 0 7px rgba(17,24,39,.26)}
+  .epi-priority[data-level="high"] .epi-priority-marker{left:12.5%}
+  .epi-priority[data-level="serious"] .epi-priority-marker{left:37.5%}
+  .epi-priority[data-level="medium"] .epi-priority-marker{left:62.5%}
+  .epi-priority[data-level="low"] .epi-priority-marker{left:87.5%}
 
   /* Use the matrix itself as the RAC selector. */
   .rac-v2-drawer .rac-choice,.rac-v2-drawer .rac-calc-controls{display:none!important}
@@ -50,7 +56,7 @@ PROTOTYPE_STYLE.textContent = `
   .rac-v2-matrix td.rac-cell.selected{outline:4px solid #0c1475!important;outline-offset:-4px!important;box-shadow:0 0 0 3px rgba(255,255,255,.85) inset}
 
   @media(max-width:900px){
-    .epi-priority{max-width:190px}
+    .epi-priority{max-width:205px}
     .dims-grid td[data-label="RAC"],.dims-grid td[data-label="Status"],.dims-grid td[data-label="Date Entered"],.dims-grid td[data-label="Follow-Up"]{white-space:nowrap!important}
   }
 `;
@@ -75,7 +81,6 @@ function normalizeFollowUp(table){
     const cell=tr.children[dueIndex];
     if(!cell)return;
     cell.dataset.label='Follow-Up';
-    // Keep the actual date only; remove repeated Follow-up/Target helper text.
     cell.querySelectorAll('.rank-reason').forEach(e=>e.remove());
   });
 }
@@ -105,7 +110,6 @@ function reorderTable(table){
     });
   });
 
-  // Remove any legacy Rank column left by an earlier renderer; the approved table no longer uses it.
   [...headRow.children].forEach((th,index)=>{
     if(headerLabel(th)==='Rank'){
       th.remove();
@@ -148,10 +152,8 @@ function enhancePriorityCell(cell){
   if (!cell || cell.dataset.epiPriority === '1') return;
   const raw = cell.textContent.replace(/\s+/g,' ').trim();
   if (!raw) return;
-  // Prototype behavior: align the visual priority band with the governed RAC table
-  // when a System RAC exists; fall back to the stored priority when RAC is absent.
   const level = racBandFromRow(cell) || sourcePriorityLevel(raw);
-  cell.innerHTML = `<div class="epi-priority" data-level="${level}" role="img" aria-label="Priority ${priorityLabel(level)}"><span class="epi-priority-seg" data-band="high" title="High"></span><span class="epi-priority-seg" data-band="serious" title="Serious"></span><span class="epi-priority-seg" data-band="medium" title="Medium"></span><span class="epi-priority-seg" data-band="low" title="Low"></span><span class="epi-priority-label">${priorityLabel(level)}</span></div>`;
+  cell.innerHTML = `<div class="epi-priority" data-level="${level}" role="img" aria-label="Priority ${priorityLabel(level)}"><div class="epi-priority-track"><span class="epi-priority-seg" data-band="high" title="High"></span><span class="epi-priority-seg" data-band="serious" title="Serious"></span><span class="epi-priority-seg" data-band="medium" title="Medium"></span><span class="epi-priority-seg" data-band="low" title="Low"></span><span class="epi-priority-marker" aria-hidden="true"></span></div><span class="epi-priority-label">${priorityLabel(level)}</span></div>`;
   cell.title = 'Priority spectrum aligned to RAC bands: High, Serious, Medium, Low.';
   cell.dataset.epiPriority='1';
 }
@@ -182,6 +184,18 @@ function enhanceTables(){
   document.querySelectorAll('.dims-grid td[data-label="Status"]').forEach(normalizeStatus);
   addMatrixInstruction();
 }
+
+/* Desktop View fallback: preserve the native handler, but if it fails after the
+   prototype column re-order, invoke the row title's existing detail action. */
+document.addEventListener('click',event=>{
+  const view=event.target.closest('.view-button');
+  if(!view || innerWidth<=900)return;
+  const row=view.closest('tr');
+  setTimeout(()=>{
+    const backdrop=document.getElementById('drawerBackdrop');
+    if(!backdrop?.classList.contains('open')) row?.querySelector('.title-button')?.click();
+  },0);
+},true);
 
 let scheduled=false;
 function scheduleEnhance(){

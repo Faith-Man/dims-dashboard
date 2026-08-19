@@ -1,7 +1,9 @@
-// TETELESTAI permanent record deep links.
+// TETELESTAI permanent dashboard-focus links.
 // Canonical examples:
 //   projects-tasks.html?project=PROJ-0033
 //   projects-tasks.html?task=TASK-0081
+// A direct link keeps the user in dashboard context, focuses/highlights the
+// referenced row, and does NOT automatically open the View drawer.
 // Legacy #PROJ-... / #TASK-... hashes are also accepted.
 
 const PROJECT_PARAM = 'project';
@@ -79,7 +81,25 @@ function clearLinkNotice() {
   if (text.textContent.startsWith('Direct link:')) active.classList.remove('show');
 }
 
-async function openTargetFromUrl({ replaceLegacy = true } = {}) {
+function clearFocusedRows() {
+  document.querySelectorAll('.tetelestai-link-focus').forEach(row => {
+    row.classList.remove('tetelestai-link-focus');
+    row.style.removeProperty('outline');
+    row.style.removeProperty('outline-offset');
+  });
+}
+
+function focusTargetRow(row, target) {
+  clearFocusedRows();
+  row.classList.add('tetelestai-link-focus');
+  // Use outline instead of a fixed fill so RAC/status colors remain visible.
+  row.style.outline = '3px solid currentColor';
+  row.style.outlineOffset = '-3px';
+  row.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+  showLinkNotice(`Direct link: ${target.number} highlighted in the ${target.kind === 'project' ? 'Projects' : 'Tasks'} dashboard. Select View for details.`);
+}
+
+async function focusTargetFromUrl({ replaceLegacy = true } = {}) {
   const target = targetFromUrl();
   if (!target) return false;
   const started = Date.now();
@@ -87,9 +107,10 @@ async function openTargetFromUrl({ replaceLegacy = true } = {}) {
   while (Date.now() - started < MAX_WAIT_MS) {
     const row = findTargetRow(target.kind, target.number);
     if (row) {
-      if (replaceLegacy && location.hash) history.replaceState({ tetelestaiDeepLink: true }, '', canonicalUrl(target.kind, target.number));
-      clearLinkNotice();
-      row.click();
+      if (replaceLegacy && location.hash) {
+        history.replaceState({ tetelestaiDeepLink: true }, '', canonicalUrl(target.kind, target.number));
+      }
+      focusTargetRow(row, target);
       return true;
     }
     await new Promise(resolve => setTimeout(resolve, 150));
@@ -105,7 +126,9 @@ function kindForRow(row) {
   return null;
 }
 
-// Keep the address bar synchronized whenever a user opens a record from either grid.
+// When the user deliberately opens a record from the dashboard, keep the
+// address bar synchronized with that record. Direct links themselves no
+// longer synthesize a row click, so they do not auto-open View.
 document.addEventListener('click', event => {
   const row = event.target.closest?.('#projectsList tbody tr, #tasksList tbody tr');
   if (!row) return;
@@ -118,26 +141,30 @@ document.addEventListener('click', event => {
   history.pushState({ tetelestaiDeepLink: true }, '', canonicalUrl(kind, number));
 }, true);
 
-// Closing the View panel returns the browser URL to the general Projects & Tasks page.
+// Closing View returns to the general dashboard URL.
 document.getElementById('drawerClose')?.addEventListener('click', () => {
   if (targetFromUrl()) history.pushState({ tetelestaiDeepLink: false }, '', baseUrl());
+  clearFocusedRows();
 });
 
 document.getElementById('drawerBackdrop')?.addEventListener('click', event => {
   if (event.target.id === 'drawerBackdrop' && targetFromUrl()) {
     history.pushState({ tetelestaiDeepLink: false }, '', baseUrl());
+    clearFocusedRows();
   }
 });
 
-// Browser Back/Forward should open the referenced record or close the drawer.
+// Browser Back/Forward focuses the referenced dashboard row. If navigation
+// returns to the base dashboard, close any open View drawer.
 window.addEventListener('popstate', () => {
   const target = targetFromUrl();
   if (target) {
     if (drawerIsOpen() && currentDrawerNumber() === target.number) return;
-    openTargetFromUrl({ replaceLegacy: false });
+    focusTargetFromUrl({ replaceLegacy: false });
     return;
   }
+  clearFocusedRows();
   if (drawerIsOpen()) document.getElementById('drawerClose')?.click();
 });
 
-openTargetFromUrl();
+focusTargetFromUrl();

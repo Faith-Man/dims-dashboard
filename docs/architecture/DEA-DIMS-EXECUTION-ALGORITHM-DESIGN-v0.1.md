@@ -1,10 +1,47 @@
-# DEA™ — DIMS Execution Algorithm — Design v0.1
+# DEA™ — DIMS Execution Algorithm — Design v0.2
 
-Status: PROTOTYPE / NOT YET CERTIFIED
-Date: 2026-08-15
+Status: PROTOTYPE / NOT YET CERTIFIED  
+Original date: 2026-08-15  
+Architecture amendment: 2026-08-21
 
 ## Purpose
-DEA recommends the order in which executable DIMS projects and tasks should be worked. Priority and Execution Order are separate controls: Priority expresses importance; DEA recommends sequence.
+DEA recommends the order in which executable DIMS projects and tasks should be worked after RAD/RAC assessment and required governance/readiness gates.
+
+DEA is the execution-order mechanism. The former EPI (Execution Priority Index) is retired as a separate active layer because it duplicated DEA and encouraged subjective pre-execution scoring.
+
+## DIMS decision architecture
+Normal DIMS path:
+
+RAD → RAC → DEA → Execute → Execution Performance Metrics → Verified Outcome
+
+Actual physical hazard path only:
+
+RAD → RAC → APN (using CEI) → Abatement Priority
+
+### RAD™ — Risk Assessment Dome
+RAD is the DIMS cross-system risk-assessment service and workspace. RAD supports governed assessment of physical and non-physical risk using Severity × Probability and produces a RAC.
+
+### RAC — Risk Assessment Code
+RAC expresses the assessed risk category. Lower RAC numbers normally receive higher primary risk priority.
+
+### DEA™ — DIMS Execution Algorithm
+DEA determines relative execution order among executable DIMS items. When items share the same RAC, DEA must discriminate primarily from objective system-recorded facts rather than human-estimated ratings.
+
+### Execution Performance Metrics
+Execution Performance Metrics describe how work was actually executed. They are separate from DEA and are observed during/after execution rather than estimated by the user before work.
+
+Active measures include:
+- HEI — Human Exposure Index
+- AEL — AI Execution Load
+- RWL — Rework Load
+- VOY — Verified Outcome Yield
+- Autonomy
+- Session Window
+
+These measures do not determine RAC and do not replace DEA.
+
+### APN — Abatement Priority Number
+APN is reserved for actual physical occupational-safety, fire, or occupational-health hazards requiring abatement prioritization. APN is not used for ordinary software, project, governance, deployment, administrative, or workflow risk.
 
 ## Governing rules
 1. Conversation recency never changes Execution Order by itself.
@@ -13,44 +50,34 @@ DEA recommends the order in which executable DIMS projects and tasks should be w
 4. Blocked work retains its risk but cannot occupy an executable slot solely because of risk.
 5. Dependency and governance gates precede dependent implementation.
 6. Every material ranking change must be explainable.
+7. DEA should minimize subjective human scoring by using observable, recorded system facts wherever possible.
+8. Execution Performance Metrics must not be reused as disguised human estimates for pre-execution priority.
 
 ## Reference risk model
-Use the familiar safety-management model: Severity × Probability. The matrix is a decision aid, not the complete DEA ranking algorithm.
+RAD uses Severity × Probability as the governing risk-assessment pattern. The RAC matrix is a decision aid and risk classification control; it is not itself the complete DEA execution-order mechanism.
 
-Severity:
-- I Catastrophic — mission/system failure, irreversible major loss, critical security/governance failure.
-- II Critical — serious degradation or major failure requiring urgent correction.
-- III Moderate — meaningful operational impact; mission can continue with correction required.
-- IV Negligible — limited operational consequence.
+## Objective DEA discrimination
+After gates, DEA first respects RAC priority. When two or more executable items share the same RAC, DEA may use objective system-derived facts such as:
 
-Probability:
-- A Frequent
-- B Likely
-- C Occasional
-- D Seldom
-- E Rarely
+- Verified blocking-dependency count / unlocking relationships
+- Recorded deadline distance
+- Waiting age / time already pending
+- Readiness / executability state already recorded by the system
+- Continuity state (for example, already-started work that can close a governed loop)
+- Verified governance/security gate relationships
+- Other future system-derived signals only after validation
 
-Prototype risk-level matrix:
-| Severity / Probability | A Frequent | B Likely | C Occasional | D Seldom | E Rarely |
-|---|---|---|---|---|---|
-| I Catastrophic | Extremely High | Extremely High | High | High | Medium |
-| II Critical | Extremely High | High | High | Medium | Low |
-| III Moderate | High | Medium | Medium | Low | Low |
-| IV Negligible | Medium | Low | Low | Low | Low |
+No user-entered subjective EPI score is required.
 
-The UI must show labels as well as color so the matrix remains usable without color.
+### Current prototype tie-order rule
+For the current RAD guide prototype, equal-RAC items are ordered transparently by:
 
-## DEA execution factors
-After gates, candidate work is assessed using:
-- Urgency / time criticality
-- Dependency / unlocking power
-- Mission impact
-- Consequence of delay
-- Readiness / executability
-- Leverage / return on effort
-- Continuity / finish-what-we-started
+1. More verified blocking dependencies first
+2. Nearest recorded deadline
+3. Longer waiting age
+4. Higher recorded readiness
 
-Weights and breakpoints remain provisional until tested against the live DIMS workload.
+This is a prototype ordering rule, not yet a certified final DEA algorithm. Additional signals and precedence must be tested against representative live DIMS workload before institutionalization.
 
 ## Closed-loop record model
 Lifecycle: ENTER → TRACK & FOLLOW UP → CLOSE.
@@ -93,7 +120,7 @@ Within Project/Task View, provide:
 - Progress update (optional)
 - Entered by (automatic when identity is available)
 
-Save creates a new immutable history entry and updates only the authorized current-state snapshot fields.
+Save creates a new immutable history entry and updates only authorized current-state snapshot fields.
 
 ## Dashboard interaction
 The six accountability cards are controls, not decorative statistics. Clicking a card filters the existing Projects/Tasks records to its exact population:
@@ -106,20 +133,12 @@ The six accountability cards are controls, not decorative statistics. Clicking a
 
 Provide a visible active-filter state and Clear Filter.
 
-## Visual improvements
-- Projects and Tasks section-title bars: dark royal/navy blue with high-contrast text.
-- Table header rows: darker high-contrast treatment.
-- View button: never wrap on desktop; full-width remains acceptable on mobile.
-- Date Entered visible in primary grid.
-- Detail drawer opens read-only; Edit Current Record unlocks only controlled-editable fields.
-- Permanent fields visibly locked.
-- Follow-Up / Action History and Add Follow-Up live inside the detail drawer.
-
 ## Verification before certification
-1. Test DEA against representative live tasks and compare recommendations with management judgment.
-2. Test desktop and mobile layouts.
-3. Verify card counts exactly equal filtered result counts.
-4. Verify append-only follow-up behavior.
-5. Verify unauthorized/permanent fields cannot be overwritten.
-6. Verify blocked and closed records are handled correctly.
-7. Do not institutionalize weights/risk breakpoints until testing is complete.
+1. Test DEA against representative equal-RAC live tasks.
+2. Verify that ordering relies on objective persisted facts rather than subjective user scoring.
+3. Test desktop and mobile layouts.
+4. Verify card counts exactly equal filtered result counts.
+5. Verify append-only follow-up behavior.
+6. Verify unauthorized/permanent fields cannot be overwritten.
+7. Verify blocked and closed records are handled correctly.
+8. Do not institutionalize final DEA precedence/weights until live workload testing is complete.

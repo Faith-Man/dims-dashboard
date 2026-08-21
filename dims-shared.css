@@ -38,15 +38,17 @@ input::placeholder,textarea::placeholder{color:var(--muted)}
 .scripture-bar{background:linear-gradient(90deg,var(--navy),var(--navy2),var(--navy));border-top:1px solid var(--gold3);text-align:center;padding:12px 16px;font-style:italic;font-size:.8rem;color:var(--muted)}
 .scripture-bar strong{color:var(--gold)}
 
-/* TETELESTAI desktop table proportions: keep Date and Number compact so Project/Task has room. */
+/* TETELESTAI desktop table proportions: Date and Number stay compact; Project/Task gets the space. */
 @media(min-width:901px){
   #projectsList .dims-grid th:nth-child(1),#projectsList .dims-grid td:nth-child(1),
-  #tasksList .dims-grid th:nth-child(1),#tasksList .dims-grid td:nth-child(1){width:12%!important}
+  #tasksList .dims-grid th:nth-child(1),#tasksList .dims-grid td:nth-child(1){width:11%!important}
   #projectsList .dims-grid th:nth-child(2),#projectsList .dims-grid td:nth-child(2),
-  #tasksList .dims-grid th:nth-child(2),#tasksList .dims-grid td:nth-child(2){width:13%!important;max-width:150px!important}
+  #tasksList .dims-grid th:nth-child(2),#tasksList .dims-grid td:nth-child(2){width:9%!important;max-width:115px!important}
   #projectsList .dims-grid th:nth-child(3),#projectsList .dims-grid td:nth-child(3),
-  #tasksList .dims-grid th:nth-child(3),#tasksList .dims-grid td:nth-child(3){width:31%!important}
+  #tasksList .dims-grid th:nth-child(3),#tasksList .dims-grid td:nth-child(3){width:34%!important}
 }
+/* Retire the legacy prototype RAC hover summary. The current RAD Quick Brief owns RAC help. */
+.proto-rac-pop{display:none!important}
 
 /* DOME governed shared-header standard */
 .page-header{

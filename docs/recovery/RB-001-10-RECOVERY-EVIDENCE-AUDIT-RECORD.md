@@ -27,7 +27,7 @@ A recovery control may be recorded as complete only when objective read-back or 
 | RB-001-05 Netlify Configuration Recovery | IN PROGRESS | Governed Netlify configuration and reconstruction procedure are preserved in source; isolated/non-production deployment verification is still required. | `docs/recovery/RB-001-05-NETLIFY-CONFIGURATION-RECOVERY.md`; `netlify.toml`; `netlify/functions/orai.js` |
 | RB-001-06 DIMS Configuration & Secrets Recovery Procedure | COMPLETE | Controlled recovery procedure defines configuration-vs-secret classification, EBYC recovery sources, reissue/rotation rules, secret-name-only evidence, prohibited secret-bearing evidence, runtime inventory, and verification checklist. Repository ignore rules exclude `.env*` and `.dev.vars*`; runtime retrieves OPENAI_API_KEY from environment rather than source. | `docs/recovery/RB-001-06-CONFIGURATION-SECRETS-RECOVERY.md`; merge commit `072545a92ebbc55cb15ce1dd8194d8ed971ebcfe` |
 | RB-001-07 System Health Backup & Recovery Integration | COMPLETE | Backup & Recovery readiness is surfaced in DSCC/System Health; live production rendering verified on iPhone. | Authoritative Supabase task record RB-001-07 |
-| RB-001-08 Automated Backup Verification | COMPLETE | Recurring RB-001 Completion Watch performs a Google Drive backup-health check on every run. It finds the newest DIMS full backup plus companion daily checkpoint/snapshot evidence and treats a full backup older than 30 hours, a missing expected backup set, or missing/unreadable companion evidence as actionable degradation. Current read-back on 2026-08-18 found `FULL_BACKUP_2026-08-18_16-36` with companion checkpoint and snapshot evidence; all were present and fresh. | Full backup folder id `1YBn93MYoastwIJxRPobSGVvXrHV8lK9N`; checkpoint doc id `1vKzIAJZ5nt_p5iMvOnhJbCb9LJHI1lDtqY8YtM_A9iU`; snapshot doc id `1cU3CNzFmVe72hdrkmXHTAQSM0_cb_k9ePTQKk1d5Pic` |
+| RB-001-08 Automated Backup Verification | COMPLETE | Recurring RB-001 Completion Watch performs a Google Drive backup-health check on every run. It finds the newest DIMS full backup plus companion daily checkpoint/snapshot evidence and treats a full backup older than 30 hours, a missing expected backup set, or missing/unreadable companion evidence as actionable degradation. Current read-back on 2026-08-22 found a complete 06:33 backup/checkpoint/snapshot cycle; all expected evidence classes are present and fresh. | Full backup folder id `1ETP6HARYSI8B-lfqpJs3T1rJbFfYD91A`; checkpoint doc id `1KdaEMIfpIXTITPx7jAOKE9GUU0Z9HRl5vvMGH8UKsNc`; snapshot doc id `18s09YuoTJl6jvIRDSDXtQcgj8Kd3spvNYpzstoB12-4` |
 | RB-001-09 Isolated Full-System Restore Test | IN PROGRESS | Recovery runbook is established; execution remains blocked on isolated provider/database targets and prerequisite provider recovery certifications. | `docs/recovery/RB-001-09-ISOLATED-FULL-SYSTEM-RESTORE-TEST.md` |
 | RB-001-10 Recovery Evidence & Audit Record | COMPLETE | Governed living evidence ledger established with verified control outcomes, checksums/immutable identifiers, backup-health observations, exceptions, blockers, and certification boundaries. Future recovery evidence continues to append here. | This file |
 | RB-001-11 Certification & Closeout | OPEN | May close only after complete environment restoration and evidence capture. | Pending |
@@ -38,9 +38,9 @@ A recovery control may be recorded as complete only when objective read-back or 
 - RB-001-02 GitHub Actions artifact id: `9243031424`
 - RB-001-06 merge commit: `072545a92ebbc55cb15ce1dd8194d8ed971ebcfe`
 - RB-001-03 production-baseline commit: `9636a93f1afcbff5316eb63ba2a3c4920839aad4`
-- RB-001-08 current full-backup evidence: Drive folder id `1YBn93MYoastwIJxRPobSGVvXrHV8lK9N`
-- RB-001-08 current companion checkpoint evidence: Drive document id `1vKzIAJZ5nt_p5iMvOnhJbCb9LJHI1lDtqY8YtM_A9iU`
-- RB-001-08 current companion snapshot evidence: Drive document id `1cU3CNzFmVe72hdrkmXHTAQSM0_cb_k9ePTQKk1d5Pic`
+- RB-001-08 current full-backup evidence: Drive folder id `1ETP6HARYSI8B-lfqpJs3T1rJbFfYD91A`
+- RB-001-08 current companion checkpoint evidence: Drive document id `1KdaEMIfpIXTITPx7jAOKE9GUU0Z9HRl5vvMGH8UKsNc`
+- RB-001-08 current companion snapshot evidence: Drive document id `18s09YuoTJl6jvIRDSDXtQcgj8Kd3spvNYpzstoB12-4`
 
 ## Backup-health observations
 
@@ -68,6 +68,14 @@ A recovery control may be recorded as complete only when objective read-back or 
 - Companion snapshot observed: `SNP_2026-08-18_16-36_DIMS-v3_Daily_Snapshot` and PDF companion
 - Health outcome: PASS — full backup is current and both expected companion evidence classes are present with matching cycle timestamps.
 
+### 2026-08-22
+
+- Full backup observed: `FULL_BACKUP_2026-08-22_06-33-53_2791fdff`
+- Full backup created: `2026-08-22T11:33:53.938Z`
+- Companion checkpoint observed: `CHK_2026-08-22_06-33_DIMS-v3_Daily_Checkpoint` (Doc and PDF evidence present)
+- Companion snapshot observed: `SNP_2026-08-22_06-33_DIMS-v3_Daily_Snapshot` (Doc and PDF evidence present)
+- Health outcome: PASS — the newest full backup is fresh and the expected checkpoint and snapshot companion evidence is present for the same 06:33 cycle.
+
 ## Supabase recovery baseline observations
 
 ### 2026-08-18
@@ -78,6 +86,12 @@ A recovery control may be recorded as complete only when objective read-back or 
 - Representative row counts and migration-chain evidence were recorded without copying secret credentials.
 - Certification boundary remains unchanged: RB-001-03 requires restoration into an authorized isolated/non-production target and comparison against the preserved baseline before it may be marked COMPLETE.
 - Evidence: `docs/recovery/evidence/RB-001-03-SUPABASE-PRODUCTION-BASELINE-2026-08-18.md`; commit `9636a93f1afcbff5316eb63ba2a3c4920839aad4`.
+
+### 2026-08-22
+
+- Supabase branch inventory was checked for an existing isolated development target; no branches were present.
+- No branch/project was created because the automation is not authorized to incur a charge or request interactive cost approval.
+- RB-001-03 therefore remains blocked on an authorized no-production-mutation restore target.
 
 ## Exceptions and blockers
 

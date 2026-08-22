@@ -11,13 +11,12 @@ permissions:
 
 concurrency:
   group: dome-production-deploy
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
     name: Deploy and verify production
     runs-on: ubuntu-latest
-    environment: production
     timeout-minutes: 15
 
     steps:
@@ -34,28 +33,33 @@ jobs:
         env:
           CLOUDFLARE_DEPLOY_HOOK_URL: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK_URL }}
         run: |
-          curl             --fail-with-body             --silent             --show-error             --retry 3             --retry-all-errors             --connect-timeout 15             --max-time 60             --request POST             "$CLOUDFLARE_DEPLOY_HOOK_URL"
+          curl --fail-with-body --silent --show-error --retry 3 --retry-all-errors \
+            --connect-timeout 15 --max-time 60 --request POST \
+            "$CLOUDFLARE_DEPLOY_HOOK_URL"
           echo
           echo "Cloudflare deploy hook accepted for ${GITHUB_SHA}."
 
-      - name: Verify DOME admin security controls in production
+      - name: Verify current RAD and TETELESTAI production content
         env:
-          PRODUCTION_ADMIN_URL: https://dome-dashboard.dominion1st-integrated-management-system-dims.workers.dev/admin.html
+          BASE_URL: https://dome-dashboard.dominion1st-integrated-management-system-dims.workers.dev
         run: |
           for attempt in $(seq 1 40); do
-            page="$(curl               --fail               --silent               --show-error               --location               --connect-timeout 15               --max-time 30               "${PRODUCTION_ADMIN_URL}?deployment_check=${GITHUB_SHA}" || true)"
+            guide="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/rac-epi-apn-guide.html?deployment_check=${GITHUB_SHA}" || true)"
+            table="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/projects-tasks.html?deployment_check=${GITHUB_SHA}" || true)"
+            ui="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/tetelestai-rac-ui-v3.js?deployment_check=${GITHUB_SHA}" || true)"
 
-            if printf '%s' "$page" | grep --fixed-strings --quiet 'id="password-sign-in"' &&
-               printf '%s' "$page" | grep --fixed-strings --quiet 'id="security-card"' &&
-               printf '%s' "$page" | grep --fixed-strings --quiet '>Account Security<' &&
-               printf '%s' "$page" | grep --fixed-strings --quiet 'id="set-password"'; then
-              echo "Production verification passed."
+            if printf '%s' "$guide" | grep --fixed-strings --quiet 'Functional Risk Assessment Dome (RAD)' &&
+               printf '%s' "$guide" | grep --fixed-strings --quiet 'EPI is retired as a separate priority layer.' &&
+               printf '%s' "$table" | grep --fixed-strings --quiet 'tetelestai-rac-ui-v3.js?v=1' &&
+               printf '%s' "$ui" | grep --fixed-strings --quiet 'RAC • DEA • APN Quick Brief' &&
+               ! printf '%s' "$ui" | grep --fixed-strings --quiet 'Execution Priority Index'; then
+              echo "Production verification passed for RAD Guide and TETELESTAI RAC UI."
               exit 0
             fi
 
-            echo "Attempt ${attempt}/40: waiting 15 seconds for production..."
+            echo "Attempt ${attempt}/40: production is still stale; waiting 15 seconds..."
             sleep 15
           done
 
-          echo "::error::Production did not expose the required admin security controls within 10 minutes."
+          echo "::error::Cloudflare production stayed stale after deployment trigger. Check the deploy hook target/project configuration."
           exit 1

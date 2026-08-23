@@ -1,16 +1,16 @@
 // TETELESTAI browser recovery loader.
 // Activates only if the canonical module leaves Projects/Tasks in Loading state.
-const SUPABASE_URL='https://sdquzhsylqpbhrmqjqgk.supabase.co';
-const SUPABASE_KEY='sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How';
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]||c));
 const fmt=v=>v?new Date(`${String(v).slice(0,10)}T12:00:00`).toLocaleDateString():'—';
 const rac=r=>r.system_rac?(r.risk_severity&&r.risk_probability?`${r.system_rac} (${r.risk_severity}, ${r.risk_probability})`:String(r.system_rac)):'—';
 const status=r=>String(r.status||'Open').replaceAll('_',' ').replace(/\b\w/g,m=>m.toUpperCase());
 const owner=r=>({dominion1st_di:'🚀 Dominion1st DI',pastor_michael:'👑 Pastor H. Michael Daniels',shared:'🤝 Shared',external:'↗ External'})[r.action_owner]||r.action_owner||'—';
-async function table(name){
-  const res=await fetch(`${SUPABASE_URL}/rest/v1/${name}?select=*`,{headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`},cache:'no-store'});
-  if(!res.ok)throw new Error(`${name} ${res.status}: ${await res.text()}`);
-  return res.json();
+async function recoveryData(){
+  const res=await fetch('/api/dome/tetelestai-recovery-data',{cache:'no-store'});
+  if(!res.ok)throw new Error(`DOME recovery ${res.status}: ${await res.text()}`);
+  const payload=await res.json();
+  if(!payload.ok)throw new Error(payload.error||'DOME recovery data unavailable');
+  return payload;
 }
 function render(container,rows,kind){
   const numberKey=kind==='project'?'project_number':'task_number';
@@ -24,14 +24,15 @@ async function recover(){
   const stillLoading=/Loading/i.test(p.textContent)||/Loading/i.test(t.textContent);
   if(!stillLoading)return;
   try{
-    const [projects,tasks]=await Promise.all([table('projects'),table('tasks')]);
+    const payload=await recoveryData();
+    const projects=payload.projects||[],tasks=payload.tasks||[];
     render(p,projects,'project');render(t,tasks,'task');
     const pc=document.getElementById('projCount'),tc=document.getElementById('taskCount');if(pc)pc.textContent=`(${projects.length})`;if(tc)tc.textContent=`(${tasks.length})`;
-    const summary=document.getElementById('accountabilitySummary');if(summary)summary.innerHTML='<div class="identity-note">Recovery mode active — operational records loaded directly from Supabase while canonical client initialization is repaired.</div>';
+    const summary=document.getElementById('accountabilitySummary');if(summary)summary.innerHTML='<div class="identity-note">Recovery mode active — operational records loaded through DOME while canonical browser initialization is repaired.</div>';
     document.documentElement.dataset.tetelestaiRecovery='active';
     window.dispatchEvent(new CustomEvent('tetelestai:recovered',{detail:{projects:projects.length,tasks:tasks.length}}));
   }catch(error){
     const msg=`TETELESTAI load error: ${error.message}`;p.textContent=msg;t.textContent=msg;console.error(msg,error);
   }
 }
-setTimeout(recover,1800);
+setTimeout(recover,1200);

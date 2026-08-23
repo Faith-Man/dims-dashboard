@@ -1,6 +1,6 @@
 import shamarWorker from './shamar-worker.js';
 
-const DOME_DEPLOY_MARKER = '2026-08-23T03:20-05:00-tetelestai-diagnostics';
+const DOME_DEPLOY_MARKER = '2026-08-23T03:44-05:00-tetelestai-data-diagnostic';
 
 const LIVE_ASSET_ALIASES = new Map([
   ['/rac-epi-apn-guide.html', '/rad-guide-live-20260822.html'],
@@ -71,6 +71,41 @@ async function inspectAssets(request, env) {
   }, { headers: { 'Cache-Control': 'no-store' } });
 }
 
+async function inspectTetelestaiData(env) {
+  const base = env.SUPABASE_URL;
+  const key = env.SUPABASE_PUBLISHABLE_KEY;
+  const headers = {
+    apikey: key,
+    Authorization: `Bearer ${key}`,
+    Accept: 'application/json'
+  };
+  const checks = [];
+  for (const table of ['projects', 'tasks']) {
+    try {
+      const response = await fetch(`${base}/rest/v1/${table}?select=id&limit=1`, { headers });
+      const text = await response.text();
+      let payload = null;
+      try { payload = JSON.parse(text); } catch (_) { payload = text.slice(0, 300); }
+      checks.push({
+        table,
+        status: response.status,
+        ok: response.ok,
+        content_type: response.headers.get('content-type'),
+        payload
+      });
+    } catch (error) {
+      checks.push({ table, ok: false, error: String(error) });
+    }
+  }
+  return Response.json({
+    ok: checks.every(item => item.ok),
+    worker: 'dome-dashboard',
+    deploy_marker: DOME_DEPLOY_MARKER,
+    supabase_url: base,
+    checks
+  }, { headers: { 'Cache-Control': 'no-store' } });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -82,6 +117,7 @@ export default {
         asset_bypass: true,
         tetelestai_rac_restore: true,
         diagnostics: '/api/dome/assets',
+        data_diagnostics: '/api/dome/tetelestai-data',
         rad_guide: '/rac-epi-apn-guide.html',
         rad_asset: '/rad-guide-live-20260822.html',
         tetelestai: '/projects-tasks.html',
@@ -98,6 +134,10 @@ export default {
 
     if (url.pathname === '/api/dome/assets') {
       return inspectAssets(request, env);
+    }
+
+    if (url.pathname === '/api/dome/tetelestai-data') {
+      return inspectTetelestaiData(env);
     }
 
     const liveRequest = rewriteLiveAssetRequest(request, url);

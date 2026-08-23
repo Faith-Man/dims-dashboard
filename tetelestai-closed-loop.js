@@ -36,7 +36,7 @@ function ensureRacStyles() {
   const style = document.createElement('style');
   style.id = 'tetelestaiRacBriefStyles';
   style.textContent = `
-    .project-rac-cell{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}.project-rac-cell .title-stack{min-width:0;flex:1 1 170px}.rac-brief{position:relative;display:inline-block;flex:0 0 auto}.rac-brief summary{list-style:none;cursor:pointer;border:1px solid #d6b858;border-radius:999px;padding:3px 7px;background:#fff8db;color:#6a5000;font-weight:800;white-space:nowrap}.rac-brief summary::-webkit-details-marker{display:none}.rac-brief-panel{display:none;position:absolute;z-index:10020;right:0;top:calc(100% + 6px);width:min(280px,76vw);padding:10px;border:1px solid #d6b858;border-radius:9px;background:#fff;color:#14213d;box-shadow:0 12px 30px rgba(12,20,117,.2);font-size:.72rem;line-height:1.4}.rac-brief[open] .rac-brief-panel,.rac-brief:hover .rac-brief-panel,.rac-brief:focus-within .rac-brief-panel{display:block}.rac-brief-panel strong{display:block;color:#0c1475;margin-bottom:4px}.rac-guide-link{display:inline-block;margin-top:7px;color:#0c1475;font-weight:850;text-decoration:underline}.title-stack .next-preview{margin-top:3px}@media(max-width:900px){.project-rac-cell{display:block}.rac-brief{margin-top:6px}.rac-brief-panel{position:static;width:auto;margin-top:6px}}
+    .rac-brief{position:relative;display:inline-block;overflow:visible}.rac-brief summary{list-style:none;cursor:pointer;border:1px solid #d6b858;border-radius:999px;padding:3px 7px;background:#fff8db;color:#6a5000;font-weight:800;white-space:nowrap}.rac-brief summary::-webkit-details-marker{display:none}.rac-brief-panel{display:none;position:absolute;z-index:10020;left:0;top:100%;margin-top:0;width:min(280px,76vw);padding:10px;border:2px solid #0879ff;border-radius:11px;background:#fff;color:#14213d;box-shadow:0 14px 34px rgba(11,23,51,.26);font-size:.72rem;line-height:1.4;pointer-events:auto}.rac-brief[open] .rac-brief-panel,.rac-brief:hover .rac-brief-panel,.rac-brief:focus-within .rac-brief-panel{display:block}.rac-brief-panel strong{display:block;color:#0c1475;margin-bottom:4px}.rac-guide-link{display:inline-block;margin-top:7px;color:#0879ff;font-weight:900;text-decoration:underline}.title-stack .next-preview{margin-top:3px}@media(max-width:900px){.rac-brief-panel{position:static;width:auto;margin-top:6px}}
   `;
   document.head.appendChild(style);
 }
@@ -49,7 +49,7 @@ function racNotation(row) {
 }
 
 function racBrief(row) {
-  if (!row.system_rac) return '<span class="rac-na">RAC —</span>';
+  if (!row.system_rac) return '<span class="rac-na">—</span>';
   const notation = racNotation(row);
   const band = RAC_BAND[Number(row.system_rac)] || 'Assessed';
   return `<details class="rac-brief" onclick="event.stopPropagation()">
@@ -140,13 +140,14 @@ export function ranked(rows) {
 }
 
 function projectTaskCell(row) {
-  return `<div class="project-rac-cell"><div class="title-stack"><button class="title-button">${esc(row.title)}</button><span class="next-preview">${esc(row.next_action || 'No next action recorded')}</span></div>${racBrief(row)}</div>`;
+  return `<div class="title-stack"><button class="title-button">${esc(row.title)}</button><span class="next-preview">${esc(row.next_action || 'No next action recorded')}</span></div>`;
 }
 
 const columns = [
   { key: 'created_at', label: 'Date', value: r => r.created_at ? String(r.created_at).slice(0, 10) : '', display: r => fmt(r.created_at), render: r => fmt(r.created_at) },
   { key: 'number', label: 'Number', value: r => r.project_number || r.task_number || '—', render: r => `<span class="permanent-number">${esc(r.project_number || r.task_number || '—')}</span>` },
-  { key: 'title', label: 'Project / Task · RAC', value: r => `${r.title || ''} ${racNotation(r)}`, render: projectTaskCell },
+  { key: 'title', label: 'Project/Task', value: r => r.title || '', render: projectTaskCell },
+  { key: 'system_rac', label: 'RAC', value: r => Number(r.system_rac) || 0, display: r => racNotation(r), render: r => racBrief(r) },
   { key: 'priority', label: 'Priority', value: r => r.priority || 'medium', display: r => String(r.priority || 'medium').replaceAll('_', ' '), render: r => priorityBadge(r.priority) },
   { key: 'status', label: 'Status', value: r => displayStatus(r), display: r => displayStatus(r), render: r => statusBadge(r) },
   { key: 'action_owner', label: 'Owner', value: r => r.action_owner || '', display: r => OWNER[r.action_owner] || r.action_owner || '—', render: r => esc(OWNER[r.action_owner] || r.action_owner || '—') },

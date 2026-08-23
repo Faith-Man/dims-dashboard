@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { renderDeaRiskMatrix } from './dea-risk-matrix.js';
+import { renderDeaRiskMatrix, activateRacAssessment } from './dea-risk-matrix.js';
 import { DIMS_IMPACT, impactScore, deaPriorityDisclosure } from './dea-execution-priority.js';
 
 const sb = createClient(
@@ -37,10 +37,23 @@ function ensureUiStyles() {
   const style = document.createElement('style');
   style.id = 'tetelestaiAuthoritativeUiStyles';
   style.textContent = `
-    .rac-trigger{border:0;background:transparent;padding:2px 3px;color:#0c1475;font:inherit;font-weight:850;cursor:pointer;white-space:nowrap}.rac-trigger:hover,.rac-trigger:focus{outline:2px solid #1687ff;outline-offset:2px;border-radius:4px}.rac-na{color:#0c1475;font-weight:850}
-    .rac-hover-pop{position:fixed;z-index:14500;width:min(330px,calc(100vw - 24px));padding:12px 14px;border:2px solid #0879ff;border-radius:12px;background:#fff;color:#172033;box-shadow:0 14px 34px rgba(11,23,51,.26);pointer-events:auto;cursor:pointer}.rac-hover-pop::before{content:'';position:absolute;top:50%;left:-8px;width:14px;height:14px;background:#fff;border-left:2px solid #0879ff;border-bottom:2px solid #0879ff;transform:translateY(-50%) rotate(45deg)}.rac-hover-pop.flip::before{left:auto;right:-8px;border-left:0;border-bottom:0;border-right:2px solid #0879ff;border-top:2px solid #0879ff}.rac-hover-pop h3{margin:0 0 5px;color:#0c1475;font-size:.9rem}.rac-hover-pop .code{font-size:.95rem;font-weight:900;color:#0879ff;margin-bottom:5px}.rac-hover-pop p{margin:4px 0;font-size:.74rem;line-height:1.4}.rac-hover-pop .action{font-weight:900;color:#0879ff}
-    .rac-brief-box{border:2px solid #1687ff;border-radius:14px;background:linear-gradient(180deg,#fff,#f3f9ff);padding:16px;margin-bottom:16px}.rac-brief-box h3{margin:0 0 8px;color:#0c1475}.rac-brief-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.rac-brief-item{border:1px solid #bdd8fb;border-radius:9px;background:#fff;padding:10px}.rac-brief-item b{display:block;color:#0c1475;font-size:.72rem;text-transform:uppercase;margin-bottom:3px}.rac-full-guide-link{display:inline-block;margin-top:8px;border:1px solid #1687ff;border-radius:8px;padding:8px 12px;color:#0757c9;font-weight:900;text-decoration:none}.rac-full-guide-link:hover{background:#eef7ff}
-    .epi-priority{min-width:145px;max-width:220px;position:relative;padding:5px 1px 0}.epi-priority-track{height:24px;padding:3px;display:grid;grid-template-columns:repeat(5,1fr);gap:1px;position:relative;overflow:visible;border:2px solid #10234b;border-radius:999px;background:linear-gradient(180deg,#18396f 0%,#061734 48%,#12346b 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.48),inset 0 -3px 6px rgba(0,0,0,.5),0 3px 9px rgba(6,18,43,.3),0 0 8px rgba(28,109,255,.2)}.epi-priority-seg{height:18px;min-width:0;position:relative;opacity:.72;box-shadow:inset 0 3px 3px rgba(255,255,255,.48),inset 0 -3px 4px rgba(0,0,0,.2)}.epi-priority-seg:first-child{border-radius:999px 3px 3px 999px}.epi-priority-seg:last-of-type{border-radius:3px 999px 999px 3px}.epi-priority-seg[data-band="extreme"]{background:linear-gradient(180deg,#ff5560 0%,#f20d22 48%,#a80012 100%)}.epi-priority-seg[data-band="high"]{background:linear-gradient(180deg,#ffb347 0%,#ff7310 50%,#d34c00 100%)}.epi-priority-seg[data-band="serious"]{background:linear-gradient(180deg,#fff36d 0%,#f5c612 50%,#c99c00 100%)}.epi-priority-seg[data-band="medium"]{background:linear-gradient(180deg,#7cff99 0%,#20c655 50%,#087f31 100%)}.epi-priority-seg[data-band="low"]{background:linear-gradient(180deg,#6ac4ff 0%,#1979ff 50%,#1637cb 100%)}.epi-priority-marker{position:absolute;top:-9px;width:7px;height:35px;border-radius:999px;background:linear-gradient(90deg,#c9ebff,#fff 42%,#fff 58%,#c9ebff);border:1px solid #38a6ff;box-shadow:0 0 0 2px rgba(255,255,255,.92),0 0 10px 4px rgba(0,160,255,.95),0 0 22px 8px rgba(0,110,255,.42);transform:translateX(-50%);pointer-events:none}.epi-priority-label{display:block;margin-top:4px;text-align:center;font-size:.66rem;font-weight:950;letter-spacing:.055em;color:#0c1475;white-space:nowrap}.epi-priority[data-level="extreme"] .epi-priority-marker{left:10%}.epi-priority[data-level="high"] .epi-priority-marker{left:30%}.epi-priority[data-level="serious"] .epi-priority-marker{left:50%}.epi-priority[data-level="medium"] .epi-priority-marker{left:70%}.epi-priority[data-level="low"] .epi-priority-marker{left:90%}.epi-priority[data-level="extreme"] [data-band="extreme"],.epi-priority[data-level="high"] [data-band="high"],.epi-priority[data-level="serious"] [data-band="serious"],.epi-priority[data-level="medium"] [data-band="medium"],.epi-priority[data-level="low"] [data-band="low"]{opacity:1;filter:saturate(1.2) brightness(1.1);box-shadow:inset 0 3px 3px rgba(255,255,255,.6),inset 0 -3px 4px rgba(0,0,0,.16),0 0 12px rgba(255,255,255,.48)}
+    .rac-trigger{border:0;background:transparent;padding:2px 3px;color:#0c1475;font:inherit;font-weight:850;cursor:pointer;white-space:nowrap}
+    .rac-trigger:hover,.rac-trigger:focus{outline:2px solid #1687ff;outline-offset:2px;border-radius:4px}
+    .rac-hover-pop{position:fixed;z-index:14500;width:min(330px,calc(100vw - 24px));padding:12px 14px;border:2px solid #0879ff;border-radius:12px;background:#fff;color:#172033;box-shadow:0 14px 34px rgba(11,23,51,.26);pointer-events:auto;cursor:pointer}
+    .rac-hover-pop::before{content:'';position:absolute;top:50%;left:-8px;width:14px;height:14px;background:#fff;border-left:2px solid #0879ff;border-bottom:2px solid #0879ff;transform:translateY(-50%) rotate(45deg)}
+    .rac-hover-pop.flip::before{left:auto;right:-8px;border-left:0;border-bottom:0;border-right:2px solid #0879ff;border-top:2px solid #0879ff}
+    .rac-hover-pop h3{margin:0 0 5px;color:#0c1475;font-size:.9rem}.rac-hover-pop .code{font-size:.95rem;font-weight:900;color:#0879ff;margin-bottom:5px}.rac-hover-pop p{margin:4px 0;font-size:.74rem;line-height:1.4}.rac-hover-pop .action{font-weight:900;color:#0879ff}
+    .rac-brief-box{border:2px solid #1687ff;border-radius:14px;background:linear-gradient(180deg,#fff,#f3f9ff);padding:16px;margin-bottom:16px}.rac-brief-box h3{margin:0 0 8px;color:#0c1475}
+    .rac-brief-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.rac-brief-item{border:1px solid #bdd8fb;border-radius:9px;background:#fff;padding:10px}.rac-brief-item b{display:block;color:#0c1475;font-size:.72rem;text-transform:uppercase;margin-bottom:3px}
+    .rac-full-guide-link{display:inline-block;margin-top:8px;border:1px solid #1687ff;border-radius:8px;padding:8px 12px;color:#0757c9;font-weight:900;text-decoration:none}.rac-full-guide-link:hover{background:#eef7ff}
+    .rac-challenge-note{margin:10px 0 0;padding:10px;border-left:4px solid #1687ff;background:#eef7ff;color:#183158;font-size:.76rem}
+    .epi-priority{min-width:145px;max-width:220px;position:relative;padding:5px 1px 0}.epi-priority-track{height:24px;padding:3px;display:grid;grid-template-columns:repeat(5,1fr);gap:1px;position:relative;overflow:visible;border:2px solid #10234b;border-radius:999px;background:linear-gradient(180deg,#18396f 0%,#061734 48%,#12346b 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.48),inset 0 -3px 6px rgba(0,0,0,.5),0 3px 9px rgba(6,18,43,.3),0 0 8px rgba(28,109,255,.2)}
+    .epi-priority-seg{height:18px;min-width:0;position:relative;opacity:.72;box-shadow:inset 0 3px 3px rgba(255,255,255,.48),inset 0 -3px 4px rgba(0,0,0,.2)}
+    .epi-priority-seg:first-child{border-radius:999px 3px 3px 999px}.epi-priority-seg:last-of-type{border-radius:3px 999px 999px 3px}.epi-priority-seg[data-band="extreme"]{background:linear-gradient(180deg,#ff5560 0%,#f20d22 48%,#a80012 100%)}.epi-priority-seg[data-band="high"]{background:linear-gradient(180deg,#ffb347 0%,#ff7310 50%,#d34c00 100%)}.epi-priority-seg[data-band="serious"]{background:linear-gradient(180deg,#fff36d 0%,#f5c612 50%,#c99c00 100%)}.epi-priority-seg[data-band="medium"]{background:linear-gradient(180deg,#7cff99 0%,#20c655 50%,#087f31 100%)}.epi-priority-seg[data-band="low"]{background:linear-gradient(180deg,#6ac4ff 0%,#1979ff 50%,#1637cb 100%)}
+    .epi-priority-marker{position:absolute;top:-9px;width:7px;height:35px;border-radius:999px;background:linear-gradient(90deg,#c9ebff,#fff 42%,#fff 58%,#c9ebff);border:1px solid #38a6ff;box-shadow:0 0 0 2px rgba(255,255,255,.92),0 0 10px 4px rgba(0,160,255,.95),0 0 22px 8px rgba(0,110,255,.42);transform:translateX(-50%);pointer-events:none}
+    .epi-priority-label{display:block;margin-top:4px;text-align:center;font-size:.66rem;font-weight:950;letter-spacing:.055em;color:#0c1475;white-space:nowrap}
+    .epi-priority[data-level="extreme"] .epi-priority-marker{left:10%}.epi-priority[data-level="high"] .epi-priority-marker{left:30%}.epi-priority[data-level="serious"] .epi-priority-marker{left:50%}.epi-priority[data-level="medium"] .epi-priority-marker{left:70%}.epi-priority[data-level="low"] .epi-priority-marker{left:90%}
+    .epi-priority[data-level="extreme"] [data-band="extreme"],.epi-priority[data-level="high"] [data-band="high"],.epi-priority[data-level="serious"] [data-band="serious"],.epi-priority[data-level="medium"] [data-band="medium"],.epi-priority[data-level="low"] [data-band="low"]{opacity:1;filter:saturate(1.2) brightness(1.1);box-shadow:inset 0 3px 3px rgba(255,255,255,.6),inset 0 -3px 4px rgba(0,0,0,.16),0 0 12px rgba(255,255,255,.48)}
     @media(max-width:900px){.rac-hover-pop{display:none!important}.rac-brief-grid{grid-template-columns:1fr}.epi-priority{max-width:215px}}
   `;
   document.head.appendChild(style);
@@ -63,9 +76,7 @@ function displayStatus(row) {
 function statusBadge(row) {
   const label = displayStatus(row);
   const n = norm(label);
-  const color = n.includes('progress') || n === 'active' ? 'amber'
-    : n.includes('complete') || n.includes('verified') ? 'blue'
-      : n === 'blocked' || n === 'deferred' ? 'grey' : 'green';
+  const color = n.includes('progress') || n === 'active' ? 'amber' : n.includes('complete') || n.includes('verified') ? 'blue' : n === 'blocked' || n === 'deferred' ? 'grey' : 'green';
   return `<span class="badge badge-${color}">${esc(label)}</span>`;
 }
 
@@ -80,14 +91,11 @@ function priorityLevel(row) {
   if (rac >= 1 && rac <= 5) return ({1:'extreme',2:'high',3:'serious',4:'medium',5:'low'})[rac];
   return sourcePriorityLevel(row.priority);
 }
-function priorityLabel(level) {
-  return ({extreme:'EXTREMELY HIGH',high:'HIGH',serious:'SERIOUS',medium:'MEDIUM',low:'LOW'})[level] || 'MEDIUM';
-}
+function priorityLabel(level) { return ({extreme:'EXTREMELY HIGH',high:'HIGH',serious:'SERIOUS',medium:'MEDIUM',low:'LOW'})[level] || 'MEDIUM'; }
 function priorityInstrument(row) {
   const level = priorityLevel(row);
   return `<div class="epi-priority" data-level="${level}" role="img" aria-label="Priority ${priorityLabel(level)}"><div class="epi-priority-track"><span class="epi-priority-seg" data-band="extreme"></span><span class="epi-priority-seg" data-band="high"></span><span class="epi-priority-seg" data-band="serious"></span><span class="epi-priority-seg" data-band="medium"></span><span class="epi-priority-seg" data-band="low"></span><span class="epi-priority-marker" aria-hidden="true"></span></div><span class="epi-priority-label">${priorityLabel(level)}</span></div>`;
 }
-
 function progress(value) {
   const p = Math.max(0, Math.min(100, Number(value) || 0));
   return `<div class="progress-bar"><div class="progress-fill" style="width:${p}%"></div></div><span class="row-meta">${p}%</span>`;
@@ -100,6 +108,23 @@ async function control(action, kind, row, extra = {}) {
   if (error) throw error;
   if (data?.error) throw new Error(data.error);
   return data;
+}
+
+async function saveRac(kind, row, assessment) {
+  const rationale = prompt('Optional assessment rationale:') || null;
+  try {
+    await control('user_rac', kind, row, { severity: assessment.severity, probability: assessment.probability, rationale });
+    alert(`User RAC ${assessment.rac} saved. System RAC remains authoritative.`);
+  } catch (error) { alert(error.message); }
+}
+
+async function challengeRac(kind, row, assessment) {
+  const rationale = prompt(`Why should System RAC ${row.system_rac || 'Not assessed'} be reviewed against your RAC ${assessment.rac}?`);
+  if (!rationale) return;
+  try {
+    await control('challenge_rac', kind, row, { severity: assessment.severity, probability: assessment.probability, rationale });
+    alert('RAC challenge submitted for governed review. The System RAC has not changed.');
+  } catch (error) { alert(error.message); }
 }
 
 export function rankInfo(row) {
@@ -131,12 +156,8 @@ export function ranked(rows) {
   return [...active.map(item => item.row), ...excluded];
 }
 
-function projectTaskCell(row) {
-  return `<div class="title-stack"><button class="title-button">${esc(row.title)}</button><span class="next-preview">${esc(row.next_action || 'No next action recorded')}</span></div>`;
-}
-function racCell(row) {
-  return `<button class="rac-trigger" type="button" aria-label="Open RAC brief for ${esc(row.title)}">${esc(racNotation(row))}</button>`;
-}
+function projectTaskCell(row) { return `<div class="title-stack"><button class="title-button">${esc(row.title)}</button><span class="next-preview">${esc(row.next_action || 'No next action recorded')}</span></div>`; }
+function racCell(row) { return `<button class="rac-trigger" type="button" aria-label="Open RAC brief for ${esc(row.title)}">${esc(racNotation(row))}</button>`; }
 
 const columns = [
   { key: 'created_at', label: 'Date', value: r => r.created_at ? String(r.created_at).slice(0, 10) : '', display: r => fmt(r.created_at), render: r => fmt(r.created_at) },
@@ -188,10 +209,9 @@ function showRacHover(trigger, kind, row) {
   if (innerWidth <= 900) return;
   clearTimeout(racHoverHideTimer);
   const pop = ensureRacHover();
-  const notation = racNotation(row);
   pop.dataset.kind = kind;
   pop.dataset.id = row.id;
-  pop.innerHTML = `<h3>Risk Assessment Code (RAC)</h3><div class="code">${esc(notation)}</div><p>DIMS RAC combines Severity and Probability in the governed 5×5 risk model.</p><p class="action">Click to open the RAC Brief.</p>`;
+  pop.innerHTML = `<h3>Risk Assessment Code (RAC)</h3><div class="code">${esc(racNotation(row))}</div><p>DIMS RAC combines Severity and Probability in the governed RAD risk model.</p><p class="action">Click to open the RAC Brief.</p>`;
   pop.hidden = false;
   pop.classList.remove('flip');
   const rect = trigger.getBoundingClientRect();
@@ -199,9 +219,8 @@ function showRacHover(trigger, kind, row) {
   const height = pop.offsetHeight;
   let left = rect.right + 10;
   if (left + width > innerWidth - 10) { left = rect.left - width - 10; pop.classList.add('flip'); }
-  const top = Math.max(10, Math.min(rect.top + rect.height / 2 - height / 2, innerHeight - height - 10));
   pop.style.left = `${left}px`;
-  pop.style.top = `${top}px`;
+  pop.style.top = `${Math.max(10, Math.min(rect.top + rect.height / 2 - height / 2, innerHeight - height - 10))}px`;
 }
 function scheduleHideRacHover() { clearTimeout(racHoverHideTimer); racHoverHideTimer = setTimeout(hideRacHover, 180); }
 function hideRacHover() { clearTimeout(racHoverHideTimer); const pop = document.getElementById('racHoverPop'); if (pop) pop.hidden = true; }
@@ -300,8 +319,33 @@ function openRacBrief(kind,id,source){
   const notation=racNotation(row);const band=row.system_rac?(RAC_BAND[Number(row.system_rac)]||'Assessed'):'Not assessed';
   byId('drawerKind').textContent='RAC BRIEF';
   byId('drawerTitle').textContent=`${row.project_number||row.task_number||'—'} — ${row.title}`;
-  byId('drawerContent').innerHTML=`<section class="rac-brief-box"><h3>Risk Assessment Code (RAC)</h3><p>DIMS RAC combines Severity (consequence) and Probability (likelihood) in the governed 5×5 risk model. The System RAC remains authoritative.</p><div class="rac-brief-grid"><div class="rac-brief-item"><b>Current System RAC</b>${esc(notation)}</div><div class="rac-brief-item"><b>Risk Level</b>${esc(band)}</div><div class="rac-brief-item"><b>Severity</b>${esc(row.risk_severity||'Not assessed')}</div><div class="rac-brief-item"><b>Probability</b>${esc(row.risk_probability||'Not assessed')}</div></div><a class="rac-full-guide-link" href="rac-epi-apn-guide.html">OPEN FULL RAD GUIDE</a></section><section class="control-block"><div class="control-title">5×5 RAC REFERENCE</div>${renderDeaRiskMatrix(row.risk_severity||'',row.risk_probability||'')}</section>`;
-  byId('drawerBackdrop').classList.add('open');byId('drawerBackdrop').setAttribute('aria-hidden','false');document.body.style.overflow='hidden';setTimeout(()=>byId('drawerClose').focus(),0);
+  byId('drawerContent').innerHTML=`
+    <section class="rac-brief-box">
+      <h3>Risk Assessment Code (RAC)</h3>
+      <p>DIMS RAC combines Severity (consequence) and Probability (likelihood) inside the governed Risk Assessment Dome (RAD). The System RAC remains authoritative unless changed through governed review.</p>
+      <div class="rac-brief-grid">
+        <div class="rac-brief-item"><b>Current System RAC</b>${esc(notation)}</div>
+        <div class="rac-brief-item"><b>Risk Level</b>${esc(band)}</div>
+        <div class="rac-brief-item"><b>Severity</b>${esc(row.risk_severity||'Not assessed')}</div>
+        <div class="rac-brief-item"><b>Probability</b>${esc(row.risk_probability||'Not assessed')}</div>
+      </div>
+      <p class="rac-challenge-note"><strong>Experiment before challenging:</strong> choose a Severity and Probability below. RAD will calculate your user RAC. You may save the assessment or challenge the System RAC for governed review.</p>
+      <a class="rac-full-guide-link" href="rac-epi-apn-guide.html">OPEN FULL RAD GUIDE</a>
+    </section>
+    <section class="control-block">
+      <div class="control-title">FUNCTIONAL RISK ASSESSMENT DOME (RAD™)</div>
+      ${renderDeaRiskMatrix(row.risk_severity||'',row.risk_probability||'')}
+    </section>`;
+
+  activateRacAssessment(byId('drawerContent'), {
+    onSave: assessment => saveRac(kind,row,assessment),
+    onChallenge: assessment => challengeRac(kind,row,assessment)
+  });
+
+  byId('drawerBackdrop').classList.add('open');
+  byId('drawerBackdrop').setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>byId('drawerClose').focus(),0);
 }
 
 async function openDrawer(kind,id,source){
@@ -317,7 +361,9 @@ async function openDrawer(kind,id,source){
 }
 
 function closeDrawer(){byId('drawerBackdrop').classList.remove('open');byId('drawerBackdrop').setAttribute('aria-hidden','true');document.body.style.overflow='';lastFocus?.focus();}
-byId('drawerClose').onclick=closeDrawer;byId('drawerBackdrop').onclick=event=>{if(event.target===byId('drawerBackdrop'))closeDrawer();};document.addEventListener('keydown',event=>{if(event.key==='Escape'&&byId('drawerBackdrop').classList.contains('open'))closeDrawer();});
+byId('drawerClose').onclick=closeDrawer;
+byId('drawerBackdrop').onclick=event=>{if(event.target===byId('drawerBackdrop'))closeDrawer();};
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&byId('drawerBackdrop').classList.contains('open'))closeDrawer();});
 document.addEventListener('click',event=>{if(!event.target.closest('.dims-grid-menu')&&!event.target.closest('.dims-grid-header')){projectGrid?.closeMenu();taskGrid?.closeMenu();}});
 window.addEventListener('scroll',hideRacHover,true);window.addEventListener('resize',hideRacHover);
 

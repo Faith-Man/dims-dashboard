@@ -1,0 +1,1 @@
+Prepared for canonical restore commit. The restore uses the known-good TETELESTAI page blob from a349f15 and the clean DOME worker without TETELESTAI asset aliases or recovery-script injection.

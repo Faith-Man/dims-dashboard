@@ -31,10 +31,35 @@ const norm = value => String(value || '').trim().toLowerCase().replaceAll(' ', '
 const fmt = value => value ? new Date(`${String(value).slice(0, 10)}T12:00:00`).toLocaleDateString() : '—';
 const ageDays = value => value ? Math.floor((Date.now() - new Date(value).getTime()) / 86400000) : 0;
 
+function ensureRacStyles() {
+  if (document.getElementById('tetelestaiRacBriefStyles')) return;
+  const style = document.createElement('style');
+  style.id = 'tetelestaiRacBriefStyles';
+  style.textContent = `
+    .project-rac-cell{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}.project-rac-cell .title-stack{min-width:0;flex:1 1 170px}.rac-brief{position:relative;display:inline-block;flex:0 0 auto}.rac-brief summary{list-style:none;cursor:pointer;border:1px solid #d6b858;border-radius:999px;padding:3px 7px;background:#fff8db;color:#6a5000;font-weight:800;white-space:nowrap}.rac-brief summary::-webkit-details-marker{display:none}.rac-brief-panel{display:none;position:absolute;z-index:10020;right:0;top:calc(100% + 6px);width:min(280px,76vw);padding:10px;border:1px solid #d6b858;border-radius:9px;background:#fff;color:#14213d;box-shadow:0 12px 30px rgba(12,20,117,.2);font-size:.72rem;line-height:1.4}.rac-brief[open] .rac-brief-panel,.rac-brief:hover .rac-brief-panel,.rac-brief:focus-within .rac-brief-panel{display:block}.rac-brief-panel strong{display:block;color:#0c1475;margin-bottom:4px}.rac-guide-link{display:inline-block;margin-top:7px;color:#0c1475;font-weight:850;text-decoration:underline}.title-stack .next-preview{margin-top:3px}@media(max-width:900px){.project-rac-cell{display:block}.rac-brief{margin-top:6px}.rac-brief-panel{position:static;width:auto;margin-top:6px}}
+  `;
+  document.head.appendChild(style);
+}
+ensureRacStyles();
+
 function racNotation(row) {
   if (!row.system_rac) return '—';
-  if (row.risk_severity && row.risk_probability) return `${row.system_rac} (${row.risk_severity}, ${row.risk_probability})`;
+  if (row.risk_severity && row.risk_probability) return `${row.system_rac} ${row.risk_severity}, ${row.risk_probability}`;
   return String(row.system_rac);
+}
+
+function racBrief(row) {
+  if (!row.system_rac) return '<span class="rac-na">RAC —</span>';
+  const notation = racNotation(row);
+  const band = RAC_BAND[Number(row.system_rac)] || 'Assessed';
+  return `<details class="rac-brief" onclick="event.stopPropagation()">
+    <summary aria-label="RAC ${esc(notation)}. Open brief">${esc(notation)}</summary>
+    <div class="rac-brief-panel" role="note">
+      <strong>RAC ${esc(notation)} — ${esc(band)}</strong>
+      <div>Risk Assessment Dome: Severity ${esc(row.risk_severity || '—')} × Probability ${esc(row.risk_probability || '—')}.</div>
+      <a class="rac-guide-link" href="rac-epi-apn-guide.html" onclick="event.stopPropagation()">OPEN FULL RAD GUIDE</a>
+    </div>
+  </details>`;
 }
 
 function displayStatus(row) {
@@ -114,16 +139,18 @@ export function ranked(rows) {
   return [...active.map(item => item.row), ...excluded];
 }
 
+function projectTaskCell(row) {
+  return `<div class="project-rac-cell"><div class="title-stack"><button class="title-button">${esc(row.title)}</button><span class="next-preview">${esc(row.next_action || 'No next action recorded')}</span></div>${racBrief(row)}</div>`;
+}
+
 const columns = [
-  { key: '_rank', label: 'Rank', value: r => r._rank, render: r => `<span class="rank">${esc(r._rank)}</span><span class="rank-reason">${esc(rankInfo(r).reason)}</span>` },
+  { key: 'created_at', label: 'Date', value: r => r.created_at ? String(r.created_at).slice(0, 10) : '', display: r => fmt(r.created_at), render: r => fmt(r.created_at) },
   { key: 'number', label: 'Number', value: r => r.project_number || r.task_number || '—', render: r => `<span class="permanent-number">${esc(r.project_number || r.task_number || '—')}</span>` },
-  { key: 'title', label: 'Project/Task', value: r => r.title || '', render: r => `<button class="title-button">${esc(r.title)}</button><span class="next-preview">${esc(r.next_action || 'No next action recorded')}</span>` },
-  { key: 'system_rac', label: 'RAC', value: r => Number(r.system_rac) || 0, display: r => racNotation(r), render: r => r.system_rac ? `<span class="rac-main">${esc(racNotation(r))}<small>${esc(RAC_BAND[Number(r.system_rac)] || '')}</small></span>` : '<span class="rac-na">—</span>' },
-  { key: 'created_at', label: 'Date Entered', value: r => r.created_at ? String(r.created_at).slice(0, 10) : '', display: r => fmt(r.created_at), render: r => fmt(r.created_at) },
-  { key: 'status', label: 'Status', value: r => displayStatus(r), display: r => displayStatus(r), render: r => statusBadge(r) },
+  { key: 'title', label: 'Project / Task · RAC', value: r => `${r.title || ''} ${racNotation(r)}`, render: projectTaskCell },
   { key: 'priority', label: 'Priority', value: r => r.priority || 'medium', display: r => String(r.priority || 'medium').replaceAll('_', ' '), render: r => priorityBadge(r.priority) },
+  { key: 'status', label: 'Status', value: r => displayStatus(r), display: r => displayStatus(r), render: r => statusBadge(r) },
   { key: 'action_owner', label: 'Owner', value: r => r.action_owner || '', display: r => OWNER[r.action_owner] || r.action_owner || '—', render: r => esc(OWNER[r.action_owner] || r.action_owner || '—') },
-  { key: 'next_follow_up_date', label: 'Next/Due', value: r => r.next_follow_up_date || r.target_date || '', display: r => fmt(r.next_follow_up_date || r.target_date), render: r => `${fmt(r.next_follow_up_date || r.target_date)}<span class="rank-reason">${r.next_follow_up_date ? 'Follow-up' : 'Target'}</span>` },
+  { key: 'next_follow_up_date', label: 'Follow-Up', value: r => r.next_follow_up_date || '', display: r => fmt(r.next_follow_up_date), render: r => fmt(r.next_follow_up_date) },
   { key: 'percent_complete', label: 'Progress', value: r => Number(r.percent_complete) || 0, display: r => `${Number(r.percent_complete) || 0}%`, render: r => progress(r.percent_complete) },
   { key: 'view', label: 'View', filterable: false, sortable: false, render: r => `<button class="view-button" aria-label="View ${esc(r.title)}">View</button>` }
 ];
@@ -228,7 +255,7 @@ class CompactGrid {
         radio.checked = String(this.filters[column.key] ?? '') === value;
         radio.onchange = () => { this.filters[column.key] = value; this.closeMenu(); this.render(); };
         const span = document.createElement('span');
-        span.textContent = column.key === 'system_rac' ? (value === '0' ? 'Not assessed' : `RAC ${value}`) : text;
+        span.textContent = text;
         option.append(radio, span);
         menu.appendChild(option);
       });
@@ -269,8 +296,14 @@ class CompactGrid {
     data.forEach(row => {
       const tr = document.createElement('tr');
       tr.tabIndex = 0;
-      tr.onclick = e => openDrawer(this.kind, row.id, e.target);
-      tr.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDrawer(this.kind, row.id, tr); } };
+      tr.onclick = e => {
+        if (e.target.closest('.rac-brief,.rac-guide-link')) return;
+        openDrawer(this.kind, row.id, e.target);
+      };
+      tr.onkeydown = e => {
+        if (e.target.closest('.rac-brief,.rac-guide-link')) return;
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDrawer(this.kind, row.id, tr); }
+      };
       columns.forEach(column => {
         const td = document.createElement('td');
         td.dataset.label = column.label;
@@ -437,24 +470,34 @@ document.addEventListener('click', event => {
   }
 });
 
+function renderLoadFailure(error) {
+  clearTimeout(window.__tetelestaiInitTimer);
+  const detail = esc(error?.message || String(error || 'Unknown initialization failure'));
+  byId('projectsList').classList.remove('loading');
+  byId('tasksList').classList.remove('loading');
+  byId('projectsList').innerHTML = `Unable to load Projects: ${detail}`;
+  byId('tasksList').innerHTML = `Unable to load Tasks: ${detail}`;
+  byId('accountabilitySummary').innerHTML = `<div class="loading">Unable to load accountability: ${detail}</div>`;
+}
+
 async function load() {
-  const [{ data: p, error: pe }, { data: t, error: te }] = await Promise.all([
-    sb.from('projects').select('*'),
-    sb.from('tasks').select('*')
-  ]);
-  if (pe || te) {
-    const message = esc(pe?.message || te?.message);
-    byId('projectsList').innerHTML = message;
-    byId('tasksList').innerHTML = message;
-    return;
+  try {
+    const [{ data: p, error: pe }, { data: t, error: te }] = await Promise.all([
+      sb.from('projects').select('*'),
+      sb.from('tasks').select('*')
+    ]);
+    if (pe || te) throw pe || te;
+    projects = ranked(p || []);
+    tasks = ranked(t || []);
+    byId('projCount').textContent = `(${projects.length})`;
+    byId('taskCount').textContent = `(${tasks.length})`;
+    projectGrid = new CompactGrid({ container: '#projectsList', search: '#projectSearch', rows: projects, kind: 'project' });
+    taskGrid = new CompactGrid({ container: '#tasksList', search: '#taskSearch', rows: tasks, kind: 'task' });
+    renderSummary();
+    clearTimeout(window.__tetelestaiInitTimer);
+  } catch (error) {
+    renderLoadFailure(error);
   }
-  projects = ranked(p || []);
-  tasks = ranked(t || []);
-  byId('projCount').textContent = `(${projects.length})`;
-  byId('taskCount').textContent = `(${tasks.length})`;
-  projectGrid = new CompactGrid({ container: '#projectsList', search: '#projectSearch', rows: projects, kind: 'project' });
-  taskGrid = new CompactGrid({ container: '#tasksList', search: '#taskSearch', rows: tasks, kind: 'task' });
-  renderSummary();
 }
 
 window.saveProject = async () => {

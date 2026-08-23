@@ -1,6 +1,6 @@
 import shamarWorker from './shamar-worker.js';
 
-const DOME_DEPLOY_MARKER = '2026-08-22T22:23-05:00-rad-tetelestai-asset-bypass';
+const DOME_DEPLOY_MARKER = '2026-08-23T00:37-05:00-tetelestai-rac-restore';
 
 const LIVE_ASSET_ALIASES = new Map([
   ['/rac-epi-apn-guide.html', '/rad-guide-live-20260822.html'],
@@ -41,6 +41,7 @@ export default {
         worker: 'dome-dashboard',
         deploy_marker: DOME_DEPLOY_MARKER,
         asset_bypass: true,
+        tetelestai_rac_restore: true,
         rad_guide: '/rac-epi-apn-guide.html',
         rad_asset: '/rad-guide-live-20260822.html',
         tetelestai: '/projects-tasks.html',

@@ -1,0 +1,1 @@
+Recovery checkpoint: restore the canonical TETELESTAI page from commit a349f15 and remove production asset aliases/recovery injection. This note documents the recovery operation and can be removed after verification.

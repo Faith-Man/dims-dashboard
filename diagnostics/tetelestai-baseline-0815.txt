@@ -1,0 +1,4 @@
+TETELESTAI isolated diagnostic baseline
+Baseline commit: b8186ffdc24fec4f6b20a69a8d644c63404b8642
+Purpose: verify Aug. 15 known-good TETELESTAI initialization in an isolated deploy preview.
+Do not merge.

@@ -1,7 +1,6 @@
 # DOME Minimum Essential Route & Production Boundary Audit
 
 **Date:** 2026-08-25  
-**Updated:** 2026-08-26  
 **Status:** Controlled audit / implementation gate  
 **Governing authority:** `DIMS-ART-0002 v2.0 — Eight-Module Authority Note`
 
@@ -35,65 +34,103 @@ Dominion1st Intelligence™ is the persistent cross-module intelligence layer an
 
 The original audit found that `src/shamar-worker.js` carried a stale `DI_MODULES` manifest containing EKPOREUMA™ and RHEŌ™ while omitting NESHAMAH™ and OIKONOMOS™.
 
-**Controlled correction status:** Draft PR #60 (`fix/di-eight-module-manifest`) contains a clean isolated correction replacing only EKPOREUMA™ with NESHAMAH™ and RHEŌ™ with OIKONOMOS™. TETELESTAI remains the only certified-live DI adapter. No route, redirect, Supabase, authentication, SHAMAR ingestion, or TETELESTAI UI behavior is included in that correction.
+**Controlled correction status:** Draft PR #60 (`fix/di-eight-module-manifest`) now contains a clean isolated diff that replaces only EKPOREUMA™ with NESHAMAH™ and RHEŌ™ with OIKONOMOS™. TETELESTAI remains the only certified-live DI adapter. No route, redirect, Supabase, authentication, SHAMAR ingestion, or TETELESTAI UI behavior is included in that correction.
 
-## DOME Home hotspot audit
+## DOME Home hotspot audit — CERTIFIED
 
-### Current certification result
+### Structural finding
 
-`index.html` is confirmed as the current DOME Home / Living Globe production front door. The current `main:index.html` is stored in a minified/single-line form that does not provide a reliable auditable per-module route map through the current source inspection path. The audit therefore does **not** infer or guess individual Home hotspot destinations.
+`main:index.html` is the current DOME Home / Living Globe front door. The visible Home interface is not ordinary semantic HTML navigation: it is a base64-embedded JPEG with absolutely positioned invisible anchor overlays. The visible labels are baked into the image while the actual destinations live in hidden hotspot rectangles.
 
-> A visible orbit/module label is not proof of its click destination. No Home route is changed until the actual click target is certified and compared with the eight-module authority.
+Therefore:
 
-### PR #9 correction — not a Home code conflict
+> **Do not change a Home `href` independently of the visible Home artwork/layout.** Doing so can make a visible label open a different destination than the user sees.
 
-A direct changed-file audit of draft PR #9 confirmed that it changes:
+A safe authority-aligned Home correction requires coordinated replacement of the visible image/layout and its hotspot map, or conversion to a semantic HTML/CSS interface.
 
-- `README.md`
-- `docs/deployment/CLOUDFLARE-CLEAN-PREVIEW-RUNBOOK.md`
-- `docs/implementation/CODEX-CLOUDFLARE-PREVIEW-HANDOFF-2026-08-13.md`
-- `system-health.html`
+### Current hotspot map
 
-It does **not** modify `index.html`.
+The current Home contains **19 clickable hotspots**.
 
-Therefore the prior classification that PR #9 directly blocks `index.html` work was too broad and is superseded by this correction.
+| # | Visible/hidden hotspot label | Current destination | Classification | Disposition |
+|---:|---|---|---|---|
+| 1 | Mission Control | `mission-control.html` | Administrative / continuity | MOVE UNDERNEATH |
+| 2 | KUBERNĒSIS™ | `dims-blueprint.html` | Governance / architecture | MOVE UNDERNEATH |
+| 3 | Enterprise Forms | `enterprise-forms.html` | Administrative / asset registry | MOVE UNDERNEATH |
+| 4 | Institutional Queue | `institutional-queue.html` | Administrative / back-office | MOVE UNDERNEATH |
+| 5 | TETELESTAI™ | `projects-tasks.html` | Current operational module | KEEP — canonical route certified |
+| 6 | Intelligence Center | `peace-safety-intelligence.html` | SHAMAR™ operational module under generic label | KEEP FUNCTION; RELABEL AS SHAMAR™ in future Home |
+| 7 | OrEl™ Studio | `orel-studio.html` | Current operational module | KEEP pending PR #7 route reconciliation |
+| 8 | Thesaurus Vault | `glossary/` | Governance knowledge / terminology | MOVE UNDERNEATH / contextualize |
+| 9 | Executive Dashboard | `executive-dashboard.html` | User summary / duplicate executive front door | FOLD INTO HOME |
+| 10 | Settings | `system-status.html` | Administrative / system status | MOVE UNDERNEATH |
+| 11 | Mission Control | `mission-control.html` | Administrative / continuity | MOVE UNDERNEATH |
+| 12 | KUBERNĒSIS™ | `dims-blueprint.html` | Governance / architecture | MOVE UNDERNEATH |
+| 13 | Enterprise Forms | `enterprise-forms.html` | Administrative / asset registry | MOVE UNDERNEATH |
+| 14 | Institutional Queue | `institutional-queue.html` | Administrative / back-office | MOVE UNDERNEATH |
+| 15 | TETELESTAI™ | `projects-tasks.html` | Current operational module | KEEP — duplicate Home entry should be simplified |
+| 16 | Executive Dashboard | `executive-dashboard.html` | User summary / duplicate executive front door | FOLD INTO HOME |
+| 17 | Command Alerts | `command-alerts.html` | Background output / alert detail | CONTEXTUALIZE; do not keep as first-class Home peer |
+| 18 | Intelligence Briefing | `peace-safety-intelligence.html` | SHAMAR™ route under misleading briefing label | RELABEL / separate from GEGRAPTAI™ briefing identity |
+| 19 | Latest Snapshot | `executive-dashboard.html` | Summary/snapshot output | FOLD INTO HOME; label does not map to a dedicated snapshot route |
 
-PR #9 is an **operator/system-health orbital visualization**, not the DOME Home implementation. Its useful search/filter/drawer/orbit work should be preserved, but `system-health.html` remains beneath the everyday user boundary unless a separate architecture decision deliberately promotes selected visual patterns into Home.
+### Authority coverage result
 
-### PR #9 merge gates
+Current Home first-class coverage of the eight operational modules is incomplete:
 
-PR #9 is not merge-ready in its current state. Required gates:
+- **TETELESTAI™** — represented and route-certified.
+- **OrEl™** — represented; final canonical route still depends on PR #7 reconciliation.
+- **SHAMAR™** — function is represented, but under generic/misaligned labels (`Intelligence Center`, `Intelligence Briefing`).
+- **GEGRAPTAI™** — not represented as an authority-aligned first-class Home module.
+- **NESHAMAH™** — not represented.
+- **YARATHĒKĒ™** — not represented as a first-class Home hotspot in `main:index.html`.
+- **OIKONOMOS™** — not represented and does not yet have an approved minimum-essential user surface.
+- **EKKLĒSIA™** — not represented and does not yet have an approved minimum-essential user surface.
 
-1. Rebase/reconcile with current `main`; GitHub currently reports `mergeable: false`.
-2. Reframe `DOME System Command Center` so the operator diagnostic route does not look like the everyday DOME front door.
-3. Keep the 26 orbit items explicitly classified as diagnostics/navigation/recovery items, not as the eight governing operational modules.
-4. Preserve `/projects-tasks.html` as canonical TETELESTAI.
-5. Keep OrEl/YARATHĒKĒ route choices compatible with PR #7.
-6. Replace the external NASA Earth dependency with a reliable local/repository asset before release.
-7. Correct responsive clipping: the current CSS expands the outer orbit beyond the viewport at mobile breakpoints (`118%` at <=900px; `140%` at <=520px).
-8. Verify the <=520px toolbar/control grid for readable, tappable controls without overflow.
-9. Complete desktop/mobile Cloudflare preview verification and preserve the YARATHĒKĒ Reader regression gate.
-10. Keep technical system health distinct from SHAMAR™ Peace & Safety Intelligence.
+DI is correctly treated as a cross-module layer and should not be added as a ninth module merely to fill the Home.
 
-### Home hotspot control matrix
+### Duplicate / stale exposure
 
-| Module / Layer | Current surface evidence | Authoritative target state | Home hotspot certification | Dependency / blocker | Required action |
-|---|---|---|---|---|---|
-| GEGRAPTAI™ | `intelligence-briefing.html` provides briefing/history behavior | One authority-aligned GEGRAPTAI user destination preserving current briefing behavior | NOT YET CERTIFIED | Content/domain verification | Verify actual Home click target; then align naming/route without losing briefing behavior |
-| NESHAMAH™ | `neshamah.html` exists | `/neshamah.html` unless a later approved route replaces it | NOT YET CERTIFIED | Old EKPOREUMA lineage may still appear in historical UI | Verify click target; do not reintroduce EKPOREUMA™ |
-| TETELESTAI™ | Worker and runtime identify `/projects-tasks.html` | `/projects-tasks.html` | CANONICAL DESTINATION CERTIFIED; HOME CLICK NOT YET CERTIFIED | Active TETELESTAI diagnostic/recovery work | Protect canonical route; verify Home hotspot only |
-| OrEl™ | Current OrEl surfaces plus reconciliation work | One canonical OrEl authoring experience | NOT YET CERTIFIED | PR #7 | Do not lock Home route until PR #7 route reconciliation is resolved |
-| YARATHĒKĒ™ | Current Library/Reader surfaces plus reconciliation work | One canonical Library/Reader experience | NOT YET CERTIFIED | PR #7 Reader regression gate | Verify Home click only after canonical Reader route is settled |
-| SHAMAR™ | `peace-safety-intelligence.html` plus Worker ingestion pipeline | `/peace-safety-intelligence.html` unless later authority changes it | NOT YET CERTIFIED | Ingestion behavior must remain isolated | Verify click target without coupling Home work to SHAMAR ingestion |
-| OIKONOMOS™ | No dedicated canonical operational page located | Minimum-essential stewardship surface after scope-control approval | NO CURRENT DESTINATION TO CERTIFY | Minimum-surface design not approved | Do not invent a placeholder destination for visual symmetry |
-| EKKLĒSIA™ | No dedicated canonical operational page located | Minimum-essential relationship/discipleship surface after scope-control approval | NO CURRENT DESTINATION TO CERTIFY | Minimum-surface design not approved | Do not build or link a generic church-CRM placeholder |
-| Dominion1st Intelligence™ | DI companion assets and Worker endpoints | Persistent layer across authorized DOME surfaces | NOT A MODULE HOTSPOT | PR #60 manifest correction | Preserve persistent access; do not make DI a ninth module |
+The current Home duplicates several non-module destinations:
+
+- Mission Control appears twice.
+- KUBERNĒSIS™ appears twice.
+- Enterprise Forms appears twice.
+- Institutional Queue appears twice.
+- TETELESTAI™ appears twice.
+- Executive Dashboard effectively appears three times (`Executive Dashboard` twice plus `Latest Snapshot` to the same route).
+- SHAMAR™ route appears twice under two generic labels.
+
+This confirms that the current Home is a construction-era command/navigation image rather than a minimum-essential everyday-user Home.
+
+### PR #9 correction
+
+PR #9 does **not** modify `index.html`. Its orbital implementation is in `system-health.html`. It should therefore be treated as an operator/system-health visualization and not as a direct blocker to auditing or replacing the current Home.
+
+The visual/orbital interaction patterns in PR #9 may be reused later if intentionally selected for the everyday Home, but its 26 tracked diagnostic/recovery/navigation items are not the governing eight-module architecture.
+
+### Smallest safe Home correction set
+
+Do **not** perform piecemeal `href` replacements on the current JPEG-overlay Home.
+
+The smallest safe correction package is:
+
+1. preserve `main:index.html` unchanged as the current production front door until replacement preview is verified;
+2. build one authority-aligned replacement Home in a controlled branch/preview using the eight-module model;
+3. include only current operational destinations as first-class module controls;
+4. place administrative/governance/system destinations in one secondary Administration/System area rather than as peers;
+5. preserve useful executive KPIs, alerts, and latest-status summaries on Home as information, not duplicate destination tiles;
+6. keep TETELESTAI™ wired to `/projects-tasks.html`;
+7. use the PR #7 reconciled routes for OrEl™ and YARATHĒKĒ™;
+8. preserve SHAMAR™ as SHAMAR™, not generic “Intelligence Briefing”; reserve GEGRAPTAI™ identity for the briefing function after its route/content reconciliation;
+9. do not fabricate broad OIKONOMOS™ or EKKLĒSIA™ applications merely to complete the visual grid; define their minimum surfaces first;
+10. verify desktop/mobile labels, click/tap targets, back navigation, DI persistence, and current-session behavior in Cloudflare preview before production promotion.
 
 ## Production boundary classifications
 
 ### Keep in the production user boundary
 
-- `index.html` — DOME Home / Living Globe front door
+- `index.html` — current DOME Home / Living Globe front door until controlled replacement passes preview
 - `projects-tasks.html` — canonical TETELESTAI
 - `neshamah.html` — NESHAMAH
 - `peace-safety-intelligence.html` — SHAMAR
@@ -107,11 +144,13 @@ PR #9 is not merge-ready in its current state. Required gates:
 
 - `admin.html` — role-gated authentication/account security/administration
 - `mission-control.html` — continuity functions; target ANCHOR™
-- `dims-blueprint.html` — architecture reference; target THEMELIOS™
-- `system-health.html` — operator diagnostics; PR #9 belongs here
+- `dims-blueprint.html` — architecture reference; target THEMELIOS™ / governance reference
+- `system-health.html` — operator diagnostics; PR #9 may enhance this surface without making it Home
+- `system-status.html` — system/settings administration
 - `enterprise-forms.html` — asset registry administration
 - `institutional-queue.html` — back-office DIMS Operations
 - `vault-architecture.html` — preservation architecture reference
+- `glossary/` — terminology/governance knowledge management; surface definitions contextually to users
 - `rac-epi-apn-guide.html` — contextual DEA/RAC help, not a primary destination
 - `command-alerts.html` — retain detail/history but surface actionable alerts contextually
 
@@ -148,22 +187,22 @@ This is not yet a complete canonical-route redirect matrix. Do not add broad red
 ## Implementation order
 
 1. Review and, after normal verification, merge the isolated PR #60 runtime DI module-manifest correction.
-2. Continue independent DOME Home hotspot certification against the eight-module authority; PR #9 is no longer considered a direct `index.html` blocker.
-3. Reconcile PR #9 as an operator/system-health implementation: current-main compatibility, diagnostic identity, local Earth asset, responsive geometry, and desktop/mobile verification.
-4. Preserve TETELESTAI canonical route and de-route alternate live-looking variants after dependency verification.
-5. Reconcile open OrEl/YARATHĒKĒ work through PR #7 rather than starting duplicate pages.
-6. Move admin/build/reference surfaces beneath the everyday layer without removing authorized access.
-7. Fold executive KPI summaries into DOME Home after preserving data behavior.
-8. Define minimum-essential OIKONOMOS and EKKLĒSIA user surfaces only after scope-control review.
+2. Treat this certified 19-hotspot map as the current Home baseline.
+3. Reconcile PR #7 to lock the canonical OrEl™ and YARATHĒKĒ™ destinations.
+4. Define minimum-essential OIKONOMOS™ and EKKLĒSIA™ surfaces before attempting a complete eight-module Home replacement.
+5. Build a controlled replacement DOME Home rather than modifying the current JPEG hotspot map piecemeal.
+6. Preserve TETELESTAI canonical route and de-route alternate live-looking variants after dependency verification.
+7. Move admin/build/reference surfaces beneath the everyday layer without removing authorized access.
+8. Fold executive KPI/alert/latest-status summaries into the replacement Home as contextual information.
 9. Build a verified redirect matrix and regression-test desktop/mobile navigation before any legacy route removal.
 
 ## Non-negotiable safeguards
 
 - No destructive cleanup before route/reference verification.
 - No newest-file-wins decisions.
-- Do not disturb canonical TETELESTAI recovery or active TETELESTAI work.
+- Do not disturb the canonical TETELESTAI recovery or active TETELESTAI PR work.
 - Do not reintroduce EKPOREUMA™ or RHEŌ™ as active operational modules without a new owner-approved architecture amendment.
-- Do not turn internal engines, diagnostic checks, recovery items, registers, or tables into operational modules merely because they exist.
-- Do not guess a Home hotspot route from a visible label or historical file name.
-- PR #9 diagnostic orbit items must not be confused with the eight-module governing roster.
+- Do not turn internal engines, registers, or tables into primary navigation simply because they exist.
+- Do not change a hidden Home hotspot destination independently of the visible image label/layout.
+- Do not present PR #9's diagnostic orbit as the eight-module architecture.
 - The sophistication of DIMS must not become the complexity of DOME.

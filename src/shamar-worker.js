@@ -10,12 +10,12 @@ const MAX_ITEMS_PER_SOURCE = 10;
 const DI_MAX_QUESTION = 1200;
 const DI_MODULES = [
   ['GEGRAPTAI™','Daily Kingdom Briefing','interface-only'],
-  ['EKPOREUMA™','Prophetic Insight and Revelation','interface-only'],
+  ['NESHAMAH™','Dynamic Daily Prophetic Word / Inspiration','interface-only'],
   ['TETELESTAI™','Projects, Tasks, and Mission Execution','certified-live'],
   ['OrEl™','Content Creation Studio','interface-only'],
   ['YARATHĒKĒ™','Wells of Knowledge','interface-only'],
   ['SHAMAR™','Watch, Guard, and Peace & Safety Intelligence','interface-only'],
-  ['RHEŌ™','Kingdom Flow and Distribution','interface-only'],
+  ['OIKONOMOS™','Stewardship and Administration of Entrusted Resources','interface-only'],
   ['EKKLĒSIA™','The People of God','interface-only']
 ];
 

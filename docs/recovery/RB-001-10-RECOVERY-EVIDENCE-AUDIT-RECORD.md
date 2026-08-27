@@ -84,6 +84,14 @@ A recovery control may be recorded as complete only when objective read-back or 
 - Companion snapshot observed: `SNP_2026-08-26_06-33_DIMS-v3_Daily_Snapshot` (Doc and PDF evidence present)
 - Health outcome: PASS — the newest full backup is fresh and the expected checkpoint and snapshot companion evidence is present for the same 06:33 cycle.
 
+### 2026-08-27
+
+- Full backup observed: `FULL_BACKUP_2026-08-27_06-33-56_48b14f57`
+- Full backup created: `2026-08-27T11:33:56.781Z`
+- Companion checkpoint observed: `CHK_2026-08-27_06-33_DIMS-v3_Daily_Checkpoint` (Doc and PDF evidence present)
+- Companion snapshot observed: `SNP_2026-08-27_06-33_DIMS-v3_Daily_Snapshot` (Doc and PDF evidence present)
+- Health outcome: PASS — the newest full backup is fresh and the expected checkpoint and snapshot companion evidence is present for the same 06:33 cycle.
+
 ## Supabase recovery baseline observations
 
 ### 2026-08-18

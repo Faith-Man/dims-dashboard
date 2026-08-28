@@ -30,8 +30,8 @@ No Enterprise/System destination is removed, hidden, redirected, or retired sole
 | System Status | `/system-status.html` | Infrastructure checks and checkpoint history | KEEP FOR REVIEW — OPERATOR | Preserve. Candidate to consolidate with DSCC/System Health after validating unique functions and data contracts. |
 | Enterprise Forms | `/enterprise-forms.html` | Enterprise asset/form creation and management | KEEP FOR REVIEW — ENTERPRISE | Preserve pending active-use review. |
 | Institutional Queue | `/institutional-queue.html` | Review, institutionalization, preservation queue | KEEP — ENTERPRISE | Preserve as governed institutional workflow. |
-| Intelligence Center | `/intelligence-briefing.html` | Intelligence briefing / operational intelligence surface | CONSOLIDATE CANDIDATE | Preserve pending comparison with GEGRAPTAI™ and SHAMAR™. Do not remove until content ownership is reconciled. |
-| Teaching Center | `/teachings/` | Teaching/library access and management | CONSOLIDATE CANDIDATE | Preserve pending comparison with YARATHĒKĒ™ canonical library/reader. |
+| Intelligence Center | `/intelligence-briefing.html` | Briefing latest/history from canonical `briefings` data | SAFE CONSOLIDATION CANDIDATE | Functionally duplicated by GEGRAPTAI™ on the current baseline. Preserve until explicit approval of route consolidation/removal. |
+| Teaching Center | `/teachings/` | Teaching search, editing, New/Save/Preview/Print, public/private, status/priority/tags | KEEP UNTIL AUTHORING RECONCILIATION | Not functionally replaced by YARATHĒKĒ™. Its authoring functions overlap OrEl™/admin more than the canonical reader. Preserve until write-path ownership is reconciled. |
 | Thesaurus Vault | `/glossary/` | Enterprise terminology / glossary | KEEP / CONSOLIDATE CANDIDATE | Preserve terminology authority. May become a YARATHĒKĒ™-accessible governed resource rather than a separate front door. |
 | Executive Dashboard | `/executive-dashboard.html` | Live executive project/task KPI and progress summary | KEEP UNTIL FUNCTIONAL PARITY | DOME Home does not yet reproduce its live KPI/status/progress functions. Preserve until those functions are deliberately incorporated or otherwise replaced and user-verified. |
 | Settings / Admin | `/admin.html` | Authentication, account security, teaching editor, administration | ADMIN-ONLY | Preserve, but should not be treated as an everyday-user destination. |
@@ -43,7 +43,7 @@ No Enterprise/System destination is removed, hidden, redirected, or retired sole
 - `system-health.html` is DSCC, a technical 26-system orbital health view. It is architecturally distinct from SHAMAR™.
 - `system-status.html` separately performs infrastructure/checkpoint status work and should not be silently assumed redundant with DSCC.
 - The older `dashboard-v3.html` remains a broad DIMS operational surface. It is a consolidation candidate, not an authorized deletion target.
-- Several older destinations overlap newer primary modules by subject matter (Intelligence Center → GEGRAPTAI/SHAMAR; Teaching Center → YARATHĒKĒ; Executive Dashboard → DOME Home). Overlap alone is not sufficient evidence for retirement.
+- Several older destinations overlap newer primary modules by subject matter. Overlap alone is not sufficient evidence for retirement.
 
 ## Comparison 1 — Executive Dashboard vs DOME Home
 
@@ -62,6 +62,49 @@ The current DOME Home only reserves an executive-orientation area and states tha
 
 **Decision:** Keep Executive Dashboard in Enterprise/System navigation until DOME Home or another approved surface provides the required executive functions and the replacement is user-verified. No retirement is authorized.
 
+## Comparison 2 — Teaching Center vs YARATHĒKĒ™
+
+**Result: Teaching Center must remain accessible.**
+
+Teaching Center is not merely a second library/reader. It currently provides:
+
+- Teaching search/list
+- New teaching creation
+- Local Save workflow
+- Preview
+- Print
+- Public/private control
+- Status
+- Priority
+- Tags
+- Markdown editing
+
+YARATHĒKĒ™ is the canonical reader/library surface and does not reproduce these authoring/editor functions.
+
+The functional overlap therefore spans **OrEl™ authoring + YARATHĒKĒ™ preservation/presentation + administrative publishing**, not YARATHĒKĒ™ alone.
+
+**Decision:** Keep Teaching Center accessible until the canonical write/publish path is deliberately reconciled. No retirement is authorized.
+
+## Comparison 3 — Intelligence Center vs GEGRAPTAI™ / SHAMAR™
+
+**Result: Strong consolidation candidate into GEGRAPTAI™.**
+
+The current Intelligence Center and GEGRAPTAI™ both read the same canonical `briefings` table and expose the same briefing structure:
+
+- Logos Word
+- Rhema Word
+- World Intel
+- Bridge Intel
+- Personal Intel
+- Directives
+- Confession
+- Latest briefing
+- Briefing history
+
+No unique operational function was identified in Intelligence Center that is absent from GEGRAPTAI™ on the current baseline. SHAMAR™ remains separate because it handles Peace & Safety / TSI intelligence rather than this daily Kingdom briefing record.
+
+**Decision:** Intelligence Center may be consolidated into GEGRAPTAI™ after explicit approval. Until then, keep the existing navigation entry and route intact.
+
 ## Required decision sequence
 
 1. Preserve all currently reachable destinations.
@@ -73,4 +116,10 @@ The current DOME Home only reserves an executive-orientation area and states tha
 
 ## Current recommendation
 
-For the test baseline, retain the full Enterprise/System section. Comparison 1 is complete and requires Executive Dashboard preservation until functional parity exists. Continue next with **Teaching Center vs YARATHĒKĒ™**, then **Intelligence Center vs GEGRAPTAI™ / SHAMAR™**. System/KUBERNĒSIS/DSCC should be reviewed later because they carry operator and governance responsibilities that are easier to damage through premature consolidation.
+For the test baseline, retain the full Enterprise/System section. The first three comparisons are complete:
+
+- **Executive Dashboard:** keep until DOME Home has functional parity.
+- **Teaching Center:** keep until authoring/write-path ownership is reconciled.
+- **Intelligence Center:** safe consolidation candidate into GEGRAPTAI™, pending explicit approval.
+
+Next review target: **Thesaurus Vault / Glossary vs YARATHĒKĒ™ terminology access**, followed by **System Status vs DSCC/System Health**. System/KUBERNĒSIS itself should remain later in the sequence because it carries operator and governance responsibilities that are easier to damage through premature consolidation.

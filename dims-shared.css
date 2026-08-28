@@ -74,3 +74,81 @@ input::placeholder,textarea::placeholder{color:var(--muted)}
   .page-header{align-items:flex-start;padding:16px}
   .page-header>a{align-self:flex-start}
 }
+
+/* SHAMAR governed orbital-node refinement. Scoped so no other DOME surface is affected. */
+.dome .node{
+  aspect-ratio:1!important;
+  border-radius:50%!important;
+}
+.dome .orbit:focus-within{animation-play-state:paused!important}
+.dome .orbit:focus-within .node{animation-play-state:paused!important}
+@media(max-width:800px){
+  .dome .orbit{
+    left:50%!important;
+    top:50%!important;
+    width:96%!important;
+    height:72%!important;
+    transform:translate(-50%,-50%)!important;
+    border:1px solid rgba(43,156,255,.45)!important;
+    border-radius:50%!important;
+    animation:spin 72s linear infinite!important;
+  }
+  .dome .orbit:before{inset:8%!important;border-radius:50%!important}
+  .dome .orbit:after{inset:16%!important;border-radius:50%!important}
+  .dome .node-wrap{
+    left:50%!important;
+    top:50%!important;
+    width:0!important;
+    height:0!important;
+    transform:rotate(var(--a)) translateY(calc(-1 * min(50vw,250px)))!important;
+    animation:none!important;
+  }
+  .dome .node{
+    width:92px!important;
+    min-width:92px!important;
+    max-width:92px!important;
+    height:92px!important;
+    min-height:92px!important;
+    transform:translate(-50%,-50%) rotate(calc(-1 * var(--a)))!important;
+    display:grid!important;
+    grid-template-rows:auto auto auto!important;
+    align-content:center!important;
+    justify-items:center!important;
+    padding:8px!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    animation:counter 72s linear infinite!important;
+  }
+  .dome .node strong{
+    display:block!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    line-height:1.08!important;
+    font-size:.56rem!important;
+    max-width:76px!important;
+  }
+  .dome .node .score{display:block!important;font-size:.68rem!important;margin:3px 0 0!important}
+  .dome .node small{display:block!important;font-size:.45rem!important;line-height:1.05!important;max-width:74px!important;white-space:normal!important}
+  .dome .node .num{display:none!important}
+}
+@media(max-width:460px){
+  .dome .orbit{width:98%!important;height:70%!important;animation-duration:78s!important}
+  .dome .node-wrap{transform:rotate(var(--a)) translateY(calc(-1 * min(49vw,205px)))!important}
+  .dome .node{
+    width:82px!important;
+    min-width:82px!important;
+    max-width:82px!important;
+    height:82px!important;
+    min-height:82px!important;
+    padding:7px!important;
+    animation-duration:78s!important;
+  }
+  .dome .node strong{font-size:.5rem!important;max-width:67px!important}
+  .dome .node .score{font-size:.62rem!important}
+  .dome .node small{font-size:.41rem!important;max-width:66px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .dome .orbit,.dome .node{animation:none!important}
+}

@@ -8,7 +8,15 @@
 <style>
 :root{--blue:#0C1475;--gold:#FFD700;--bg:#eef5ff;--card:#fff;--line:#c8d8ff;--text:#0b1733;--muted:#5b6b8d}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text)}.wrap{max-width:1200px;margin:0 auto;padding:18px}h1,h2,h3{color:var(--blue);margin-top:0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.small{color:var(--muted);font-size:.9rem}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#f7faff;border:1px solid var(--line);margin:3px}.tree{white-space:pre-wrap;background:#f7faff;border:1px solid var(--line);border-radius:14px;padding:14px;line-height:1.5}table{width:100%;border-collapse:collapse;background:white}th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:#f7faff;color:var(--blue)}@media(max-width:850px){.grid{grid-template-columns:1fr}}
-.blueprint-nav{padding-left:20px;padding-right:20px}.blueprint-nav .nav-pill{font-weight:700}
+/* Blueprint uses the established OrEl / DOME royal-blue palette. */
+.page-header{background:linear-gradient(135deg,#050b3d,#0c1475 62%,#13258f);border-bottom:2px solid #d5ad45;box-shadow:none}
+.page-header .page-title{color:#fff;text-shadow:none}
+.page-header .page-sub{color:#fff}
+.page-header>a.nav-pill{background:#fff!important;color:#0c1475!important;border:1px solid #c8d8ff!important;border-radius:999px;font-weight:700}
+.page-header>a.nav-pill:hover,.page-header>a.nav-pill:focus-visible{background:#0c1475!important;color:#fff!important;border-color:#fff!important;outline:2px solid #fff;outline-offset:2px}
+.blueprint-nav{padding-left:20px;padding-right:20px;background:#fff;border-bottom:1px solid #c8d8ff}
+.blueprint-nav .nav-pill{background:#fff!important;color:#0c1475!important;border:1px solid #c8d8ff!important;border-radius:999px;font-weight:700}
+.blueprint-nav .nav-pill:hover,.blueprint-nav .nav-pill:focus-visible{background:#0c1475!important;color:#fff!important;border-color:#0c1475!important;outline:none}
 </style>
 </head>
 <body>

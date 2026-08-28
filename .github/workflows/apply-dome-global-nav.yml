@@ -1,0 +1,62 @@
+name: Apply DOME Global Navigation
+
+on:
+  push:
+    branches:
+      - task-0088-integrated-user-test-baseline
+
+permissions:
+  contents: write
+
+jobs:
+  attach-global-nav:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: task-0088-integrated-user-test-baseline
+      - name: Attach shared DOME navigation
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          targets = {
+              'prototypes/dome-eight-module-home/index.html': '../../dome-global-nav.js',
+              'gegraptai/index.html': '../dome-global-nav.js',
+              'neshamah/index.html': '../dome-global-nav.js',
+              'tetelestai/index.html': '../dome-global-nav.js',
+              'orel/index.html': '../dome-global-nav.js',
+              'yaratheke/index.html': '../dome-global-nav.js',
+              'shamar-intelligence-dome.html': 'dome-global-nav.js',
+              'oikonomos/index.html': '../dome-global-nav.js',
+              'ekklesia/index.html': '../dome-global-nav.js',
+              'dashboard-v3-current.html': 'dome-global-nav.js',
+              'mission-control.html': 'dome-global-nav.js',
+              'dims-blueprint.html': 'dome-global-nav.js',
+          }
+
+          for name, src in targets.items():
+              path = Path(name)
+              if not path.exists():
+                  raise SystemExit(f'Missing governed current surface: {name}')
+              text = path.read_text(encoding='utf-8')
+              marker = f'<script src="{src}" defer></script>'
+              if marker in text:
+                  continue
+              if '</body>' not in text:
+                  raise SystemExit(f'No </body> in {name}')
+              text = text.replace('</body>', f'{marker}\n</body>', 1)
+              path.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit attached navigation
+        run: |
+          if git diff --quiet; then
+            echo "Global navigation already attached."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/dome-eight-module-home/index.html gegraptai/index.html neshamah/index.html tetelestai/index.html orel/index.html yaratheke/index.html shamar-intelligence-dome.html oikonomos/index.html ekklesia/index.html dashboard-v3-current.html mission-control.html dims-blueprint.html
+          git commit -m "DOME: attach shared global navigation to current surfaces"
+          git push origin HEAD:task-0088-integrated-user-test-baseline

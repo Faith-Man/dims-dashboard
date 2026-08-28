@@ -33,7 +33,7 @@ No Enterprise/System destination is removed, hidden, redirected, or retired sole
 | Intelligence Center | `/intelligence-briefing.html` | Intelligence briefing / operational intelligence surface | CONSOLIDATE CANDIDATE | Preserve pending comparison with GEGRAPTAI™ and SHAMAR™. Do not remove until content ownership is reconciled. |
 | Teaching Center | `/teachings/` | Teaching/library access and management | CONSOLIDATE CANDIDATE | Preserve pending comparison with YARATHĒKĒ™ canonical library/reader. |
 | Thesaurus Vault | `/glossary/` | Enterprise terminology / glossary | KEEP / CONSOLIDATE CANDIDATE | Preserve terminology authority. May become a YARATHĒKĒ™-accessible governed resource rather than a separate front door. |
-| Executive Dashboard | `/executive-dashboard.html` | Executive operational summary | CONSOLIDATE CANDIDATE | Preserve until DOME Home proves full replacement of unique executive information. |
+| Executive Dashboard | `/executive-dashboard.html` | Live executive project/task KPI and progress summary | KEEP UNTIL FUNCTIONAL PARITY | DOME Home does not yet reproduce its live KPI/status/progress functions. Preserve until those functions are deliberately incorporated or otherwise replaced and user-verified. |
 | Settings / Admin | `/admin.html` | Authentication, account security, teaching editor, administration | ADMIN-ONLY | Preserve, but should not be treated as an everyday-user destination. |
 | DIMS-v3 Blueprint | `/dims-blueprint.html` | Operating architecture/reference | KEEP — REFERENCE | Preserve as architecture/reference under Enterprise/System. |
 
@@ -44,6 +44,23 @@ No Enterprise/System destination is removed, hidden, redirected, or retired sole
 - `system-status.html` separately performs infrastructure/checkpoint status work and should not be silently assumed redundant with DSCC.
 - The older `dashboard-v3.html` remains a broad DIMS operational surface. It is a consolidation candidate, not an authorized deletion target.
 - Several older destinations overlap newer primary modules by subject matter (Intelligence Center → GEGRAPTAI/SHAMAR; Teaching Center → YARATHĒKĒ; Executive Dashboard → DOME Home). Overlap alone is not sufficient evidence for retirement.
+
+## Comparison 1 — Executive Dashboard vs DOME Home
+
+**Result: Executive Dashboard must remain accessible.**
+
+The current Executive Dashboard provides live project/task information that the current DOME Home does not yet reproduce:
+
+- Projects Active
+- Tasks Open
+- Average percent complete
+- Projects by status
+- Tasks by priority
+- Active-project progress list
+
+The current DOME Home only reserves an executive-orientation area and states that future production can surface verified priorities, alerts, follow-ups, and status summaries. That statement is architectural intent, not functional parity.
+
+**Decision:** Keep Executive Dashboard in Enterprise/System navigation until DOME Home or another approved surface provides the required executive functions and the replacement is user-verified. No retirement is authorized.
 
 ## Required decision sequence
 
@@ -56,4 +73,4 @@ No Enterprise/System destination is removed, hidden, redirected, or retired sole
 
 ## Current recommendation
 
-For the test baseline, retain the full Enterprise/System section. The next simplification work should review the consolidation candidates one at a time, beginning with the most obvious duplication: **Executive Dashboard vs DOME Home**, followed by **Teaching Center vs YARATHĒKĒ™**, then **Intelligence Center vs GEGRAPTAI™ / SHAMAR™**. System/KUBERNĒSIS/DSCC should be reviewed later because they carry operator and governance responsibilities that are easier to damage through premature consolidation.
+For the test baseline, retain the full Enterprise/System section. Comparison 1 is complete and requires Executive Dashboard preservation until functional parity exists. Continue next with **Teaching Center vs YARATHĒKĒ™**, then **Intelligence Center vs GEGRAPTAI™ / SHAMAR™**. System/KUBERNĒSIS/DSCC should be reviewed later because they carry operator and governance responsibilities that are easier to damage through premature consolidation.

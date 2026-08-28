@@ -37,6 +37,7 @@
   ],
   "allowedLegacyReferences": {
     "orel/index.html": ["orel-studio.html"],
-    "tetelestai/index.html": ["projects-tasks.html"]
+    "tetelestai/index.html": ["projects-tasks.html"],
+    "dashboard-v3-current.html": ["dashboard-v3.html"]
   }
 }

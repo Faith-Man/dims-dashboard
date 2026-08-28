@@ -6,7 +6,17 @@
   <title>YARATHĒKĒ™ — Dominion1st Knowledge Library</title>
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./portability.css" />
-  <style>.nav .module-link{white-space:nowrap;border:1px solid #0c1475;background:#0c1475;color:#fff;border-radius:999px;padding:7px 12px;font-weight:800;font-size:.74rem;text-decoration:none}.nav .module-link:hover{background:#fff;color:#0c1475}.nav .module-link.home{background:#fff;color:#0c1475}.nav .module-link.home:hover{background:#0c1475;color:#fff}</style>
+  <style>
+    .topbar-actions{display:flex;align-items:center;gap:8px}
+    .dome-menu{position:relative;z-index:30}
+    .dome-menu summary{list-style:none;cursor:pointer;white-space:nowrap;border:1px solid rgba(255,255,255,.68);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:8px 12px;font-weight:800;font-size:.74rem;letter-spacing:.04em}
+    .dome-menu summary::-webkit-details-marker{display:none}
+    .dome-menu[open] summary{background:#fff;color:#0c1475}
+    .dome-menu-panel{position:absolute;right:0;top:calc(100% + 8px);min-width:210px;padding:8px;background:#fff;border:1px solid #c8d8ff;border-radius:14px;box-shadow:0 16px 38px rgba(5,11,61,.24)}
+    .dome-menu-panel a{display:block;text-decoration:none;color:#0c1475;font-weight:800;font-size:.78rem;padding:10px 11px;border-radius:9px}
+    .dome-menu-panel a:hover,.dome-menu-panel a:focus-visible{background:#eef5ff;outline:none}
+    @media(max-width:620px){.topbar-actions{align-self:flex-start}.dome-menu-panel{right:auto;left:0}}
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -15,19 +25,26 @@
       <h1>YARATHĒKĒ™</h1>
       <p>Instruction preserved, knowledge made accessible · 2 Timothy 2:2</p>
     </div>
-    <button class="icon-btn" id="menuBtn" aria-label="Open navigation">☰</button>
+    <div class="topbar-actions">
+      <details class="dome-menu">
+        <summary>DOME ▾</summary>
+        <div class="dome-menu-panel" role="navigation" aria-label="DOME navigation">
+          <a href="../prototypes/dome-eight-module-home/">DOME Home</a>
+          <a href="../orel/">OrEl™</a>
+          <a href="../tetelestai/">TETELESTAI™</a>
+          <a href="../shamar-intelligence-dome.html">SHAMAR™</a>
+        </div>
+      </details>
+      <button class="icon-btn" id="menuBtn" aria-label="Open YARATHĒKĒ reader navigation">☰</button>
+    </div>
   </header>
 
-  <nav class="nav" id="nav" aria-label="YARATHĒKĒ navigation">
+  <nav class="nav" id="nav" aria-label="YARATHĒKĒ reader navigation">
     <button data-view="library" class="active">Library</button>
     <button data-view="series">KEEP THE GARDEN</button>
     <button data-view="garden">Lesson One</button>
     <button data-view="shamar">SHAMAR</button>
     <button data-view="formats">Content Types</button>
-    <a class="module-link home" href="../prototypes/dome-eight-module-home/">DOME Home</a>
-    <a class="module-link" href="../orel/">OrEl™</a>
-    <a class="module-link" href="../tetelestai/">TETELESTAI™</a>
-    <a class="module-link" href="../shamar-intelligence-dome.html">SHAMAR™</a>
   </nav>
 
   <main id="app" class="app" tabindex="-1"></main>

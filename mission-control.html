@@ -36,5 +36,6 @@ function badge(s){const v=(s||'').toLowerCase();if(v.includes('active')||v.inclu
 async function loadMartureo(){const{data,error}=await sb.from('martureo_reports').select('*').order('created_at',{ascending:false}),el=document.getElementById('martureoReports');if(error){el.innerHTML='<span class="loading">Historical report service unavailable.</span>';return}if(!data?.length){el.innerHTML='<span class="loading">No historical reports found.</span>';return}el.innerHTML=data.map(r=>`<div class="row-item"><strong>${esc(r.title)}</strong> ${badge(r.status||'')}</div>`).join('')}
 loadMartureo();
 </script>
+<script src="dome-global-nav.js" defer></script>
 </body>
 </html>

@@ -6,4 +6,5 @@ const f=document.getElementById('tet');let pendingAdd=null;
 function jumpToAdd(kind){try{const d=f.contentDocument;const target=d.getElementById(kind==='project'?'p_title':'t_title');if(!target){pendingAdd=kind;return}target.closest('.card')?.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>target.focus(),350);document.querySelector('.add-menu')?.removeAttribute('open')}catch(e){console.warn('TETELESTAI add action unavailable',e)}}
 document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>jumpToAdd(b.dataset.add)));
 f.addEventListener('load',()=>{try{const d=f.contentDocument;d.querySelector('.page-header')?.remove();d.querySelector('.nav-pills')?.remove();d.body.style.paddingTop='0';const w=d.querySelector('.wrap');if(w){w.style.marginTop='12px'}if(pendingAdd){const k=pendingAdd;pendingAdd=null;jumpToAdd(k)}}catch(e){console.warn('Integrated shell could not adjust inner navigation',e)}});
-</script></body></html>
+</script><script src="../dome-global-nav.js" defer></script>
+</body></html>

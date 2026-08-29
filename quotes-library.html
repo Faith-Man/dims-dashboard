@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dominion1st Quotes Library</title>
+<style>
+:root{--blue:#071B75;--gold:#B8860B;--bg:#eef4ff;--ink:#0B1638;--line:#d7e1ff;--muted:#5B688C;--green:#137333}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--ink);padding:24px}.wrap{max-width:1000px;margin:auto}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;margin:16px 0}h1,h2{color:var(--blue)}h1{font-size:clamp(32px,5vw,50px);margin:10px 0}h2{font-size:clamp(24px,3.5vw,34px)}.utility{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}.utility a{color:var(--blue);font-weight:700;text-decoration:none}.small{color:var(--muted)}.toolbar{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-top:20px}input,select{width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:12px;font-size:18px;background:#fff}.quote{border:1px solid var(--line);border-radius:16px;padding:18px;margin:14px 0;background:#fff}.quote-title{font-weight:700;color:var(--blue);font-size:22px}.quote-text{font-size:20px;line-height:1.5;margin:12px 0;white-space:pre-wrap}.meta{display:flex;gap:8px;flex-wrap:wrap}.badge{display:inline-block;border-radius:999px;padding:5px 10px;background:#eef3ff;color:var(--blue);font-size:14px;font-weight:700}.badge.verified{background:#e8f5e9;color:var(--green)}.empty{padding:28px;text-align:center;color:var(--muted)}button,.btn{display:inline-block;background:var(--blue);color:#fff;border:0;border-radius:12px;padding:12px 16px;font-size:17px;text-decoration:none;cursor:pointer}.gold{background:var(--gold)}@media(max-width:640px){body{padding:14px}.card{padding:18px}.toolbar{grid-template-columns:1fr}.quote-text{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="utility">
+      <span><a href="index.html">← DOME Home</a> · <a href="enterprise-forms-package.html">Enterprise Forms</a></span>
+      <span id="authState" class="small">Checking DOME sign-in…</span>
+    </div>
+    <h1>Dominion1st Quotes Library</h1>
+    <p class="small">Your governed Quote Form submissions, loaded from DIMS-v3.</p>
+    <div class="toolbar">
+      <input id="searchBox" type="search" placeholder="Search quotes or titles…" aria-label="Search quotes">
+      <select id="statusFilter" aria-label="Filter by status">
+        <option value="all">All statuses</option>
+        <option>Draft</option><option>Proposed</option><option>Approved</option><option>Verification Pending</option><option>Verified</option><option>Archived</option>
+      </select>
+    </div>
+  </div>
+  <div class="card">
+    <div class="utility"><h2 style="margin:0">Quotes</h2><a class="btn gold" href="enterprise-forms-package.html">+ New Quote</a></div>
+    <div id="count" class="small" style="margin-top:8px"></div>
+    <div id="quotes"><div class="empty">Loading quotes…</div></div>
+  </div>
+</div>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const sb=createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How');
+let rows=[];
+const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+function render(){
+  const q=document.getElementById('searchBox').value.trim().toLowerCase();
+  const status=document.getElementById('statusFilter').value;
+  const filtered=rows.filter(r=>{
+    const text=((r.title||'')+' '+(r.payload?.content||'')).toLowerCase();
+    return (!q||text.includes(q))&&(status==='all'||r.status===status);
+  });
+  document.getElementById('count').textContent=`${filtered.length} of ${rows.length} quote${rows.length===1?'':'s'}`;
+  document.getElementById('quotes').innerHTML=filtered.length?filtered.map(r=>{
+    const verified=(r.verification_status||'')==='Verified';
+    const date=new Date(r.created_at).toLocaleString();
+    return `<article class="quote"><div class="quote-title">${esc(r.title||'Untitled Quote')}</div><div class="quote-text">“${esc(r.payload?.content||'')}”</div><div class="meta"><span class="badge">${esc(r.status||'—')}</span><span class="badge ${verified?'verified':''}">${esc(r.verification_status||'—')}</span><span class="badge">${esc(date)}</span></div></article>`;
+  }).join(''):'<div class="empty">No quotes match this view.</div>';
+}
+async function load(){
+  const auth=document.getElementById('authState');
+  const {data:userData,error:userError}=await sb.auth.getUser();
+  const user=userData?.user||null;
+  if(userError||!user){auth.innerHTML='Not signed in · <a href="admin.html">Sign in</a>';document.getElementById('quotes').innerHTML='<div class="empty">DOME sign-in is required to view your Quotes Library.</div>';return}
+  auth.textContent='DOME authenticated';
+  const {data,error}=await sb.from('enterprise_form_submissions').select('id,enterprise_id,title,status,verification_status,payload,created_at,updated_at').eq('artifact_type','Quote').order('created_at',{ascending:false});
+  if(error){document.getElementById('quotes').innerHTML=`<div class="empty">Unable to load quotes: ${esc(error.message)}</div>`;return}
+  rows=data||[];render();
+}
+document.getElementById('searchBox').addEventListener('input',render);
+document.getElementById('statusFilter').addEventListener('change',render);
+load();
+</script>
+</body>
+</html>

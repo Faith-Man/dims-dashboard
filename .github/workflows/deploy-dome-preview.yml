@@ -1,0 +1,58 @@
+name: Deploy DOME Preview
+
+on:
+  push:
+    branches:
+      - task-0088-integrated-user-test-baseline
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dome-preview-task-0088
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: Upload non-production Cloudflare Worker version
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Checkout test branch
+        uses: actions/checkout@v4
+
+      - name: Validate Cloudflare preview credentials
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::Cloudflare preview credentials are not configured in GitHub Actions. Production deploy hook was intentionally not used because it targets Main."
+            exit 1
+          fi
+
+      - name: Upload preview version only
+        run: |
+          npx --yes wrangler@latest versions upload . \
+            --name dome-dashboard \
+            --preview-alias test \
+            --keep-vars \
+            --message "PR #64 integrated DOME test ${GITHUB_SHA}"
+
+      - name: Verify Automation Control preview
+        env:
+          PREVIEW_URL: https://test-dome-dashboard.dominion1st-integrated-management-system-dims.workers.dev
+        run: |
+          for attempt in $(seq 1 20); do
+            page="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${PREVIEW_URL}/tetelestai-automations.html?deployment_check=${GITHUB_SHA}" || true)"
+            if printf '%s' "$page" | grep --fixed-strings --quiet 'TETELESTAI™ Automations' &&
+               printf '%s' "$page" | grep --fixed-strings --quiet 'Schedule governed DIMS work without using ChatGPT task slots'; then
+              echo "Cloudflare non-production preview verification passed: ${PREVIEW_URL}/tetelestai-automations.html"
+              exit 0
+            fi
+            echo "Attempt ${attempt}/20: preview not ready; waiting 10 seconds..."
+            sleep 10
+          done
+          echo "::error::Cloudflare preview was uploaded but the Automation Control page did not verify at the expected alias URL."
+          exit 1

@@ -1,0 +1,50 @@
+name: TETELESTAI Diagnostic Smoke
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - diagnostic-tetelestai-aug15
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser driver
+        run: npm install --no-save playwright-core@1.55.0
+      - name: Verify Aug 15 TETELESTAI initialization
+        env:
+          PREVIEW_URL: https://deploy-preview-54--dominion1st.netlify.app/projects-tasks.html
+        run: |
+          CHROME=$(which google-chrome || which chromium || which chromium-browser || true)
+          if [ -z "$CHROME" ]; then
+            echo "No Chrome/Chromium executable found on runner"
+            exit 2
+          fi
+          CHROME="$CHROME" node <<'NODE'
+          const { chromium } = require('playwright-core');
+          (async () => {
+            const browser = await chromium.launch({ headless: true, executablePath: process.env.CHROME, args: ['--no-sandbox'] });
+            const page = await browser.newPage();
+            const errors = [];
+            page.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
+            page.on('console', m => { if (m.type() === 'error') errors.push(`console: ${m.text()}`); });
+            const response = await page.goto(process.env.PREVIEW_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
+            await page.waitForTimeout(6000);
+            const result = await page.evaluate(() => ({
+              status: document.readyState,
+              accountability: document.querySelector('#accountabilitySummary')?.innerText || '',
+              projects: document.querySelector('#projectsList')?.innerText || '',
+              tasks: document.querySelector('#tasksList')?.innerText || '',
+              nav: [...document.querySelectorAll('.nav-pill')].map(a => ({ text: a.textContent.trim(), href: a.getAttribute('href') }))
+            }));
+            console.log(JSON.stringify({ httpStatus: response?.status(), result, errors }, null, 2));
+            await browser.close();
+            const stuck = /Loading/i.test(result.accountability) || /^Loading/i.test(result.projects) || /^Loading/i.test(result.tasks);
+            if (errors.length || stuck || !result.projects || !result.tasks) process.exit(1);
+          })().catch(e => { console.error(e); process.exit(1); });
+          NODE

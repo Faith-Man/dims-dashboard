@@ -1,0 +1,99 @@
+name: Apply DOME Global Navigation
+
+on:
+  push:
+    branches:
+      - task-0088-integrated-user-test-baseline
+
+permissions:
+  contents: write
+
+jobs:
+  attach-global-nav:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: task-0088-integrated-user-test-baseline
+      - name: Attach shared DOME navigation and normalize local controls
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          targets = {
+              'prototypes/dome-eight-module-home/index.html': '../../dome-global-nav.js',
+              'gegraptai/index.html': '../dome-global-nav.js',
+              'neshamah/index.html': '../dome-global-nav.js',
+              'tetelestai/index.html': '../dome-global-nav.js',
+              'orel/index.html': '../dome-global-nav.js',
+              'yaratheke/index.html': '../dome-global-nav.js',
+              'shamar-intelligence-dome.html': 'dome-global-nav.js',
+              'oikonomos/index.html': '../dome-global-nav.js',
+              'ekklesia/index.html': '../dome-global-nav.js',
+              'dashboard-v3-current.html': 'dome-global-nav.js',
+              'mission-control.html': 'dome-global-nav.js',
+              'dims-blueprint.html': 'dome-global-nav.js',
+          }
+
+          for name, src in targets.items():
+              path = Path(name)
+              if not path.exists():
+                  raise SystemExit(f'Missing governed current surface: {name}')
+              text = path.read_text(encoding='utf-8')
+              marker = f'<script src="{src}" defer></script>'
+              if marker not in text:
+                  if '</body>' not in text:
+                      raise SystemExit(f'No </body> in {name}')
+                  text = text.replace('</body>', f'{marker}\n</body>', 1)
+              path.write_text(text, encoding='utf-8')
+
+          replacements = {
+            'orel/index.html': [
+              ('<nav class="orel-nav"><a class="active" href="./">Writer</a><a href="../yaratheke/">Open YARATHĒKĒ™ Library</a><a href="../tetelestai/">TETELESTAI™</a><a href="../prototypes/dome-eight-module-home/">DOME Home</a></nav>', '<nav class="orel-nav" aria-label="OrEl local controls"><a class="active" href="./">Writer</a></nav>')
+            ],
+            'gegraptai/index.html': [
+              ('<nav class="nav"><a class="active" href="./">Today</a><a href="../yaratheke/">YARATHĒKĒ™ Library</a><a href="../tetelestai/">TETELESTAI™</a><a href="../prototypes/dome-eight-module-home/">DOME Home</a></nav>', '<nav class="nav" aria-label="GEGRAPTAI local controls"><a class="active" href="./">Today</a></nav>')
+            ],
+            'neshamah/index.html': [
+              ('<nav class="nav"><a class="active" href="./">Latest</a><a href="../orel/">OrEl™ Writer</a><a href="../yaratheke/">YARATHĒKĒ™ Library</a><a href="../prototypes/dome-eight-module-home/">DOME Home</a></nav>', '<nav class="nav" aria-label="NESHAMAH local controls"><a class="active" href="./">Latest</a></nav>')
+            ],
+            'oikonomos/index.html': [
+              ('<nav class="nav"><a class="active" href="./">Stewardship</a><a href="../tetelestai/">TETELESTAI™</a><a href="../prototypes/dome-eight-module-home/">DOME Home</a></nav>', '<nav class="nav" aria-label="OIKONOMOS local controls"><a class="active" href="./">Stewardship</a></nav>')
+            ],
+            'ekklesia/index.html': [
+              ('<nav class="nav"><a class="active" href="./">People & Pathways</a><a href="../yaratheke/">YARATHĒKĒ™ Resources</a><a href="../tetelestai/">TETELESTAI™</a><a href="../prototypes/dome-eight-module-home/">DOME Home</a></nav>', '<nav class="nav" aria-label="EKKLĒSIA local controls"><a class="active" href="./">People & Pathways</a></nav>')
+            ],
+            'tetelestai/index.html': [
+              ('<nav class="actions"><details class="add-menu"><summary>+ Add</summary><div class="add-menu-panel"><button type="button" data-target="project">Add Project</button><button type="button" data-target="task">Add Task</button></div></details><a href="../prototypes/dome-eight-module-home/">DOME Home</a><a href="../orel/">OrEl™</a><a href="../yaratheke/">YARATHĒKĒ™</a></nav>', '<nav class="actions" aria-label="TETELESTAI local controls"><details class="add-menu"><summary>+ Add</summary><div class="add-menu-panel"><button type="button" data-target="project">Add Project</button><button type="button" data-target="task">Add Task</button></div></details></nav>')
+            ],
+            'yaratheke/index.html': [
+              ('    <div class="topbar-actions">\n      <details class="dome-menu">\n        <summary>DOME ▾</summary>\n        <div class="dome-menu-panel" role="navigation" aria-label="DOME navigation">\n          <a href="../prototypes/dome-eight-module-home/">DOME Home</a>\n          <a href="../orel/">OrEl™</a>\n          <a href="../tetelestai/">TETELESTAI™</a>\n          <a href="../shamar-intelligence-dome.html">SHAMAR™</a>\n        </div>\n      </details>\n      <button class="icon-btn" id="menuBtn" aria-label="Open YARATHĒKĒ reader navigation">☰</button>\n    </div>', '    <div class="topbar-actions"><button class="icon-btn" id="menuBtn" aria-label="Open YARATHĒKĒ reader navigation">☰</button></div>')
+            ],
+            'shamar-intelligence-dome.html': [
+              ('<nav class="module-nav" aria-label="DOME module navigation"><a href="prototypes/dome-eight-module-home/">DOME Home</a><a href="gegraptai/">GEGRAPTAI™</a><a href="yaratheke/">YARATHĒKĒ™</a><a href="tetelestai/">TETELESTAI™</a></nav>\n', '')
+            ],
+            'dims-blueprint.html': [
+              ('<nav class="nav-pills blueprint-nav" aria-label="Blueprint navigation">\n  <a class="nav-pill" href="dashboard-v3-current.html">KUBERNĒSIS Gateway</a>\n  <a class="nav-pill" href="orel/">OrEl™</a>\n  <a class="nav-pill" href="yaratheke/">YARATHĒKĒ™</a>\n</nav>\n', '')
+            ]
+          }
+
+          for name, pairs in replacements.items():
+              path = Path(name)
+              text = path.read_text(encoding='utf-8')
+              for old, new in pairs:
+                  if old in text:
+                      text = text.replace(old, new, 1)
+              path.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit shared navigation state
+        run: |
+          if git diff --quiet; then
+            echo "Global navigation already attached and normalized."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototypes/dome-eight-module-home/index.html gegraptai/index.html neshamah/index.html tetelestai/index.html orel/index.html yaratheke/index.html shamar-intelligence-dome.html oikonomos/index.html ekklesia/index.html dashboard-v3-current.html mission-control.html dims-blueprint.html
+          git commit -m "DOME: standardize global navigation and local controls"
+          git push origin HEAD:task-0088-integrated-user-test-baseline

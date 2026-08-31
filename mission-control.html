@@ -11,10 +11,10 @@
 </style>
 </head>
 <body>
-<div class="page-header"><div><div class="page-title">🎯 Mission Control</div><div class="page-sub">Command and execute Kingdom missions</div></div><a href="index.html" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">← DOME Home</a></div>
-<nav class="nav-pills"><a class="nav-pill active" href="mission-control.html">🎯 Mission Control</a><a class="nav-pill" href="system-health.html">🩺 System Health</a><a class="nav-pill" href="dims-blueprint.html">👑 KUBERNĒSIS™</a><a class="nav-pill" href="projects-tasks.html">✅ TETELESTAI™</a><a class="nav-pill" href="institutional-queue.html">⏳ Inst. Queue</a><a class="nav-pill" href="dashboard-v3.html">🏠 DIMS Dashboard</a></nav>
+<div class="page-header"><div><div class="page-title">🎯 Mission Control</div><div class="page-sub">Command and execute Kingdom missions</div></div><a href="prototypes/dome-eight-module-home/" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">← DOME Home</a></div>
+<nav class="nav-pills"><a class="nav-pill active" href="mission-control.html">🎯 Mission Control</a><a class="nav-pill" href="dashboard-v3-current.html">👑 KUBERNĒSIS™ Gateway</a><a class="nav-pill" href="orel/">💡 OrEl™</a><a class="nav-pill" href="yaratheke/">📜 YARATHĒKĒ™</a><a class="nav-pill" href="system-health.html">🩺 System Health</a><a class="nav-pill" href="dims-blueprint.html">👑 Blueprint</a><a class="nav-pill" href="tetelestai/">✅ TETELESTAI™</a><a class="nav-pill" href="institutional-queue.html">⏳ Inst. Queue</a></nav>
 <div class="wrap">
-<div class="nav-note">DIMS Dashboard returns to the primary dashboard · System Health opens diagnostics.</div>
+<div class="nav-note">Current module routes are canonical. Legacy DIMS/KUBERNĒSIS construction-era functions remain preserved underneath through the KUBERNĒSIS Gateway.</div>
 <section class="mission-banner"><h2>EXECUTION COMMAND CENTER</h2><p>DOME™ · Dominion1st Operations & Mission Environment</p><div class="progress-shell"><div class="progress-fill"></div></div><div class="command-strip"><strong>Mission Flow · Architecture → Build → Integrate → Verify</strong><span>Current controlled build phase</span></div></section>
 <div class="grid2">
   <div>
@@ -36,5 +36,6 @@ function badge(s){const v=(s||'').toLowerCase();if(v.includes('active')||v.inclu
 async function loadMartureo(){const{data,error}=await sb.from('martureo_reports').select('*').order('created_at',{ascending:false}),el=document.getElementById('martureoReports');if(error){el.innerHTML='<span class="loading">Historical report service unavailable.</span>';return}if(!data?.length){el.innerHTML='<span class="loading">No historical reports found.</span>';return}el.innerHTML=data.map(r=>`<div class="row-item"><strong>${esc(r.title)}</strong> ${badge(r.status||'')}</div>`).join('')}
 loadMartureo();
 </script>
+<script src="dome-global-nav.js" defer></script>
 </body>
 </html>

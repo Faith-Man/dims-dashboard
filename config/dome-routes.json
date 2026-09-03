@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "canonical": {
+    "domeHome": "/prototypes/dome-eight-module-home/",
+    "gegraptai": "/gegraptai/",
+    "neshamah": "/neshamah/",
+    "tetelestai": "/tetelestai/",
+    "orel": "/orel/",
+    "yaratheke": "/yaratheke/",
+    "shamar": "/shamar-intelligence-dome.html",
+    "oikonomos": "/oikonomos/",
+    "ekklesia": "/ekklesia/",
+    "missionControl": "/mission-control.html",
+    "kubernesisGateway": "/dashboard-v3-current.html",
+    "blueprint": "/dims-blueprint.html",
+    "systemHealth": "/system-health.html"
+  },
+  "forbiddenCurrentUserRoutes": {
+    "orel-studio.html": "Use /orel/ for current-user navigation. Legacy studio may remain only as an explicit authenticated authoring tool inside OrEl.",
+    "yaratheke.html": "Use /yaratheke/ for current-user navigation.",
+    "projects-tasks.html": "Use /tetelestai/ for current-user navigation.",
+    "dashboard-v3.html": "Use /dashboard-v3-current.html or /prototypes/dome-eight-module-home/ for current-user navigation."
+  },
+  "currentUserSurfaces": [
+    "prototypes/dome-eight-module-home/index.html",
+    "gegraptai/index.html",
+    "neshamah/index.html",
+    "tetelestai/index.html",
+    "orel/index.html",
+    "yaratheke/index.html",
+    "shamar-intelligence-dome.html",
+    "oikonomos/index.html",
+    "ekklesia/index.html",
+    "mission-control.html",
+    "dashboard-v3-current.html",
+    "dims-blueprint.html"
+  ],
+  "allowedLegacyReferences": {
+    "orel/index.html": ["orel-studio.html"],
+    "tetelestai/index.html": ["projects-tasks.html"],
+    "dashboard-v3-current.html": ["dashboard-v3.html"]
+  }
+}

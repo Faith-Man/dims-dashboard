@@ -10,7 +10,7 @@
 <body>
   <header class="site-header">
     <a class="brand" href="#top" aria-label="Dominion1st home">
-      <span class="brand-mark">D1</span>
+      <img class="brand-logo" data-dominion-logo alt="Dominion1st official crest">
       <span class="brand-text">Dominion1st™</span>
     </a>
     <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav">Menu</button>
@@ -25,19 +25,19 @@
 
   <main id="top">
     <section class="hero">
-      <div class="hero-inner">
-        <p class="eyebrow">KINGDOM IDENTITY • AUTHORITY • PURPOSE</p>
-        <h1>You Have Dominion.</h1>
-        <p class="hero-copy">Dominion1st equips believers to know who they are, what they are, where they are, what they have, what they can do, and why they are here.</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#teaching">Explore the Teaching</a>
-          <a class="btn btn-secondary" href="#training">Enter the Training Center</a>
+      <div class="hero-inner hero-grid">
+        <div class="hero-copy-block">
+          <p class="eyebrow">KINGDOM IDENTITY • AUTHORITY • PURPOSE</p>
+          <h1>You Have Dominion.</h1>
+          <p class="hero-copy">Dominion1st equips believers to know who they are, what they are, where they are, what they have, what they can do, and why they are here.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#teaching">Explore the Teaching</a>
+            <a class="btn btn-secondary" href="#training">Enter the Training Center</a>
+          </div>
         </div>
-      </div>
-      <div class="hero-orbit" aria-hidden="true">
-        <div class="orb orb-one"></div>
-        <div class="orb orb-two"></div>
-        <div class="orb orb-three"></div>
+        <div class="hero-logo-wrap">
+          <img class="hero-logo" data-dominion-logo alt="Dominion1st official crest">
+        </div>
       </div>
     </section>
 
@@ -120,7 +120,12 @@
     <p>© 2026 Dominion1st. All Rights Reserved.</p>
   </footer>
 
+  <script src="logo-data.js"></script>
   <script>
+    document.querySelectorAll('[data-dominion-logo]').forEach(img => {
+      if (window.DOMINION_LOGO_DATA) img.src = window.DOMINION_LOGO_DATA;
+    });
+
     const toggle = document.querySelector('.menu-toggle');
     const nav = document.querySelector('.site-nav');
     toggle?.addEventListener('click', () => {

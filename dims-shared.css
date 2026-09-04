@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600;700&display=swap');
-:root{--navy:#eef5ff;--navy2:#ffffff;--navy3:#c8d8ff;--gold:#0C1475;--gold2:#3d4fb5;--gold3:#0C1475;--ink:#0b1733;--muted:#5b6b8d;--line:#c8d8ff;--card:#ffffff;--green:#16803d;--amber:#b45309;--red:#dc2626}
+:root{--navy:#eef5ff;--navy2:#ffffff;--navy3:#c8d8ff;--gold:#0C1475;--gold2:#3d4fb5;--gold3:#0C1475;--ink:#0b1733;--muted:#5b6b8d;--line:#c8d8ff;--card:#ffffff;--green:#16803d;--amber:#b45309;--red:#dc2626;--surface-soft:#f4f8ff;--surface-input:#fff;--overlay:rgba(6,15,36,.56)}
+:root[data-theme="dark"]{--navy:#071020;--navy2:#0d1830;--navy3:#20365f;--gold:#9db9ff;--gold2:#b9ccff;--gold3:#6f94f5;--ink:#eef4ff;--muted:#aab9d5;--line:#263b63;--card:#0d1830;--green:#58d68d;--amber:#f6c453;--red:#ff7b7b;--surface-soft:#111f3a;--surface-input:#0a1529;--overlay:rgba(0,0,0,.72);color-scheme:dark}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--navy);color:var(--ink);font-family:'Inter',system-ui,sans-serif;min-height:100vh}
 .page-header{background:linear-gradient(180deg,#dce8ff,var(--navy));border-bottom:2px solid var(--gold3);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -16,17 +17,18 @@ body{background:var(--navy);color:var(--ink);font-family:'Inter',system-ui,sans-
 @media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}}
 table{width:100%;border-collapse:collapse}
 th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top;font-size:.85rem}
-th{color:var(--gold);background:#f4f8ff;font-size:.75rem;letter-spacing:1px;text-transform:uppercase}
+th{color:var(--gold);background:var(--surface-soft);font-size:.75rem;letter-spacing:1px;text-transform:uppercase}
 .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.75rem;font-weight:600}
 .badge-green{background:#dcfce7;color:var(--green);border:1px solid #bbf7d0}
 .badge-amber{background:#fef3c7;color:var(--amber);border:1px solid #fde68a}
 .badge-blue{background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe}
 .badge-grey{background:#eef2f8;color:var(--muted);border:1px solid #dbe4f3}
+:root[data-theme="dark"] .badge-green{background:#0d2a1a;border-color:#205d39}:root[data-theme="dark"] .badge-amber{background:#35250b;border-color:#76520f}:root[data-theme="dark"] .badge-blue{background:#122a58;color:#b9ccff;border-color:#31558f}:root[data-theme="dark"] .badge-grey{background:#172238;border-color:#344763}
 .row-item{padding:12px 0;border-bottom:1px solid var(--line)}
 .row-item:last-child{border-bottom:none}
 .row-title{font-weight:600;color:var(--ink);margin-bottom:4px}
 .row-meta{font-size:.8rem;color:var(--muted)}
-input,textarea,select{width:100%;padding:9px;background:#fff;border:1px solid var(--line);border-radius:9px;color:var(--ink);margin:4px 0;font-size:.9rem}
+input,textarea,select{width:100%;padding:9px;background:var(--surface-input);border:1px solid var(--line);border-radius:9px;color:var(--ink);margin:4px 0;font-size:.9rem}
 input::placeholder,textarea::placeholder{color:var(--muted)}
 .btn{background:var(--gold3);color:#fff;border:0;padding:9px 18px;border-radius:9px;font-weight:700;cursor:pointer;font-size:.85rem;letter-spacing:1px;text-transform:uppercase}
 .btn:hover{background:var(--gold2)}
@@ -37,6 +39,9 @@ input::placeholder,textarea::placeholder{color:var(--muted)}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold2));border-radius:3px}
 .scripture-bar{background:linear-gradient(90deg,var(--navy),var(--navy2),var(--navy));border-top:1px solid var(--gold3);text-align:center;padding:12px 16px;font-style:italic;font-size:.8rem;color:var(--muted)}
 .scripture-bar strong{color:var(--gold)}
+
+/* DIMS global display controls */
+.dims-global-controls{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}.dims-control,.dims-view-button,.dims-icon-button{border:1px solid #8db0ff;background:rgba(255,255,255,.08);color:#fff;border-radius:9px;padding:7px 10px;font:inherit;font-size:.76rem;font-weight:700;cursor:pointer}.dims-control:hover,.dims-control:focus-visible,.dims-view-button:hover,.dims-view-button:focus-visible{background:#fff;color:#0c1475;outline:2px solid #dbe7ff;outline-offset:2px}.dims-view-switcher{display:inline-flex;gap:5px;align-items:center}.dims-view-button{color:var(--gold);background:var(--navy2);border-color:var(--gold3)}.dims-view-button.active{background:var(--gold3);color:#fff}.dims-about-dialog{width:min(620px,92vw);border:1px solid var(--line);border-radius:18px;background:var(--navy2);color:var(--ink);padding:0;box-shadow:0 24px 70px rgba(0,0,0,.35);margin:auto}.dims-about-dialog::backdrop{background:var(--overlay)}.dims-about-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;padding:20px;background:linear-gradient(135deg,#071654,#102a86);color:#fff}.dims-about-head h2{margin:4px 0 0;font-family:'Cinzel',serif}.dims-about-kicker{font-size:.7rem;letter-spacing:.18em;font-weight:800;color:#dbe7ff}.dims-icon-button{border-radius:50%;width:36px;height:36px;padding:0;font-size:1.2rem}.dims-about-body{padding:20px;line-height:1.55}.dims-about-body p+p{margin-top:12px}.dims-about-principles{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}.dims-about-principles span{border:1px solid var(--line);background:var(--surface-soft);border-radius:999px;padding:5px 9px;font-size:.72rem;font-weight:700;color:var(--gold)}
 
 /* TETELESTAI desktop table proportions: Date and Number stay compact; Project/Task gets the space. */
 @media(min-width:901px){
@@ -70,7 +75,9 @@ input::placeholder,textarea::placeholder{color:var(--muted)}
   outline:2px solid #dbe7ff;
   outline-offset:2px;
 }
+:root[data-theme="dark"] .card,:root[data-theme="dark"] .nav-pills,:root[data-theme="dark"] .dims-grid-menu,:root[data-theme="dark"] .detail-drawer{background:var(--navy2)!important;color:var(--ink)!important}:root[data-theme="dark"] .dims-grid-menu button,:root[data-theme="dark"] .view-button,:root[data-theme="dark"] .control-actions button,:root[data-theme="dark"] .clear-filter,:root[data-theme="dark"] .accountability-item,:root[data-theme="dark"] .active-filter{background:var(--surface-input)!important;color:var(--ink)!important;border-color:var(--line)!important}:root[data-theme="dark"] .dims-grid-menu button:hover,:root[data-theme="dark"] .filter-option:hover{background:var(--surface-soft)!important}
 @media(max-width:700px){
   .page-header{align-items:flex-start;padding:16px}
   .page-header>a{align-self:flex-start}
+  .dims-global-controls{max-width:55%}
 }

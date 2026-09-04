@@ -46,14 +46,16 @@ jobs:
           for attempt in $(seq 1 40); do
             guide="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/rac-epi-apn-guide.html?deployment_check=${GITHUB_SHA}" || true)"
             table="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/projects-tasks.html?deployment_check=${GITHUB_SHA}" || true)"
-            ui="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/tetelestai-rac-ui-v3.js?deployment_check=${GITHUB_SHA}" || true)"
+            prefs="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/dims-ui-preferences.js?deployment_check=${GITHUB_SHA}" || true)"
 
             if printf '%s' "$guide" | grep --fixed-strings --quiet 'Functional Risk Assessment Dome (RAD)' &&
                printf '%s' "$guide" | grep --fixed-strings --quiet 'EPI is retired as a separate priority layer.' &&
-               printf '%s' "$table" | grep --fixed-strings --quiet 'tetelestai-rac-ui-v3.js?v=1' &&
-               printf '%s' "$ui" | grep --fixed-strings --quiet 'RAC • DEA • APN Quick Brief' &&
-               ! printf '%s' "$ui" | grep --fixed-strings --quiet 'Execution Priority Index'; then
-              echo "Production verification passed for RAD Guide and TETELESTAI RAC UI."
+               printf '%s' "$table" | grep --fixed-strings --quiet 'dims-ui-preferences.js?v=1' &&
+               printf '%s' "$table" | grep --fixed-strings --quiet 'data-dims-view="list"' &&
+               printf '%s' "$table" | grep --fixed-strings --quiet 'data-dims-view="card"' &&
+               printf '%s' "$prefs" | grep --fixed-strings --quiet "const THEME_KEY = 'dims.theme';" &&
+               printf '%s' "$prefs" | grep --fixed-strings --quiet 'Dominion1st DOME™ / DIMS'; then
+              echo "Production verification passed for RAD and the current TETELESTAI display standard."
               exit 0
             fi
 

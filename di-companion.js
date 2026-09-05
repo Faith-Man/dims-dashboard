@@ -7,6 +7,21 @@
   const page = location.pathname.split('/').pop();
   const moduleName = MODULES[page] || document.title.split('—')[0].trim() || 'DOME™';
 
+  // MED™ canonical-orb runtime bridge. The DI² companion is already injected on DOME pages,
+  // so use it to guarantee the approved MED artwork is applied after the page DOM exists.
+  if (page === 'med-marriage-evaluation-dome-secure.html') {
+    const applyMedOrb = () => {
+      const orb = document.querySelector('.hero .brand .orb');
+      if (!orb) return false;
+      orb.style.backgroundImage = "url('/assets/med-orb-canonical.jpg?v=181105542ead716680bd3ac411257a215bb11fe4')";
+      orb.style.backgroundPosition = 'center';
+      orb.style.backgroundSize = 'cover';
+      orb.style.backgroundRepeat = 'no-repeat';
+      return true;
+    };
+    if (!applyMedOrb()) document.addEventListener('DOMContentLoaded', applyMedOrb, { once:true });
+  }
+
   // RAD™ quick-brief bridge for TETELESTAI. Full doctrine remains in rac-epi-apn-guide.html.
   if (page === 'projects-tasks.html') {
     const stageStyle = document.createElement('style');

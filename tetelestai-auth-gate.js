@@ -7,6 +7,8 @@ const sb = createClient(
 
 const byId = id => document.getElementById(id);
 let appStarted = false;
+let authCheckRunning = false;
+let signInRendered = false;
 
 function setAllLoading(message) {
   const projects = byId('projectsList');
@@ -20,12 +22,15 @@ function setAllLoading(message) {
 async function startApp() {
   if (appStarted) return;
   appStarted = true;
+  signInRendered = false;
   clearTimeout(window.__tetelestaiInitTimer);
-  await import('./tetelestai-closed-loop.js?v=27');
-  await import('./tetelestai-deep-links.js?v=27');
+  await import('./tetelestai-closed-loop.js?v=28');
+  await import('./tetelestai-deep-links.js?v=28');
 }
 
 function renderSignIn() {
+  if (appStarted || signInRendered) return;
+  signInRendered = true;
   clearTimeout(window.__tetelestaiInitTimer);
   const panel = `
     <section style="max-width:560px;margin:28px auto;padding:20px;border:1px solid #c7d5ea;border-radius:14px;background:#fff;box-shadow:0 10px 28px rgba(11,35,77,.1)">
@@ -55,7 +60,8 @@ function renderSignIn() {
     const { error } = await sb.auth.signInWithPassword({ email: e, password: p });
     if (error) { message.textContent = `Error: ${error.message}`; return; }
     message.textContent = 'Signed in. Loading TETELESTAI…';
-    window.location.reload();
+    signInRendered = false;
+    await verifyAndStart();
   };
 
   byId('tetelestaiMagicLink').onclick = async () => {
@@ -70,7 +76,9 @@ function renderSignIn() {
   };
 }
 
-async function initialize() {
+async function verifyAndStart() {
+  if (appStarted || authCheckRunning) return;
+  authCheckRunning = true;
   try {
     const { data, error } = await sb.auth.getUser();
     if (error || !data?.user) {
@@ -81,17 +89,24 @@ async function initialize() {
   } catch (error) {
     clearTimeout(window.__tetelestaiInitTimer);
     setAllLoading(`Unable to initialize authenticated TETELESTAI: ${String(error?.message || error)}`);
+  } finally {
+    authCheckRunning = false;
   }
 }
 
 sb.auth.onAuthStateChange((event, session) => {
-  if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user && !appStarted) {
-    window.location.reload();
-  }
   if (event === 'SIGNED_OUT') {
     appStarted = false;
+    signInRendered = false;
     renderSignIn();
+    return;
+  }
+
+  // Never reload the page from auth events. Supabase may emit INITIAL_SESSION
+  // or TOKEN_REFRESHED during startup; reloading here creates an auth loop.
+  if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user && !appStarted) {
+    void verifyAndStart();
   }
 });
 
-void initialize();
+void verifyAndStart();

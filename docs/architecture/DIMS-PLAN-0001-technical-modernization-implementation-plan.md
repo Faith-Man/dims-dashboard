@@ -45,7 +45,7 @@ Allow documentation, audits, backups, architecture reconciliation, migration pre
 - Remove anonymous write access from `asset_registry`, `peace_safety_briefs`, `projects`, `sync_log`, `tasks`, and `teachings`.
 - Preserve public SELECT only where explicitly required.
 - Harden relevant database function search paths.
-- Protect/rate-limit the OrAI/OpenAI endpoint and remove misleading current-intelligence fallbacks.
+- Protect/rate-limit the OrEl/OpenAI endpoint and remove misleading current-intelligence fallbacks.
 - Regression-test current DIMS screens after policy changes.
 
 ### Phase 2 — Canonical architecture consolidation

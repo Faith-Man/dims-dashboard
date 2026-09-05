@@ -11,7 +11,7 @@ Dominion1st Intelligence™ is the persistent intelligence and assistance layer 
 
 **DI² = Divine Intelligence × Dominion1st Intelligence.** Divine Intelligence is the source. Dominion1st Intelligence is the subordinate steward/instrument implemented within DIMS/DOME. Software assists the believer; it does not govern the believer.
 
-Within DOME, the approved persistent user access point is the **DI² neural orb**. The older **Ask DI** pill is legacy/transitional. The orb opens the fuller Dominion1st Intelligence interface, which remains the expanded conversational/intelligence panel. The existing orchestration endpoint and security architecture are preserved.
+Within DOME, the approved persistent user access point and canonical interface name is the **DI² neural-orb**. Legacy pill terminology is retired from the current interface vocabulary. The DI² neural-orb opens the fuller Dominion1st Intelligence interface, which remains the expanded conversational/intelligence panel. The existing orchestration endpoint and security architecture are preserved.
 
 DOME currently means **Dominion Over My Everything**: the personal app/operating environment through which the user experiences Dominion1st. DIMS remains the sophisticated integrated management/operating system underneath and supporting DOME.
 
@@ -36,7 +36,7 @@ The shared Worker must expose the same persistent DI² access control across DOM
 
 ## DI² access model
 
-1. **Persistent neural orb** — always-available DOME intelligence access point; visually distinct from the Living Earth and not a ninth module node.
+1. **DI² neural-orb** — always-available DOME intelligence access point; visually distinct from the Living Earth and not a ninth module node.
 2. **Expanded Dominion1st Intelligence panel** — opened from the orb; provides Ask, Analyze, Explain, and only separately authorized Execute capabilities.
 3. **Grounded orchestration** — `/api/di/query` remains the shared server-side read-only endpoint for the current foundation.
 4. **Adapter honesty** — the interface must identify unavailable, partial, stale, permission-denied, or uncertified module data rather than implying full integration.
@@ -80,12 +80,12 @@ The calculation uses priority, active state, deadline/follow-up urgency, risk, r
 
 ## Accessibility and responsive behavior
 
-The neural orb and expanded panel must support keyboard focus, Escape-to-close, outside-click close, live response announcements, visible focus, reduced motion, mobile full-width layout, loading/error states, starter questions, and an explicit New conversation control. The orb must not obstruct primary navigation or module controls.
+The DI² neural-orb and expanded panel must support keyboard focus, Escape-to-close, outside-click close, live response announcements, visible focus, reduced motion, mobile full-width layout, loading/error states, starter questions, and an explicit New conversation control. The orb must not obstruct primary navigation or module controls.
 
 ## Validation gates
 
-1. Verify DOME and all current module pages receive the persistent DI² neural orb where applicable.
-2. Verify the expanded panel opens from the orb and the old Ask DI pill is not treated as the primary current access pattern.
+1. Verify DOME and all current module pages receive the persistent DI² neural-orb where applicable.
+2. Verify the expanded panel opens from the DI² neural-orb and no retired legacy pill terminology is presented as the current access pattern.
 3. Verify the runtime roster uses only the ratified eight current modules: GEGRAPTAI, NESHAMAH, TETELESTAI, OrEl, YARATHĒKĒ, SHAMAR, OIKONOMOS, EKKLĒSIA.
 4. Confirm unauthenticated and invalid-token queries fail closed.
 5. Confirm TETELESTAI counts, citations, ordering, filters, and record links match authorized live data.
@@ -101,4 +101,4 @@ Future writes require a capability-specific adapter, separate authorization, pre
 
 ## Implementation disposition
 
-Preserve and reuse the existing DI foundation. Do not rebuild `/api/di/query`, auth/RLS grounding, TETELESTAI certification, or the expanded panel merely to change the access control. The next controlled implementation step is to reconcile any stale runtime module names and restore the DI² neural orb in the integrated test environment only, followed by desktop/mobile/accessibility verification before any production promotion.
+Preserve and reuse the existing DI foundation. Do not rebuild `/api/di/query`, auth/RLS grounding, TETELESTAI certification, or the expanded panel merely to change the access control. The next controlled implementation step is to reconcile any stale runtime module names and restore the DI² neural-orb in the integrated test environment only, followed by desktop/mobile/accessibility verification before any production promotion.

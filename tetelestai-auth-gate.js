@@ -24,7 +24,7 @@ function loadRacMeterStyles() {
   const link = document.createElement('link');
   link.id = 'tetelestaiRacMeterV2';
   link.rel = 'stylesheet';
-  link.href = './tetelestai-rac-meter-v2.css?v=2';
+  link.href = './tetelestai-rac-meter-v2.css?v=3';
   document.head.appendChild(link);
 }
 

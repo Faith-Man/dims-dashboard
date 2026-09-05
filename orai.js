@@ -1,6 +1,24 @@
+function oraiAccessToken(){
+  const key='sb-sdquzhsylqpbhrmqjqgk-auth-token';
+  try{
+    const raw=localStorage.getItem(key);
+    if(!raw) return '';
+    const parsed=JSON.parse(raw);
+    return parsed?.access_token || parsed?.currentSession?.access_token || '';
+  }catch{return '';}
+}
+
 async function orElCall(mode,input='',teachings=[]){
-  const r=await fetch('/.netlify/functions/orai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode,input,teachings})});
-  const j=await r.json(); if(!j.ok) throw new Error(j.error||'Unknown'); return j.data;
+  const token=oraiAccessToken();
+  if(!token) throw new Error('Sign in to DIMS before using OrAI.');
+  const r=await fetch('/.netlify/functions/orai',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body:JSON.stringify({mode,input,teachings})
+  });
+  const j=await r.json().catch(()=>({ok:false,error:'Invalid service response'}));
+  if(!r.ok||!j.ok) throw new Error(j.error||'OrAI request failed');
+  return j.data;
 }
 function renderCard(id,title,body){
   const wrap=document.getElementById(id) || (function(){const d=document.createElement('div'); d.id=id; document.body.prepend(d); return d;})();
@@ -9,6 +27,6 @@ function renderCard(id,title,body){
       <h3 style="margin:0;color:#0C1475;text-shadow:0 0 6px #E6F0FF">${title}</h3>
       <div><button onclick="window.print()" style="background:#0C1475;color:#fff;border:0;border-radius:10px;padding:8px 12px;cursor:pointer">Print</button></div>
     </header>
-    <pre style="white-space:pre-wrap;margin:0;line-height:1.45">${body.replace(/</g,'&lt;')}</pre>
+    <pre style="white-space:pre-wrap;margin:0;line-height:1.45">${String(body).replace(/</g,'&lt;')}</pre>
   </section>`;
 }

@@ -11,7 +11,7 @@ Dominion1st Intelligence™ is the persistent intelligence and assistance layer 
 
 **DI² = Divine Intelligence × Dominion1st Intelligence.** Divine Intelligence is the source. Dominion1st Intelligence is the subordinate steward/instrument implemented within DIMS/DOME. Software assists the believer; it does not govern the believer.
 
-Within DOME, the approved persistent user access point and canonical interface name is the **DI² neural-orb**. Legacy pill terminology is retired from the current interface vocabulary. The DI² neural-orb opens the fuller Dominion1st Intelligence interface, which remains the expanded conversational/intelligence panel. The existing orchestration endpoint and security architecture are preserved.
+**DI² is the official name of the existing cross-system AI function for DIMS/DOME.** The older user-facing name **Ask DI** has been renamed to **DI²**; this is a rename and clarification of the existing function, not creation of a new AI subsystem. The **DI² neural-orb** is the persistent visual access control for DI², not a separate function. Users may **Ask, Analyze, Explain, or Direct DI²** across DOME or within the current module. Any Direct capability that causes a system change remains subject to the applicable authorization, confirmation, audit, and verification controls.
 
 DOME currently means **Dominion Over My Everything**: the personal app/operating environment through which the user experiences Dominion1st. DIMS remains the sophisticated integrated management/operating system underneath and supporting DOME.
 
@@ -36,11 +36,15 @@ The shared Worker must expose the same persistent DI² access control across DOM
 
 ## DI² access model
 
-1. **DI² neural-orb** — always-available DOME intelligence access point; visually distinct from the Living Earth and not a ninth module node.
-2. **Expanded Dominion1st Intelligence panel** — opened from the orb; provides Ask, Analyze, Explain, and only separately authorized Execute capabilities.
+1. **DI² neural-orb** — always-available visual access point to the DI² function; visually distinct from the Living Earth and not a ninth module node.
+2. **Expanded Dominion1st Intelligence panel** — opened from the orb; provides Ask, Analyze, Explain, and Direct capabilities. Direct operations that mutate state require separately authorized execution controls.
 3. **Grounded orchestration** — `/api/di/query` remains the shared server-side read-only endpoint for the current foundation.
 4. **Adapter honesty** — the interface must identify unavailable, partial, stale, permission-denied, or uncertified module data rather than implying full integration.
 5. **Verified actions only** — future writes remain capability-specific and require authorization, preview, confirmation, durable audit, idempotency, execution result, and authoritative post-action read-back before success can be reported.
+
+## Extend-before-create rule for DI²
+
+Before proposing or creating any new AI, assistant, analysis, explanation, direction, orchestration, or cross-module intelligence function, search current DIMS/DOME artifacts, source code, registries, capability inventories, and governed history for an existing implementation. If the proposed function appears to overlap DI² or another existing capability, ask for clarification before creating a parallel function. Rename, extend, or adapt the existing governed function where appropriate instead of duplicating it.
 
 ## Orchestration architecture
 
@@ -85,7 +89,7 @@ The DI² neural-orb and expanded panel must support keyboard focus, Escape-to-cl
 ## Validation gates
 
 1. Verify DOME and all current module pages receive the persistent DI² neural-orb where applicable.
-2. Verify the expanded panel opens from the DI² neural-orb and no retired legacy pill terminology is presented as the current access pattern.
+2. Verify the expanded panel opens from the DI² neural-orb and presents DI² as the current AI function name rather than the retired Ask DI label.
 3. Verify the runtime roster uses only the ratified eight current modules: GEGRAPTAI, NESHAMAH, TETELESTAI, OrEl, YARATHĒKĒ, SHAMAR, OIKONOMOS, EKKLĒSIA.
 4. Confirm unauthenticated and invalid-token queries fail closed.
 5. Confirm TETELESTAI counts, citations, ordering, filters, and record links match authorized live data.
@@ -97,8 +101,8 @@ The DI² neural-orb and expanded panel must support keyboard focus, Escape-to-cl
 
 ## Controlled path to verified actions
 
-Future writes require a capability-specific adapter, separate authorization, preview of the exact proposed mutation, required human confirmation, durable audit record, idempotency protection, execution result, and authoritative post-action read-back. DI may report success only after that verification succeeds.
+Future writes require a capability-specific adapter, separate authorization, preview of the exact proposed mutation, required human confirmation, durable audit record, idempotency protection, execution result, and authoritative post-action read-back. DI² may report success only after that verification succeeds.
 
 ## Implementation disposition
 
-Preserve and reuse the existing DI foundation. Do not rebuild `/api/di/query`, auth/RLS grounding, TETELESTAI certification, or the expanded panel merely to change the access control. The next controlled implementation step is to reconcile any stale runtime module names and restore the DI² neural-orb in the integrated test environment only, followed by desktop/mobile/accessibility verification before any production promotion.
+Preserve and reuse the existing DI² foundation. Do not rebuild `/api/di/query`, auth/RLS grounding, TETELESTAI certification, the DI² neural-orb, or the expanded panel merely because a requested capability is described with different wording. Search and reconcile existing capability first; ask before creating an overlapping function. The next controlled implementation step is to reconcile any stale runtime module names and restore the DI² neural-orb in the integrated test environment only, followed by desktop/mobile/accessibility verification before any production promotion.

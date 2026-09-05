@@ -19,6 +19,15 @@ function setAllLoading(message) {
   if (summary) summary.innerHTML = `<div class="loading">${message}</div>`;
 }
 
+function loadRacMeterStyles() {
+  if (document.getElementById('tetelestaiRacMeterV2')) return;
+  const link = document.createElement('link');
+  link.id = 'tetelestaiRacMeterV2';
+  link.rel = 'stylesheet';
+  link.href = './tetelestai-rac-meter-v2.css?v=1';
+  document.head.appendChild(link);
+}
+
 async function startApp() {
   if (appStarted) return;
   appStarted = true;
@@ -26,6 +35,7 @@ async function startApp() {
   clearTimeout(window.__tetelestaiInitTimer);
   await import('./tetelestai-closed-loop.js?v=28');
   await import('./tetelestai-deep-links.js?v=28');
+  loadRacMeterStyles();
 }
 
 function renderSignIn() {

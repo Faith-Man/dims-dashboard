@@ -15,7 +15,7 @@ Recover **configuration** from source-controlled definitions and provider metada
 ## Verified repository controls
 
 - `.gitignore` excludes `.env*` and `.dev.vars*` while permitting example files.
-- The current Netlify OrAI function reads `OPENAI_API_KEY` from the runtime environment rather than embedding the value in source.
+- The current Netlify OrEl function (`netlify/functions/orai.js`) reads `OPENAI_API_KEY` from the runtime environment rather than embedding the value in source.
 - Source-controlled platform definitions (`netlify.toml`, `_redirects`, Wrangler configuration, application files, and Git history) are configuration inputs, not secret stores.
 - Publishable/browser configuration is treated separately from privileged credentials. Publishable values may be source-controlled when intentionally public; service-role keys, passwords, private API keys, shared tokens, and connection strings may not be committed.
 

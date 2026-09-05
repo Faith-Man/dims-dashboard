@@ -54,7 +54,7 @@ Requirements:
 - avoid destructive data operations;
 - add notes for objects that cannot be safely reconstructed from the captured baseline alone.
 
-### C. OrAI hardening preparation
+### C. OrEl hardening preparation
 
 Inspect `netlify/functions/orai.js` and its callers.
 
@@ -106,7 +106,7 @@ Do not deploy.
 1. A Phase 1A implementation report under `docs/implementation/`.
 2. A stale-schema reference reconciliation report.
 3. Proposed/source-controlled Supabase migration foundation.
-4. OrAI hardening changes or patch, with external dependencies explicitly documented.
+4. OrEl hardening changes or patch, with external dependencies explicitly documented.
 5. Production/archive boundary proposal/configuration.
 6. A list of files changed and why.
 7. Tests/checks run and results.

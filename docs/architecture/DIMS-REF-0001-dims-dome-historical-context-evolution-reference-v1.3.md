@@ -59,7 +59,7 @@ Dominion1st Intelligence™ is the cross-system AI/intelligence layer operating 
 
 **DI²™ = Divine Intelligence × Dominion1st Intelligence.** Divine Intelligence is the Source and belongs to God. Dominion1st Intelligence is the created system/stewarding instrument. The two meanings remain distinct.
 
-Within DOME, the approved **DI² neural orb** is the persistent intelligence access point. The older floating `Ask DI` control and companion panel are part of the implementation lineage.
+Within DOME, the approved **DI² neural-orb** is the persistent intelligence access point. The expanded Dominion1st Intelligence companion panel opens from the DI² neural-orb and remains part of the implementation lineage.
 
 ## 7. Historical capabilities that must inform current work
 

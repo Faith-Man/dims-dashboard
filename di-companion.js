@@ -75,7 +75,7 @@
   }
 
   const memoryKey = 'dominion1st-di-conversation-v1';
-  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const token = () => {
     for (let i=0;i<localStorage.length;i+=1) {
       const key=localStorage.key(i);

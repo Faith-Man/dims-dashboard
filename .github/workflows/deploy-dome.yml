@@ -43,12 +43,18 @@ jobs:
         env:
           BASE_URL: https://dome-dashboard.dominion1st-integrated-management-system-dims.workers.dev
         run: |
+          asset_file="${RUNNER_TEMP}/med-orb-canonical.jpg"
           for attempt in $(seq 1 40); do
             guide="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/rac-epi-apn-guide.html?deployment_check=${GITHUB_SHA}" || true)"
             table="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/projects-tasks.html?deployment_check=${GITHUB_SHA}" || true)"
             prefs="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/dims-ui-preferences.js?deployment_check=${GITHUB_SHA}" || true)"
             med="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/med-marriage-evaluation-dome-secure.html?deployment_check=${GITHUB_SHA}" || true)"
+            companion="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/di-companion.js?deployment_check=${GITHUB_SHA}" || true)"
             deploy="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/api/dome/deploy?deployment_check=${GITHUB_SHA}" || true)"
+            rm -f "$asset_file"
+            curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 \
+              "${BASE_URL}/assets/med-orb-canonical.jpg?deployment_check=${GITHUB_SHA}" -o "$asset_file" || true
+            jpeg_magic="$(head -c 2 "$asset_file" 2>/dev/null | od -An -tx1 | tr -d ' \n')"
 
             if printf '%s' "$guide" | grep --fixed-strings --quiet 'Functional Risk Assessment Dome (RAD)' &&
                printf '%s' "$guide" | grep --fixed-strings --quiet 'EPI is retired as a separate priority layer.' &&
@@ -57,16 +63,19 @@ jobs:
                printf '%s' "$table" | grep --fixed-strings --quiet 'data-dims-view="card"' &&
                printf '%s' "$prefs" | grep --fixed-strings --quiet "const THEME_KEY = 'dims.theme';" &&
                printf '%s' "$prefs" | grep --fixed-strings --quiet 'Dominion1st DOME™ / DIMS' &&
-               printf '%s' "$deploy" | grep --fixed-strings --quiet 'fallback-badge-no-image-dependency' &&
-               printf '%s' "$med" | grep --fixed-strings --quiet 'data-med-orb-runtime="fallback-badge"' &&
-               printf '%s' "$med" | grep --fixed-strings --quiet '>MED</span>'; then
-              echo "Production verification passed for RAD, TETELESTAI and MED fallback badge."
+               printf '%s' "$deploy" | grep --fixed-strings --quiet 'canonical-image' &&
+               printf '%s' "$med" | grep --fixed-strings --quiet 'MED™ — Secure Marriage Evaluation Dome' &&
+               ! printf '%s' "$med" | grep --fixed-strings --quiet 'data-med-orb-runtime="fallback-badge"' &&
+               printf '%s' "$companion" | grep --fixed-strings --quiet '/assets/med-orb-canonical.jpg' &&
+               test -s "$asset_file" &&
+               test "$jpeg_magic" = 'ffd8'; then
+              echo "Production verification passed for RAD, TETELESTAI and MED canonical image."
               exit 0
             fi
 
-            echo "Attempt ${attempt}/40: production MED fallback verification is not current yet. deploy_marker=$(printf '%s' "$deploy" | tr -d '\n' | head -c 240)"
+            echo "Attempt ${attempt}/40: production MED canonical-image verification is not current yet. deploy_marker=$(printf '%s' "$deploy" | tr -d '\n' | head -c 240) jpeg_magic=${jpeg_magic:-missing}"
             sleep 15
           done
 
-          echo "::error::Cloudflare production failed MED fallback verification. The deployment cannot be treated as successful until the MED page contains the fallback badge."
+          echo "::error::Cloudflare production failed MED canonical-image verification. The deployment cannot be treated as successful until the secure MED page uses the canonical JPG and the fallback badge is absent."
           exit 1

@@ -1,6 +1,6 @@
 import shamarWorker from './shamar-worker.js';
 
-const DOME_DEPLOY_MARKER = '2026-09-06T10:24-05:00-med-orb-deterministic-html-replacement';
+const DOME_DEPLOY_MARKER = '2026-09-06T10:27-05:00-med-orb-deterministic-html-replacement';
 const MED_ORB_ROUTE = '/med-orb-canonical-runtime.jpg';
 const MED_ORB_ASSET = '/assets/med-orb-canonical.jpg';
 
@@ -41,7 +41,7 @@ async function medOrbResponse(request, env) {
 
 async function injectMedOrb(response) {
   const html = await response.text();
-  const orbHtml = `<div class="orb" aria-label="MED Marriage Evaluation Dome" data-med-orb-runtime="worker-jpeg" style="background:none!important;overflow:hidden!important"><img src="${MED_ORB_ROUTE}?v=20260906-1024" alt="MED Marriage Evaluation Dome" style="display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important;opacity:1!important;visibility:visible!important"></div>`;
+  const orbHtml = `<div class="orb" aria-label="MED Marriage Evaluation Dome" data-med-orb-runtime="worker-jpeg" style="background:none!important;overflow:hidden!important"><img src="${MED_ORB_ROUTE}?v=20260906-1027" alt="MED Marriage Evaluation Dome" style="display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important;opacity:1!important;visibility:visible!important"></div>`;
 
   const replaced = html.replace(
     /<div class="orb"[^>]*>.*?<\/div>/s,
@@ -76,7 +76,7 @@ export default {
         tetelestai_source_commit: 'a349f15f45eab093f8e1aa3fbcd52e176bd4fa2e',
         tetelestai: '/projects-tasks.html',
         rad_guide: '/rac-epi-apn-guide.html',
-        med_orb_mode: 'deterministic-html-replacement-worker-jpeg',
+        med_orb_mode: 'worker-served-canonical-jpeg-deterministic-html-replacement',
         med_orb_route: MED_ORB_ROUTE
       }, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0', 'X-DOME-Deploy': DOME_DEPLOY_MARKER } });
     }

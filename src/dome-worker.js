@@ -37,22 +37,77 @@ async function wireMedPasswordRecovery(response) {
   });
 }
 
+async function verifyMedProduction(request) {
+  const origin = new URL(request.url).origin;
+  const caseId = '3c31f603-473f-4d33-aed8-e3fb03a49705';
+  const suffix = `?case=${caseId}&runtime_contract=${encodeURIComponent(DOME_DEPLOY_MARKER)}`;
+  const checks = [];
+
+  try {
+    const [htmlRes, extRes, recoveryRes, counselorRes, companionRes, orbRes] = await Promise.all([
+      fetch(`${origin}/med-marriage-evaluation-dome-secure.html${suffix}`, { headers: { 'Cache-Control': 'no-cache' } }),
+      fetch(`${origin}/med-marriage-evaluation-dome-secure${suffix}`, { headers: { 'Cache-Control': 'no-cache' } }),
+      fetch(`${origin}/med-password-recovery.js?runtime_contract=${encodeURIComponent(DOME_DEPLOY_MARKER)}`, { headers: { 'Cache-Control': 'no-cache' } }),
+      fetch(`${origin}/med-counselor-dashboard.js?runtime_contract=${encodeURIComponent(DOME_DEPLOY_MARKER)}`, { headers: { 'Cache-Control': 'no-cache' } }),
+      fetch(`${origin}/di-companion.js?runtime_contract=${encodeURIComponent(DOME_DEPLOY_MARKER)}`, { headers: { 'Cache-Control': 'no-cache' } }),
+      fetch(`${origin}/assets/med-orb-canonical.jpg?runtime_contract=${encodeURIComponent(DOME_DEPLOY_MARKER)}`, { headers: { 'Cache-Control': 'no-cache' } })
+    ]);
+
+    const [html, ext, recovery, counselor, companion, orbBytes] = await Promise.all([
+      htmlRes.text(), extRes.text(), recoveryRes.text(), counselorRes.text(), companionRes.text(), orbRes.arrayBuffer()
+    ]);
+    const orb = new Uint8Array(orbBytes);
+
+    const requiredPageMarkers = [
+      'MED™ — Secure Marriage Evaluation Dome',
+      'med-password-recovery-hook:v6',
+      "import('/med-counselor-dashboard.js')",
+      'Secure case verification is taking longer than expected.',
+      'id="signin"',
+      'id="counselor"'
+    ];
+
+    for (const marker of requiredPageMarkers) {
+      checks.push({ name: `html:${marker}`, ok: htmlRes.ok && html.includes(marker) });
+      checks.push({ name: `extensionless:${marker}`, ok: extRes.ok && ext.includes(marker) });
+    }
+
+    checks.push({ name: 'html:no-fallback-orb', ok: !html.includes('data-med-orb-runtime="fallback-badge"') });
+    checks.push({ name: 'extensionless:no-fallback-orb', ok: !ext.includes('data-med-orb-runtime="fallback-badge"') });
+    checks.push({ name: 'recovery:rate-limit-hour-lockout', ok: recoveryRes.ok && recovery.includes('RATE_LIMIT_COOLDOWN_MS = 60 * 60 * 1000') });
+    checks.push({ name: 'recovery:supabase-rate-limit-detection', ok: recoveryRes.ok && recovery.includes('over_email_send_rate_limit') });
+    checks.push({ name: 'counselor:question-instrument', ok: counselorRes.ok && counselor.includes('MED™ Assessment Instrument') });
+    checks.push({ name: 'counselor:rad-matrix', ok: counselorRes.ok && counselor.includes('RAD™ Risk Assessment Matrix') });
+    checks.push({ name: 'counselor:safety-override', ok: counselorRes.ok && counselor.includes('Safety override') });
+    checks.push({ name: 'companion:canonical-med-orb', ok: companionRes.ok && companion.includes('/assets/med-orb-canonical.jpg') });
+    checks.push({ name: 'orb:jpeg', ok: orbRes.ok && orb.length > 2 && orb[0] === 0xff && orb[1] === 0xd8 });
+  } catch (error) {
+    checks.push({ name: 'runtime-verifier-request', ok: false, error: error?.message || 'verification request failed' });
+  }
+
+  const failed = checks.filter(check => !check.ok);
+  return { ok: failed.length === 0, checks, failed: failed.map(check => check.name) };
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     if (url.pathname === '/api/dome/deploy') {
+      const medVerification = await verifyMedProduction(request);
       return Response.json({
-        ok: true,
+        ok: medVerification.ok,
         worker: 'dome-dashboard',
         deploy_marker: DOME_DEPLOY_MARKER,
         tetelestai_mode: 'canonical-restored',
         tetelestai_source_commit: 'a349f15f45eab093f8e1aa3fbcd52e176bd4fa2e',
         tetelestai: '/projects-tasks.html',
         rad_guide: '/rac-epi-apn-guide.html',
-        med_orb_mode: 'canonical-image',
+        med_orb_mode: medVerification.ok ? 'canonical-image' : 'verification-failed',
         med_password_recovery: 'canonical-client-v6-auth-boot-watchdog',
-        med_counselor_dashboard: 'enhanced-v1-question-instrument-rad-matrix'
+        med_counselor_dashboard: 'enhanced-v1-question-instrument-rad-matrix',
+        med_runtime_verified: medVerification.ok,
+        med_runtime_failed_checks: medVerification.failed
       }, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0', 'X-DOME-Deploy': DOME_DEPLOY_MARKER } });
     }
 

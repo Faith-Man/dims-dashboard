@@ -1,6 +1,6 @@
 import shamarWorker from './shamar-worker.js';
 
-const DOME_DEPLOY_MARKER = '2026-09-06T09:45-05:00-med-orb-worker-jpeg-route';
+const DOME_DEPLOY_MARKER = '2026-09-06T10:20-05:00-med-orb-path-rewrite';
 const MED_ORB_ROUTE = '/med-orb-canonical-runtime.jpg';
 const MED_ORB_ASSET = '/assets/med-orb-canonical.jpg';
 
@@ -41,13 +41,14 @@ async function medOrbResponse(request, env) {
 
 function injectMedOrb(response) {
   return new HTMLRewriter()
-    .on('.hero .brand .orb', {
+    .on('.orb', {
       element(element) {
         element.setInnerContent(
-          `<img src="${MED_ORB_ROUTE}?v=20260906-0945" alt="MED Marriage Evaluation Dome" style="display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important;opacity:1!important;visibility:visible!important">`,
+          `<img src="${MED_ORB_ROUTE}?v=20260906-1020" alt="MED Marriage Evaluation Dome" style="display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important;opacity:1!important;visibility:visible!important">`,
           { html: true }
         );
         element.setAttribute('style', 'background:none!important;overflow:hidden!important');
+        element.setAttribute('data-med-orb-runtime', 'worker-jpeg');
       }
     })
     .transform(response);
@@ -70,16 +71,13 @@ export default {
         tetelestai_source_commit: 'a349f15f45eab093f8e1aa3fbcd52e176bd4fa2e',
         tetelestai: '/projects-tasks.html',
         rad_guide: '/rac-epi-apn-guide.html',
-        med_orb_mode: 'worker-served-canonical-jpeg',
+        med_orb_mode: 'worker-served-canonical-jpeg-path-rewrite',
         med_orb_route: MED_ORB_ROUTE
       }, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0', 'X-DOME-Deploy': DOME_DEPLOY_MARKER } });
     }
 
     let response = await shamarWorker.fetch(request, env, ctx);
-    if (
-      url.pathname === '/med-marriage-evaluation-dome-secure.html' &&
-      response.headers.get('content-type')?.includes('text/html')
-    ) {
+    if (url.pathname === '/med-marriage-evaluation-dome-secure.html') {
       response = injectMedOrb(response);
     }
     return withDomeHeaders(response);

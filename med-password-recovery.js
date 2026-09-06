@@ -2,10 +2,49 @@ export function installMedPasswordRecovery(sb) {
   const $ = id => document.getElementById(id);
   const RECOVER_PARAM = 'recover';
   const RECOVER_VALUE = '1';
+  const RECOVERY_COOLDOWN_KEY = 'med-password-recovery-cooldown-until';
+  const RECOVERY_COOLDOWN_MS = 60 * 1000;
+  const RATE_LIMIT_COOLDOWN_MS = 60 * 60 * 1000;
+  let recoveryCooldownTimer = null;
 
   function setText(id, text) {
     const el = $(id);
     if (el) el.textContent = text;
+  }
+
+  function recoveryCooldownRemaining() {
+    const until = Number(localStorage.getItem(RECOVERY_COOLDOWN_KEY) || 0);
+    return Math.max(0, until - Date.now());
+  }
+
+  function setRecoveryCooldown(durationMs) {
+    localStorage.setItem(RECOVERY_COOLDOWN_KEY, String(Date.now() + durationMs));
+    syncRecoveryButton();
+  }
+
+  function syncRecoveryButton() {
+    const button = $('forgotPasswordBtn');
+    if (!button) return;
+
+    const remainingMs = recoveryCooldownRemaining();
+    const remainingSeconds = Math.ceil(remainingMs / 1000);
+    button.disabled = remainingMs > 0;
+    button.textContent = remainingMs > 0
+      ? `Try again in ${remainingSeconds}s`
+      : 'Forgot password?';
+
+    if (recoveryCooldownTimer) clearTimeout(recoveryCooldownTimer);
+    recoveryCooldownTimer = remainingMs > 0
+      ? setTimeout(syncRecoveryButton, Math.min(1000, remainingMs))
+      : null;
+  }
+
+  function isEmailRateLimitError(error) {
+    const message = String(error?.message || '').toLowerCase();
+    return error?.status === 429
+      || error?.code === 'over_email_send_rate_limit'
+      || message.includes('email rate limit')
+      || message.includes('rate limit exceeded');
   }
 
   function withTimeout(promise, ms, label) {
@@ -50,6 +89,7 @@ export function installMedPasswordRecovery(sb) {
       createBtn?.insertAdjacentElement('afterend', forgot);
       forgot.addEventListener('click', sendRecovery);
     }
+    syncRecoveryButton();
 
     document.querySelectorAll('[id^="signOut"]').forEach(signOut => {
       const id = `changePasswordBtn-${signOut.id}`;
@@ -72,6 +112,15 @@ export function installMedPasswordRecovery(sb) {
       return;
     }
 
+    const remainingMs = recoveryCooldownRemaining();
+    if (remainingMs > 0) {
+      const remainingSeconds = Math.ceil(remainingMs / 1000);
+      setText('authMsg', `A reset request was already sent. Please wait ${remainingSeconds} seconds before trying again.`);
+      syncRecoveryButton();
+      return;
+    }
+
+    setRecoveryCooldown(RECOVERY_COOLDOWN_MS);
     if (button) button.disabled = true;
     setText('authMsg', 'Sending password-reset email…');
 
@@ -84,14 +133,19 @@ export function installMedPasswordRecovery(sb) {
       if (error) throw error;
       setText('authMsg', 'Password-reset email sent. Check your inbox and follow the secure link.');
     } catch (error) {
-      setText(
-        'authMsg',
-        error?.message === 'reset-request-timeout'
-          ? 'Password reset request timed out. Check your connection and try again.'
-          : `Password reset failed: ${error?.message || 'Supabase/network error'}`
-      );
+      if (isEmailRateLimitError(error)) {
+        setRecoveryCooldown(RATE_LIMIT_COOLDOWN_MS);
+        setText('authMsg', 'The secure email service has reached its temporary sending limit. Please wait up to one hour, then request one new reset email.');
+      } else {
+        setText(
+          'authMsg',
+          error?.message === 'reset-request-timeout'
+            ? 'Password reset request timed out. Check your connection and try again after the timer ends.'
+            : `Password reset failed: ${error?.message || 'Supabase/network error'}`
+        );
+      }
     } finally {
-      if (button) button.disabled = false;
+      syncRecoveryButton();
     }
   }
 

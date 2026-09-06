@@ -9,7 +9,7 @@
 
   // MED™ canonical-orb runtime bridge. The DI² companion is already injected on DOME pages,
   // so use it to guarantee the approved MED artwork is applied after the page DOM exists.
-  if (page === 'med-marriage-evaluation-dome-secure.html') {
+  if (page === 'med-marriage-evaluation-dome-secure.html' || page === 'med-marriage-evaluation-dome-secure') {
     const applyMedOrb = () => {
       const orb = document.querySelector('.hero .brand .orb');
       if (!orb) return false;

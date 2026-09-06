@@ -1,6 +1,6 @@
 import shamarWorker from './shamar-worker.js';
 
-const DOME_DEPLOY_MARKER = '2026-09-06T15:28-05:00-med-password-recovery-v2';
+const DOME_DEPLOY_MARKER = '2026-09-06T15:48-05:00-med-password-recovery-v3';
 
 function withDomeHeaders(response) {
   const headers = new Headers(response.headers);
@@ -17,7 +17,7 @@ function withDomeHeaders(response) {
 async function injectMedPasswordRecovery(response) {
   const html = await response.text();
   const recoveryScript = `
-<script data-med-password-recovery="v2">
+<script data-med-password-recovery="v3">
 (() => {
   const byId = id => document.getElementById(id);
   const SUPABASE_URL = 'https://sdquzhsylqpbhrmqjqgk.supabase.co';
@@ -53,18 +53,47 @@ async function injectMedPasswordRecovery(response) {
   async function sendRecovery() {
     const email = byId('email')?.value?.trim();
     const msg = byId('authMsg');
+    const button = byId('forgotPasswordBtn');
     if (!email) {
       if (msg) msg.textContent = 'Enter your email address first.';
       return;
     }
+
+    if (button) button.disabled = true;
     if (msg) msg.textContent = 'Sending password-reset email…';
     const redirect = new URL(location.href);
     redirect.hash = '';
     redirect.searchParams.set('recover', '1');
-    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: redirect.toString() });
-    if (msg) msg.textContent = error
-      ? 'Password reset failed: ' + error.message
-      : 'Password-reset email sent. Check your inbox and follow the secure link.';
+
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 12000);
+      const response = await fetch(
+        SUPABASE_URL + '/auth/v1/recover?redirect_to=' + encodeURIComponent(redirect.toString()),
+        {
+          method: 'POST',
+          headers: {
+            apikey: SUPABASE_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email }),
+          signal: controller.signal
+        }
+      );
+      clearTimeout(timeout);
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        if (msg) msg.textContent = 'Password reset failed: ' + (payload?.msg || payload?.message || payload?.error_description || ('HTTP ' + response.status));
+        return;
+      }
+      if (msg) msg.textContent = 'Password-reset email sent. Check your inbox and follow the secure link.';
+    } catch (error) {
+      if (msg) msg.textContent = error?.name === 'AbortError'
+        ? 'Password reset request timed out. Please try again.'
+        : 'Password reset failed: ' + (error?.message || 'unknown error');
+    } finally {
+      if (button) button.disabled = false;
+    }
   }
 
   function openPasswordDialog(title = 'Create new password') {
@@ -190,14 +219,14 @@ async function injectMedPasswordRecovery(response) {
 })();
 </script>`;
 
-  const injected = html.includes('data-med-password-recovery="v2"')
+  const injected = html.includes('data-med-password-recovery="v3"')
     ? html
-    : html.replace(/<script data-med-password-recovery="v1">[\s\S]*?<\/script>\s*/g, '').replace('</body>', recoveryScript + '\n</body>');
+    : html.replace(/<script data-med-password-recovery="v[12]">[\s\S]*?<\/script>\s*/g, '').replace('</body>', recoveryScript + '\n</body>');
 
   const headers = new Headers(response.headers);
   headers.set('content-type', 'text/html; charset=utf-8');
   headers.set('cache-control', 'no-store, no-cache, must-revalidate, max-age=0');
-  headers.set('x-dome-med-password-recovery', injected !== html ? 'injected-v2' : 'present-v2');
+  headers.set('x-dome-med-password-recovery', injected !== html ? 'injected-v3' : 'present-v3');
   return new Response(injected, {
     status: response.status,
     statusText: response.statusText,
@@ -219,7 +248,7 @@ export default {
         tetelestai: '/projects-tasks.html',
         rad_guide: '/rac-epi-apn-guide.html',
         med_orb_mode: 'canonical-image',
-        med_password_recovery: 'forgot-reset-change-v2-direct-auth-update'
+        med_password_recovery: 'forgot-reset-change-v3-direct-recover-and-auth-update'
       }, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0', 'X-DOME-Deploy': DOME_DEPLOY_MARKER } });
     }
 

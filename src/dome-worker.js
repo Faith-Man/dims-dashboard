@@ -1,6 +1,6 @@
 import shamarWorker from './shamar-worker.js';
 
-const DOME_DEPLOY_MARKER = '2026-09-06T15:12-05:00-med-password-recovery';
+const DOME_DEPLOY_MARKER = '2026-09-06T15:28-05:00-med-password-recovery-v2';
 
 function withDomeHeaders(response) {
   const headers = new Headers(response.headers);
@@ -17,10 +17,12 @@ function withDomeHeaders(response) {
 async function injectMedPasswordRecovery(response) {
   const html = await response.text();
   const recoveryScript = `
-<script data-med-password-recovery="v1">
+<script data-med-password-recovery="v2">
 (() => {
   const byId = id => document.getElementById(id);
-  const caseId = new URLSearchParams(location.search).get('case') || '';
+  const SUPABASE_URL = 'https://sdquzhsylqpbhrmqjqgk.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How';
+  let activeSession = null;
 
   function ensureRecoveryUi() {
     const signInBtn = byId('signInBtn');
@@ -86,10 +88,23 @@ async function injectMedPasswordRecovery(response) {
     setTimeout(() => byId('medNewPassword')?.focus(), 0);
   }
 
+  async function resolveSession() {
+    if (activeSession?.access_token) return activeSession;
+    try {
+      const sessionResult = await Promise.race([
+        sb.auth.getSession(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('session-timeout')), 5000))
+      ]);
+      activeSession = sessionResult?.data?.session || null;
+    } catch (_) {}
+    return activeSession;
+  }
+
   async function savePassword() {
     const password = byId('medNewPassword')?.value || '';
     const confirm = byId('medConfirmPassword')?.value || '';
     const msg = byId('medPasswordMsg');
+    const save = byId('medSavePassword');
     if (password.length < 8) {
       msg.textContent = 'Use at least 8 characters.';
       return;
@@ -98,23 +113,60 @@ async function injectMedPasswordRecovery(response) {
       msg.textContent = 'Passwords do not match.';
       return;
     }
-    msg.textContent = 'Updating password…';
-    const { error } = await sb.auth.updateUser({ password });
-    if (error) {
-      msg.textContent = 'Password update failed: ' + error.message;
+
+    save.disabled = true;
+    msg.textContent = 'Preparing secure password update…';
+    const session = await resolveSession();
+    if (!session?.access_token) {
+      save.disabled = false;
+      msg.textContent = 'The secure recovery session is not ready. Open the newest password-reset email link again, then create the new password.';
       return;
     }
-    msg.textContent = 'Password updated successfully.';
+
+    msg.textContent = 'Updating password…';
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 12000);
+      const response = await fetch(SUPABASE_URL + '/auth/v1/user', {
+        method: 'PUT',
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: 'Bearer ' + session.access_token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ password }),
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        save.disabled = false;
+        msg.textContent = 'Password update failed: ' + (payload?.msg || payload?.message || payload?.error_description || ('HTTP ' + response.status));
+        return;
+      }
+    } catch (error) {
+      save.disabled = false;
+      msg.textContent = error?.name === 'AbortError'
+        ? 'Password update timed out. Open the newest password-reset email link again and retry.'
+        : 'Password update failed: ' + (error?.message || 'unknown error');
+      return;
+    }
+
+    msg.textContent = 'Password updated successfully. You can now sign in with the new password.';
     const clean = new URL(location.href);
     clean.hash = '';
     clean.searchParams.delete('recover');
     history.replaceState({}, '', clean.pathname + clean.search);
     setTimeout(() => {
-      byId('medPasswordModal').style.display = 'none';
-    }, 900);
+      const modal = byId('medPasswordModal');
+      if (modal) modal.style.display = 'none';
+      save.disabled = false;
+    }, 1200);
   }
 
-  function handleRecoveryEvent(event) {
+  function handleAuthEvent(event, session) {
+    if (session?.access_token) activeSession = session;
+    if (event === 'SIGNED_OUT') activeSession = null;
     if (event === 'PASSWORD_RECOVERY') openPasswordDialog('Create new password');
   }
 
@@ -124,21 +176,28 @@ async function injectMedPasswordRecovery(response) {
   const observer = new MutationObserver(ensureRecoveryUi);
   observer.observe(document.documentElement, { childList: true, subtree: true });
 
-  sb.auth.onAuthStateChange((event) => handleRecoveryEvent(event));
-  if (new URLSearchParams(location.search).get('recover') === '1') {
-    setTimeout(() => openPasswordDialog('Create new password'), 500);
-  }
+  sb.auth.onAuthStateChange((event, session) => handleAuthEvent(event, session));
+  sb.auth.getSession().then(({ data }) => {
+    if (data?.session?.access_token) activeSession = data.session;
+    if (new URLSearchParams(location.search).get('recover') === '1') {
+      openPasswordDialog('Create new password');
+    }
+  }).catch(() => {
+    if (new URLSearchParams(location.search).get('recover') === '1') {
+      openPasswordDialog('Create new password');
+    }
+  });
 })();
 </script>`;
 
-  const injected = html.includes('data-med-password-recovery="v1"')
+  const injected = html.includes('data-med-password-recovery="v2"')
     ? html
-    : html.replace('</body>', recoveryScript + '\n</body>');
+    : html.replace(/<script data-med-password-recovery="v1">[\s\S]*?<\/script>\s*/g, '').replace('</body>', recoveryScript + '\n</body>');
 
   const headers = new Headers(response.headers);
   headers.set('content-type', 'text/html; charset=utf-8');
   headers.set('cache-control', 'no-store, no-cache, must-revalidate, max-age=0');
-  headers.set('x-dome-med-password-recovery', injected !== html ? 'injected' : 'present');
+  headers.set('x-dome-med-password-recovery', injected !== html ? 'injected-v2' : 'present-v2');
   return new Response(injected, {
     status: response.status,
     statusText: response.statusText,
@@ -160,7 +219,7 @@ export default {
         tetelestai: '/projects-tasks.html',
         rad_guide: '/rac-epi-apn-guide.html',
         med_orb_mode: 'canonical-image',
-        med_password_recovery: 'forgot-reset-change-v1'
+        med_password_recovery: 'forgot-reset-change-v2-direct-auth-update'
       }, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0', 'X-DOME-Deploy': DOME_DEPLOY_MARKER } });
     }
 

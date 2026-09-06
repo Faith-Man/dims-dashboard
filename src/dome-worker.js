@@ -1,6 +1,8 @@
 import shamarWorker from './shamar-worker.js';
 
-const DOME_DEPLOY_MARKER = '2026-09-06T08:24-05:00-med-orb-same-origin-svg';
+const DOME_DEPLOY_MARKER = '2026-09-06T09:45-05:00-med-orb-worker-jpeg-route';
+const MED_ORB_ROUTE = '/med-orb-canonical-runtime.jpg';
+const MED_ORB_ASSET = '/assets/med-orb-canonical.jpg';
 
 function withDomeHeaders(response) {
   const headers = new Headers(response.headers);
@@ -14,15 +16,38 @@ function withDomeHeaders(response) {
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
+async function medOrbResponse(request, env) {
+  const sourceUrl = new URL(MED_ORB_ASSET, request.url);
+  const source = await env.ASSETS.fetch(new Request(sourceUrl, {
+    method: 'GET',
+    headers: { accept: 'image/jpeg,image/*;q=0.9,*/*;q=0.8' }
+  }));
+  if (!source.ok) {
+    return new Response('MED orb asset unavailable', {
+      status: 404,
+      headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' }
+    });
+  }
+  return new Response(source.body, {
+    status: 200,
+    headers: {
+      'content-type': 'image/jpeg',
+      'cache-control': 'no-store, no-cache, must-revalidate, max-age=0',
+      'x-content-type-options': 'nosniff',
+      'x-dome-med-orb': 'canonical-worker-route'
+    }
+  });
+}
+
 function injectMedOrb(response) {
   return new HTMLRewriter()
     .on('.hero .brand .orb', {
       element(element) {
         element.setInnerContent(
-          '<img src="/assets/med-orb-canonical-live.svg?v=20260906-0824" alt="MED Marriage Evaluation Dome" style="display:block;width:100%;height:100%;object-fit:cover;border-radius:50%">',
+          `<img src="${MED_ORB_ROUTE}?v=20260906-0945" alt="MED Marriage Evaluation Dome" style="display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important;opacity:1!important;visibility:visible!important">`,
           { html: true }
         );
-        element.setAttribute('style', 'background:none!important;overflow:hidden');
+        element.setAttribute('style', 'background:none!important;overflow:hidden!important');
       }
     })
     .transform(response);
@@ -31,6 +56,11 @@ function injectMedOrb(response) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    if (url.pathname === MED_ORB_ROUTE) {
+      return medOrbResponse(request, env);
+    }
+
     if (url.pathname === '/api/dome/deploy') {
       return Response.json({
         ok: true,
@@ -40,9 +70,11 @@ export default {
         tetelestai_source_commit: 'a349f15f45eab093f8e1aa3fbcd52e176bd4fa2e',
         tetelestai: '/projects-tasks.html',
         rad_guide: '/rac-epi-apn-guide.html',
-        med_orb_mode: 'same-origin-svg-img'
+        med_orb_mode: 'worker-served-canonical-jpeg',
+        med_orb_route: MED_ORB_ROUTE
       }, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0', 'X-DOME-Deploy': DOME_DEPLOY_MARKER } });
     }
+
     let response = await shamarWorker.fetch(request, env, ctx);
     if (
       url.pathname === '/med-marriage-evaluation-dome-secure.html' &&

@@ -9,7 +9,7 @@ export function installMedPasswordRecovery(sb) {
 
   function setText(id, text) {
     const el = $(id);
-    if (el) el.textContent = text;
+    if (el && el.textContent !== text) el.textContent = text;
   }
 
   function recoveryCooldownRemaining() {
@@ -28,10 +28,13 @@ export function installMedPasswordRecovery(sb) {
 
     const remainingMs = recoveryCooldownRemaining();
     const remainingSeconds = Math.ceil(remainingMs / 1000);
-    button.disabled = remainingMs > 0;
-    button.textContent = remainingMs > 0
+    const shouldDisable = remainingMs > 0;
+    const label = shouldDisable
       ? `Try again in ${remainingSeconds}s`
       : 'Forgot password?';
+
+    if (button.disabled !== shouldDisable) button.disabled = shouldDisable;
+    if (button.textContent !== label) button.textContent = label;
 
     if (recoveryCooldownTimer) clearTimeout(recoveryCooldownTimer);
     recoveryCooldownTimer = remainingMs > 0

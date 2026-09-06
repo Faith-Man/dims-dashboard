@@ -49,8 +49,6 @@ jobs:
             prefs="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/dims-ui-preferences.js?deployment_check=${GITHUB_SHA}" || true)"
             med="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/med-marriage-evaluation-dome-secure.html?deployment_check=${GITHUB_SHA}" || true)"
             deploy="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/api/dome/deploy?deployment_check=${GITHUB_SHA}" || true)"
-            orb_headers="$(curl --silent --show-error --location --connect-timeout 15 --max-time 30 -D - -o /tmp/med-orb.jpg "${BASE_URL}/med-orb-canonical-runtime.jpg?deployment_check=${GITHUB_SHA}" || true)"
-            orb_size="$(wc -c </tmp/med-orb.jpg 2>/dev/null || echo 0)"
 
             if printf '%s' "$guide" | grep --fixed-strings --quiet 'Functional Risk Assessment Dome (RAD)' &&
                printf '%s' "$guide" | grep --fixed-strings --quiet 'EPI is retired as a separate priority layer.' &&
@@ -59,17 +57,16 @@ jobs:
                printf '%s' "$table" | grep --fixed-strings --quiet 'data-dims-view="card"' &&
                printf '%s' "$prefs" | grep --fixed-strings --quiet "const THEME_KEY = 'dims.theme';" &&
                printf '%s' "$prefs" | grep --fixed-strings --quiet 'Dominion1st DOME™ / DIMS' &&
-               printf '%s' "$deploy" | grep --fixed-strings --quiet 'worker-served-canonical-jpeg' &&
-               printf '%s' "$med" | grep --fixed-strings --quiet 'med-orb-canonical-runtime.jpg' &&
-               printf '%s' "$orb_headers" | grep -i --fixed-strings --quiet 'content-type: image/jpeg' &&
-               [ "$orb_size" -gt 10000 ]; then
-              echo "Production verification passed for RAD, TETELESTAI and MED orb delivery (${orb_size} bytes)."
+               printf '%s' "$deploy" | grep --fixed-strings --quiet 'fallback-badge-no-image-dependency' &&
+               printf '%s' "$med" | grep --fixed-strings --quiet 'data-med-orb-runtime="fallback-badge"' &&
+               printf '%s' "$med" | grep --fixed-strings --quiet '>MED</span>'; then
+              echo "Production verification passed for RAD, TETELESTAI and MED fallback badge."
               exit 0
             fi
 
-            echo "Attempt ${attempt}/40: production MED verification is not current yet. deploy_marker=$(printf '%s' "$deploy" | tr -d '\n' | head -c 240) orb_size=${orb_size}"
+            echo "Attempt ${attempt}/40: production MED fallback verification is not current yet. deploy_marker=$(printf '%s' "$deploy" | tr -d '\n' | head -c 240)"
             sleep 15
           done
 
-          echo "::error::Cloudflare production failed MED verification. The deployment cannot be treated as successful until the MED page contains the runtime orb route and that route returns a JPEG payload."
+          echo "::error::Cloudflare production failed MED fallback verification. The deployment cannot be treated as successful until the MED page contains the fallback badge."
           exit 1

@@ -67,6 +67,8 @@
     .dome-global-link:hover,.dome-global-link:focus-visible{border-color:var(--dome-shell-blue);background:#eef3ff;outline:none}
     .dome-global-link.active{background:var(--dome-shell-blue);color:#fff;border-color:var(--dome-shell-blue)}
     .dome-global-link.active::after{content:'CURRENT';font-size:.58rem;letter-spacing:.08em;opacity:.82}
+    .dome-module-identity{position:relative;z-index:2147482999;padding:10px 16px;background:#fff;color:#21345c;border-bottom:1px solid var(--dome-shell-line);font:600 .8rem/1.45 Inter,Arial,sans-serif;text-align:center}
+    .dome-module-identity strong{color:var(--dome-shell-blue)}
     body.dome-global-menu-open{overflow:hidden}
     @media(min-width:1000px){.dome-global-drawer{width:360px}.dome-global-bar{padding-left:20px;padding-right:20px}}
   `;
@@ -86,6 +88,21 @@
 
   document.body.prepend(bar);
   document.body.appendChild(backdrop);
+
+  if (/\/shamar-intelligence-dome\.html$/.test(location.pathname)) {
+    document.title = 'GRĒGOREŌ™ — Peace & Safety Intelligence Dome';
+    const h1 = document.querySelector('.header h1');
+    const subtitle = document.querySelector('.header p');
+    const earth = document.querySelector('.earth');
+    if (h1) h1.textContent = 'GRĒGOREŌ';
+    if (subtitle) subtitle.textContent = 'WATCH · PEACE & SAFETY INTELLIGENCE DOME';
+    if (earth) earth.setAttribute('aria-label','Earth at the center of the GRĒGOREŌ intelligence dome');
+    const identity = document.createElement('section');
+    identity.className = 'dome-module-identity';
+    identity.setAttribute('aria-label','GRĒGOREŌ module identity');
+    identity.innerHTML = '<strong>Greek:</strong> γρηγορέω · <i>grēgoreō</i> · “to be awake / watchful” &nbsp; · &nbsp; <strong>1 Thessalonians 5:6 (KJV)</strong> — “Therefore let us not sleep, as do others; but let us watch and be sober.”';
+    bar.after(identity);
+  }
 
   const openBtn = bar.querySelector('.dome-global-open');
   const closeBtn = backdrop.querySelector('.dome-global-close');

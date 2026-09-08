@@ -1,6 +1,6 @@
 import shamarWorker from './shamar-worker.js';
 
-const DOME_DEPLOY_MARKER = '2026-09-06T17:12-05:00-med-counselor-dashboard-v1';
+const DOME_DEPLOY_MARKER = '2026-09-07T22:40-05:00-med-admin-access-v1';
 
 function withDomeHeaders(response) {
   const headers = new Headers(response.headers);
@@ -18,7 +18,7 @@ async function wireMedPasswordRecovery(response) {
   const html = await response.text();
   const hookMarker = '/* med-password-recovery-hook:v6 */';
   const clientMarker = "const sb=createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How');";
-  const hook = `${clientMarker}\n${hookMarker}\nimport('/med-password-recovery.js')\n  .then(({ installMedPasswordRecovery }) => installMedPasswordRecovery(sb))\n  .catch(error => {\n    const msg = document.getElementById('authMsg');\n    if (msg) msg.textContent = 'Password recovery unavailable: ' + (error?.message || 'module load failed');\n  });\nimport('/med-counselor-dashboard.js')\n  .then(({ installMedCounselorDashboard }) => installMedCounselorDashboard(sb))\n  .catch(error => {\n    console.error('MED counselor dashboard enhancement unavailable', error);\n  });\nsetTimeout(() => {\n  const notice = document.getElementById('caseNotice');\n  const signin = document.getElementById('signin');\n  if (!notice || !signin) return;\n  if (!/loading secure case context/i.test(notice.textContent || '')) return;\n  signin.classList.remove('hidden');\n  notice.textContent = 'Secure case verification is taking longer than expected. Sign in to continue; MED™ will verify your case assignment before any assessment data is shown.';\n  const msg = document.getElementById('authMsg');\n  if (msg && !msg.textContent) msg.textContent = 'If sign-in does not complete, refresh once and try again. No case data is exposed until authorization succeeds.';\n}, 12000);`;
+  const hook = `${clientMarker}\n${hookMarker}\nimport('/med-password-recovery.js')\n  .then(({ installMedPasswordRecovery }) => installMedPasswordRecovery(sb))\n  .catch(error => {\n    const msg = document.getElementById('authMsg');\n    if (msg) msg.textContent = 'Password recovery unavailable: ' + (error?.message || 'module load failed');\n  });\nimport('/med-counselor-dashboard.js')\n  .then(({ installMedCounselorDashboard }) => installMedCounselorDashboard(sb))\n  .catch(error => {\n    console.error('MED counselor dashboard enhancement unavailable', error);\n  });\nsetTimeout(async () => {\n  const notice = document.getElementById('caseNotice');\n  const signin = document.getElementById('signin');\n  if (!notice || !signin) return;\n  try {\n    const { data: { session } } = await sb.auth.getSession();\n    if (!session) return;\n    const { data: isAdmin, error: adminError } = await sb.rpc('med_is_admin');\n    if (adminError) console.error('MED administrator check failed', adminError);\n    if (isAdmin) {\n      if (typeof role !== 'undefined') role = 'counselor';\n      if (typeof hide === 'function') hide('signin'); else signin.classList.add('hidden');\n      if (typeof message === 'function') message('DIMS administrator access verified.'); else notice.textContent = 'DIMS administrator access verified.';\n      if (typeof loadCounselor === 'function') await loadCounselor();\n      if (typeof show === 'function') show('counselor'); else document.getElementById('counselor')?.classList.remove('hidden');\n      return;\n    }\n    if (/access denied/i.test(notice.textContent || '')) {\n      signin.classList.remove('hidden');\n      const msg = document.getElementById('authMsg');\n      if (msg) msg.textContent = 'Signed in as ' + (session.user?.email || 'this account') + '. This account is not authorized for this MED™ case. Sign out and switch accounts.';\n      if (!document.getElementById('medSwitchAccountBtn')) {\n        const switchButton = document.createElement('button');\n        switchButton.type = 'button';\n        switchButton.id = 'medSwitchAccountBtn';\n        switchButton.className = 'secondary';\n        switchButton.textContent = 'Sign out / Switch account';\n        switchButton.addEventListener('click', async () => {\n          switchButton.disabled = true;\n          await sb.auth.signOut();\n          location.reload();\n        });\n        (document.getElementById('signInBtn')?.parentElement || signin).appendChild(switchButton);\n      }\n    }\n  } catch (error) {\n    console.error('MED administrator access bridge failed', error);\n  }\n}, 800);\nsetTimeout(() => {\n  const notice = document.getElementById('caseNotice');\n  const signin = document.getElementById('signin');\n  if (!notice || !signin) return;\n  if (!/loading secure case context/i.test(notice.textContent || '')) return;\n  signin.classList.remove('hidden');\n  notice.textContent = 'Secure case verification is taking longer than expected. Sign in to continue; MED™ will verify your case assignment before any assessment data is shown.';\n  const msg = document.getElementById('authMsg');\n  if (msg && !msg.textContent) msg.textContent = 'If sign-in does not complete, refresh once and try again. No case data is exposed until authorization succeeds.';\n}, 12000);`;
 
   let injected = html;
   if (!html.includes(hookMarker) && html.includes(clientMarker)) {
@@ -30,6 +30,7 @@ async function wireMedPasswordRecovery(response) {
   headers.set('cache-control', 'no-store, no-cache, must-revalidate, max-age=0');
   headers.set('x-dome-med-password-recovery', injected !== html ? 'canonical-client-v6' : html.includes(hookMarker) ? 'present-v6' : 'hook-missing');
   headers.set('x-dome-med-counselor-dashboard', injected !== html ? 'enhanced-v1' : html.includes(hookMarker) ? 'present-v1' : 'hook-missing');
+  headers.set('x-dome-med-admin-access', injected !== html ? 'administrator-bridge-v1' : html.includes('medSwitchAccountBtn') ? 'present-v1' : 'hook-missing');
   return new Response(injected, {
     status: response.status,
     statusText: response.statusText,
@@ -62,6 +63,8 @@ async function verifyMedProduction(request) {
       'MED™ — Secure Marriage Evaluation Dome',
       'med-password-recovery-hook:v6',
       "import('/med-counselor-dashboard.js')",
+      'medSwitchAccountBtn',
+      'DIMS administrator access verified.',
       'Secure case verification is taking longer than expected.',
       'id="signin"',
       'id="counselor"'
@@ -106,6 +109,7 @@ export default {
         med_orb_mode: medVerification.ok ? 'canonical-image' : 'verification-failed',
         med_password_recovery: 'canonical-client-v6-auth-boot-watchdog',
         med_counselor_dashboard: 'enhanced-v1-question-instrument-rad-matrix',
+        med_admin_access: 'administrator-read-override-switch-account-v1',
         med_runtime_verified: medVerification.ok,
         med_runtime_failed_checks: medVerification.failed
       }, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0', 'X-DOME-Deploy': DOME_DEPLOY_MARKER } });

@@ -2,6 +2,7 @@
 
 Status: ACTIVE / NON-PRODUCTION TEST WORKSTREAM
 Date: 2026-09-03
+Updated: 2026-09-08
 Parent: PROJ-0029 — DIMS Technical Modernization & Eight-Module Foundation
 Source baseline: PR #64 integrated DOME user-test baseline
 
@@ -14,11 +15,13 @@ Finalize the immersive DOME Home as the everyday-user front door to the ratified
 3. TETELESTAI™
 4. OrEl™
 5. YARATHĒKĒ™
-6. SHAMAR™
+6. GRĒGOREŌ™
 7. OIKONOMOS™
 8. EKKLĒSIA™
 
 DI and KUBERNĒSIS™ remain cross-system layers, not additional primary modules.
+
+GRĒGOREŌ™ now carries the peace/safety watch function. SHAMAR™ is reserved for system guarding/protection and is not presented as the peace/safety primary module. The existing `shamar-intelligence-dome.html` path remains temporarily preserved as a compatibility route until route reconciliation is completed.
 
 ## Module Language Clarity Standard
 On the Main DOME and primary module landing pages, present:
@@ -36,7 +39,9 @@ Major governed sub-elements/sub-DOMEs may appear beneath their parent module whe
 - Extend PR #64; do not rebuild settled module routes.
 - Preserve the approved TETELESTAI/RAD interaction baseline.
 - Preserve OrEl and YARATHĒKĒ canonical experiences.
-- SHAMAR wording and Scripture must follow its ratified institutional standard and governed TSI/Prophetic Proximity methodology.
+- GRĒGOREŌ wording and Scripture govern the peace/safety watch module and TSI/Prophetic Proximity presentation.
+- SHAMAR is reserved for system guarding/protection; do not conflate it with the peace/safety watch module.
+- Preserve the legacy `shamar-intelligence-dome.html` route until controlled route reconciliation prevents broken links.
 - RHEŌ / Dominion1st Streams remains governed by TASK-0085 recovery/reconciliation and must not be exposed as a ninth primary module.
 - Enterprise/System functions remain underneath DOME until separately reconciled.
 

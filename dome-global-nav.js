@@ -15,7 +15,7 @@
         ['TETELESTAI™', 'tetelestai/'],
         ['OrEl™', 'orel/'],
         ['YARATHĒKĒ™', 'yaratheke/'],
-        ['SHAMAR™', 'shamar-intelligence-dome.html'],
+        ['GRĒGOREŌ™', 'shamar-intelligence-dome.html'],
         ['OIKONOMOS™', 'oikonomos/'],
         ['EKKLĒSIA™', 'ekklesia/']
       ]

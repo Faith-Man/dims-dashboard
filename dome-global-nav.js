@@ -89,19 +89,24 @@
   document.body.prepend(bar);
   document.body.appendChild(backdrop);
 
-  if (/\/shamar-intelligence-dome\.html$/.test(location.pathname)) {
+  const h1 = document.querySelector('.header h1');
+  const subtitle = document.querySelector('.header p');
+  const isPeaceSafetyWatchSurface = /\/shamar-intelligence-dome\.html$/.test(location.pathname)
+    || ((h1?.textContent || '').trim().toUpperCase() === 'SHAMAR' && /PEACE\s*&\s*SAFETY/i.test(subtitle?.textContent || ''));
+
+  if (isPeaceSafetyWatchSurface) {
     document.title = 'GRĒGOREŌ™ — Peace & Safety Intelligence Dome';
-    const h1 = document.querySelector('.header h1');
-    const subtitle = document.querySelector('.header p');
     const earth = document.querySelector('.earth');
     if (h1) h1.textContent = 'GRĒGOREŌ';
     if (subtitle) subtitle.textContent = 'WATCH · PEACE & SAFETY INTELLIGENCE DOME';
     if (earth) earth.setAttribute('aria-label','Earth at the center of the GRĒGOREŌ intelligence dome');
-    const identity = document.createElement('section');
-    identity.className = 'dome-module-identity';
-    identity.setAttribute('aria-label','GRĒGOREŌ module identity');
-    identity.innerHTML = '<strong>Greek:</strong> γρηγορέω · <i>grēgoreō</i> · “to be awake / watchful” &nbsp; · &nbsp; <strong>1 Thessalonians 5:6 (KJV)</strong> — “Therefore let us not sleep, as do others; but let us watch and be sober.”';
-    bar.after(identity);
+    if (!document.querySelector('.dome-module-identity')) {
+      const identity = document.createElement('section');
+      identity.className = 'dome-module-identity';
+      identity.setAttribute('aria-label','GRĒGOREŌ module identity');
+      identity.innerHTML = '<strong>Greek:</strong> γρηγορέω · <i>grēgoreō</i> · “to be awake / watchful” &nbsp; · &nbsp; <strong>1 Thessalonians 5:6 (KJV)</strong> — “Therefore let us not sleep, as do others; but let us watch and be sober.”';
+      bar.after(identity);
+    }
   }
 
   const openBtn = bar.querySelector('.dome-global-open');

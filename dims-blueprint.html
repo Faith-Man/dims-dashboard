@@ -3,83 +3,90 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DIMS-v3 Blueprint</title>
+<title>DIMS/DOME Current Architecture</title>
 <link rel="stylesheet" href="dims-shared.css">
 <style>
-:root{--blue:#0C1475;--gold:#FFD700;--bg:#eef5ff;--card:#fff;--line:#c8d8ff;--text:#0b1733;--muted:#5b6b8d}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text)}.wrap{max-width:1200px;margin:0 auto;padding:18px}h1,h2,h3{color:var(--blue);margin-top:0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.small{color:var(--muted);font-size:.9rem}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#f7faff;border:1px solid var(--line);margin:3px}.tree{white-space:pre-wrap;background:#f7faff;border:1px solid var(--line);border-radius:14px;padding:14px;line-height:1.5}table{width:100%;border-collapse:collapse;background:white}th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:#f7faff;color:var(--blue)}@media(max-width:850px){.grid{grid-template-columns:1fr}}
-/* Blueprint uses the established OrEl / DOME royal-blue palette. */
-.page-header{background:linear-gradient(135deg,#050b3d,#0c1475 62%,#13258f);border-bottom:2px solid #d5ad45;box-shadow:none}
-.page-header .page-title{color:#fff;text-shadow:none}
-.page-header .page-sub{color:#fff}
-.page-header>a.nav-pill{background:#fff!important;color:#0c1475!important;border:1px solid #c8d8ff!important;border-radius:999px;font-weight:700}
-.page-header>a.nav-pill:hover,.page-header>a.nav-pill:focus-visible{background:#0c1475!important;color:#fff!important;border-color:#fff!important;outline:2px solid #fff;outline-offset:2px}
-.blueprint-nav{padding-left:20px;padding-right:20px;background:#fff;border-bottom:1px solid #c8d8ff}
-.blueprint-nav .nav-pill{background:#fff!important;color:#0c1475!important;border:1px solid #c8d8ff!important;border-radius:999px;font-weight:700}
-.blueprint-nav .nav-pill:hover,.blueprint-nav .nav-pill:focus-visible{background:#0c1475!important;color:#fff!important;border-color:#0c1475!important;outline:none}
+:root{--blue:#0C1475;--gold:#FFD700;--bg:#eef5ff;--card:#fff;--line:#c8d8ff;--text:#0b1733;--muted:#5b6b8d;--green:#167c45;--amber:#9a6b00;--red:#a33131}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text)}.wrap{max-width:1200px;margin:0 auto;padding:18px}h1,h2,h3{color:var(--blue);margin-top:0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.small{color:var(--muted);font-size:.9rem}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#f7faff;border:1px solid var(--line);margin:3px}.tree{white-space:pre-wrap;background:#f7faff;border:1px solid var(--line);border-radius:14px;padding:14px;line-height:1.5;font-size:.95rem}table{width:100%;border-collapse:collapse;background:white}th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:#f7faff;color:var(--blue)}.status-current{color:var(--green);font-weight:800}.status-support{color:var(--amber);font-weight:800}.status-historical{color:var(--red);font-weight:800}.page-header{background:linear-gradient(135deg,#050b3d,#0c1475 62%,#13258f);border-bottom:2px solid #d5ad45;box-shadow:none}.page-header .page-title{color:#fff;text-shadow:none}.page-header .page-sub{color:#fff}.page-header>a.nav-pill{background:#fff!important;color:#0c1475!important;border:1px solid #c8d8ff!important;border-radius:999px;font-weight:700}.notice{border-left:5px solid var(--gold);background:#fffbe9}.layers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.layer{border:1px solid var(--line);border-radius:14px;padding:14px;background:#f9fbff}.layer h3{margin-bottom:6px}.module-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.module{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}.module strong{display:block;color:var(--blue);margin-bottom:4px}.map-note{font-size:.84rem;color:var(--muted);line-height:1.45}@media(max-width:850px){.grid,.layers,.module-list{grid-template-columns:1fr}.tree{font-size:.86rem;overflow:auto}}
 </style>
 </head>
 <body>
-<header class="page-header">
-  <div>
-    <div class="page-title">DIMS-v3 Blueprint</div>
-    <div class="page-sub">Dominion1st Integrated Management System • Official Operating Architecture</div>
-  </div>
-  <a class="nav-pill" href="prototypes/dome-eight-module-home/">DOME Home</a>
-</header>
+<header class="page-header"><div><div class="page-title">DIMS / DOME Current Architecture</div><div class="page-sub">Reconciled Operating Blueprint · TASK-0102 Preview</div></div><a class="nav-pill" href="prototypes/dome-eight-module-home/">DOME Home</a></header>
 <div class="wrap">
-<section class="card"><h2>🏛️ System Purpose</h2><p>DIMS-v3 exists to organize Dominion1st revelation, teachings, projects, briefings, prophetic inspiration, testimony, intelligence, continuity, and future AI assistance into one governed operating system.</p></section>
-<section class="card"><h2>🧬 Core Architecture</h2><div class="tree">DOMINION1ST
+<section class="card notice"><h2>Current Architecture Notice</h2><p>This page replaces the original DIMS-v3 blueprint as the current operational view. Older terms are preserved below only where they still represent an active supporting capability or historical lineage. They are no longer presented as equal top-level engines unless they still exist in the current architecture.</p></section>
+
+<section class="card"><h2>System Purpose</h2><p>DIMS is the governed integrated management and operating system underneath DOME. DOME is the everyday operating environment through which the user works. The current architecture separates everyday modules, cross-system intelligence/governance, and system-guard/operator functions so that older construction-era concepts do not compete with the eight primary modules.</p></section>
+
+<section class="card"><h2>Current Architecture</h2><div class="tree">DOMINION1ST™
 │
-├── DGC
-│   Governance Layer
+├── DOME™ — Everyday Operating Environment
+│   ├── GEGRAPTAI™ — Scripture & Daily Kingdom Briefing
+│   ├── NESHAMAH™ — Inspiration / Dynamic Daily Prophetic Word
+│   ├── TETELESTAI™ — Completion / Mission Execution
+│   ├── OrEl™ — Creation, Authoring & Publishing Development
+│   ├── YARATHĒKĒ™ — Wells of Knowledge / Library & Reader
+│   ├── GRĒGOREŌ™ — Watch / Peace & Safety Intelligence
+│   ├── OIKONOMOS™ — Stewardship & Administration
+│   └── EKKLĒSIA™ — Church / Assembly / People of God
 │
-├── DIMS
-│   Management Layer
+├── CROSS-SYSTEM LAYERS
+│   ├── DI² — Persistent cross-module intelligence / assistance
+│   └── KUBERNĒSIS™ — Governance / steering / orchestration
 │
-├── KUBERNĒSIS
-│   Navigation / Mission Control Layer
-│
-├── ANCHOR
-│   ChatGPT Continuity / Resume Layer
-│
-├── NESHAMAH
-│   Prophetic Inspiration Engine
-│
-├── DDBB
-│   Divine Daily Bread Briefing
-│
-├── SHOMER
-│   Peace & Safety Intelligence / Watchman Layer
-│
-├── MARTUREŌ
-│   Witness & Testimony Function
-│
-├── VAULT
-│   Memory / Archive Layer
-│
-├── OrEl
-│   Content Creation Engine
-│
-└── DivineID
-    Future AI Assistant Layer</div></section>
-<section class="grid">
-<div class="card"><h2>⚖️ DGC</h2><p><strong>Function:</strong> Governs.</p><p>DGC provides vision, strategic direction, mission alignment, priorities, decisions, and accountability.</p></div>
-<div class="card"><h2>📊 DIMS</h2><p><strong>Function:</strong> Manages.</p><p>DIMS organizes projects, tasks, teachings, briefings, decisions, snapshots, and operational data.</p></div>
-<div class="card"><h2>🧭 KUBERNĒSIS</h2><p><strong>Function:</strong> Visualizes and steers.</p><p>KUBERNĒSIS is the Mission Control dashboard that displays system status, projects, tasks, resume points, and active work.</p></div>
-<div class="card"><h2>⚓ ANCHOR</h2><p><strong>Function:</strong> Preserves continuity.</p><p>ANCHOR is the ChatGPT continuity mechanism used to resume work across long chats or new sessions.</p></div>
-<div class="card"><h2>💨 NESHAMAH</h2><p><strong>Function:</strong> Inspires.</p><p>NESHAMAH is the Prophetic Inspiration Engine based on Job 32:8 — the inspiration of the Almighty giving understanding.</p><p><strong>Output:</strong> Logos, Rhema, understanding, insight, directives, declaration.</p></div>
-<div class="card"><h2>🌅 DDBB</h2><p><strong>Function:</strong> Briefs.</p><p>DDBB is the Divine Daily Bread Briefing: Scripture, KUBERNĒSIS oversight, Logos, Rhema, World Intel, Bridge Intel, Personal Intel, Confession, Directives, Tasks, Oversight, and Everyday Everything.</p></div>
-<div class="card"><h2>🛡️ SHOMER</h2><p><strong>Function:</strong> Watches.</p><p>SHOMER is the Peace & Safety Intelligence layer: geopolitical monitoring, risk barometers, watch lists, and strategic indicators.</p></div>
-<div class="card"><h2>🗣️ MARTUREŌ</h2><p><strong>Function:</strong> Witnesses.</p><p>MARTUREŌ records testimony, fulfillment, witness records, Kingdom evidence, and memorial declarations.</p></div>
-<div class="card"><h2>📚 VAULT</h2><p><strong>Function:</strong> Remembers.</p><p>VAULT stores teachings, archives, snapshots, testimony, content, family legacy, and historical records.</p></div>
-<div class="card"><h2>💡 OrEl</h2><p><strong>Function:</strong> Creates.</p><p>OrEl is the content creation engine for Principles, Perspectives, Diagnoses, Teachings, Briefings, and Prophecy/NESHAMAH materials.</p></div>
-<div class="card"><h2>🤖 DivineID</h2><p><strong>Function:</strong> Assists.</p><p>DivineID is the future Dominion1st AI assistant layer that will search, recall, recommend, summarize, and help govern work.</p></div>
-</section>
-<section class="card"><h2>📌 Engine Separation</h2><table><thead><tr><th>Engine</th><th>Question Answered</th><th>Primary Output</th></tr></thead><tbody><tr><td>NESHAMAH</td><td>What is God saying now?</td><td>Now Word, understanding, directives, declaration</td></tr><tr><td>DDBB</td><td>What do I need today?</td><td>Daily Kingdom briefing</td></tr><tr><td>SHOMER</td><td>What is happening in the nations?</td><td>Peace & Safety Intelligence</td></tr><tr><td>MARTUREŌ</td><td>What has God done?</td><td>Witness, testimony, fulfillment record</td></tr><tr><td>ANCHOR</td><td>Where did we leave off?</td><td>Continuity record and resume point</td></tr><tr><td>KUBERNĒSIS</td><td>Where are we and what is next?</td><td>Mission Control view</td></tr></tbody></table></section>
-<section class="card"><h2>✅ Current Phase</h2><p><strong>Phase 1 — OrEl:</strong> 🟢 Complete</p><p><strong>Phase 2 — KUBERNĒSIS:</strong> 🟡 Active / Operational Foundation</p><p><strong>Phase 3 — Blueprint + Entry Layer:</strong> 🟡 In Progress</p><p><strong>Phase 4 — Automation:</strong> ⚪ Pending</p><p><strong>Phase 5 — DivineID:</strong> ⚪ Pending</p></section>
-<section class="card"><h2>🧾 Locked Decisions</h2><span class="pill">NESHAMAH = Inspiration</span><span class="pill">DDBB = Daily Briefing</span><span class="pill">SHOMER = Watchman Intelligence</span><span class="pill">MARTUREŌ = Witness</span><span class="pill">ANCHOR = Continuity</span><span class="pill">KUBERNĒSIS = Mission Control</span></section>
-<footer class="card small">Dominion1st™ • You Have Dominion 👑 • Jesus Is Lord ✝️</footer>
+└── DIMS / ENTERPRISE / SYSTEM
+    ├── SHAMAR™ — Guard / Protect / Preserve DIMS/DOME
+    ├── DSCC — Technical system health / recovery intelligence
+    ├── Mission Control — Continuity / active mission control
+    ├── System Status — Verified infrastructure checks
+    ├── Institutional Queue — Governance / institutionalization workflow
+    └── Architecture / Governance — Current operating reference</div></section>
+
+<section class="card"><h2>Eight Primary DOME Modules</h2><div class="module-list">
+<div class="module"><strong>GEGRAPTAI™</strong>Scripture & Daily Kingdom Briefing. DDBB capability is carried here rather than standing as a separate engine.</div>
+<div class="module"><strong>NESHAMAH™</strong>Inspiration / Dynamic Daily Prophetic Word. Current primary module.</div>
+<div class="module"><strong>TETELESTAI™</strong>Projects, tasks, accountability, RAC/RAD/DEA, milestones, and completion.</div>
+<div class="module"><strong>OrEl™</strong>Creation, authoring, research, manuscript, media, and publishing development.</div>
+<div class="module"><strong>YARATHĒKĒ™</strong>Preservation, discovery, reading, study, retrieval, and governed knowledge use.</div>
+<div class="module"><strong>GRĒGOREŌ™</strong>Watch / Peace & Safety Intelligence, including TSI and Prophetic Proximity.</div>
+<div class="module"><strong>OIKONOMOS™</strong>Stewardship of resources, obligations, assets, records, property, estate, and legacy matters.</div>
+<div class="module"><strong>EKKLĒSIA™</strong>People, church, ministry, relationships, discipleship, Marriage & Family, Marriage1st™ and MED™.</div>
+</div></section>
+
+<section class="card"><h2>Cross-System & System-Guard Layers</h2><div class="layers">
+<div class="layer"><h3>DI²</h3><p>Persistent intelligence and assistance across DOME. Not a ninth module.</p></div>
+<div class="layer"><h3>KUBERNĒSIS™</h3><p>Governance, steering, orchestration, navigation, and system-level oversight. Not a primary everyday module.</p></div>
+<div class="layer"><h3>SHAMAR™</h3><p>System guarding/protective stewardship: integrity, verified condition, recovery readiness, governed access, preservation, and protection of DIMS/DOME itself.</p></div>
+</div></section>
+
+<section class="card"><h2>Historical / Legacy Term Reconciliation</h2><table><thead><tr><th>Original term</th><th>Current status</th><th>Current placement</th></tr></thead><tbody>
+<tr><td>DGC</td><td><span class="status-support">Governance lineage / supporting concept</span></td><td>Governance authority is represented through current governance standards, KUBERNĒSIS™, architecture decisions, and governed approvals rather than a primary DOME module.</td></tr>
+<tr><td>ANCHOR™</td><td><span class="status-support">Active supporting continuity standard</span></td><td>Continuity / pause-resume capability underneath Mission Control and project/session handoff. Not a primary module.</td></tr>
+<tr><td>NESHAMAH™</td><td><span class="status-current">Current</span></td><td>Primary DOME module.</td></tr>
+<tr><td>DDBB</td><td><span class="status-support">Active capability, absorbed</span></td><td>Divine Daily Bread Briefing capability is presented through GEGRAPTAI™.</td></tr>
+<tr><td>SHOMER</td><td><span class="status-historical">Superseded as current module name</span></td><td>The watch / Peace & Safety function is now GRĒGOREŌ™.</td></tr>
+<tr><td>SHAMAR™</td><td><span class="status-current">Current, reassigned</span></td><td>Guard / Protect / Preserve DIMS/DOME system functions. It is no longer the Peace & Safety watch identity.</td></tr>
+<tr><td>MARTUREŌ</td><td><span class="status-support">Supporting witness/testimony function</span></td><td>Retained as a governed witness/testimony capability and workflow, not one of the eight primary DOME modules.</td></tr>
+<tr><td>VAULT</td><td><span class="status-support">Historical preservation model / distributed capability</span></td><td>Preservation functions now span YARATHĒKĒ™, authoritative database records, snapshots, institutional records, and governed archival storage. VAULT is not a primary module.</td></tr>
+<tr><td>OrEl™</td><td><span class="status-current">Current</span></td><td>Primary DOME creation/authoring module.</td></tr>
+<tr><td>DivineID</td><td><span class="status-historical">Evolved / superseded identity</span></td><td>Current cross-system intelligence identity is Dominion1st Intelligence / DI².</td></tr>
+</tbody></table><p class="map-note">Historical records and documents may continue to use their original terminology for lineage. Current-user navigation and current architecture should use the present names above.</p></section>
+
+<section class="card"><h2>Current Functional Separation</h2><table><thead><tr><th>Capability</th><th>Question answered</th><th>Current owner / surface</th></tr></thead><tbody>
+<tr><td>Scripture / Daily Briefing</td><td>What grounds and briefs today?</td><td>GEGRAPTAI™</td></tr>
+<tr><td>Inspiration / Now Word</td><td>What is the current inspirational / prophetic word?</td><td>NESHAMAH™</td></tr>
+<tr><td>Execution</td><td>What must be done, by whom, in what order?</td><td>TETELESTAI™</td></tr>
+<tr><td>Creation</td><td>What are we creating or developing?</td><td>OrEl™</td></tr>
+<tr><td>Knowledge</td><td>What established knowledge do we need to retrieve or study?</td><td>YARATHĒKĒ™</td></tr>
+<tr><td>Peace & Safety Watch</td><td>What conditions are we watching in the world?</td><td>GRĒGOREŌ™</td></tr>
+<tr><td>Stewardship</td><td>What entrusted resources / obligations require stewardship?</td><td>OIKONOMOS™</td></tr>
+<tr><td>People / Discipleship</td><td>Who are we serving, developing, counseling, or connected to?</td><td>EKKLĒSIA™</td></tr>
+<tr><td>System Guard</td><td>Is DIMS/DOME protected, verified, recoverable, and governed?</td><td>SHAMAR™</td></tr>
+<tr><td>Cross-System Intelligence</td><td>What can the system understand, retrieve, recommend, or assist with across modules?</td><td>DI²</td></tr>
+</tbody></table></section>
+
+<section class="card"><h2>Current TASK-0102 State</h2><p><strong>DOME Home / eight-module structure:</strong> 🟡 In active user review</p><p><strong>GRĒGOREŌ / SHAMAR separation:</strong> 🟡 Being reconciled across all current-user surfaces</p><p><strong>Module-language clarity:</strong> 🟡 In progress</p><p><strong>Desktop/mobile/routing regression:</strong> ⚪ Pending final verification</p><p><strong>Production promotion:</strong> ⛔ Blocked until user sign-off and reconciliation are complete</p></section>
+
+<footer class="card small">This page is the TASK-0102 current-architecture preview. Historical blueprint language is preserved only as mapped lineage, not as current operating truth.</footer>
 </div>
 <script src="dome-global-nav.js" defer></script>
 </body>

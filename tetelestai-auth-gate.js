@@ -19,14 +19,23 @@ function setAllLoading(message) {
   if (summary) summary.innerHTML = `<div class="loading">${message}</div>`;
 }
 
+function loadRacMeterStyles() {
+  if (document.getElementById('tetelestaiRacMeterV2')) return;
+  const link = document.createElement('link');
+  link.id = 'tetelestaiRacMeterV2';
+  link.rel = 'stylesheet';
+  link.href = './tetelestai-rac-meter-v2.css?v=3';
+  document.head.appendChild(link);
+}
+
 async function startApp() {
   if (appStarted) return;
   appStarted = true;
   signInRendered = false;
   clearTimeout(window.__tetelestaiInitTimer);
-  await import('./tetelestai-closed-loop.js?v=21');
-  await import('./tetelestai-risk-ui-v2.js?v=21');
-  await import('./tetelestai-deep-links.js?v=21');
+  await import('./tetelestai-closed-loop.js?v=28');
+  await import('./tetelestai-deep-links.js?v=28');
+  loadRacMeterStyles();
 }
 
 function renderSignIn() {
@@ -102,6 +111,9 @@ sb.auth.onAuthStateChange((event, session) => {
     renderSignIn();
     return;
   }
+
+  // Never reload the page from auth events. Supabase may emit INITIAL_SESSION
+  // or TOKEN_REFRESHED during startup; reloading here creates an auth loop.
   if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user && !appStarted) {
     void verifyAndStart();
   }

@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "governedBy": "TASK-0102 / TASK-0123 route reconciliation",
   "primary": [
     {"key":"domeHome","label":"DOME Home","path":"/prototypes/dome-eight-module-home/"},
@@ -8,7 +8,7 @@
     {"key":"tetelestai","label":"TETELESTAI™","path":"/tetelestai/"},
     {"key":"orel","label":"OrEl™","path":"/orel/"},
     {"key":"yaratheke","label":"YARATHĒKĒ™","path":"/yaratheke/"},
-    {"key":"gregoreo","label":"GRĒGOREŌ™","path":"/shamar-intelligence-dome.html"},
+    {"key":"gregoreo","label":"GRĒGOREŌ™","path":"/gregoreo/"},
     {"key":"oikonomos","label":"OIKONOMOS™","path":"/oikonomos/"},
     {"key":"ekklesia","label":"EKKLĒSIA™","path":"/ekklesia/"}
   ],
@@ -24,7 +24,8 @@
     "/projects-tasks.html":"/tetelestai/",
     "/orel-studio.html":"/orel/",
     "/yaratheke.html":"/yaratheke/",
-    "/dashboard-v3.html":"/dashboard-v3-current.html"
+    "/dashboard-v3.html":"/dashboard-v3-current.html",
+    "/shamar-intelligence-dome.html":"/gregoreo/"
   },
   "rules": {
     "currentNavigationUsesRegistryOnly": true,

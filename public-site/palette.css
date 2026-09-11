@@ -1,0 +1,18 @@
+:root{
+  --blue:#0040D0;
+  --blue2:#126FE8;
+  --blue3:#EAF4FF;
+  --dark:#0030D0;
+}
+.site-header{border-bottom-color:rgba(0,64,208,.12)}
+.brand-logo{filter:drop-shadow(0 6px 14px rgba(0,64,208,.18))}
+.hero{background:linear-gradient(135deg,#0040D0 0%,#126FE8 58%,#47A7FF 100%)}
+.hero-logo{filter:drop-shadow(0 28px 70px rgba(0,48,208,.28)) drop-shadow(0 0 30px rgba(71,167,255,.24))}
+.six-grid article{box-shadow:0 12px 32px rgba(0,64,208,.06)}
+.section-blue{background:linear-gradient(140deg,#0040D0 0%,#126FE8 62%,#47A7FF 100%)}
+.dark-card{background:linear-gradient(145deg,#0040D0 0%,#126FE8 66%,#47A7FF 100%)}
+.section-dark{background:linear-gradient(145deg,#0040D0 0%,#126FE8 64%,#47A7FF 100%)}
+.connect-section{background:#F2F7FF}
+.connect-card{box-shadow:0 18px 48px rgba(0,64,208,.08)}
+footer{background:linear-gradient(135deg,#0040D0 0%,#126FE8 100%)}
+@media(max-width:800px){.site-nav{box-shadow:0 16px 40px rgba(0,64,208,.14)}}

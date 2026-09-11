@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Dominion1st — revelation, illumination, and inspiration for living from your God-given identity, authority, and purpose.">
+  <title>Dominion1st™ | You Have Dominion</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="palette.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Dominion1st home">
+      <img class="brand-logo" src="dominion1st-crest.webp" alt="Dominion1st official crest">
+      <span class="brand-text">Dominion1st™</span>
+    </a>
+    <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav">Menu</button>
+    <nav id="site-nav" class="site-nav" aria-label="Primary navigation">
+      <a href="#about">About</a>
+      <a href="#teaching">Teaching</a>
+      <a href="#training">Training</a>
+      <a href="#broadcast">Broadcast</a>
+      <a href="#connect">Connect</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-inner hero-grid">
+        <div class="hero-copy-block">
+          <p class="eyebrow">KINGDOM IDENTITY • AUTHORITY • PURPOSE</p>
+          <h1>You Have Dominion.</h1>
+          <p class="hero-copy">Dominion1st equips believers to know who they are, what they are, where they are, what they have, what they can do, and why they are here.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#teaching">Explore the Teaching</a>
+            <a class="btn btn-secondary" href="#training">Enter the Training Center</a>
+          </div>
+        </div>
+        <div class="hero-logo-wrap">
+          <img class="hero-logo" src="dominion1st-crest.webp" alt="Dominion1st official crest">
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="section section-light">
+      <div class="section-heading"><p class="eyebrow">THE DOMINION1ST FOUNDATION</p><h2>Live From Divine Identity</h2></div>
+      <div class="six-grid">
+        <article><span>01</span><h3>Who You Are</h3><p>Divine Identity</p></article>
+        <article><span>02</span><h3>What You Are</h3><p>Divine Nature</p></article>
+        <article><span>03</span><h3>Where You Are</h3><p>Divine Position</p></article>
+        <article><span>04</span><h3>What You Have</h3><p>Divine Inheritance</p></article>
+        <article><span>05</span><h3>What You Can Do</h3><p>Divine Power</p></article>
+        <article><span>06</span><h3>Why You Are Here</h3><p>Divine Purpose</p></article>
+      </div>
+    </section>
+
+    <section id="teaching" class="section section-blue">
+      <div class="split"><div><p class="eyebrow">TEACHING</p><h2>Truth That Moves From Revelation to Application</h2><p>Dominion1st teaching is designed to help believers think, speak, and live in agreement with the Word of God. The public teaching library will bring messages, studies, perspectives, and practical discipleship resources into one organized home.</p></div><div class="feature-card"><div class="feature-icon">✦</div><h3>Teaching Library</h3><p>Messages, Scripture studies, Kingdom principles, and Dominion1st perspectives.</p><span class="status-pill">Public library coming online</span></div></div>
+    </section>
+
+    <section id="training" class="section section-light">
+      <div class="split reverse-mobile"><div class="feature-card dark-card"><div class="feature-icon">DTC</div><h3>Dominion1st Training Center</h3><p>A structured discipleship environment for learning, applying, and living Dominion1st principles.</p><a class="text-link" href="https://whop.com/dominion1st" target="_blank" rel="noopener">Visit DTC →</a></div><div><p class="eyebrow">TRAINING</p><h2>From Hearing to Doing</h2><p>Teaching becomes transformational when truth is learned, practiced, tested, and lived. DTC provides the structured path from understanding to application.</p></div></div>
+    </section>
+
+    <section id="broadcast" class="section section-dark">
+      <div class="section-heading"><p class="eyebrow">BROADCAST & MEDIA</p><h2>Dominion1st Beyond the Website</h2><p>The new site will become the central public doorway to Dominion1st teaching, broadcast, video, training, and future media streams.</p></div>
+      <div class="media-grid"><article><h3>Radio</h3><p>Dominion1st teaching broadcast.</p></article><article><h3>Video</h3><p>Short-form and long-form teaching content.</p></article><article><h3>Perspectives</h3><p>Written Kingdom commentary and teaching.</p></article></div>
+    </section>
+
+    <section id="connect" class="section connect-section">
+      <div><p class="eyebrow">CONNECT</p><h2>A New Dominion1st.org Is Being Built</h2><p>This is the new public foundation for Dominion1st. Additional teaching, media, contact, and ministry resources will be connected as the site moves through verification.</p></div>
+      <div class="connect-card"><strong>Dominion1st™</strong><span>Identity. Authority. Purpose.</span><span class="coming">Full launch coming soon.</span></div>
+    </section>
+  </main>
+
+  <footer><div><strong>Dominion1st™</strong><span>You Have Dominion.</span></div><p>© 2026 Dominion1st. All Rights Reserved.</p></footer>
+  <script>
+    const toggle=document.querySelector('.menu-toggle');
+    const nav=document.querySelector('.site-nav');
+    toggle?.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')==='true';toggle.setAttribute('aria-expanded',String(!open));nav.classList.toggle('open',!open)});
+    nav?.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{toggle?.setAttribute('aria-expanded','false');nav.classList.remove('open')}));
+  </script>
+</body>
+</html>

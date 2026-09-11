@@ -22,14 +22,28 @@ function addStyles(){
   .med-report-panel textarea{width:100%;min-height:420px;border:1px solid #cbd4f2;border-radius:14px;padding:16px;font:15px/1.55 ui-sans-serif,system-ui;background:#fbfcff;color:#10184f;resize:vertical}
   .med-report-actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.med-report-actions button{border:0;border-radius:12px;padding:11px 16px;font-weight:800;cursor:pointer}
   .med-report-primary{background:linear-gradient(180deg,#2d82ff,#126bff);color:white}.med-report-gold{background:#d8b64c;color:#10184f}.med-report-secondary{background:#eef2ff;color:#24317e;border:1px solid #cbd4f2!important}
-  .med-report-copy{white-space:pre-wrap;line-height:1.6;border:1px solid #dbe2f5;border-radius:14px;padding:18px;background:#fbfcff}.med-report-note{font-size:13px;color:#687196;line-height:1.5}
-  @media(max-width:760px){.med-report-panel{padding:16px}.med-report-panel textarea{min-height:360px}.med-report-actions button{width:100%}}
+  .med-report-note{font-size:13px;color:#687196;line-height:1.5}
+  .med-results-hero{margin-top:14px;padding:20px;border-radius:18px;background:linear-gradient(145deg,#0f1a5e,#17287f);color:#fff;border:1px solid rgba(216,182,76,.55);box-shadow:0 14px 30px rgba(12,18,98,.18)}
+  .med-results-hero h2{color:#fff;margin:8px 0}.med-results-hero p{color:#dbe5ff;margin:6px 0;line-height:1.55}
+  .med-results-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+  .med-result-card{border:1px solid #dbe2f5;border-radius:16px;padding:16px;background:#fbfcff;min-height:118px}
+  .med-result-card h3{font-size:15px;margin:0 0 9px}.med-result-level{font-size:19px;font-weight:900;color:#182574}.med-result-scripture{font-size:12px;color:#7b6b31;margin-top:7px;font-weight:700}
+  .med-dashboard-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.med-dashboard-actions button{border:0;border-radius:12px;padding:11px 16px;font-weight:800;cursor:pointer}
+  .med-full-report{margin-top:18px;border-top:1px solid #dbe2f5;padding-top:18px}.med-full-report.hidden{display:none!important}
+  .med-report-document{border:1px solid #dbe2f5;border-radius:18px;background:#fff;padding:26px;box-shadow:0 8px 24px rgba(34,49,126,.08)}
+  .med-doc-title{font-size:28px;line-height:1.15;margin:0 0 8px;color:#10184f}.med-doc-meta{font-size:13px;color:#687196;margin:4px 0}
+  .med-doc-section{margin:22px 0}.med-doc-section h3{font-size:16px;letter-spacing:.05em;text-transform:uppercase;margin:0 0 10px;color:#24317e}
+  .med-doc-section p{line-height:1.65;margin:8px 0;color:#202957}.med-doc-section ul,.med-doc-section ol{padding-left:22px;line-height:1.65;color:#202957}.med-doc-section li{margin:6px 0}
+  .med-load-error{border:1px solid #e3a9b4;background:#fff5f7;color:#8b2338;border-radius:14px;padding:14px;margin-top:14px;line-height:1.5}
+  @media(max-width:900px){.med-results-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:760px){.med-report-panel{padding:16px}.med-report-panel textarea{min-height:360px}.med-report-actions button,.med-dashboard-actions button{width:100%}.med-results-grid{grid-template-columns:1fr}.med-report-document{padding:18px}.med-doc-title{font-size:23px}}
   `;
   document.head.appendChild(style);
 }
 
 async function membership(userId){
-  const {data}=await sb.from('med_case_participants').select('role').eq('case_id',caseId).eq('user_id',userId).maybeSingle();
+  const {data,error}=await sb.from('med_case_participants').select('role').eq('case_id',caseId).eq('user_id',userId).maybeSingle();
+  if(error) throw error;
   return data?.role || null;
 }
 
@@ -39,17 +53,71 @@ async function releasedReport(){
   return data;
 }
 
+function parseDomainSummaries(body=''){
+  const lines=String(body).split(/\r?\n/);
+  const start=lines.findIndex(x=>x.trim()==='SEVEN-DOMAIN SUMMARY');
+  if(start<0) return [];
+  const out=[];
+  for(let i=start+1;i<lines.length;i++){
+    const line=lines[i].trim();
+    if(!line) continue;
+    if(/^[A-Z][A-Z0-9 /&™-]+$/.test(line)) break;
+    const m=line.match(/^•\s*(.+?):\s*(.+?)(?:\s+\(([^)]+)\))?$/);
+    if(m) out.push({name:m[1].trim(),level:m[2].trim(),scripture:(m[3]||SCRIPTURE[m[1].trim()]||'').trim()});
+  }
+  return out;
+}
+
+function formatReport(body=''){
+  const lines=String(body).split(/\r?\n/);
+  const headings=new Set(['BIBLICAL FRAMEWORK','PURPOSE','SEVEN-DOMAIN SUMMARY','STRENGTHS TO PRESERVE','PRIORITY GROWTH AREAS','MITIGATION / ACTION PLAN','BIBLICAL FOUNDATION','NEXT STEPS']);
+  let html='',listType=null,sectionOpen=false;
+  const closeList=()=>{if(listType){html+=`</${listType}>`;listType=null;}};
+  const closeSection=()=>{closeList();if(sectionOpen){html+='</section>';sectionOpen=false;}};
+  lines.forEach((raw,index)=>{
+    const line=raw.trim();
+    if(!line){closeList();return;}
+    if(index===0){closeSection();html+=`<h2 class="med-doc-title">${esc(line)}</h2>`;return;}
+    if(index<=3 && (line.startsWith('Instrument:')||line.includes('Marriage1st')||line.includes('Identify • Assess • Mitigate'))){closeList();html+=`<div class="med-doc-meta">${esc(line)}</div>`;return;}
+    if(headings.has(line)){closeSection();html+=`<section class="med-doc-section"><h3>${esc(line)}</h3>`;sectionOpen=true;return;}
+    if(line.startsWith('• ')){if(listType!=='ul'){closeList();html+='<ul>';listType='ul';}html+=`<li>${esc(line.slice(2))}</li>`;return;}
+    if(/^\d+\.\s/.test(line)){if(listType!=='ol'){closeList();html+='<ol>';listType='ol';}html+=`<li>${esc(line.replace(/^\d+\.\s*/,''))}</li>`;return;}
+    closeList();html+=`<p>${esc(line)}</p>`;
+  });
+  closeSection();
+  return html;
+}
+
+function dashboardMarkup(report){
+  const domains=parseDomainSummaries(report.report_body);
+  const cards=domains.length?domains.map(d=>`<article class="med-result-card"><h3>${esc(d.name)}</h3><div class="med-result-level">${esc(d.level)}</div>${d.scripture?`<div class="med-result-scripture">${esc(d.scripture)}</div>`:''}</article>`).join(''):`<article class="med-result-card"><h3>Results summary</h3><div class="med-result-level">Counselor-approved report available</div><div class="med-result-scripture">Open the full report below.</div></article>`;
+  return `<div class="med-results-hero"><span class="med-report-state">Report Available</span><h2>MED™ Results Dashboard</h2><p>Your counselor-approved Marriage1st™ results are ready. This dashboard summarizes the released couple-facing findings without exposing either spouse's private answers or counselor-only RAD™ data.</p><p><strong>${esc(report.instrument_version)}</strong> • Report Version ${esc(report.version)} • Released ${esc(new Date(report.released_at).toLocaleDateString())}</p></div><div class="med-results-grid">${cards}</div><div class="med-dashboard-actions"><button class="med-report-primary" id="medOpenReport">Read Full Counselor-Approved Report</button><button class="med-report-secondary" id="medToggleAssessment">Show / Hide My Assessment</button></div><p class="med-report-note">Results are counselor-approved and couple-facing. Raw spouse-to-spouse answers, hidden RAD™ scoring rows, safety flags, and counselor-only notes remain private.</p><div class="med-full-report hidden" id="medFullReport"><div class="med-report-document">${formatReport(report.report_body)}</div></div>`;
+}
+
 async function renderSpouseReport(){
   if(document.getElementById('medCoupleReport')) return;
   const spouse=document.getElementById('spouse'); if(!spouse) return;
   const panel=document.createElement('section'); panel.id='medCoupleReport'; panel.className='med-report-panel';
-  const report=await releasedReport();
-  if(report){
-    panel.innerHTML=`<span class="med-report-state">Report Available</span><h2>MED™ Marriage Evaluation Report</h2><p class="med-report-note">Counselor approved • Version ${esc(report.version)} • Released ${esc(new Date(report.released_at).toLocaleDateString())}</p><div class="med-report-copy">${esc(report.report_body)}</div>`;
-  }else{
-    panel.innerHTML=`<span class="med-report-state">Counselor Review in Progress</span><h2>What happens next?</h2><p class="med-report-note">Your assessment has been securely submitted. MED™ analyzes the assessment for counselor review. Raw spouse-to-spouse answers, hidden RAD™ scores, safety flags, and preliminary algorithmic conclusions are not released automatically.</p><p class="med-report-note">After the counselor reviews and approves the couple-facing report, return to this secure case and sign in. This section will change to <strong>Report Available</strong>.</p>`;
+  spouse.prepend(panel);
+  panel.innerHTML=`<span class="med-report-state">Loading Results</span><h2>MED™ Results Dashboard</h2><p class="med-report-note">Loading the latest counselor-approved report…</p>`;
+  try{
+    const report=await releasedReport();
+    if(report){
+      panel.innerHTML=dashboardMarkup(report);
+      const questions=document.getElementById('questions');
+      const progress=document.querySelector('#spouse .progress');
+      const saveRow=document.getElementById('saveBtn')?.parentElement;
+      [questions,progress,saveRow].forEach(el=>{if(el)el.style.display='none';});
+      panel.querySelector('#medOpenReport')?.addEventListener('click',()=>{const full=panel.querySelector('#medFullReport');full.classList.toggle('hidden');if(!full.classList.contains('hidden'))full.scrollIntoView({behavior:'smooth',block:'start'});});
+      panel.querySelector('#medToggleAssessment')?.addEventListener('click',()=>{[questions,progress,saveRow].forEach(el=>{if(el)el.style.display=el.style.display==='none'?'':'none';});});
+    }else{
+      panel.innerHTML=`<span class="med-report-state">Counselor Review in Progress</span><h2>MED™ Results Dashboard</h2><p class="med-report-note">Your assessment has been securely submitted. MED™ analyzes the assessment for counselor review. Raw spouse-to-spouse answers, hidden RAD™ scores, safety flags, and preliminary algorithmic conclusions are not released automatically.</p><p class="med-report-note">After the counselor reviews and approves the couple-facing report, return to this secure case and sign in. This dashboard will change to <strong>Report Available</strong>.</p>`;
+    }
+  }catch(e){
+    console.error('MED spouse report load failed',e);
+    panel.innerHTML=`<span class="med-report-state">Results Could Not Load</span><h2>MED™ Results Dashboard</h2><div class="med-load-error"><strong>The released report is not displaying in this browser session.</strong><br>${esc(e.message||'Unknown report-loading error')}</div><div class="med-dashboard-actions"><button class="med-report-primary" id="medRetryReport">Retry Results</button></div><p class="med-report-note">Your assessment data has not been removed. This message is shown so a report-access problem is never silently hidden.</p>`;
+    panel.querySelector('#medRetryReport')?.addEventListener('click',()=>{panel.remove();renderSpouseReport();});
   }
-  spouse.appendChild(panel);
 }
 
 async function buildDraft(){
@@ -148,14 +216,24 @@ async function renderCounselorReport(){
 async function bootReportLifecycle(){
   if(!caseId) return;
   addStyles();
-  const {data:{session}}=await sb.auth.getSession(); if(!session) return;
+  const {data:{session},error}=await sb.auth.getSession(); if(error) throw error; if(!session) return;
   const role=await membership(session.user.id); if(!role) return;
   const wait=async()=>{
     const target=role==='counselor'?document.getElementById('counselor'):document.getElementById('spouse');
     if(!target || target.classList.contains('hidden')){setTimeout(wait,250);return;}
     if(role==='counselor') await renderCounselorReport(); else await renderSpouseReport();
   };
-  wait().catch(console.error);
+  wait().catch(async e=>{
+    console.error('MED report lifecycle failed',e);
+    if(role!=='counselor'){
+      const spouse=document.getElementById('spouse');
+      if(spouse && !document.getElementById('medCoupleReport')){
+        const panel=document.createElement('section'); panel.id='medCoupleReport'; panel.className='med-report-panel';
+        panel.innerHTML=`<span class="med-report-state">Results Could Not Load</span><h2>MED™ Results Dashboard</h2><div class="med-load-error"><strong>The report dashboard could not initialize.</strong><br>${esc(e.message||'Unknown error')}</div>`;
+        spouse.prepend(panel);
+      }
+    }
+  });
 }
 
 bootReportLifecycle().catch(console.error);

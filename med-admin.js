@@ -1,4 +1,4 @@
-const MED_ADMIN_MARKER = 'med-admin-console-v1';
+const MED_ADMIN_MARKER = 'med-admin-console-v2-auto-temp-password';
 
 function el(tag, attrs = {}, text = '') {
   const node = document.createElement(tag);
@@ -31,6 +31,33 @@ function field(labelText, input) {
   return wrap;
 }
 
+function randomIndex(max) {
+  const limit = Math.floor(256 / max) * max;
+  const bytes = new Uint8Array(1);
+  do crypto.getRandomValues(bytes); while (bytes[0] >= limit);
+  return bytes[0] % max;
+}
+
+function generateTemporaryPassword(length = 18) {
+  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lower = 'abcdefghijkmnopqrstuvwxyz';
+  const digits = '23456789';
+  const symbols = '!@#$%*-_+=';
+  const all = upper + lower + digits + symbols;
+  const chars = [
+    upper[randomIndex(upper.length)],
+    lower[randomIndex(lower.length)],
+    digits[randomIndex(digits.length)],
+    symbols[randomIndex(symbols.length)]
+  ];
+  while (chars.length < length) chars.push(all[randomIndex(all.length)]);
+  for (let i = chars.length - 1; i > 0; i -= 1) {
+    const j = randomIndex(i + 1);
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+  return chars.join('');
+}
+
 export async function installMedAdminConsole(sb) {
   if (document.getElementById('medAdminConsole')) return;
   const { data: { session } } = await sb.auth.getSession();
@@ -47,7 +74,7 @@ export async function installMedAdminConsole(sb) {
   title.append(el('div', { className: 'sub' }, 'DIMS Administrator'), el('h2', {}, 'MED™ User Administration'));
   heading.append(title);
   section.append(heading);
-  section.append(el('p', { className: 'muted' }, 'Create or confirm controlled MED test users, assign case roles, and issue temporary passwords. Privileged credentials remain server-side.'));
+  section.append(el('p', { className: 'muted' }, 'Create or confirm controlled MED test users, assign case roles, and automatically issue strong temporary passwords. Privileged credentials remain server-side.'));
 
   const grid = el('div', { className: 'grid' });
   const email = el('input', { id: 'medAdminEmail', type: 'email', autocomplete: 'off', placeholder: 'participant@example.com' });
@@ -56,10 +83,17 @@ export async function installMedAdminConsole(sb) {
     const option = el('option', { value }, value[0].toUpperCase() + value.slice(1));
     role.append(option);
   });
-  const password = el('input', { id: 'medAdminPassword', type: 'text', autocomplete: 'off', placeholder: 'Temporary password' });
+  const password = el('input', { id: 'medAdminPassword', type: 'text', autocomplete: 'off', readonly: 'readonly', placeholder: 'Generated automatically' });
   const caseInput = el('input', { id: 'medAdminCase', type: 'text', value: caseId, readonly: 'readonly' });
-  grid.append(field('Email', email), field('MED role', role), field('Temporary password', password), field('Case ID', caseInput));
+  grid.append(field('Email', email), field('MED role', role), field('Temporary password — generated automatically', password), field('Case ID', caseInput));
   section.append(grid);
+
+  const passwordControls = el('div', { className: 'row' });
+  passwordControls.style.marginTop = '8px';
+  const generate = el('button', { className: 'secondary', type: 'button' }, 'Generate New Temporary Password');
+  const copy = el('button', { className: 'secondary', type: 'button' }, 'Copy Temporary Password');
+  passwordControls.append(generate, copy);
+  section.append(passwordControls);
 
   const controls = el('div', { className: 'row' });
   controls.style.marginTop = '12px';
@@ -68,6 +102,10 @@ export async function installMedAdminConsole(sb) {
   const status = el('span', { id: 'medAdminStatus', className: 'status' });
   controls.append(provision, refresh, status);
   section.append(controls);
+
+  const issued = el('div', { id: 'medAdminIssuedPassword', className: 'status' });
+  issued.style.marginTop = '10px';
+  section.append(issued);
 
   const tableWrap = el('div', { className: 'tableWrap' });
   const table = el('table');
@@ -78,6 +116,28 @@ export async function installMedAdminConsole(sb) {
 
   const anchor = document.getElementById('counselor');
   (anchor?.parentNode || document.querySelector('.shell') || document.body).append(section);
+
+  function rotatePassword() {
+    password.value = generateTemporaryPassword();
+    issued.textContent = '';
+    return password.value;
+  }
+
+  generate.addEventListener('click', () => {
+    rotatePassword();
+    status.textContent = 'New temporary password generated locally with the browser cryptographic random generator.';
+  });
+
+  copy.addEventListener('click', async () => {
+    if (!password.value) rotatePassword();
+    try {
+      await navigator.clipboard.writeText(password.value);
+      status.textContent = 'Temporary password copied.';
+    } catch {
+      password.select();
+      status.textContent = 'Copy was blocked by the browser. The temporary password is selected for manual copy.';
+    }
+  });
 
   async function loadUsers() {
     status.textContent = 'Loading…';
@@ -93,11 +153,11 @@ export async function installMedAdminConsole(sb) {
 
   provision.addEventListener('click', async () => {
     const address = email.value.trim().toLowerCase();
-    const temp = password.value;
-    if (!address || !temp) {
-      status.textContent = 'Email and temporary password are required.';
+    if (!address) {
+      status.textContent = 'Email is required.';
       return;
     }
+    const temp = password.value || rotatePassword();
     provision.disabled = true;
     status.textContent = 'Provisioning…';
     try {
@@ -109,8 +169,8 @@ export async function installMedAdminConsole(sb) {
         temporary_password: temp,
         confirm_email: true
       });
+      issued.textContent = `Temporary password for ${data.user.email}: ${temp} — copy it now; MED does not retain a plaintext copy.`;
       status.textContent = `${data.user.email} is ready as ${data.user.role}.`;
-      password.value = '';
       await loadUsers();
     } catch (err) {
       status.textContent = err.message;
@@ -120,6 +180,7 @@ export async function installMedAdminConsole(sb) {
   });
 
   refresh.addEventListener('click', loadUsers);
+  rotatePassword();
   await loadUsers();
   console.info(MED_ADMIN_MARKER);
 }

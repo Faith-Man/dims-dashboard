@@ -1,1 +1,0 @@
-MED™ TASK-0101: automatic temporary passwords are generated with Web Crypto in the authenticated administrator console, can be rotated/copied, and are not persisted in plaintext by MED.

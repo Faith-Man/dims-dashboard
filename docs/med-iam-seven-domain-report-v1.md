@@ -18,7 +18,7 @@ MED™ applies RAD™ risk methodology using the shared IAM cycle:
 6. Spiritual Unity & Purpose
 7. Roles, Responsibilities & Family Stewardship
 
-The last two domains are newly approved architecture. They are displayed as planned domains until governed question-catalog items and scoring rules are added. Existing 34-question production scoring is not silently remapped.
+The last two domains are newly approved architecture. The spouse-assessment redesign is now drafted as a 28-question instrument in `docs/med-seven-domain-assessment-redesign-v1.md`. Existing 34-question production scoring remains unchanged until that instrument is approved and versioned into the governed catalog.
 
 ## Counselor report behavior
 The counselor experience should lead with interpretation, not a 34-row technical table. It includes:
@@ -39,5 +39,7 @@ Spouse scores remain separate and are never averaged. Safety overrides remain co
 - Genesis 2:18, 21–24 — creation foundation, help meet, and one flesh.
 - Ephesians 5:33 — husband to love his wife; wife to reverence her husband.
 
-## Next governed data step
-Design and approve question-catalog additions for Spiritual Unity & Purpose and Roles, Responsibilities & Family Stewardship. Rebalance the assessment so the spouse-facing experience is shorter and less complex before changing the canonical catalog or scoring functions.
+## Current governed assessment-design step
+The proposed v1 instrument contains 28 questions across all seven domains: Communication 4, Finances 4, Sexual Intimacy 4, Covenant & Trust 4, Spiritual Unity & Purpose 3, Roles/Responsibilities/Family Stewardship 3, and Safety 6. The six dedicated Safety items remain counselor-first overrides, with sexual coercion/consent also retained as a safety-sensitive Sexual Intimacy item.
+
+No production Supabase question-catalog migration is authorized by this document alone. Approval, versioned migration, acceptance testing, and verification remain required before production promotion.

@@ -1,5 +1,11 @@
 # MED™ User, Counselor & Administrator Guide v1.0
 
+> **Institutional authority:** The authoritative institutional records are the Google Drive documents created and verified before this repository derivative:
+> - [MED™ User, Counselor & Administrator Guide v1.0](https://docs.google.com/document/d/19SKG82KVaXVgettpnvW5Kknzhs88OjE7J1tdQHYyqPc/edit?usp=drivesdk)
+> - [MED™ Report Lifecycle & Governance Standard v1.0](https://docs.google.com/document/d/1hC9XA08aJYX_dq9I7HAlJJL-gxYnwVivGiCSpOPpvgI/edit?usp=drivesdk)
+>
+> This Markdown file is a governed repository derivative and does not supersede the Google Drive authority.
+
 **Lineage:** DOME™ → EKKLĒSIA™ → Marriage & Family → Marriage1st™ → MED™ — Marriage Evaluation Dome  
 **Method:** RAD™ / IAM — Identify • Assess • Mitigate  
 **Governing framework:** Genesis 2:18, 21–24; Matthew 19:4–8; Ephesians 5:33
@@ -122,4 +128,5 @@ A spouse's permission to view a released couple report is not permission to view
 
 **Version:** 1.0  
 **Workstream:** TASK-0101  
-**Status:** Governed implementation guide for PR #82 report-lifecycle acceptance.
+**Status:** Governed implementation guide for PR #82 report-lifecycle acceptance.  
+**Institutionalization order:** Google Drive → Supabase asset registry → GitHub derivative → TETELESTAI/governance indexes.

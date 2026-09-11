@@ -1,6 +1,8 @@
-# MED™ Seven-Domain Assessment Redesign — v1
+# MED™ Seven-Domain Assessment Redesign — v1.1
 
-Status: governed assessment-design draft under TASK-0101. Production question catalog is unchanged.
+Status: **RATIFIED DESIGN** under TASK-0101. Production question catalog remains on MED-1.0 until versioned activation and acceptance testing are complete.
+
+Ratified instrument version: **MED-2.0 — 28-item Seven-Domain Assessment**
 
 ## Purpose
 Reduce spouse assessment burden while expanding MED™ from five to seven meaningful domains. Preserve RAD™ Probability × Severity → RAC scoring, spouse-score separation, and counselor-first safety overrides.
@@ -16,8 +18,8 @@ Reduce spouse assessment burden while expanding MED™ from five to seven meanin
 - Safety — 6
 
 Each spouse answers the same instrument independently. Each item keeps the existing two-part response model:
-1. Frequency → RAD Probability
-2. Impact on the marriage → RAD Severity
+1. Frequency → RAD™ Probability
+2. Impact on the marriage → RAD™ Severity
 
 Safety-sensitive items retain override behavior and are never diluted into an averaged couple score.
 
@@ -61,10 +63,10 @@ These four items preserve agreement, secrecy, pressure, control, stewardship, an
 
 **SEX-03** — How often do physical, medical, pain, fatigue, emotional, or other health-related concerns affect intimacy without being adequately addressed together?
 
-**SEX-04 — SAFETY OVERRIDE** — How often does sexual pressure, guilt, manipulation, intimidation, coercion, force, threats, or inability to freely consent occur?
+**SEX-04** — How often do differences about sexual expectations, initiation, frequency, affection, or boundaries create recurring conflict, resentment, or withdrawal?
 
 ### Consolidation rationale
-These four items preserve communication, affection/rejection, health-related barriers, and the separate coercion/consent safety trigger from the present seven Sexual Intimacy questions.
+These four items preserve communication, affection/rejection, health-related barriers, expectations, and boundaries. Sexual force/coercion is intentionally measured only once in the dedicated Safety domain so the instrument does not duplicate the same disclosure.
 
 ---
 
@@ -102,7 +104,7 @@ Measures shared spiritual direction and whether the marriage strengthens or obst
 
 **RRF-02** — How often do disagreements about roles, authority, decision-making, expectations, or responsibilities create recurring conflict?
 
-**RRF-03** — How often do you believe your spouse is not being strengthened, supported, helped, or equipped by the way you are carrying your responsibilities in the marriage?
+**RRF-03** — How often does the way responsibilities are carried leave either spouse feeling unsupported rather than strengthened, helped, or equipped?
 
 ### Domain purpose
 Measures role clarity, responsibility, mutual strengthening, family stewardship, and whether each spouse is helping the other become stronger rather than adversarial.
@@ -148,7 +150,7 @@ MED™ generates a draft counseling response based on domain, RAC, discrepancy, 
 ---
 
 ## Biblical architecture
-The assessment is not a replacement for Scripture. Its design is governed by the biblical marriage framework already approved for MED™:
+The assessment is not a replacement for Scripture. Its design is governed by the biblical marriage framework approved for MED™:
 
 - **Genesis 2:18, 21–24** — creation, help meet, and one-flesh union.
 - **Matthew 19:4–8** — Jesus returns the marriage question to God’s design “from the beginning.”
@@ -161,10 +163,11 @@ Primary MED™ governing statement:
 ---
 
 ## Implementation guardrails
-1. Do not replace the production `med_question_catalog` until this 28-question instrument is approved.
-2. Preserve existing response and score history for the current 34-question instrument.
-3. Version the new catalog rather than overwriting historical question definitions.
+1. Preserve MED-1.0 and all historical 34-question responses/scores.
+2. Store MED-2.0 as a separately versioned catalog before activation.
+3. Do not overwrite historical question definitions.
 4. Do not weaken RLS, spouse isolation, or counselor-only score visibility.
-5. Retain all six dedicated Safety questions plus SEX-04 as a safety-sensitive item.
-6. Re-run Husband/Wife/Counselor acceptance testing after catalog migration.
+5. Retain all six dedicated Safety questions as counselor-first overrides.
+6. Re-run Husband/Wife/Counselor acceptance testing after MED-2.0 activation.
 7. Confirm mobile and desktop usability before production promotion.
+8. Couple-facing recommendations remain counselor-reviewed and approved; MED™ does not issue autonomous diagnoses.

@@ -70,7 +70,7 @@ async function buildDraft(){
   const priorities=domains.filter(d=>d.safety||d.rac<=3).sort((a,b)=>(b.safety-a.safety)||((a.rac||9)-(b.rac||9)));
   const strengths=domains.filter(d=>d.rac>=4).map(d=>d.name);
   const lines=[];
-  lines.push('MED™ MARRIAGE EVALUATION REPORT — COUNSELOR DRAFT');
+  lines.push('MED™ MARRIAGE EVALUATION REPORT');
   lines.push(`Instrument: ${version}`);
   lines.push('Marriage1st™ • Powered by RAD™ / IAM');
   lines.push('Identify • Assess • Mitigate');
@@ -85,7 +85,8 @@ async function buildDraft(){
   lines.push('SEVEN-DOMAIN SUMMARY');
   for(const d of domains){
     const level=d.rac?RAC[d.rac]:'Not yet scored';
-    lines.push(`• ${d.name}: ${level}${d.safety?' — counselor safety review required':''} (${SCRIPTURE[d.name]||'Matthew 19:6'})`);
+    const displayLevel=d.safety?'Counselor-directed review and mitigation priority':level;
+    lines.push(`• ${d.name}: ${displayLevel} (${SCRIPTURE[d.name]||'Matthew 19:6'})`);
   }
   lines.push('');
   lines.push('STRENGTHS TO PRESERVE');
@@ -96,7 +97,7 @@ async function buildDraft(){
     for(const d of priorities) lines.push(`• ${d.name}: ${d.safety?'Address privately with the counselor before ordinary joint discussion.':'Give focused attention in the counseling plan.'}`);
   }else lines.push('• No High/Extremely High/Serious domain priority was identified in the current scoring. Continue strengthening healthy patterns.');
   lines.push('');
-  lines.push('MITIGATION / ACTION PLAN — COUNSELOR TO REVIEW AND EDIT');
+  lines.push('MITIGATION / ACTION PLAN');
   lines.push('• Identify the specific behavior or pattern to address in each priority domain.');
   lines.push('• Agree on one observable action for each spouse where joint work is appropriate.');
   lines.push('• Establish a follow-up date and reassess progress rather than relying on intention alone.');

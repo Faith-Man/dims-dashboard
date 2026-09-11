@@ -129,7 +129,7 @@ async function renderCounselorReport(){
   const save=async(status='draft')=>{
     if(!editor.value.trim()) throw new Error('Generate or enter report content first.');
     const {data:medCase,error:ce}=await sb.from('med_cases').select('instrument_version').eq('id',caseId).single(); if(ce) throw ce;
-    if(current){
+    if(current && current.status!=='approved'){
       const payload={report_body:editor.value,status,updated_at:new Date().toISOString(),approved_at:status==='approved'?new Date().toISOString():null};
       const {data,error}=await sb.from('med_counselor_reports').update(payload).eq('id',current.id).select().single(); if(error) throw error; current=data;
     }else{

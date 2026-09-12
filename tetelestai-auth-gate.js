@@ -10,6 +10,9 @@ let appStarted = false;
 let authCheckRunning = false;
 let signInRendered = false;
 
+const PREVIEW_BYPASS = /task-0102-final-dome-home-(?:dims-dashboard|dome-dashboard)\.dominion1st-integrated-management-system-dims\.workers\.dev$/i.test(location.hostname)
+  || /deploy-preview-71--/i.test(location.hostname);
+
 function setAllLoading(message) {
   const projects = byId('projectsList');
   const tasks = byId('tasksList');
@@ -80,13 +83,25 @@ function renderSignIn() {
   };
 }
 
+async function startPreviewSession() {
+  setAllLoading('<div class="loading">Opening temporary PR #71 test session…</div>');
+  const { data, error } = await sb.auth.signInAnonymously();
+  if (error || !data?.user) return false;
+  await startApp();
+  return true;
+}
+
 async function verifyAndStart() {
   if (appStarted || authCheckRunning) return;
   authCheckRunning = true;
   try {
     const { data, error } = await sb.auth.getUser();
-    if (error || !data?.user) { renderSignIn(); return; }
-    await startApp();
+    if (!error && data?.user) {
+      await startApp();
+      return;
+    }
+    if (PREVIEW_BYPASS && await startPreviewSession()) return;
+    renderSignIn();
   } catch (error) {
     clearTimeout(window.__tetelestaiInitTimer);
     setAllLoading(`Unable to initialize authenticated TETELESTAI: ${String(error?.message || error)}`);
@@ -99,6 +114,10 @@ sb.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_OUT') {
     appStarted = false;
     signInRendered = false;
+    if (PREVIEW_BYPASS) {
+      void verifyAndStart();
+      return;
+    }
     renderSignIn();
     return;
   }

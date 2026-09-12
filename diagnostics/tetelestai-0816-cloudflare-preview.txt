@@ -1,0 +1,4 @@
+TETELESTAI Step 1 diagnostic checkpoint
+Historical source commit: de6e0f271d2ae40f438c08d265382c501aa043fe
+Purpose: trigger isolated Cloudflare branch preview after PR #56 creation.
+Do not merge.

@@ -6,6 +6,7 @@
   <title>TETELESTAI™ — Projects & Tasks — DOME™</title>
   <link rel="stylesheet" href="dims-shared.css?v=26">
   <link rel="stylesheet" href="dea-risk-matrix.css?v=26">
+  <link rel="stylesheet" href="tetelestai-rac-meter-v2.css?v=3">
   <style>
     .accountability-strip{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:16px}.accountability-item{border:1px solid var(--line);border-radius:10px;padding:10px;background:rgba(255,255,255,.8);min-width:0;cursor:pointer;text-align:left}.accountability-item:hover,.accountability-item.active{outline:2px solid #0c1475;background:#eef5ff}.accountability-item strong{display:block;color:#0c1475;font-size:1.25rem}.accountability-item span{color:var(--muted);font-size:.72rem}.active-filter{display:none;margin:-6px 0 14px;padding:8px 10px;border:1px solid var(--gold3);border-radius:8px;background:#fff}.active-filter.show{display:flex;justify-content:space-between;align-items:center;gap:12px}
     .section-title{margin:-18px -18px 0;padding:10px 14px 10px 18px;background:#0c1475;color:#fff;font-weight:800;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between;gap:16px}.section-title-label{display:flex;align-items:center;gap:6px;white-space:nowrap}.section-title span{color:#d9e6ff!important}.header-search{width:min(42%,520px);margin:0!important;padding:8px 11px!important;border:1px solid rgba(255,255,255,.55)!important;border-radius:8px!important;background:#fff!important;color:var(--ink)!important;min-height:36px}.header-search::placeholder{color:#667085}
@@ -59,4 +60,7 @@
   window.addEventListener('unhandledrejection', event => showFailure(event?.reason?.message || String(event?.reason || 'unhandled initialization failure.')));
 })();
 </script>
-<script type="module" src="tetelestai-auth-gate.js?v=27"></script></body></html>
+<!-- DESIGN PREVIEW ONLY: the sign-in gate is intentionally bypassed on this branch while TETELESTAI is being designed and reconciled. Production auth/RLS requirements remain unchanged. -->
+<script type="module" src="tetelestai-closed-loop.js?v=28"></script>
+<script type="module" src="tetelestai-deep-links.js?v=28"></script>
+</body></html>

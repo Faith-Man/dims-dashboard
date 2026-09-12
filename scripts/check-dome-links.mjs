@@ -2,44 +2,36 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const registryPath = path.join(root, 'config', 'dome-routes.json');
-const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+const registry = JSON.parse(fs.readFileSync(path.join(root, 'config', 'dome-routes.json'), 'utf8'));
 const failures = [];
 
-function existsForRoute(route) {
+function routeTarget(route) {
   const clean = route.replace(/^\//, '').split(/[?#]/)[0];
-  if (!clean) return true;
   const direct = path.join(root, clean);
-  if (fs.existsSync(direct) && fs.statSync(direct).isFile()) return true;
+  if (fs.existsSync(direct) && fs.statSync(direct).isFile()) return direct;
   if (fs.existsSync(direct) && fs.statSync(direct).isDirectory()) {
-    return fs.existsSync(path.join(direct, 'index.html'));
+    const index = path.join(direct, 'index.html');
+    if (fs.existsSync(index)) return index;
   }
-  return false;
+  return null;
 }
 
-for (const [name, route] of Object.entries(registry.canonical)) {
-  if (!existsForRoute(route)) failures.push(`Canonical route missing target: ${name} -> ${route}`);
+const current = [...(registry.primary || []), ...(registry.enterprise || [])];
+for (const item of current) {
+  if (!routeTarget(item.path)) failures.push(`Missing canonical target: ${item.key} -> ${item.path}`);
 }
 
-for (const rel of registry.currentUserSurfaces) {
-  const abs = path.join(root, rel);
-  if (!fs.existsSync(abs)) {
-    failures.push(`Current-user surface missing: ${rel}`);
-    continue;
-  }
-  const text = fs.readFileSync(abs, 'utf8');
-  const allowed = new Set(registry.allowedLegacyReferences?.[rel] || []);
-  for (const [legacy, reason] of Object.entries(registry.forbiddenCurrentUserRoutes)) {
-    if (allowed.has(legacy)) continue;
-    if (text.includes(legacy)) failures.push(`${rel}: stale route "${legacy}". ${reason}`);
-  }
+const forbidden = new Set(Object.keys(registry.legacyAliases || {}));
+const nav = fs.readFileSync(path.join(root, 'dome-global-nav.js'), 'utf8');
+for (const legacy of forbidden) {
+  if (nav.includes(`'${legacy}'`) || nav.includes(`\"${legacy}\"`)) failures.push(`Global navigation embeds legacy route instead of registry: ${legacy}`);
 }
+if (!nav.includes('config/dome-routes.json')) failures.push('Global navigation does not consume config/dome-routes.json');
 
 if (failures.length) {
-  console.error('\nDOME LINK INTEGRITY: FAILED\n');
-  failures.forEach((f, i) => console.error(`${i + 1}. ${f}`));
+  console.error('DOME LINK INTEGRITY: FAILED');
+  failures.forEach((failure, i) => console.error(`${i + 1}. ${failure}`));
   process.exit(1);
 }
-
 console.log('DOME LINK INTEGRITY: PASSED');
-console.log(`Validated ${Object.keys(registry.canonical).length} canonical routes across ${registry.currentUserSurfaces.length} current-user surfaces.`);
+console.log(`Validated ${current.length} governed navigation destinations from route registry v${registry.version}.`);

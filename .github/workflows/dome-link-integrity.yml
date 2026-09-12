@@ -7,6 +7,7 @@ on:
       - main
       - 'feature/**'
       - 'task-0088-integrated-user-test-baseline'
+      - 'task-0102-final-dome-home'
 
 permissions:
   contents: read

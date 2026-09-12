@@ -17,15 +17,20 @@ function routeTarget(route) {
 }
 
 const current = [...(registry.primary || []), ...(registry.enterprise || [])];
-for (const item of current) {
-  if (!routeTarget(item.path)) failures.push(`Missing canonical target: ${item.key} -> ${item.path}`);
+for (const item of current) if (!routeTarget(item.path)) failures.push(`Missing canonical target: ${item.key} -> ${item.path}`);
+
+const forbidden = Object.keys(registry.legacyAliases || {});
+const governedSurfaces = current.map(item => routeTarget(item.path)).filter(Boolean);
+const extraSurfaces = ['dome-global-nav.js'];
+for (const file of [...new Set([...governedSurfaces, ...extraSurfaces.map(f=>path.join(root,f))])]) {
+  const text = fs.readFileSync(file, 'utf8');
+  for (const legacy of forbidden) {
+    const relativeLegacy = legacy.replace(/^\//,'');
+    if (text.includes(`href=\"${legacy}\"`) || text.includes(`href='${legacy}'`) || text.includes(`href=\"${relativeLegacy}\"`) || text.includes(`href='${relativeLegacy}'`)) failures.push(`${path.relative(root,file)} exposes legacy current-user route: ${legacy}`);
+  }
 }
 
-const forbidden = new Set(Object.keys(registry.legacyAliases || {}));
 const nav = fs.readFileSync(path.join(root, 'dome-global-nav.js'), 'utf8');
-for (const legacy of forbidden) {
-  if (nav.includes(`'${legacy}'`) || nav.includes(`\"${legacy}\"`)) failures.push(`Global navigation embeds legacy route instead of registry: ${legacy}`);
-}
 if (!nav.includes('config/dome-routes.json')) failures.push('Global navigation does not consume config/dome-routes.json');
 
 if (failures.length) {
@@ -34,4 +39,4 @@ if (failures.length) {
   process.exit(1);
 }
 console.log('DOME LINK INTEGRITY: PASSED');
-console.log(`Validated ${current.length} governed navigation destinations from route registry v${registry.version}.`);
+console.log(`Validated ${current.length} governed navigation destinations and scanned ${governedSurfaces.length} current surfaces against route registry v${registry.version}.`);

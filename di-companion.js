@@ -1,10 +1,14 @@
 (() => {
   const MODULES = {
-    'index.html':'DOME™','':'DOME™','dashboard-v3.html':'GEGRAPTAI™','intelligence-briefing.html':'EKPOREUMA™',
-    'projects-tasks.html':'TETELESTAI™','orel-studio.html':'OrEl™','yaratheke.html':'YARATHĒKĒ™',
-    'peace-safety-intelligence.html':'SHAMAR™','command-alerts.html':'RHEŌ™','executive-dashboard.html':'EKKLĒSIA™'
+    'index.html':'DOME™','':'DOME™','dashboard-v3.html':'DIMS System','dashboard-v3-current.html':'KUBERNĒSIS™',
+    'intelligence-briefing.html':'GEGRAPTAI™','neshamah.html':'NESHAMAH™','projects-tasks.html':'TETELESTAI™',
+    'orel-studio.html':'OrEl™','orel':'OrEl™','yaratheke.html':'YARATHĒKĒ™','yaratheke':'YARATHĒKĒ™',
+    'peace-safety-intelligence.html':'SHAMAR™','shamar-intelligence-dome.html':'SHAMAR™',
+    'command-alerts.html':'DOME Alerts','executive-dashboard.html':'Executive Dashboard',
+    'oikonomos':'OIKONOMOS™','ekklesia':'EKKLĒSIA™'
   };
-  const page = location.pathname.split('/').pop();
+  const normalizedPath = location.pathname.replace(/^\/+|\/+$/g,'');
+  const page = normalizedPath.split('/').pop() || 'index.html';
   const moduleName = MODULES[page] || document.title.split('—')[0].trim() || 'DOME™';
 
   // RAD™ quick-brief bridge for TETELESTAI. Full doctrine remains in rac-epi-apn-guide.html.
@@ -85,16 +89,16 @@
     return '';
   };
   const button=document.createElement('button');
-  button.className='di-launch'; button.type='button'; button.textContent='✦ Ask DI'; button.setAttribute('aria-haspopup','dialog');
+  button.className='di-launch'; button.type='button'; button.textContent='DI²'; button.setAttribute('aria-haspopup','dialog'); button.setAttribute('aria-label','Open DI² — Dominion1st Intelligence'); button.title='DI² — Divine Intelligence × Dominion1st Intelligence';
   const backdrop=document.createElement('div'); backdrop.className='di-backdrop';
-  const panel=document.createElement('aside'); panel.className='di-panel'; panel.setAttribute('role','dialog'); panel.setAttribute('aria-modal','true'); panel.setAttribute('aria-label','Dominion1st Intelligence companion'); panel.setAttribute('aria-hidden','true');
-  panel.innerHTML=`<div class="di-head"><div><strong>Dominion1st Intelligence™</strong><small>${escapeHtml(moduleName)} · Read-only companion</small></div><div><button class="di-new" type="button">New</button> <button class="di-close" type="button" aria-label="Close Dominion1st Intelligence">Close</button></div></div><div class="di-status">TETELESTAI: certified live adapter · Other modules: status shown in answers</div><div class="di-log" aria-live="polite"></div><div class="di-starters"><button class="di-starter" type="button">What requires my attention?</button><button class="di-starter" type="button">What can DI work on now?</button><button class="di-starter" type="button">What is awaiting verification?</button></div><form class="di-form"><label for="diQuestion">Ask across DOME or this module</label><textarea id="diQuestion" required maxlength="1200"></textarea><div class="di-actions"><span class="di-disclaimer">Facts, calculations, and recommendations are labeled.</span><button class="di-send" type="submit">Ask DI</button></div></form>`;
+  const panel=document.createElement('aside'); panel.className='di-panel'; panel.setAttribute('role','dialog'); panel.setAttribute('aria-modal','true'); panel.setAttribute('aria-label','DI² — Dominion1st Intelligence'); panel.setAttribute('aria-hidden','true');
+  panel.innerHTML=`<div class="di-head"><div><strong>DI² — Dominion1st Intelligence™</strong><small>${escapeHtml(moduleName)} · Read-only companion</small></div><div><button class="di-new" type="button">New</button> <button class="di-close" type="button" aria-label="Close DI² — Dominion1st Intelligence">Close</button></div></div><div class="di-status">TETELESTAI: certified live adapter · Other modules: status shown in answers</div><div class="di-log" aria-live="polite"></div><div class="di-starters"><button class="di-starter" type="button">What requires my attention?</button><button class="di-starter" type="button">What can DI work on now?</button><button class="di-starter" type="button">What is awaiting verification?</button></div><form class="di-form"><label for="diQuestion">Ask, analyze, explain, or direct DI² across DOME or this module</label><textarea id="diQuestion" required maxlength="1200"></textarea><div class="di-actions"><span class="di-disclaimer">Facts, calculations, and recommendations are labeled.</span><button class="di-send" type="submit">Ask</button></div></form>`;
   document.body.append(backdrop,button,panel);
   const log=panel.querySelector('.di-log'), input=panel.querySelector('textarea'), close=panel.querySelector('.di-close');
   let previousFocus=null;
   function save(messages){sessionStorage.setItem(memoryKey,JSON.stringify(messages.slice(-12)))}
   function messages(){try{return JSON.parse(sessionStorage.getItem(memoryKey))||[]}catch(_){return[]}}
-  function render(){const rows=messages();log.innerHTML=rows.length?rows.map(m=>`<div class="di-message ${escapeHtml(m.role)}">${escapeHtml(m.text)}${m.citations?.length?`<ul class="di-citations">${m.citations.map(c=>`<li><a href="${escapeHtml(c.url)}">${escapeHtml(c.number)} — ${escapeHtml(c.title)}</a></li>`).join('')}</ul>`:''}</div>`).join(''):'<div class="di-message assistant">Ask about priorities, blockers, follow-ups, verification, or module availability. DI will identify what is live, calculated, recommended, or unavailable.</div>';log.scrollTop=log.scrollHeight}
+  function render(){const rows=messages();log.innerHTML=rows.length?rows.map(m=>`<div class="di-message ${escapeHtml(m.role)}">${escapeHtml(m.text)}${m.citations?.length?`<ul class="di-citations">${m.citations.map(c=>`<li><a href="${escapeHtml(c.url)}">${escapeHtml(c.number)} — ${escapeHtml(c.title)}</a></li>`).join('')}</ul>`:''}</div>`).join(''):'<div class="di-message assistant">Ask about priorities, blockers, follow-ups, verification, or module availability. DI² will identify what is live, calculated, recommended, or unavailable.</div>';log.scrollTop=log.scrollHeight}
   function open(){previousFocus=document.activeElement;panel.setAttribute('aria-hidden','false');backdrop.classList.add('open');render();setTimeout(()=>input.focus(),0)}
   function shut(){panel.setAttribute('aria-hidden','true');backdrop.classList.remove('open');previousFocus?.focus()}
   button.addEventListener('click',open); close.addEventListener('click',shut); backdrop.addEventListener('click',shut);
@@ -121,6 +125,6 @@
       const response=await fetch('/api/di/query',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${accessToken}`},body:JSON.stringify({question,module:moduleName,page:location.pathname,selected_record:selected?.dataset?.recordId||null,history:history.slice(-6).map(({role,text})=>({role,text}))})});
       const data=await response.json();if(!response.ok)throw new Error(data.error||`Request failed (${response.status})`);
       history.push({role:'assistant',text:data.answer,citations:data.citations||[]});
-    }catch(error){history.push({role:'error',text:`DI is unavailable: ${error.message}`})}finally{save(history);render();send.disabled=false;send.textContent='Ask DI'}
+    }catch(error){history.push({role:'error',text:`DI² is unavailable: ${error.message}`})}finally{save(history);render();send.disabled=false;send.textContent='Ask'}
   });
 })();

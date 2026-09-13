@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "governedBy": "TASK-0071 / TASK-0102 / TASK-0123 route reconciliation",
   "canonical": {
     "domeHome": "/prototypes/dome-eight-module-home/",
@@ -60,22 +60,16 @@
     "yaratheke/index.html",
     "gregoreo/index.html",
     "oikonomos/index.html",
-    "ekklesia/index.html",
-    "mission-control.html",
-    "dashboard-v3-current.html",
-    "system-health.html",
-    "institutional-queue.html",
-    "executive-dashboard.html",
-    "dims-blueprint.html"
+    "ekklesia/index.html"
   ],
   "allowedLegacyReferences": {
     "orel/index.html": ["orel-studio.html"],
-    "tetelestai/index.html": ["projects-tasks.html"],
-    "dashboard-v3-current.html": ["dashboard-v3.html"]
+    "tetelestai/index.html": ["projects-tasks.html"]
   },
   "rules": {
     "currentNavigationUsesRegistryOnly": true,
     "legacyRoutesMayRemainReachableButMustNotAppearAsCurrentNavigation": true,
-    "productionPromotionRequiresCloudflarePreviewVerification": true
+    "productionPromotionRequiresCloudflarePreviewVerification": true,
+    "currentUserValidationScope": "Main DOME plus eight operational modules; enterprise/system pages remain separately governed."
   }
 }

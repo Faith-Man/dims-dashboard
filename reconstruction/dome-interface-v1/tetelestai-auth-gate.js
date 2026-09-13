@@ -10,9 +10,6 @@ let appStarted = false;
 let authCheckRunning = false;
 let signInRendered = false;
 
-const PREVIEW_BYPASS = /task-0102-final-dome-home-(?:dims-dashboard|dome-dashboard)\.dominion1st-integrated-management-system-dims\.workers\.dev$/i.test(location.hostname)
-  || /deploy-preview-71--/i.test(location.hostname);
-
 function setAllLoading(message) {
   const projects = byId('projectsList');
   const tasks = byId('tasksList');
@@ -60,9 +57,11 @@ function renderSignIn() {
       <div id="tetelestaiAuthMsg" class="loading" style="margin-top:10px"></div>
     </section>`;
   setAllLoading(panel);
+
   const email = byId('tetelestaiAuthEmail');
   const password = byId('tetelestaiAuthPassword');
   const message = byId('tetelestaiAuthMsg');
+
   byId('tetelestaiPasswordSignIn').onclick = async () => {
     const e = email.value.trim();
     const p = password.value;
@@ -74,21 +73,17 @@ function renderSignIn() {
     signInRendered = false;
     await verifyAndStart();
   };
+
   byId('tetelestaiMagicLink').onclick = async () => {
     const e = email.value.trim();
     if (!e) { message.textContent = 'Enter your email first.'; return; }
     message.textContent = 'Sending magic link…';
-    const { error } = await sb.auth.signInWithOtp({ email: e, options: { emailRedirectTo: window.location.href } });
+    const { error } = await sb.auth.signInWithOtp({
+      email: e,
+      options: { emailRedirectTo: window.location.href }
+    });
     message.textContent = error ? `Error: ${error.message}` : 'Check your email for the sign-in link.';
   };
-}
-
-async function startPreviewSession() {
-  setAllLoading('<div class="loading">Opening temporary PR #71 test session…</div>');
-  const { data, error } = await sb.auth.signInAnonymously();
-  if (error || !data?.user) return false;
-  await startApp();
-  return true;
 }
 
 async function verifyAndStart() {
@@ -96,12 +91,11 @@ async function verifyAndStart() {
   authCheckRunning = true;
   try {
     const { data, error } = await sb.auth.getUser();
-    if (!error && data?.user) {
-      await startApp();
+    if (error || !data?.user) {
+      renderSignIn();
       return;
     }
-    if (PREVIEW_BYPASS && await startPreviewSession()) return;
-    renderSignIn();
+    await startApp();
   } catch (error) {
     clearTimeout(window.__tetelestaiInitTimer);
     setAllLoading(`Unable to initialize authenticated TETELESTAI: ${String(error?.message || error)}`);
@@ -114,13 +108,12 @@ sb.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_OUT') {
     appStarted = false;
     signInRendered = false;
-    if (PREVIEW_BYPASS) {
-      void verifyAndStart();
-      return;
-    }
     renderSignIn();
     return;
   }
+
+  // Never reload the page from auth events. Supabase may emit INITIAL_SESSION
+  // or TOKEN_REFRESHED during startup; reloading here creates an auth loop.
   if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user && !appStarted) {
     void verifyAndStart();
   }

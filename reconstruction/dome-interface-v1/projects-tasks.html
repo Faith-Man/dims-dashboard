@@ -17,8 +17,8 @@
   </style>
 </head>
 <body>
-<div class="page-header"><div><div class="page-title">✅ TETELESTAI™</div><div class="page-sub">Projects, Tasks, Assignments &amp; Completion</div></div><a href="prototypes/dome-eight-module-home/" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">← DOME Home</a></div>
-<nav class="nav-pills"><a class="nav-pill" href="mission-control.html">🎯 Mission Control</a><a class="nav-pill active" href="tetelestai/">✅ TETELESTAI™</a><a class="nav-pill" href="institutional-queue.html">⏳ Inst. Queue</a><a class="nav-pill" href="system-health.html">🌐 DSCC</a></nav>
+<div class="page-header"><div><div class="page-title">✅ TETELESTAI™</div><div class="page-sub">Projects, Tasks, Assignments &amp; Completion</div></div><a href="index.html" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">← Home</a></div>
+<nav class="nav-pills"><a class="nav-pill" href="mission-control.html">🎯 Mission Control</a><a class="nav-pill active" href="projects-tasks.html">✅ TETELESTAI™</a><a class="nav-pill" href="institutional-queue.html">⏳ Inst. Queue</a><a class="nav-pill" href="dashboard-v3.html">⚙ System</a></nav>
 <div class="wrap">
   <section id="accountabilitySummary" class="accountability-strip" aria-label="Accountability summary"><div class="loading">Loading accountability…</div></section>
   <div id="activeFilter" class="active-filter"><span id="activeFilterText"></span><button class="clear-filter" id="clearSummaryFilter">Clear Filter</button></div>
@@ -29,7 +29,6 @@
 <div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true"><aside class="detail-drawer" id="detailDrawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" tabindex="-1"><header class="drawer-header"><div><div class="row-meta" id="drawerKind"></div><h2 id="drawerTitle">Details</h2></div><button class="drawer-close" id="drawerClose" aria-label="Close details">×</button></header><div class="drawer-content" id="drawerContent"></div></aside></div>
 <div class="scripture-bar">"Commit your works to the Lord, and your thoughts will be established." <strong>— Proverbs 16:3</strong></div>
 <script>(()=>{const showFailure=detail=>{const text=`Unable to load TETELESTAI: ${detail}`;const projects=document.getElementById('projectsList');const tasks=document.getElementById('tasksList');const summary=document.getElementById('accountabilitySummary');if(projects?.classList.contains('loading'))projects.textContent=text;if(tasks?.classList.contains('loading'))tasks.textContent=text;if(summary?.querySelector('.loading'))summary.innerHTML=`<div class="loading">${text}</div>`};window.__tetelestaiInitTimer=setTimeout(()=>showFailure('application initialization timed out.'),12000);window.addEventListener('error',event=>showFailure(event?.message||'browser module initialization failed.'));window.addEventListener('unhandledrejection',event=>showFailure(event?.reason?.message||String(event?.reason||'unhandled initialization failure.')));})();</script>
-<script type="module" src="tetelestai-auth-gate.js?v=28"></script>
+<script type="module" src="tetelestai-auth-gate.js?v=27"></script>
 <script src="tetelestai-rac-priority-prototype.js?v=2"></script>
-<script src="dome-global-nav.js" defer></script>
 </body></html>

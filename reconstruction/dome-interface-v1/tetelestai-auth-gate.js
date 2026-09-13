@@ -10,6 +10,11 @@ let appStarted = false;
 let authCheckRunning = false;
 let signInRendered = false;
 
+// Design/reconstruction preview only: suppress the password prompt by creating a
+// temporary anonymous Supabase session. RLS remains enabled and production hosts
+// are not included in this allowlist.
+const PREVIEW_BYPASS = /^deploy-preview-86--(?:dominion1st|monumental-creponne-8df707|dominion1st-old)\.netlify\.app$/i.test(location.hostname);
+
 function setAllLoading(message) {
   const projects = byId('projectsList');
   const tasks = byId('tasksList');
@@ -86,16 +91,29 @@ function renderSignIn() {
   };
 }
 
+async function startPreviewSession() {
+  setAllLoading('<div class="loading">Opening reconstruction design session…</div>');
+  const { data, error } = await sb.auth.signInAnonymously();
+  if (error || !data?.user) {
+    clearTimeout(window.__tetelestaiInitTimer);
+    setAllLoading(`Unable to open reconstruction design session: ${error?.message || 'anonymous session unavailable.'}`);
+    return false;
+  }
+  await startApp();
+  return true;
+}
+
 async function verifyAndStart() {
   if (appStarted || authCheckRunning) return;
   authCheckRunning = true;
   try {
     const { data, error } = await sb.auth.getUser();
-    if (error || !data?.user) {
-      renderSignIn();
+    if (!error && data?.user) {
+      await startApp();
       return;
     }
-    await startApp();
+    if (PREVIEW_BYPASS && await startPreviewSession()) return;
+    renderSignIn();
   } catch (error) {
     clearTimeout(window.__tetelestaiInitTimer);
     setAllLoading(`Unable to initialize authenticated TETELESTAI: ${String(error?.message || error)}`);
@@ -108,12 +126,14 @@ sb.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_OUT') {
     appStarted = false;
     signInRendered = false;
+    if (PREVIEW_BYPASS) {
+      void verifyAndStart();
+      return;
+    }
     renderSignIn();
     return;
   }
 
-  // Never reload the page from auth events. Supabase may emit INITIAL_SESSION
-  // or TOKEN_REFRESHED during startup; reloading here creates an auth loop.
   if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user && !appStarted) {
     void verifyAndStart();
   }

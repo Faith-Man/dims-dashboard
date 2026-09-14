@@ -1,0 +1,31 @@
+name: DOME Link Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'config/dome-routes.json'
+      - 'dome-global-nav.js'
+      - '**/*.html'
+      - 'scripts/check-dome-links.mjs'
+  push:
+    branches:
+      - main
+    paths:
+      - 'config/dome-routes.json'
+      - 'dome-global-nav.js'
+      - '**/*.html'
+      - 'scripts/check-dome-links.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate governed DOME routes
+        run: node scripts/check-dome-links.mjs

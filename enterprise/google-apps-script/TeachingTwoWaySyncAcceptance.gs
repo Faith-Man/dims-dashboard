@@ -33,3 +33,13 @@ function compareTeachingSyncState_(assetCode) {
     checked_at: new Date().toISOString()
   };
 }
+
+/**
+ * Zero-argument acceptance wrapper for clasp/App Script editor execution.
+ * Safe/read-only: delegates to compareTeachingSyncState_ only.
+ */
+function runTask0120KeepTheGardenAcceptance() {
+  var result = compareTeachingSyncState_('DIMS-TEACH-0002');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}

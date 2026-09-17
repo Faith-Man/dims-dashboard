@@ -243,18 +243,3 @@ function diagnoseTask0120Test2Tail_() {
 function runTask0120Test2TailDiagnostic() {
   return diagnoseTask0120Test2Tail_();
 }
-
-/**
- * TEMPORARY. Zero-argument invocation of the generic
- * teachingTwoWayReconcileFromDrive_ for DIMS-TEACH-0069's one-time
- * pre-existing divergence (the Doc was edited before automatic enrollment
- * existed). The Apps Script editor's Run button can't pass arguments, so
- * this exists only to trigger the generic function once from the UI.
- * Delete this wrapper once 0069 reaches sync_mode=two_way — the
- * underlying engine function is what's meant to be reused, not this.
- */
-function runReconcileTeach0069FromDrive() {
-  var result = teachingTwoWayReconcileFromDrive_('DIMS-TEACH-0069', 'two_way');
-  console.log(JSON.stringify(result, null, 2));
-  return result;
-}

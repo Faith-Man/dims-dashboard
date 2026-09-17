@@ -62,6 +62,21 @@ function runTask0120VerifyKeepTheGardenEnrollment() {
 }
 
 /**
+ * Governed directional comparison runner for the enrolled Keep The Garden
+ * acceptance asset. The underlying comparison engine classifies which side
+ * changed against the enrolled fingerprints. It does not synchronize or
+ * overwrite teaching content.
+ *
+ * Note: if a Google Docs revision changed without a canonical body change,
+ * the comparison engine may refresh the stored revision fingerprint only.
+ */
+function runTask0120CompareKeepTheGardenDirection() {
+  var result = teachingTwoWayCompare_('DIMS-TEACH-0002');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+/**
  * Read-only diagnostic for a failed teaching envelope boundary.
  */
 function diagnoseTeachingEnvelope_(assetCode) {

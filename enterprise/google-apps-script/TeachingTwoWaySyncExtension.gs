@@ -79,8 +79,6 @@ function teachingTwoWayCompare_(assetCode) {
     };
   }
 
-  // Always calculate the Supabase body hash. Drive revision stability must
-  // never hide an OrEl/Supabase-only edit.
   var supabaseBody = teachingTwoWayExpectedBodyText_(state.teaching);
   var supabaseHash = teachingTwoWayHash_(supabaseBody);
   var supabaseChanged = supabaseHash !== registry.supabase_content_hash;
@@ -100,8 +98,6 @@ function teachingTwoWayCompare_(assetCode) {
   var drive = teachingTwoWayReadDriveState_(state.teaching, registry, currentRevision);
   var driveChanged = drive.body_hash !== registry.drive_body_hash;
 
-  // Revision changed but canonical body did not (formatting/comment/metadata
-  // change). Advance only the cheap revision signal.
   if (!driveChanged && !supabaseChanged) {
     teachingTwoWayPatchRegistry_(assetCode, {
       drive_revision_id: drive.revision_id,
@@ -186,8 +182,6 @@ function teachingTwoWayDriveRevisionId_(registry) {
   var fileId = extractTeachingGoogleFileId_(registry.url);
   if (!fileId) throw new Error('Registered Google Doc URL is missing/invalid for ' + registry.asset_code);
 
-  // Google Docs API revisionId is a change signal only, never body authority.
-  // UrlFetch avoids requiring the Advanced Docs service to be enabled.
   var response = UrlFetchApp.fetch(
     'https://docs.googleapis.com/v1/documents/' + encodeURIComponent(fileId) + '?fields=revisionId',
     {
@@ -214,6 +208,14 @@ function teachingTwoWayExtractBodyText_(doc, teaching) {
   if (teaching.summary) envelope.push(teaching.summary);
 
   var prefix = envelope.join('\n');
+
+  // Some existing Docs contain a single empty leading paragraph before the
+  // governed teaching envelope. Treat that structural blank as outside the
+  // canonical body, but do not skip arbitrary whitespace or non-empty text.
+  // This preserves a deterministic boundary while accommodating the exact
+  // legacy shape proven by the TASK-0120 read-only diagnostic.
+  if (fullText.indexOf('\n') === 0) fullText = fullText.substring(1);
+
   if (fullText === prefix) return '';
   if (fullText.indexOf(prefix + '\n') !== 0) {
     throw new Error(

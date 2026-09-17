@@ -1,12 +1,9 @@
 /**
- * TASK-0120 — Read-only acceptance probe for controlled two-way teaching sync.
+ * TASK-0120 — Acceptance and governed enrollment probes for controlled
+ * two-way teaching sync.
  *
  * EBYC: depends on TeachingArtifactSyncExtension.gs and
- * TeachingTwoWaySyncExtension.gs. It performs no enrollment, no patch,
- * no conflict creation, and no content write.
- *
- * First governed acceptance case:
- *   compareTeachingSyncState_("DIMS-TEACH-0002")
+ * TeachingTwoWaySyncExtension.gs.
  */
 function compareTeachingSyncState_(assetCode) {
   var state = teachingTwoWayLoadState_(assetCode);
@@ -34,10 +31,6 @@ function compareTeachingSyncState_(assetCode) {
   };
 }
 
-/**
- * Zero-argument acceptance wrapper for clasp/Apps Script editor execution.
- * Safe/read-only: delegates to compareTeachingSyncState_ only.
- */
 function runTask0120KeepTheGardenAcceptance() {
   var result = compareTeachingSyncState_('DIMS-TEACH-0002');
   console.log(JSON.stringify(result, null, 2));
@@ -45,14 +38,31 @@ function runTask0120KeepTheGardenAcceptance() {
 }
 
 /**
+ * Governed one-time enrollment runner for the first acceptance asset.
+ * teachingTwoWayEnroll_ performs its own fresh canonical-body comparison
+ * immediately before writing baseline fingerprints. It will not enroll if
+ * either canonical body has diverged.
+ *
+ * This writes synchronization state only. It does not write teaching content
+ * to Google Docs or Supabase.
+ */
+function runTask0120EnrollKeepTheGardenTwoWay() {
+  var result = teachingTwoWayEnroll_('DIMS-TEACH-0002', 'two_way');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+/**
+ * Read-only post-enrollment verification runner.
+ */
+function runTask0120VerifyKeepTheGardenEnrollment() {
+  var result = compareTeachingSyncState_('DIMS-TEACH-0002');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+/**
  * Read-only diagnostic for a failed teaching envelope boundary.
- *
- * IMPORTANT: This intentionally reads paragraph text directly instead of
- * calling teachingTwoWayExtractBodyText_(), so a boundary mismatch can be
- * inspected without weakening the production safety gate.
- *
- * No enrollment, registry patch, conflict insert, document write, or
- * teaching-content write occurs here.
  */
 function diagnoseTeachingEnvelope_(assetCode) {
   var state = teachingTwoWayLoadState_(assetCode);
@@ -152,9 +162,6 @@ function teachingTwoWayFirstDifference_(expected, actual) {
   };
 }
 
-/**
- * Zero-argument read-only diagnostic for DIMS-TEACH-0002.
- */
 function runTask0120KeepTheGardenEnvelopeDiagnostic() {
   return diagnoseTeachingEnvelope_('DIMS-TEACH-0002');
 }

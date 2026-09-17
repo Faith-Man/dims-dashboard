@@ -141,12 +141,14 @@ function installAutomaticTeachingTwoWaySyncTrigger() {
     .everyMinutes(5)
     .create();
 
-  return {
+  var result = {
     installed: true,
     handler: handler,
     cadence: 'every_5_minutes',
     trigger_id: trigger.getUniqueId()
   };
+  console.log(JSON.stringify(result, null, 2));
+  return result;
 }
 
 function verifyAutomaticTeachingTwoWaySyncTrigger() {
@@ -154,10 +156,12 @@ function verifyAutomaticTeachingTwoWaySyncTrigger() {
   var matches = ScriptApp.getProjectTriggers().filter(function(trigger) {
     return trigger.getHandlerFunction() === handler;
   });
-  return {
+  var result = {
     handler: handler,
     installed: matches.length > 0,
     trigger_count: matches.length,
     trigger_ids: matches.map(function(trigger) { return trigger.getUniqueId(); })
   };
+  console.log(JSON.stringify(result, null, 2));
+  return result;
 }

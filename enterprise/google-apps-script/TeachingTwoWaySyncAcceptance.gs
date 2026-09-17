@@ -35,11 +35,126 @@ function compareTeachingSyncState_(assetCode) {
 }
 
 /**
- * Zero-argument acceptance wrapper for clasp/App Script editor execution.
+ * Zero-argument acceptance wrapper for clasp/Apps Script editor execution.
  * Safe/read-only: delegates to compareTeachingSyncState_ only.
  */
 function runTask0120KeepTheGardenAcceptance() {
   var result = compareTeachingSyncState_('DIMS-TEACH-0002');
   console.log(JSON.stringify(result, null, 2));
   return result;
+}
+
+/**
+ * Read-only diagnostic for a failed teaching envelope boundary.
+ *
+ * IMPORTANT: This intentionally reads paragraph text directly instead of
+ * calling teachingTwoWayExtractBodyText_(), so a boundary mismatch can be
+ * inspected without weakening the production safety gate.
+ *
+ * No enrollment, registry patch, conflict insert, document write, or
+ * teaching-content write occurs here.
+ */
+function diagnoseTeachingEnvelope_(assetCode) {
+  var state = teachingTwoWayLoadState_(assetCode);
+  var teaching = state.teaching;
+  var registry = state.registry;
+  var fileId = extractTeachingGoogleFileId_(registry.url);
+  if (!fileId) throw new Error('Registered Google Doc URL is missing/invalid for ' + assetCode);
+
+  var doc = DocumentApp.openById(fileId);
+  var children = doc.getBody().getParagraphs();
+  var actual = [];
+  for (var i = 0; i < Math.min(children.length, 4); i++) {
+    actual.push(String(children[i].getText() || ''));
+  }
+
+  var expectedTitle = String(teaching.title || 'Dominion1st Teaching');
+  var expectedMeta = String(teachingSyncMetaText_(teaching) || '');
+  var hasSummary = !!teaching.summary;
+  var expectedSummary = hasSummary ? String(teaching.summary) : null;
+  var expectedBodyFirst = teachingTwoWayFirstCanonicalBodyLine_(teaching);
+
+  var actualTitle = actual.length > 0 ? actual[0] : null;
+  var actualMeta = actual.length > 1 ? actual[1] : null;
+  var actualSummary = hasSummary && actual.length > 2 ? actual[2] : null;
+  var bodyIndex = hasSummary ? 3 : 2;
+  var actualBodyFirst = actual.length > bodyIndex ? actual[bodyIndex] : null;
+
+  var result = {
+    asset_code: assetCode,
+    read_only: true,
+    drive_file_id: fileId,
+    drive_revision_id: teachingTwoWayDriveRevisionId_(registry),
+    expected: {
+      title: expectedTitle,
+      metadata: expectedMeta,
+      summary: expectedSummary,
+      first_body_paragraph: expectedBodyFirst
+    },
+    actual: {
+      title: actualTitle,
+      metadata: actualMeta,
+      summary: actualSummary,
+      first_body_paragraph: actualBodyFirst
+    },
+    exact_match: {
+      title: actualTitle === expectedTitle,
+      metadata: actualMeta === expectedMeta,
+      summary: !hasSummary || actualSummary === expectedSummary,
+      first_body_paragraph: actualBodyFirst === expectedBodyFirst
+    },
+    lengths: {
+      expected_title: expectedTitle.length,
+      actual_title: actualTitle === null ? null : actualTitle.length,
+      expected_metadata: expectedMeta.length,
+      actual_metadata: actualMeta === null ? null : actualMeta.length,
+      expected_summary: expectedSummary === null ? null : expectedSummary.length,
+      actual_summary: actualSummary === null ? null : actualSummary.length,
+      expected_first_body_paragraph: expectedBodyFirst === null ? null : expectedBodyFirst.length,
+      actual_first_body_paragraph: actualBodyFirst === null ? null : actualBodyFirst.length
+    },
+    first_difference: {
+      title: teachingTwoWayFirstDifference_(expectedTitle, actualTitle),
+      metadata: teachingTwoWayFirstDifference_(expectedMeta, actualMeta),
+      summary: hasSummary ? teachingTwoWayFirstDifference_(expectedSummary, actualSummary) : null,
+      first_body_paragraph: teachingTwoWayFirstDifference_(expectedBodyFirst, actualBodyFirst)
+    },
+    checked_at: new Date().toISOString()
+  };
+
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+function teachingTwoWayFirstCanonicalBodyLine_(teaching) {
+  var canonical = teachingTwoWayExpectedBodyText_(teaching);
+  var lines = String(canonical || '').split('\n');
+  for (var i = 0; i < lines.length; i++) {
+    if (lines[i] !== '') return lines[i];
+  }
+  return null;
+}
+
+function teachingTwoWayFirstDifference_(expected, actual) {
+  if (expected === actual) return null;
+  if (expected === null || actual === null) {
+    return { index: 0, expected_code_point: null, actual_code_point: null };
+  }
+  expected = String(expected);
+  actual = String(actual);
+  var limit = Math.min(expected.length, actual.length);
+  var index = 0;
+  while (index < limit && expected.charAt(index) === actual.charAt(index)) index++;
+  return {
+    index: index,
+    expected_code_point: index < expected.length ? expected.charCodeAt(index) : null,
+    actual_code_point: index < actual.length ? actual.charCodeAt(index) : null
+  };
+}
+
+/**
+ * Zero-argument read-only diagnostic for DIMS-TEACH-0002.
+ */
+function runTask0120KeepTheGardenEnvelopeDiagnostic() {
+  return diagnoseTeachingEnvelope_('DIMS-TEACH-0002');
 }

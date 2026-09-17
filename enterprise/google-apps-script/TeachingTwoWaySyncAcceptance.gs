@@ -245,43 +245,16 @@ function runTask0120Test2TailDiagnostic() {
 }
 
 /**
- * DIMS-TEACH-0069 — RUN THAT YE MAY OBTAIN™
- * Governed real-world two-way synchronization acceptance runners.
- * These wrappers reuse the proven TASK-0120 engine; they do not create a
- * second synchronization path.
+ * TEMPORARY. Zero-argument invocation of the generic
+ * teachingTwoWayReconcileFromDrive_ for DIMS-TEACH-0069's one-time
+ * pre-existing divergence (the Doc was edited before automatic enrollment
+ * existed). The Apps Script editor's Run button can't pass arguments, so
+ * this exists only to trigger the generic function once from the UI.
+ * Delete this wrapper once 0069 reaches sync_mode=two_way — the
+ * underlying engine function is what's meant to be reused, not this.
  */
-function runTeach0069Acceptance() {
-  var result = compareTeachingSyncState_('DIMS-TEACH-0069');
-  console.log(JSON.stringify(result, null, 2));
-  return result;
-}
-
-function runTeach0069EnrollTwoWay() {
-  var result = teachingTwoWayEnroll_('DIMS-TEACH-0069', 'two_way');
-  console.log(JSON.stringify(result, null, 2));
-  return result;
-}
-
-function runTeach0069VerifyEnrollment() {
-  var result = compareTeachingSyncState_('DIMS-TEACH-0069');
-  console.log(JSON.stringify(result, null, 2));
-  return result;
-}
-
-function runTeach0069CompareDirection() {
-  var result = teachingTwoWayCompare_('DIMS-TEACH-0069');
-  console.log(JSON.stringify(result, null, 2));
-  return result;
-}
-
-function runTeach0069DriveToSupabaseSync() {
-  var result = teachingTwoWaySyncDriveToSupabase_('DIMS-TEACH-0069');
-  console.log(JSON.stringify(result, null, 2));
-  return result;
-}
-
-function runTeach0069SupabaseToDriveSync() {
-  var result = teachingTwoWaySyncSupabaseToDrive_('DIMS-TEACH-0069');
+function runReconcileTeach0069FromDrive() {
+  var result = teachingTwoWayReconcileFromDrive_('DIMS-TEACH-0069', 'two_way');
   console.log(JSON.stringify(result, null, 2));
   return result;
 }

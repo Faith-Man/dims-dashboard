@@ -700,3 +700,78 @@ function teachingTwoWayWriteDriveBody_(teaching, registry, newBodyText) {
 
   doc.saveAndClose();
 }
+
+/**
+ * One-time controlled reconciliation for a teaching that is still
+ * unenrolled but whose canonical Drive and Supabase bodies have already
+ * diverged — e.g. the Doc was edited with legitimate new content in the
+ * window before automatic enrollment had a chance to run.
+ *
+ * teachingTwoWayEnroll_ refuses to enroll on a mismatch (correctly — it
+ * has no way to know which side is right). This function makes that call
+ * explicit: it adopts the CURRENT Drive body as ground truth, the same
+ * way teachingTwoWaySyncDriveToSupabase_ does for an already-enrolled
+ * asset, then enrolls only after confirming the adopted content genuinely
+ * matches. It is generic over assetCode — this is meant to be reusable
+ * whenever this situation recurs, not rewritten per teaching.
+ *
+ * Refuses to run on anything already enrolled or already in conflict, so
+ * it can never be used to bypass a real conflict or re-baseline something
+ * that already has synchronization history.
+ */
+function teachingTwoWayReconcileFromDrive_(assetCode, requestedMode) {
+  requestedMode = requestedMode || 'two_way';
+  var state = teachingTwoWayLoadState_(assetCode);
+
+  if (state.registry.sync_mode !== 'unenrolled') {
+    throw new Error(
+      'teachingTwoWayReconcileFromDrive_ only applies to unenrolled assets: ' +
+      assetCode + ' is ' + state.registry.sync_mode
+    );
+  }
+  if (state.registry.conflict_status !== 'none') {
+    throw new Error(
+      'Refusing to reconcile ' + assetCode + ' while conflict_status is ' +
+      state.registry.conflict_status
+    );
+  }
+
+  var drive = teachingTwoWayReadDriveState_(state.teaching, state.registry);
+  var supabaseBody = teachingTwoWayExpectedBodyText_(state.teaching);
+  var supabaseHash = teachingTwoWayHash_(supabaseBody);
+
+  if (drive.body_hash === supabaseHash) {
+    return { asset_code: assetCode, action: 'already_matching_no_reconciliation_needed', reconciled: false };
+  }
+
+  var doc = DocumentApp.openById(drive.file_id);
+  var reconstructedMarkdown = teachingTwoWayReconstructMarkdownFromDoc_(doc, state.teaching);
+  var reconstructedHash = teachingTwoWayHash_(
+    teachingTwoWayExpectedBodyText_({ content_md: reconstructedMarkdown })
+  );
+  if (reconstructedHash !== drive.body_hash) {
+    throw new Error(
+      'Reconciliation reconstruction failed self-verification for ' + assetCode +
+      '; refusing to write an unverified guess.'
+    );
+  }
+
+  var writeResult = teachingSyncRequest_(
+    'teachings', 'patch', { content_md: reconstructedMarkdown },
+    'id=eq.' + encodeURIComponent(state.teaching.id)
+  );
+  teachingSyncRequireSuccess_(writeResult, 'Reconcile Drive body into Supabase for ' + assetCode);
+
+  var postState = teachingTwoWayLoadState_(assetCode);
+  var postSupabaseHash = teachingTwoWayHash_(teachingTwoWayExpectedBodyText_(postState.teaching));
+  if (postSupabaseHash !== drive.body_hash) {
+    throw new Error(
+      'Post-reconciliation verification failed for ' + assetCode +
+      '; Supabase does not match Drive. Enrollment NOT attempted.'
+    );
+  }
+
+  var enrollment = teachingTwoWayEnroll_(assetCode, requestedMode);
+  enrollment.action = 'reconciled_from_drive_and_enrolled';
+  return enrollment;
+}

@@ -29,16 +29,18 @@ function processAutomaticTeachingTwoWaySync(limit) {
   if (!isFinite(limit) || limit < 1) limit = 25;
   limit = Math.floor(limit);
 
-  var registryResult = teachingSyncRequest_(
-    'asset_registry', 'get', null,
-    'system_area=eq.' + encodeURIComponent('Teaching / YARATHĒKĒ') +
-      '&status=eq.institutionalized' +
-      '&order=updated_at.asc&limit=' + limit +
-      '&select=asset_code,sync_mode,conflict_status,url,updated_at'
-  );
-  teachingSyncRequireSuccess_(registryResult, 'Load teaching two-way automation candidates');
+  // Unenrolled candidates are fetched first and always prioritized. A
+  // teaching that is already synced never advances its own updated_at on a
+  // clean no_op pass, so a single updated_at-ordered query would let
+  // long-settled teachings permanently occupy the batch and starve newly
+  // institutionalized (but still unenrolled) teachings out of ever being
+  // picked up once the total teaching count exceeds `limit`.
+  var rows = fetchTeachingTwoWayAutomationCandidates_('sync_mode=eq.unenrolled', limit);
+  if (rows.length < limit) {
+    var enrolledRows = fetchTeachingTwoWayAutomationCandidates_('sync_mode=neq.unenrolled', limit - rows.length);
+    rows = rows.concat(enrolledRows);
+  }
 
-  var rows = registryResult.body || [];
   var results = [];
   rows.forEach(function(row) {
     try {
@@ -54,6 +56,19 @@ function processAutomaticTeachingTwoWaySync(limit) {
   });
 
   return { processed: results.length, results: results };
+}
+
+function fetchTeachingTwoWayAutomationCandidates_(filter, limit) {
+  var registryResult = teachingSyncRequest_(
+    'asset_registry', 'get', null,
+    'system_area=eq.' + encodeURIComponent('Teaching / YARATHĒKĒ') +
+      '&status=eq.institutionalized' +
+      '&' + filter +
+      '&order=updated_at.asc&limit=' + limit +
+      '&select=asset_code,sync_mode,conflict_status,url,updated_at'
+  );
+  teachingSyncRequireSuccess_(registryResult, 'Load teaching two-way automation candidates (' + filter + ')');
+  return registryResult.body || [];
 }
 
 function processOneAutomaticTeachingTwoWaySync_(registryRow) {

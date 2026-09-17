@@ -206,3 +206,40 @@ function runTask0120SupabaseToDriveSync() {
   console.log(JSON.stringify(result, null, 2));
   return result;
 }
+
+/**
+ * Read-only diagnostic for Acceptance Test 2. Reports the last few Doc
+ * body elements as distinct structural objects (type + own text), so a
+ * multi-paragraph write via Text.insertText() can be verified as having
+ * actually produced separate paragraphs rather than one paragraph
+ * containing a literal '\n' character.
+ */
+function diagnoseTask0120Test2Tail_() {
+  var state = teachingTwoWayLoadState_('DIMS-TEACH-0002');
+  var fileId = extractTeachingGoogleFileId_(state.registry.url);
+  var doc = DocumentApp.openById(fileId);
+  var body = doc.getBody();
+  var count = body.getNumChildren();
+  var tail = [];
+  for (var i = Math.max(0, count - 6); i < count; i++) {
+    var child = body.getChild(i);
+    var type = child.getType();
+    tail.push({
+      index: i,
+      type: String(type),
+      text: type === DocumentApp.ElementType.PARAGRAPH ? child.asParagraph().getText() : '(non-paragraph)'
+    });
+  }
+  var result = { total_children: count, tail: tail };
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+/**
+ * Public zero-argument wrapper so this shows up in the Apps Script editor's
+ * "Select function" dropdown (functions ending in '_' are treated as
+ * private and are excluded from it).
+ */
+function runTask0120Test2TailDiagnostic() {
+  return diagnoseTask0120Test2Tail_();
+}

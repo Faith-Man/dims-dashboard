@@ -180,3 +180,22 @@ function teachingTwoWayFirstDifference_(expected, actual) {
 function runTask0120KeepTheGardenEnvelopeDiagnostic() {
   return diagnoseTeachingEnvelope_('DIMS-TEACH-0002');
 }
+
+/**
+ * Governed directional executor runners for the Keep The Garden acceptance
+ * asset. Each performs its own fresh entry-gate and pre-write revalidation
+ * (see teachingTwoWayEvaluateForWrite_ in TeachingTwoWaySyncExtension.gs)
+ * and only reports synchronized: true after post-write canonical hash
+ * verification succeeds and the registry baseline has been advanced.
+ */
+function runTask0120SyncKeepTheGardenDriveToSupabase() {
+  var result = teachingTwoWaySyncDriveToSupabase_('DIMS-TEACH-0002');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+function runTask0120SyncKeepTheGardenSupabaseToDrive() {
+  var result = teachingTwoWaySyncSupabaseToDrive_('DIMS-TEACH-0002');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}

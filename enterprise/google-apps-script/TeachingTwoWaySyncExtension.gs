@@ -299,3 +299,211 @@ function teachingTwoWayRequireMode_(mode, allowUnenrolled) {
   if (allowUnenrolled) allowed.push('unenrolled');
   if (allowed.indexOf(mode) < 0) throw new Error('Unsupported teaching sync mode: ' + mode);
 }
+
+/**
+ * ==========================================================
+ * TASK-0120 — Directional synchronization executors.
+ * ==========================================================
+ *
+ * EBYC: reuses the comparison primitives above (state loading, body
+ * extraction/hashing, conflict preservation, registry patching). This does
+ * not modify teachingTwoWayCompare_; it always does a full Drive body read
+ * rather than teachingTwoWayCompare_'s revision-only fast path, since an
+ * executor about to write needs the actual current body regardless.
+ */
+function teachingTwoWayEvaluateForWrite_(assetCode) {
+  var state = teachingTwoWayLoadState_(assetCode);
+  var registry = state.registry;
+
+  if (registry.sync_mode === 'unenrolled') {
+    return { ready: false, result: { asset_code: assetCode, action: 'unenrolled', synchronized: false } };
+  }
+  teachingTwoWayRequireMode_(registry.sync_mode, false);
+
+  if (registry.conflict_status !== 'none') {
+    return {
+      ready: false,
+      result: {
+        asset_code: assetCode,
+        action: 'paused_for_conflict',
+        conflict_status: registry.conflict_status,
+        synchronized: false
+      }
+    };
+  }
+
+  var supabaseBody = teachingTwoWayExpectedBodyText_(state.teaching);
+  var supabaseHash = teachingTwoWayHash_(supabaseBody);
+  var supabaseChanged = supabaseHash !== registry.supabase_content_hash;
+  var drive = teachingTwoWayReadDriveState_(state.teaching, registry);
+  var driveChanged = drive.body_hash !== registry.drive_body_hash;
+
+  if (driveChanged && supabaseChanged) {
+    var conflictId = teachingTwoWayFlagConflict_(state, drive, supabaseBody, supabaseHash, 'both_bodies_changed');
+    return {
+      ready: false,
+      result: { asset_code: assetCode, action: 'conflict_flagged', conflict_id: conflictId, synchronized: false }
+    };
+  }
+
+  return {
+    ready: true,
+    state: state,
+    registry: registry,
+    drive: drive,
+    supabase_body: supabaseBody,
+    supabase_hash: supabaseHash,
+    drive_changed: driveChanged,
+    supabase_changed: supabaseChanged
+  };
+}
+
+function teachingTwoWaySyncDriveToSupabase_(assetCode) {
+  var gate = teachingTwoWayEvaluateForWrite_(assetCode);
+  if (!gate.ready) return gate.result;
+
+  if (!gate.drive_changed) {
+    return { asset_code: assetCode, action: gate.supabase_changed ? 'supabase_to_drive_required' : 'no_op', synchronized: false };
+  }
+  if (!teachingTwoWayModeAllows_(gate.registry.sync_mode, 'drive_to_supabase')) {
+    return { asset_code: assetCode, action: 'drive_to_supabase_blocked_by_mode', allowed: false, synchronized: false };
+  }
+
+  // Checkpoint B: a previously observed drive_to_supabase condition is not
+  // authorization to write once state may have moved on. Reload and
+  // re-derive the decision from current Drive/Supabase state immediately
+  // before writing; if the opposite side changed in the meantime this call
+  // converts it into a governed conflict rather than letting a stale
+  // decision proceed.
+  var revalidated = teachingTwoWayEvaluateForWrite_(assetCode);
+  if (!revalidated.ready) return revalidated.result;
+  if (!revalidated.drive_changed) {
+    return { asset_code: assetCode, action: revalidated.supabase_changed ? 'supabase_to_drive_required' : 'no_op', synchronized: false };
+  }
+  if (!teachingTwoWayModeAllows_(revalidated.registry.sync_mode, 'drive_to_supabase')) {
+    return { asset_code: assetCode, action: 'drive_to_supabase_blocked_by_mode', allowed: false, synchronized: false };
+  }
+
+  var drive = revalidated.drive;
+  var writeResult = teachingSyncRequest_(
+    'teachings', 'patch',
+    { content_md: drive.body_text, updated_at: new Date().toISOString() },
+    'id=eq.' + encodeURIComponent(assetCode)
+  );
+  teachingSyncRequireSuccess_(writeResult, 'Write drive->supabase content_md for ' + assetCode);
+
+  return teachingTwoWayVerifyAndAdvanceBaseline_(assetCode, 'drive_to_supabase');
+}
+
+function teachingTwoWaySyncSupabaseToDrive_(assetCode) {
+  var gate = teachingTwoWayEvaluateForWrite_(assetCode);
+  if (!gate.ready) return gate.result;
+
+  if (!gate.supabase_changed) {
+    return { asset_code: assetCode, action: gate.drive_changed ? 'drive_to_supabase_required' : 'no_op', synchronized: false };
+  }
+  if (!teachingTwoWayModeAllows_(gate.registry.sync_mode, 'supabase_to_drive')) {
+    return { asset_code: assetCode, action: 'supabase_to_drive_blocked_by_mode', allowed: false, synchronized: false };
+  }
+
+  // Checkpoint B: same stale-decision protection as the Drive->Supabase path.
+  var revalidated = teachingTwoWayEvaluateForWrite_(assetCode);
+  if (!revalidated.ready) return revalidated.result;
+  if (!revalidated.supabase_changed) {
+    return { asset_code: assetCode, action: revalidated.drive_changed ? 'drive_to_supabase_required' : 'no_op', synchronized: false };
+  }
+  if (!teachingTwoWayModeAllows_(revalidated.registry.sync_mode, 'supabase_to_drive')) {
+    return { asset_code: assetCode, action: 'supabase_to_drive_blocked_by_mode', allowed: false, synchronized: false };
+  }
+
+  var teaching = revalidated.state.teaching;
+  var registry = revalidated.registry;
+  var fileId = extractTeachingGoogleFileId_(registry.url);
+  if (!fileId) throw new Error('Registered Google Doc URL is missing/invalid for ' + assetCode);
+
+  var doc = DocumentApp.openById(fileId);
+  teachingTwoWayReplaceBodyPreservingEnvelope_(doc, teaching);
+  doc.saveAndClose();
+
+  return teachingTwoWayVerifyAndAdvanceBaseline_(assetCode, 'supabase_to_drive');
+}
+
+function teachingTwoWayModeAllows_(mode, direction) {
+  return mode === 'two_way' || mode === direction + '_only';
+}
+
+/**
+ * Rewrites only the region after the governed envelope (title, metadata,
+ * optional summary, and the tolerated leading blank paragraph), reusing
+ * TASK-0076's proven markdown-to-Doc transformation (appendTeachingMarkdown_)
+ * for the replacement so the envelope itself is never duplicated, erased,
+ * or turned into content, and the document is never recreated wholesale.
+ */
+function teachingTwoWayReplaceBodyPreservingEnvelope_(doc, teaching) {
+  var body = doc.getBody();
+  var envelopeCount = teachingTwoWayEnvelopeChildCount_(body, teaching);
+
+  for (var i = body.getNumChildren() - 1; i >= envelopeCount; i--) {
+    body.removeChild(body.getChild(i));
+  }
+
+  var ROYAL = '#14258F';
+  var GOLD = '#9C7A2E';
+  var DARK = '#1A1A1A';
+  appendTeachingMarkdown_(body, teaching.content_md, ROYAL, GOLD, DARK);
+}
+
+function teachingTwoWayEnvelopeChildCount_(body, teaching) {
+  var count = 0;
+  if (body.getNumChildren() > 0 && body.getChild(0).getType() === DocumentApp.ElementType.PARAGRAPH) {
+    if (body.getChild(0).asParagraph().getText() === '') count += 1;
+  }
+  count += 2; // title + metadata
+  if (teaching.summary) count += 1;
+  return count;
+}
+
+/**
+ * Shared post-write verification and baseline advancement for both
+ * directions. The baseline never advances on API write success alone: this
+ * always re-reads both sides fresh, recomputes canonical hashes, and
+ * requires exact equality plus a clean conflict_status before persisting.
+ */
+function teachingTwoWayVerifyAndAdvanceBaseline_(assetCode, direction) {
+  var state = teachingTwoWayLoadState_(assetCode);
+  if (state.registry.conflict_status !== 'none') {
+    throw new Error(
+      'Conflict status became ' + state.registry.conflict_status + ' during ' + direction +
+      ' write for ' + assetCode + '; baseline not advanced.'
+    );
+  }
+
+  var supabaseBody = teachingTwoWayExpectedBodyText_(state.teaching);
+  var supabaseHash = teachingTwoWayHash_(supabaseBody);
+  var drive = teachingTwoWayReadDriveState_(state.teaching, state.registry);
+
+  if (drive.body_hash !== supabaseHash) {
+    throw new Error(
+      'Post-write verification failed for ' + assetCode + ' (' + direction + '): drive_body_hash=' +
+      drive.body_hash + ' supabase_content_hash=' + supabaseHash + '. Baseline not advanced.'
+    );
+  }
+
+  var now = new Date().toISOString();
+  teachingTwoWayPatchRegistry_(assetCode, {
+    drive_revision_id: drive.revision_id,
+    drive_body_hash: drive.body_hash,
+    supabase_content_hash: supabaseHash,
+    last_verified_sync_at: now,
+    updated_at: now
+  });
+
+  return {
+    asset_code: assetCode,
+    action: direction,
+    synchronized: true,
+    drive_revision_id: drive.revision_id,
+    canonical_hash: drive.body_hash,
+    verified_at: now
+  };
+}

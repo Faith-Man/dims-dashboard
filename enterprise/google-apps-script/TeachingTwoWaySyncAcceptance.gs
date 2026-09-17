@@ -243,3 +243,45 @@ function diagnoseTask0120Test2Tail_() {
 function runTask0120Test2TailDiagnostic() {
   return diagnoseTask0120Test2Tail_();
 }
+
+/**
+ * DIMS-TEACH-0069 — RUN THAT YE MAY OBTAIN™
+ * Governed real-world two-way synchronization acceptance runners.
+ * These wrappers reuse the proven TASK-0120 engine; they do not create a
+ * second synchronization path.
+ */
+function runTeach0069Acceptance() {
+  var result = compareTeachingSyncState_('DIMS-TEACH-0069');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+function runTeach0069EnrollTwoWay() {
+  var result = teachingTwoWayEnroll_('DIMS-TEACH-0069', 'two_way');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+function runTeach0069VerifyEnrollment() {
+  var result = compareTeachingSyncState_('DIMS-TEACH-0069');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+function runTeach0069CompareDirection() {
+  var result = teachingTwoWayCompare_('DIMS-TEACH-0069');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+function runTeach0069DriveToSupabaseSync() {
+  var result = teachingTwoWaySyncDriveToSupabase_('DIMS-TEACH-0069');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+function runTeach0069SupabaseToDriveSync() {
+  var result = teachingTwoWaySyncSupabaseToDrive_('DIMS-TEACH-0069');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}

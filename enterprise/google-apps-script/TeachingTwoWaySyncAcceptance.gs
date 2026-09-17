@@ -180,3 +180,29 @@ function teachingTwoWayFirstDifference_(expected, actual) {
 function runTask0120KeepTheGardenEnvelopeDiagnostic() {
   return diagnoseTeachingEnvelope_('DIMS-TEACH-0002');
 }
+
+/**
+ * NOT read-only. Executes the Drive -> Supabase write path for
+ * DIMS-TEACH-0002 if and only if a fresh comparison confirms Drive changed
+ * and Supabase did not. See teachingTwoWaySyncDriveToSupabase_ in
+ * TeachingTwoWaySyncExtension.gs for the two safety checkpoints this goes
+ * through before any write occurs.
+ */
+function runTask0120DriveToSupabaseSync() {
+  var result = teachingTwoWaySyncDriveToSupabase_('DIMS-TEACH-0002');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
+/**
+ * NOT read-only. Executes the Supabase -> Drive write path for
+ * DIMS-TEACH-0002 if and only if a fresh comparison confirms Supabase
+ * changed and Drive did not. See teachingTwoWaySyncSupabaseToDrive_ in
+ * TeachingTwoWaySyncExtension.gs for the two safety checkpoints this goes
+ * through before any write occurs.
+ */
+function runTask0120SupabaseToDriveSync() {
+  var result = teachingTwoWaySyncSupabaseToDrive_('DIMS-TEACH-0002');
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}

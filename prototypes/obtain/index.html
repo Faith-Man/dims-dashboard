@@ -1,50 +1,280 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Spartans1st™ — FIGHT. PRESS. WIN.</title>
 <style>
-:root{--navy:#03122e;--blue:#075ee8;--electric:#19a7ff;--red:#e62939;--gold:#f3bf42;--white:#f8fbff;--green:#19c96b;--teal:#00c7b7;--pink:#ec168c;--purple:#8a31e8;--orange:#f07818}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#020916;color:var(--white);font-family:Inter,Arial,sans-serif}
-a{color:inherit}.splash{min-height:100svh;display:grid;place-items:center;text-align:center;padding:28px;background:radial-gradient(circle at 50% 33%,#1175d777 0,#041737 28%,#01050d 68%);position:relative;overflow:hidden}
-.splash:before{content:"";position:absolute;left:50%;top:28%;transform:translate(-50%,-50%);width:min(760px,92vw);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 28%,#f9cf69 0 1%,#39aaff 2%,#0c4388 12%,#04142f 46%,#01050d 68%);box-shadow:0 0 90px #168eff55}
-.splash-inner{position:relative;z-index:1;max-width:880px}.dominion{font-family:Georgia,serif;font-weight:800;letter-spacing:.08em;color:var(--gold);font-size:clamp(2.2rem,8vw,6.8rem);line-height:.9;margin:0 0 1.4rem;text-shadow:0 4px 28px #f3bd4266}.dominion small{display:block;font:700 clamp(.8rem,2vw,1.3rem) Inter,Arial,sans-serif;letter-spacing:.42em;color:#fff;margin-bottom:.6rem}.verse{font-family:Georgia,serif;font-size:clamp(1.05rem,2.5vw,1.45rem);line-height:1.55;max-width:760px;margin:0 auto 1.6rem}.ref{color:var(--gold);font-weight:900;letter-spacing:.14em}.brand{font:900 clamp(2.2rem,7vw,5.4rem) Georgia,serif;margin:.4rem 0}.brand em{font-style:normal;color:var(--gold)}.motto{font-weight:1000;font-style:italic;font-size:clamp(1.7rem,5vw,3.8rem);letter-spacing:-.04em;margin:.35rem 0}.motto .fight{color:white}.motto .press{color:var(--red)}.motto .win{color:#35a9ff}.enter{display:inline-block;margin-top:1.6rem;padding:1rem 3.8rem;border-radius:999px;border:2px solid var(--gold);background:linear-gradient(#126fd8,#06367d);text-decoration:none;font-weight:1000;letter-spacing:.2em;box-shadow:0 0 28px #1698ff77}
-.home{min-height:100svh;background:radial-gradient(circle at 50% 45%,#0b5bb955,#020916 62%);padding:24px 14px 50px}.top{width:min(1180px,96%);margin:auto;display:flex;align-items:center;justify-content:space-between;gap:20px}.wordmark{font:900 1.6rem Georgia,serif}.wordmark em{font-style:normal;color:var(--gold)}nav{display:flex;gap:22px;font-weight:800}nav a{text-decoration:none}.circle{width:min(980px,96vw);aspect-ratio:1;margin:24px auto;border-radius:50%;border:3px solid #54b7ff;box-shadow:0 0 30px #168effaa,inset 0 0 70px #0c62b866;position:relative;background:radial-gradient(circle,#0b55a7 0 22%,#071d45 44%,#020916 74%);overflow:hidden}.circle:after{content:"1 CORINTHIANS 9:24–27  •  PHILIPPIANS 3:14  •  2 TIMOTHY 4:7";position:absolute;left:50%;bottom:2.5%;transform:translateX(-50%);width:82%;text-align:center;color:#f7d774;font-family:Georgia,serif;font-weight:800;font-size:clamp(.58rem,1.45vw,1rem);letter-spacing:.08em}
-.center{position:absolute;left:50%;top:49%;transform:translate(-50%,-50%);width:42%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;text-align:center;background:radial-gradient(circle at 48% 38%,#278be8,#0a3c87 40%,#031631 72%);box-shadow:0 0 55px #1e9cffaa;border:2px solid #4fb8ff}.center h1{font-size:clamp(3rem,9vw,7rem);margin:0;color:white;text-shadow:0 4px 16px #000}.center p{margin:.2rem 0 0;font-weight:900;letter-spacing:.18em}.crown{color:var(--gold);font-size:clamp(2rem,5vw,4rem)}
-.node{position:absolute;width:18%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;text-align:center;padding:6px;border:2px solid currentColor;box-shadow:0 0 22px currentColor;background:#07152f;color:#fff}.node b{font-size:clamp(.72rem,1.8vw,1.35rem)}.node small{display:block;font-size:clamp(.48rem,1.1vw,.78rem);margin-top:3px}.n1{left:41%;top:4%;color:#299cff}.n2{left:19%;top:15%;color:#19d86e}.n3{right:19%;top:15%;color:#ff3347}.n4{left:8%;top:39%;color:#e2a916}.n5{right:8%;top:39%;color:#00d0bc}.n6{left:18%;bottom:17%;color:#f02093}.n7{right:18%;bottom:17%;color:#f57a18}.n8{left:41%;bottom:7%;color:#9b42f1}.bottomline{position:absolute;left:50%;bottom:12.5%;transform:translateX(-50%);width:64%;text-align:center;font-weight:1000;font-style:italic;font-size:clamp(1rem,3vw,2.5rem)}.bottomline .press{color:var(--red)}.bottomline .win{color:#36aaff}.sectionlinks{text-align:center;margin:24px auto 0}.sectionlinks a{display:inline-block;margin:6px;padding:.7rem 1rem;border:1px solid #3e83c9;border-radius:999px;text-decoration:none;font-weight:800}
-@media(max-width:700px){nav{gap:12px;font-size:.82rem}.top{align-items:flex-start}.circle{margin-top:14px}.circle:after{bottom:1.8%}.bottomline{bottom:13%}.node{width:20%}.n1{left:40%}.n8{left:40%}}
+:root{--navy:#03122e;--blue:#075ee8;--gold:#f3bf42;--white:#f8fbff;--muted:#a9bdd8}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#020916;color:var(--white);font-family:Inter,Arial,sans-serif}
+a{color:inherit}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- screen switching ---------- */
+.screen{display:none}
+body[data-screen="entry"] #entry{display:grid}
+body[data-screen="home"] #home{display:block}
+body[data-screen="detail"] #home{display:none}
+body[data-screen="detail"] .detail-screen[data-active="true"]{display:block}
+body:not([data-screen="entry"]) #chrome{display:flex}
+#chrome{display:none}
+
+/* ---------- SCREEN 1: SPLASH ---------- */
+.entry-screen{min-height:100svh;place-items:center;background:#000}
+.splash-frame{position:relative;width:100%;max-width:520px;margin:0 auto}
+.splash-img{display:block;width:100%;height:auto}
+.hotspot{position:absolute;background:transparent;border:0;padding:0;cursor:pointer}
+.hotspot:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:999px}
+.enter-hotspot{left:22%;top:86.4%;width:56%;height:6.8%;border-radius:999px}
+.dont-show-wrap{position:absolute;left:3%;top:94.3%;width:21%;height:4.2%;display:flex;align-items:center}
+.dont-show-wrap input{width:100%;height:100%;margin:0;opacity:0;cursor:pointer;position:absolute;inset:0}
+.dont-show-wrap input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* ---------- SCREEN 2: CIRCULAR PLATFORM (HOME) ---------- */
+.home-screen{min-height:100svh;padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 24px)}
+.circle-frame{position:relative;width:100%;max-width:640px;aspect-ratio:1/1;margin:8px auto 0}
+.circle-img{display:block;width:100%;height:100%;object-fit:contain}
+.module-hotspot{position:absolute;width:17%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%)}
+.module-hotspot:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.m-logos{left:50%;top:20%}
+.m-rhema{left:71.2%;top:28.8%}
+.m-iam{left:80%;top:50%}
+.m-3es{left:71.2%;top:71.2%}
+.m-prize{left:50%;top:80%}
+.m-press{left:28.8%;top:71.2%}
+.m-fight{left:20%;top:50%}
+.m-train{left:28.8%;top:28.8%}
+
+/* ---------- chrome: back + menu, shared by home + detail screens ---------- */
+#chrome{position:sticky;top:0;z-index:20;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:#020916ee;backdrop-filter:blur(8px);border-bottom:1px solid #1e4a86}
+.back-btn{visibility:hidden;background:none;border:1px solid #3e83c9;color:var(--white);border-radius:999px;padding:.5rem 1rem;font-weight:800;cursor:pointer}
+body[data-screen="detail"] .back-btn{visibility:visible}
+.menu{position:relative}
+.menu summary{list-style:none;cursor:pointer;background:none;border:1px solid #3e83c9;color:var(--white);border-radius:999px;padding:.5rem 1.1rem;font-weight:800}
+.menu summary::-webkit-details-marker{display:none}
+.menu[open] summary{background:#0d3a73}
+.menu nav{position:absolute;right:0;top:calc(100% + 8px);background:#0a2450;border:1px solid #3e83c9;border-radius:14px;padding:8px;display:grid;gap:2px;min-width:210px;box-shadow:0 14px 30px #0009}
+.menu nav a{display:block;padding:.6rem .8rem;border-radius:10px;text-decoration:none;font-weight:700}
+.menu nav a:hover,.menu nav a:focus-visible{background:#123f7c}
+
+/* ---------- detail screens ---------- */
+.detail-screen{max-width:760px;margin:0 auto;padding:28px 18px 60px}
+.detail-screen h1{font-family:Georgia,serif;font-size:clamp(1.7rem,5vw,2.6rem);margin:.2rem 0}
+.detail-screen .gloss{color:var(--gold);font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:.85rem}
+.detail-screen p{line-height:1.6;color:#dfe9fb}
+.detail-screen .related{margin-top:1.4rem;display:inline-block;padding:.7rem 1.2rem;border:1px solid #3e83c9;border-radius:999px;text-decoration:none;font-weight:800}
+.badge-note{margin-top:2rem;padding:.9rem 1rem;border-left:3px solid var(--gold);background:#0d3a7333;font-size:.9rem;color:var(--muted)}
 </style>
 </head>
-<body>
-<section class="splash" id="entry">
- <div class="splash-inner">
-  <h1 class="dominion"><small>LET THEM HAVE</small>DOMINION</h1>
-  <p class="ref">GENESIS 1:26 — KJV</p>
-  <p class="verse">“And God said, Let us make man in our image, after our likeness: and let them have dominion…”</p>
-  <div class="brand">Spartans<em>1st™</em></div>
-  <div class="motto"><span class="fight">FIGHT.</span> <span class="press">PRESS.</span> <span class="win">WIN.™</span></div>
-  <a class="enter" href="#home">ENTER →</a>
- </div>
+<body data-screen="entry">
+
+<!-- ================= SCREEN 1: SPLASH / ENTRY ================= -->
+<section id="entry" class="screen entry-screen" aria-label="Spartans1st entry splash">
+  <div class="splash-frame">
+    <img class="splash-img" src="assets/spartans1st-splash.png"
+      alt="Spartans1st. Let Them Have Dominion — Genesis 1:26 (KJV). And God said, Let us make man in our image, after our likeness, and let them have dominion. Purposed. Trained. Empowered. To make a difference. Fight. Press. Win. Run with purpose.">
+    <button type="button" id="enterBtn" class="hotspot enter-hotspot" aria-label="Enter Spartans1st"></button>
+    <label class="hotspot-label dont-show-wrap">
+      <input type="checkbox" id="dontShowAgain">
+      <span class="visually-hidden">Don't show this splash again</span>
+    </label>
+  </div>
 </section>
-<main class="home" id="home">
- <header class="top">
-  <div class="wordmark">Spartans<em>1st™</em></div>
-  <nav><a href="#home">Home</a><a href="athlete.html">Role ▾</a><a href="#resources">Resources ▾</a></nav>
- </header>
- <section class="circle" aria-label="Spartans1st WIN performance principles">
-  <div class="center"><div><div class="crown">♛</div><h1>WIN</h1><p>SPARTANS1ST™</p></div></div>
-  <div class="node n1"><div><b>LOGOS</b><small>The Written Word<br>(Truth)</small></div></div>
-  <div class="node n2"><div><b>TRAIN</b><small>γυμνάζω<br>Develop • Prepare</small></div></div>
-  <div class="node n3"><div><b>RHEMA</b><small>The Applied Word<br>(Direction)</small></div></div>
-  <div class="node n4"><div><b>FIGHT</b><small>ἀγωνίζομαι<br>Compete • Discipline</small></div></div>
-  <div class="node n5"><div><b>IAM™</b><small>Identify • Assess<br>Mitigate</small></div></div>
-  <div class="node n6"><div><b>PRESS</b><small>διώκω<br>Pursue • Persevere</small></div></div>
-  <div class="node n7"><div><b>3Es</b><small>Excellence<br>Effectiveness • Efficiency</small></div></div>
-  <div class="node n8"><div><b>PRIZE</b><small>βραβεῖον<br>The Prize • Focus</small></div></div>
-  <div class="bottomline">FIGHT. <span class="press">PRESS.</span> <span class="win">WIN.™</span></div>
- </section>
- <div class="sectionlinks" id="resources">
-  <a href="#standard">The Spartan Standard</a><a href="#train">Train to Win</a><a href="#mature">Train to Mature</a><a href="#withstand">Build to Withstand</a>
- </div>
-</main>
-</body></html>
+
+<!-- ================= shared chrome: back + menu ================= -->
+<div id="chrome">
+  <button type="button" id="backBtn" class="back-btn">← Back</button>
+  <details class="menu" id="navMenu">
+    <summary>Menu ▾</summary>
+    <nav aria-label="Primary">
+      <a href="#home">Home</a>
+      <a href="#foundation">Foundation</a>
+      <a href="athlete.html">Athlete Home</a>
+      <a href="#daily-execution">Daily Execution</a>
+      <a href="#athlete-development">Athlete Development</a>
+      <a href="coach.html">Coach</a>
+      <a href="parent.html">Parent</a>
+      <a href="#resources">Resources</a>
+    </nav>
+  </details>
+</div>
+
+<!-- ================= SCREEN 2: CIRCULAR PLATFORM (HOME) ================= -->
+<section id="home" class="screen home-screen" aria-label="Spartans1st WIN platform">
+  <div class="circle-frame">
+    <img class="circle-img" src="assets/spartans1st-circular-platform.png"
+      alt="Spartans1st WIN platform. Eight modules arranged around a central WIN globe: Logos (the written word, truth), Rhema (the applied word, direction), IAM — Identify, Assess, Mitigate, Train (gymnazō — develop, prepare), Fight (agōnizomai — compete, discipline, endure), Press (diōkō — pursue, persevere), Prize (brabeion — the prize, focus), and 3Es — Excellence, Effectiveness, Efficiency. Fight. Press. Win. Run with purpose.">
+    <a href="#logos-detail" class="module-hotspot m-logos" aria-label="LOGOS — The Written Word. Open detail."></a>
+    <a href="#rhema-detail" class="module-hotspot m-rhema" aria-label="RHEMA — The Applied Word. Open detail."></a>
+    <a href="#iam-checkin" class="module-hotspot m-iam" aria-label="IAM — Identify, Assess, Mitigate. Open check-in."></a>
+    <a href="#3es-detail" class="module-hotspot m-3es" aria-label="3Es — Excellence, Effectiveness, Efficiency. Open detail."></a>
+    <a href="#prize-milestones" class="module-hotspot m-prize" aria-label="PRIZE — Milestones and recognition. Open detail."></a>
+    <a href="#press-standard" class="module-hotspot m-press" aria-label="PRESS — The Spartan standard. Open detail."></a>
+    <a href="#fight-detail" class="module-hotspot m-fight" aria-label="FIGHT — Compete, discipline, endure. Open detail."></a>
+    <a href="#train-detail" class="module-hotspot m-train" aria-label="TRAIN — Develop and prepare. Open detail."></a>
+  </div>
+  <p class="badge-note" style="max-width:640px;margin-inline:auto">
+    Note: the governing Spartans1st architecture includes a ninth module, <strong>MARK</strong>, between IAM™ and TRAIN.
+    The approved circular artwork currently shows eight modules only — MARK is not yet represented visually and is tracked
+    as a pending artwork revision, not implemented as a hotspot here.
+  </p>
+</section>
+
+<!-- ================= MODULE DETAIL SCREENS ================= -->
+<section id="logos-detail" class="screen detail-screen" data-detail>
+  <p class="gloss">LOGOS · The Written Word (Truth)</p>
+  <h1>LOGOS</h1>
+  <p>“So run, that ye may obtain.” — 1 Corinthians 9:24. LOGOS is the fixed, written foundation everything else in the
+  WIN platform stands on: Scripture as truth, not opinion. Every RHEMA application, every IAM assessment, and every
+  daily PRESS session is meant to trace back to a LOGOS reference.</p>
+  <a class="related" href="athlete.html">See today's LOGOS reading on the Athlete Home →</a>
+</section>
+
+<section id="rhema-detail" class="screen detail-screen" data-detail>
+  <p class="gloss">RHEMA · The Applied Word (Direction)</p>
+  <h1>RHEMA</h1>
+  <p>Where LOGOS is the written word, RHEMA is that word applied to a specific moment — the coach's instruction before
+  a meet, the verse an athlete leans on mid-race. “I press toward the mark for the prize…” — Philippians 3:14.</p>
+  <a class="related" href="coach.html">See how Coach delivers today's RHEMA direction →</a>
+</section>
+
+<section id="iam-checkin" class="screen detail-screen" data-detail>
+  <p class="gloss">IAM™ · Identify · Assess · Mitigate</p>
+  <h1>IAM™ Check-In</h1>
+  <p>IAM™ is the risk-and-readiness discipline behind the platform: identify a pattern (missed sessions, fatigue,
+  attendance), assess it honestly, and mitigate it with a concrete action — before it becomes a bigger problem.</p>
+  <a class="related" href="coach.html">Open the Coach IAM™ action queue →</a>
+</section>
+
+<section id="train-detail" class="screen detail-screen" data-detail>
+  <p class="gloss">TRAIN · γυμνάζω (gymnazō) · Develop · Prepare</p>
+  <h1>TRAIN</h1>
+  <p>Gymnazō — to exercise, to discipline the body toward a purpose. TRAIN is the preparation layer: the assigned
+  workouts, drills, and reps that make PRESS and FIGHT possible on meet day.</p>
+  <a class="related" href="athlete.html">See today's training assignment →</a>
+</section>
+
+<section id="fight-detail" class="screen detail-screen" data-detail>
+  <p class="gloss">FIGHT · ἀγωνίζομαι (agōnizomai) · Compete · Discipline · Endure</p>
+  <h1>FIGHT</h1>
+  <p>“I have fought a good fight, I have finished my course.” — 2 Timothy 4:7. FIGHT is the competitive discipline
+  itself — showing up, competing with integrity, and enduring when it's hard.</p>
+  <a class="related" href="athlete.html">Return to Athlete Home →</a>
+</section>
+
+<section id="press-standard" class="screen detail-screen" data-detail>
+  <p class="gloss">PRESS · διώκω (diōkō) · Pursue · Persevere</p>
+  <h1>PRESS — The Spartan Standard</h1>
+  <p>PRESS is pursuit without letting up — the standard the team is held to day over day, not just on meet day.
+  It's today's tempo run, this week's mileage, the fourth consecutive training week completed.</p>
+  <a class="related" href="athlete.html">See today's PRESS™ assignment →</a>
+</section>
+
+<section id="prize-milestones" class="screen detail-screen" data-detail>
+  <p class="gloss">PRIZE · βραβεῖον (brabeion) · The Prize · Focus</p>
+  <h1>PRIZE™ Milestones</h1>
+  <p>PRIZE keeps the goal in view — personal records, consistency milestones, and team recognition. Not every win is
+  a race win; some are the fourth straight week of showing up.</p>
+  <a class="related" href="athlete.html">See PRIZE™ milestones on Athlete Home →</a>
+</section>
+
+<section id="3es-detail" class="screen detail-screen" data-detail>
+  <p class="gloss">The 3Es · Excellence · Effectiveness · Efficiency</p>
+  <h1>The 3Es</h1>
+  <p>The 3Es are the quality lens applied across every other module: doing it with excellence, doing the right thing
+  (effectiveness), and doing it without waste (efficiency).</p>
+  <a class="related" href="coach.html">See team-level 3Es indicators on Coach →</a>
+</section>
+
+<section id="foundation" class="screen detail-screen" data-detail>
+  <p class="gloss">Foundation</p>
+  <h1>Let Them Have Dominion</h1>
+  <p>“And God said, Let us make man in our image, after our likeness: and let them have dominion…” — Genesis 1:26
+  (KJV). Spartans1st™ is built on the conviction that athletes are purposed, trained, and empowered to make a
+  difference — on the field and beyond it. FIGHT. PRESS. WIN.™ — run with purpose.</p>
+  <p>Scriptural foundation for the WIN platform: 1 Corinthians 9:24–27, Philippians 3:14, 2 Timothy 4:7.</p>
+</section>
+
+<section id="daily-execution" class="screen detail-screen" data-detail>
+  <p class="gloss">Daily Execution</p>
+  <h1>Daily Execution</h1>
+  <p>Daily execution is where LOGOS, RHEMA, and TRAIN meet the calendar: today's word, today's workout, today's
+  IAM™ check-in. The Athlete Home is where this comes together day to day.</p>
+  <a class="related" href="athlete.html">Open today's execution on Athlete Home →</a>
+</section>
+
+<section id="athlete-development" class="screen detail-screen" data-detail>
+  <p class="gloss">Athlete Development</p>
+  <h1>Athlete Development</h1>
+  <p>Development is tracked across personal records, MARK™ goals, and the 3Es — visible to the athlete, summarized
+  for parents, and reviewed by coaches through the IAM™ queue.</p>
+  <a class="related" href="athlete.html">See personal development on Athlete Home →</a>
+</section>
+
+<section id="resources" class="screen detail-screen" data-detail>
+  <p class="gloss">Resources</p>
+  <h1>Resources</h1>
+  <p>The Spartan Standard, Train to Win, Train to Mature, and Build to Withstand are the four pillars behind the
+  WIN platform's modules — LOGOS/RHEMA (standard), TRAIN/FIGHT (win), IAM™/3Es (mature), PRESS/PRIZE (withstand).</p>
+  <p>Jump to a role view: <a class="related" href="athlete.html">Athlete</a>
+  &nbsp;<a class="related" href="coach.html">Coach</a>
+  &nbsp;<a class="related" href="parent.html">Parent</a></p>
+</section>
+
+<script>
+(function(){
+  var DETAIL_IDS = ['logos-detail','rhema-detail','iam-checkin','train-detail','fight-detail',
+    'press-standard','prize-milestones','3es-detail','foundation','daily-execution',
+    'athlete-development','resources'];
+
+  function route(){
+    var hash = (location.hash || '').replace('#','');
+    document.querySelectorAll('[data-detail]').forEach(function(el){ el.removeAttribute('data-active'); });
+
+    if (!hash || hash === 'entry') {
+      document.body.setAttribute('data-screen','entry');
+      return;
+    }
+    if (hash === 'home') {
+      document.body.setAttribute('data-screen','home');
+      return;
+    }
+    if (DETAIL_IDS.indexOf(hash) !== -1) {
+      var target = document.getElementById(hash);
+      if (target) {
+        target.setAttribute('data-active','true');
+        document.body.setAttribute('data-screen','detail');
+        return;
+      }
+    }
+    // unknown hash: fall back to home rather than a blank screen
+    document.body.setAttribute('data-screen','home');
+  }
+
+  document.getElementById('enterBtn').addEventListener('click', function(){
+    // TESTING PHASE: "Don't show again" is wired to write the flag so the control is
+    // fully functional and reviewable, but the flag is intentionally NOT read on page
+    // load below — every visit must show the splash while this is being tested. Enable
+    // the read in init() before this leaves the test phase.
+    if (document.getElementById('dontShowAgain').checked) {
+      try { localStorage.setItem('spartans1st_skip_splash', 'true'); } catch (e) {}
+    }
+    location.hash = '#home';
+  });
+
+  document.getElementById('backBtn').addEventListener('click', function(){
+    location.hash = '#home';
+  });
+
+  document.getElementById('navMenu').addEventListener('click', function(e){
+    if (e.target.tagName === 'A') { document.getElementById('navMenu').open = false; }
+  });
+
+  window.addEventListener('hashchange', route);
+  route();
+})();
+</script>
+</body>
+</html>

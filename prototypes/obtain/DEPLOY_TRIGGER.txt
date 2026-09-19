@@ -1,0 +1,6 @@
+Trigger file for spartans1st-test Workers Build.
+
+Cloudflare's Git integration was connected to this branch/path after commits
+already existed on it, so it may not have auto-built the pre-existing HEAD.
+This file's only purpose is to produce a new commit so the connected webhook
+fires a fresh build. Safe to delete once a successful build is confirmed.

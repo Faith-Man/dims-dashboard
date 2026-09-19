@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spartans1st™ — FIGHT. PRESS. WIN.</title>
+<style>
+:root{--navy:#03122e;--blue:#075ee8;--electric:#19a7ff;--red:#e62939;--gold:#f3bf42;--white:#f8fbff;--green:#19c96b;--teal:#00c7b7;--pink:#ec168c;--purple:#8a31e8;--orange:#f07818}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#020916;color:var(--white);font-family:Inter,Arial,sans-serif}
+a{color:inherit}.splash{min-height:100svh;display:grid;place-items:center;text-align:center;padding:28px;background:radial-gradient(circle at 50% 33%,#1175d777 0,#041737 28%,#01050d 68%);position:relative;overflow:hidden}
+.splash:before{content:"";position:absolute;left:50%;top:28%;transform:translate(-50%,-50%);width:min(760px,92vw);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 28%,#f9cf69 0 1%,#39aaff 2%,#0c4388 12%,#04142f 46%,#01050d 68%);box-shadow:0 0 90px #168eff55}
+.splash-inner{position:relative;z-index:1;max-width:880px}.dominion{font-family:Georgia,serif;font-weight:800;letter-spacing:.08em;color:var(--gold);font-size:clamp(2.2rem,8vw,6.8rem);line-height:.9;margin:0 0 1.4rem;text-shadow:0 4px 28px #f3bd4266}.dominion small{display:block;font:700 clamp(.8rem,2vw,1.3rem) Inter,Arial,sans-serif;letter-spacing:.42em;color:#fff;margin-bottom:.6rem}.verse{font-family:Georgia,serif;font-size:clamp(1.05rem,2.5vw,1.45rem);line-height:1.55;max-width:760px;margin:0 auto 1.6rem}.ref{color:var(--gold);font-weight:900;letter-spacing:.14em}.brand{font:900 clamp(2.2rem,7vw,5.4rem) Georgia,serif;margin:.4rem 0}.brand em{font-style:normal;color:var(--gold)}.motto{font-weight:1000;font-style:italic;font-size:clamp(1.7rem,5vw,3.8rem);letter-spacing:-.04em;margin:.35rem 0}.motto .fight{color:white}.motto .press{color:var(--red)}.motto .win{color:#35a9ff}.enter{display:inline-block;margin-top:1.6rem;padding:1rem 3.8rem;border-radius:999px;border:2px solid var(--gold);background:linear-gradient(#126fd8,#06367d);text-decoration:none;font-weight:1000;letter-spacing:.2em;box-shadow:0 0 28px #1698ff77}
+.home{min-height:100svh;background:radial-gradient(circle at 50% 45%,#0b5bb955,#020916 62%);padding:24px 14px 50px}.top{width:min(1180px,96%);margin:auto;display:flex;align-items:center;justify-content:space-between;gap:20px}.wordmark{font:900 1.6rem Georgia,serif}.wordmark em{font-style:normal;color:var(--gold)}nav{display:flex;gap:22px;font-weight:800}nav a{text-decoration:none}.circle{width:min(980px,96vw);aspect-ratio:1;margin:24px auto;border-radius:50%;border:3px solid #54b7ff;box-shadow:0 0 30px #168effaa,inset 0 0 70px #0c62b866;position:relative;background:radial-gradient(circle,#0b55a7 0 22%,#071d45 44%,#020916 74%);overflow:hidden}.circle:after{content:"1 CORINTHIANS 9:24–27  •  PHILIPPIANS 3:14  •  2 TIMOTHY 4:7";position:absolute;left:50%;bottom:2.5%;transform:translateX(-50%);width:82%;text-align:center;color:#f7d774;font-family:Georgia,serif;font-weight:800;font-size:clamp(.58rem,1.45vw,1rem);letter-spacing:.08em}
+.center{position:absolute;left:50%;top:49%;transform:translate(-50%,-50%);width:42%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;text-align:center;background:radial-gradient(circle at 48% 38%,#278be8,#0a3c87 40%,#031631 72%);box-shadow:0 0 55px #1e9cffaa;border:2px solid #4fb8ff}.center h1{font-size:clamp(3rem,9vw,7rem);margin:0;color:white;text-shadow:0 4px 16px #000}.center p{margin:.2rem 0 0;font-weight:900;letter-spacing:.18em}.crown{color:var(--gold);font-size:clamp(2rem,5vw,4rem)}
+.node{position:absolute;width:18%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;text-align:center;padding:6px;border:2px solid currentColor;box-shadow:0 0 22px currentColor;background:#07152f;color:#fff}.node b{font-size:clamp(.72rem,1.8vw,1.35rem)}.node small{display:block;font-size:clamp(.48rem,1.1vw,.78rem);margin-top:3px}.n1{left:41%;top:4%;color:#299cff}.n2{left:19%;top:15%;color:#19d86e}.n3{right:19%;top:15%;color:#ff3347}.n4{left:8%;top:39%;color:#e2a916}.n5{right:8%;top:39%;color:#00d0bc}.n6{left:18%;bottom:17%;color:#f02093}.n7{right:18%;bottom:17%;color:#f57a18}.n8{left:41%;bottom:7%;color:#9b42f1}.bottomline{position:absolute;left:50%;bottom:12.5%;transform:translateX(-50%);width:64%;text-align:center;font-weight:1000;font-style:italic;font-size:clamp(1rem,3vw,2.5rem)}.bottomline .press{color:var(--red)}.bottomline .win{color:#36aaff}.sectionlinks{text-align:center;margin:24px auto 0}.sectionlinks a{display:inline-block;margin:6px;padding:.7rem 1rem;border:1px solid #3e83c9;border-radius:999px;text-decoration:none;font-weight:800}
+@media(max-width:700px){nav{gap:12px;font-size:.82rem}.top{align-items:flex-start}.circle{margin-top:14px}.circle:after{bottom:1.8%}.bottomline{bottom:13%}.node{width:20%}.n1{left:40%}.n8{left:40%}}
+</style>
+</head>
+<body>
+<section class="splash" id="entry">
+ <div class="splash-inner">
+  <h1 class="dominion"><small>LET THEM HAVE</small>DOMINION</h1>
+  <p class="ref">GENESIS 1:26 — KJV</p>
+  <p class="verse">“And God said, Let us make man in our image, after our likeness: and let them have dominion…”</p>
+  <div class="brand">Spartans<em>1st™</em></div>
+  <div class="motto"><span class="fight">FIGHT.</span> <span class="press">PRESS.</span> <span class="win">WIN.™</span></div>
+  <a class="enter" href="#home">ENTER →</a>
+ </div>
+</section>
+<main class="home" id="home">
+ <header class="top">
+  <div class="wordmark">Spartans<em>1st™</em></div>
+  <nav><a href="#home">Home</a><a href="athlete.html">Role ▾</a><a href="#resources">Resources ▾</a></nav>
+ </header>
+ <section class="circle" aria-label="Spartans1st WIN performance principles">
+  <div class="center"><div><div class="crown">♛</div><h1>WIN</h1><p>SPARTANS1ST™</p></div></div>
+  <div class="node n1"><div><b>LOGOS</b><small>The Written Word<br>(Truth)</small></div></div>
+  <div class="node n2"><div><b>TRAIN</b><small>γυμνάζω<br>Develop • Prepare</small></div></div>
+  <div class="node n3"><div><b>RHEMA</b><small>The Applied Word<br>(Direction)</small></div></div>
+  <div class="node n4"><div><b>FIGHT</b><small>ἀγωνίζομαι<br>Compete • Discipline</small></div></div>
+  <div class="node n5"><div><b>IAM™</b><small>Identify • Assess<br>Mitigate</small></div></div>
+  <div class="node n6"><div><b>PRESS</b><small>διώκω<br>Pursue • Persevere</small></div></div>
+  <div class="node n7"><div><b>3Es</b><small>Excellence<br>Effectiveness • Efficiency</small></div></div>
+  <div class="node n8"><div><b>PRIZE</b><small>βραβεῖον<br>The Prize • Focus</small></div></div>
+  <div class="bottomline">FIGHT. <span class="press">PRESS.</span> <span class="win">WIN.™</span></div>
+ </section>
+ <div class="sectionlinks" id="resources">
+  <a href="#standard">The Spartan Standard</a><a href="#train">Train to Win</a><a href="#mature">Train to Mature</a><a href="#withstand">Build to Withstand</a>
+ </div>
+</main>
+</body></html>

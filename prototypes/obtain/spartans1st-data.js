@@ -21,7 +21,7 @@ async function s1SaveReview(data){
 }
 
 async function s1LoadCoachHome(){
- if(localStorage.getItem('spartans1st_demo_mode')==='1'){window.s1Demo=true;return}
+ if(localStorage.getItem('spartans1st_demo_mode')==='1'){window.s1Demo=true;window.s1CoachRoster=[{id:'demo-athlete',display_name:'Test Athlete'}];const q=document.getElementById('assignAthlete');if(q)q.innerHTML='<option value="">Select athlete</option><option value="demo-athlete">Test Athlete</option>';return}
  if(!localStorage.getItem('spartans1st_access_token'))return;
  try{
   const links=await s1('spartans1st_coach_assignments?select=athlete_id&active=eq.true');

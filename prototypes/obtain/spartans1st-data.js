@@ -19,3 +19,24 @@ async function s1SaveReview(data){
  if(!window.s1AthleteId)return say('Sign-in/profile connection required before saving.');
  try{await s1('spartans1st_reviews',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({athlete_id:window.s1AthleteId,result_id:window.s1ResultId||null,integrity:data.integrity||null,effectiveness:data.effectiveness||null,efficiency:data.efficiency||null,excellence:data.excellence||null,improve_next:data.improve||null})});return true}catch(e){say('Review was not saved.');return false}
 }
+
+async function s1LoadCoachHome(){
+ if(localStorage.getItem('spartans1st_demo_mode')==='1'){window.s1Demo=true;return}
+ if(!localStorage.getItem('spartans1st_access_token'))return;
+ try{
+  const links=await s1('spartans1st_coach_assignments?select=athlete_id&active=eq.true');
+  const ids=(links||[]).map(x=>x.athlete_id);
+  if(!ids.length)return;
+  const athletes=await s1('spartans1st_athletes?select=id,display_name&id=in.('+ids.join(',')+')&active=eq.true&order=display_name');
+  const q=document.getElementById('assignAthlete');if(q){q.innerHTML='<option value="">Select athlete</option>';(athletes||[]).forEach(a=>q.insertAdjacentHTML('beforeend','<option value="'+esc(a.id)+'">'+esc(a.display_name)+'</option>'))}
+  window.s1CoachRoster=athletes||[];
+ }catch(e){console.error(e);const x=document.getElementById('assignSaved');if(x)x.textContent='Coach roster could not be loaded.'}
+}
+async function s1AssignWorkout(data){
+ if(window.s1Demo){localStorage.setItem('spartans1st_demo_coach_assignment',JSON.stringify(data));return true}
+ if(!data.athlete_id)return false;
+ try{
+  const token=localStorage.getItem('spartans1st_access_token');const payload=JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));const uid=payload.sub;
+  await s1('spartans1st_training_assignments',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({athlete_id:data.athlete_id,assigned_by:uid,training_date:data.training_date,title:data.title,instructions:data.instructions,status:'assigned'})});return true
+ }catch(e){console.error(e);return false}
+}

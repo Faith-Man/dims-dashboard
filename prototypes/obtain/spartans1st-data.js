@@ -40,3 +40,26 @@ async function s1AssignWorkout(data){
   await s1('spartans1st_training_assignments',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({athlete_id:data.athlete_id,assigned_by:uid,training_date:data.training_date,title:data.title,instructions:data.instructions,status:'assigned'})});return true
  }catch(e){console.error(e);return false}
 }
+
+async function s1LoadParentHome(){
+ if(localStorage.getItem('spartans1st_demo_mode')==='1'){window.s1Demo=true;return}
+ if(!localStorage.getItem('spartans1st_access_token'))return;
+ const msg=document.getElementById('parentStatus');
+ try{
+  const links=await s1('spartans1st_parent_links?select=athlete_id&active=eq.true&limit=1');
+  if(!links?.length){if(msg)msg.textContent='No athlete is linked to this parent account.';return}
+  const id=links[0].athlete_id;
+  const [ath,train,res]=await Promise.all([
+   s1('spartans1st_athletes?select=id,display_name&id=eq.'+id+'&limit=1'),
+   s1('spartans1st_training_assignments?select=training_date,title,status&athlete_id=eq.'+id+'&order=training_date.desc&limit=7'),
+   s1('spartans1st_results?select=result_date,result_text,is_pr,prize&athlete_id=eq.'+id+'&order=result_date.desc&limit=1')
+  ]);
+  if(ath?.[0]){const x=document.getElementById('parentAthlete');if(x)x.textContent=ath[0].display_name}
+  const assigned=(train||[]).length,completed=(train||[]).filter(x=>x.status==='completed').length,next=(train||[]).find(x=>x.status!=='completed');
+  if(document.getElementById('parentAssigned'))parentAssigned.textContent=assigned;
+  if(document.getElementById('parentCompleted'))parentCompleted.textContent=completed;
+  if(document.getElementById('parentNext'))parentNext.textContent=next?.title||'No pending session';
+  if(res?.[0]){let d={};try{d=JSON.parse(res[0].result_text||'{}')}catch{};const x=document.getElementById('parentResult');if(x)x.textContent=d.result||res[0].result_text||'Result recorded';const y=document.getElementById('parentResultNote');if(y)y.textContent=(res[0].is_pr?'Personal record • ':'')+(res[0].prize||'Latest recorded result')}
+  if(msg)msg.textContent='';
+ }catch(e){console.error(e);if(msg)msg.textContent='Parent-visible progress could not be loaded.'}
+}

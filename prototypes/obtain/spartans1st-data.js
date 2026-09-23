@@ -57,7 +57,7 @@ async function s1LoadParentHome(){
   if(ath?.[0]){const x=document.getElementById('parentAthlete');if(x)x.textContent=ath[0].display_name}
   const assigned=(train||[]).length,completed=(train||[]).filter(x=>x.status==='completed').length,next=(train||[]).find(x=>x.status!=='completed');
   if(document.getElementById('parentAssigned'))parentAssigned.textContent=assigned;
-  if(document.getElementById('parentCompleted'))parentCompleted.textContent=completed;
+  if(document.getElementById('parentCompleted'))parentCompleted.textContent=completed;const cal=document.getElementById('parentCalendarItems');if(cal)cal.innerHTML=(train||[]).length?(train||[]).slice().sort((a,b)=>a.training_date.localeCompare(b.training_date)).map(x=>'<div class="row"><span><b>'+esc(x.training_date)+'</b><br>'+esc(x.title)+'</span><b>'+esc(x.status||'assigned')+'</b></div>').join(''):'<p class="muted">No linked-athlete training is scheduled.</p>';
   if(document.getElementById('parentNext'))parentNext.textContent=next?.title||'No pending session';
   if(res?.[0]){let d={};try{d=JSON.parse(res[0].result_text||'{}')}catch{};const x=document.getElementById('parentResult');if(x)x.textContent=d.result||res[0].result_text||'Result recorded';const y=document.getElementById('parentResultNote');if(y)y.textContent=(res[0].is_pr?'Personal record • ':'')+(res[0].prize||'Latest recorded result')}
   if(msg)msg.textContent='';

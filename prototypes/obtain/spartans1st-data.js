@@ -81,3 +81,9 @@ async function s1CalendarEvents(athleteIds,from,to){
  if(!athleteIds?.length)return [];
  return await s1('spartans1st_calendar_events?select=id,athlete_id,event_date,event_type,title,details,visibility,training_assignment_id&athlete_id=in.('+athleteIds.join(',')+')&event_date=gte.'+from+'&event_date=lte.'+to+'&order=event_date');
 }
+
+async function s1CreateCalendarEvent(data){
+ if(window.s1Demo){const a=JSON.parse(localStorage.getItem('s1_demo_calendar_events')||'[]');a.push(data);localStorage.setItem('s1_demo_calendar_events',JSON.stringify(a));return true}
+ if(!data.athlete_id)return false;
+ try{const token=localStorage.getItem('spartans1st_access_token'),payload=JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));await s1('spartans1st_calendar_events',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({athlete_id:data.athlete_id,created_by:payload.sub,event_date:data.event_date,event_type:data.event_type,title:data.title,details:data.details||null,visibility:data.visibility||'athlete_coach_parent'})});return true}catch(e){console.error(e);return false}
+}

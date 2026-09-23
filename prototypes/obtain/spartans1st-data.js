@@ -63,3 +63,16 @@ async function s1LoadParentHome(){
   if(msg)msg.textContent='';
  }catch(e){console.error(e);if(msg)msg.textContent='Parent-visible progress could not be loaded.'}
 }
+
+async function s1LoadAthleteCalendar(){
+ const box=document.getElementById('athleteCalendarItems');if(!box)return;
+ if(window.s1Demo){box.innerHTML='<div class="row"><b>Test Training</b><span>Scheduled</span></div><div class="row"><b>Weekly i3E™ Review</b><span>Friday</span></div>';return}
+ if(!window.s1AthleteId){box.innerHTML='<p class="hint">Sign in to load your schedule.</p>';return}
+ try{const today=new Date(),from=new Date(today);from.setDate(today.getDate()-today.getDay()+1);const to=new Date(from);to.setDate(from.getDate()+6);const f=from.toISOString().slice(0,10),t=to.toISOString().slice(0,10);const rows=await s1('spartans1st_training_assignments?select=id,training_date,title,status,instructions&athlete_id=eq.'+window.s1AthleteId+'&training_date=gte.'+f+'&training_date=lte.'+t+'&order=training_date');box.innerHTML=(rows||[]).length?(rows||[]).map(x=>'<a class="row" href="#doit" style="text-decoration:none;color:inherit"><span><b>'+esc(x.training_date)+'</b> · '+esc(x.title)+'</span><span>'+esc(x.status||'assigned')+'</span></a>').join(''):'<p class="hint">No training assignments scheduled this week.</p>'}catch(e){box.innerHTML='<p class="hint">Schedule could not be loaded.</p>'}
+}
+async function s1LoadCoachCalendar(){
+ const box=document.getElementById('coachCalendarItems');if(!box)return;
+ if(window.s1Demo){box.innerHTML='<div class="row"><span>Test Athlete · Tempo + Finish</span><span class="pill">SCHEDULED</span></div>';return}
+ const roster=window.s1CoachRoster||[];if(!roster.length){box.innerHTML='<p>No authorized athlete schedule is loaded.</p>';return}
+ try{const ids=roster.map(x=>x.id),today=new Date(),from=new Date(today);from.setDate(today.getDate()-today.getDay()+1);const to=new Date(from);to.setDate(from.getDate()+6);const rows=await s1('spartans1st_training_assignments?select=athlete_id,training_date,title,status&athlete_id=in.('+ids.join(',')+')&training_date=gte.'+from.toISOString().slice(0,10)+'&training_date=lte.'+to.toISOString().slice(0,10)+'&order=training_date');const names=Object.fromEntries(roster.map(x=>[x.id,x.display_name]));box.innerHTML=(rows||[]).length?(rows||[]).map(x=>'<div class="row"><span><b>'+esc(x.training_date)+'</b> · '+esc(names[x.athlete_id]||'Athlete')+' · '+esc(x.title)+'</span><span class="pill">'+esc(x.status||'assigned').toUpperCase()+'</span></div>').join(''):'<p>No authorized training assignments scheduled this week.</p>'}catch(e){box.innerHTML='<p>Team schedule could not be loaded.</p>'}
+}

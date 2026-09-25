@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SPARTANS1ST™ Team Hub</title>
+<style>
+:root{--nav:#0C1262;--cobalt:#111D6C;--light:#F8FAFF;--soft:#EEF2FF;--text:#10184F;--gold:#D8B64C;--cyan:#24E8FF;--line:#D7DEF0}
+*{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--text);font:15px Inter,Arial,sans-serif}
+header{background:var(--nav);color:white;padding:16px 20px;border-bottom:3px solid var(--gold)}
+.head{max-width:960px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:23px;font-weight:1000;font-style:italic}.role{font-size:10px;letter-spacing:.15em;color:#dce6ff}
+.back{color:white;text-decoration:none;border:1px solid #ffffff55;border-radius:999px;padding:9px 13px;font-weight:800}
+main{max-width:960px;margin:auto;padding:28px 18px 100px}.eyebrow{font-size:11px;letter-spacing:.15em;color:#56629a;font-weight:900}
+h1{font-size:34px;margin:7px 0 6px}.intro{margin:0 0 24px;color:#566078;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.card{position:relative;display:grid;grid-template-columns:58px 1fr 24px;align-items:center;gap:15px;padding:20px;background:white;border:1px solid var(--line);border-left:5px solid #1677e8;border-radius:17px;text-decoration:none;color:var(--text);box-shadow:0 8px 22px #111d6c12;min-height:116px;transition:.15s}
+.card:hover,.card:focus{transform:translateY(-2px);border-color:#6eb9ff;box-shadow:0 10px 26px #111d6c20;outline:none}
+.icon{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:#e8f4ff;color:#0c69dc;font-size:26px;font-weight:900}
+.card h2{margin:0 0 5px;font-size:21px}.card p{margin:0;color:#626b7d;line-height:1.35}.arrow{font-size:29px;color:#a7afbd}
+.course{border-left-color:var(--gold)}.course .icon{background:#fff6d8;color:#9b7610}
+.performance{border-left-color:var(--cyan)}.performance .icon{background:#e6fcff;color:#087a8c}
+.note{margin-top:22px;padding:14px 16px;border-radius:13px;background:#fff;border:1px solid var(--line);font-size:13px;color:#59637b}.note b{color:var(--nav)}
+@media(max-width:680px){.grid{grid-template-columns:1fr}h1{font-size:30px}.card{min-height:105px;padding:17px}.brand{font-size:20px}}
+</style></head>
+<body>
+<header><div class="head"><div><div class="brand">SPARTANS1ST™</div><div class="role">COACH · TEAM HUB</div></div><a class="back" href="coach.html">Coach Home</a></div></header>
+<main>
+<div class="eyebrow">TEAM OPERATIONS</div><h1>Team Hub</h1>
+<p class="intro">One place for the coach to reach the team's people, schedule, competition, communication, performance, and development system.</p>
+<section class="grid" aria-label="Team Hub destinations">
+<a class="card" href="coach.html#roster"><div class="icon">♟</div><div><h2>Athletes</h2><p>Roster, athlete profiles, development records, and authorized athlete information.</p></div><div class="arrow">›</div></a>
+<a class="card" href="coach.html#calendar"><div class="icon">▦</div><div><h2>Calendar</h2><p>Practices, workouts, meets, recovery days, team events, MARK targets, and reviews.</p></div><div class="arrow">›</div></a>
+<a class="card" href="coach.html#meets"><div class="icon">★</div><div><h2>Meets</h2><p>Upcoming competition, race information, entries, and results.</p></div><div class="arrow">›</div></a>
+<a class="card" href="coach.html#messages"><div class="icon">✉</div><div><h2>Messages</h2><p>Coach-to-team communication, announcements, and important updates.</p></div><div class="arrow">›</div></a>
+<a class="card performance" href="team-performance.html"><div class="icon">↗</div><div><h2>Team Performance</h2><p>Leaderboard, Team Rankings, Performance Trends, and Training Analysis.</p></div><div class="arrow">›</div></a>
+<a class="card course" href="athlete.html#course"><div class="icon">◎</div><div><h2>XC Course</h2><p>VISION → LOGOS → RHEMA → FAITH → DECLARATION → DOiT™ → RESULT → i3E™ REVIEW → IMPROVE.</p></div><div class="arrow">›</div></a>
+</section>
+<div class="note"><b>IAM™ / RAD™ is intentionally not a permanent Team Hub destination.</b> Athlete readiness and observations should surface to the coach first; RAD™ is the escalation path when a condition requires formal assessment.</div>
+</main></body></html>

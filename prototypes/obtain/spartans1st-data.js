@@ -133,3 +133,16 @@ async function s1LoadRuns(){
   return (rows||[]).map(x=>{let d={};try{d=JSON.parse(x.result_text||'{}')}catch(e){d={run_name:'Result',notes:x.result_text||''}};return {...d,id:x.id,run_date:d.run_date||x.result_date,is_pr:x.is_pr,training_assignment_id:x.training_assignment_id}}).filter(x=>x.kind==='run'||x.distance_miles||x.duration)
  }catch(e){console.error(e);return []}
 }
+
+async function s1LoadRunContext(){
+ const box=document.getElementById('assignmentContext');
+ if(window.s1Demo||localStorage.getItem('spartans1st_demo_mode')==='1'){if(box)box.textContent='Test mode · runs may be logged as scheduled or unscheduled.';return}
+ if(!window.s1AthleteId){try{const aa=await s1('spartans1st_athletes?select=id&limit=1');if(aa?.[0])window.s1AthleteId=aa[0].id}catch(e){}}
+ if(!window.s1AthleteId){if(box)box.textContent='Sign in to connect runs to coach assignments.';return}
+ const day=(document.getElementById('date')?.value)||new Date().toISOString().slice(0,10);
+ try{
+  const rows=await s1('spartans1st_training_assignments?select=id,title,instructions,status&athlete_id=eq.'+window.s1AthleteId+'&training_date=eq.'+day+'&order=created_at.desc&limit=1');
+  if(rows?.[0]){window.s1TrainingId=rows[0].id;if(box)box.innerHTML='<b>Coach assignment:</b> '+esc(rows[0].title)+(rows[0].status?' · '+esc(rows[0].status):'');const n=document.getElementById('name');if(n&&!n.value)n.value=rows[0].title||''}
+  else{window.s1TrainingId=null;if(box)box.textContent='No coach assignment found for this date · this run will be logged as unscheduled.'}
+ }catch(e){console.error(e);if(box)box.textContent='Assignment context could not be loaded. You can still review your run history.'}
+}

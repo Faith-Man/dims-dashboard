@@ -6,7 +6,7 @@
 <div class="field"><label>Date</label><input id="date" type="date"></div>
 <div class="field"><label>Distance (miles)</label><input id="distance" type="number" min="0" step=".01" placeholder="3.10"></div>
 <div class="field"><label>Time / Duration</label><input id="duration" placeholder="Example: 20:18"></div>
-<div class="field"><label>Pace</label><input id="pace" placeholder="Calculated when possible"></div>
+<div class="field"><label>Pace</label><input id="pace" placeholder="Calculated from distance + time when possible"></div>
 <div class="field"><label>Run Name</label><input id="name" placeholder="Example: Progression Run"></div>
 <div class="field full"><label>Location</label><input id="location" placeholder="Course, trail, track, or location"></div>
 </div><div class="optional">OPTIONAL RUN CONTEXT</div><div class="fields">
@@ -20,11 +20,11 @@
 <div class="field"><label>Division</label><input id="division" placeholder="Varsity, JV, etc."></div>
 <div class="field"><label>Place</label><input id="place" type="number" min="1"></div>
 <div class="field"><label>PR / Milestone?</label><select id="pr"><option value="0">No</option><option value="1">Yes</option></select></div>
-</div><p class="hint">Scheduled training can link to the coach assignment. Unscheduled runs can be logged here directly.</p><button class="btn" onclick="saveRun()">Save Run</button><div class="saved" id="saved">✓ Run saved</div></section>
+</div><div id="assignmentContext" class="hint">Checking for today’s coach assignment…</div><p class="hint">Scheduled training links to the coach assignment when available. Unscheduled runs can be logged here directly.</p><button class="btn" onclick="saveRun()">Save Run</button><div class="saved" id="saved">✓ Run saved</div></section>
 <section class="card"><div class="eyebrow">RUN HISTORY</div><div id="runs"><div class="empty"><strong>No Runs Yet</strong><p>Complete today's training or log your first run to begin your history.</p><button class="btn" onclick="toggleForm(true)">Log Your First Run</button></div></div></section>
 </main><script src="spartans1st-data.js"></script><script>
-date.value=new Date().toISOString().slice(0,10);function toggleForm(force){logForm.classList.toggle('open',force===true?true:undefined);if(logForm.classList.contains('open'))logForm.scrollIntoView({behavior:'smooth',block:'start'})}
+date.value=new Date().toISOString().slice(0,10);function parseDuration(v){const p=String(v||'').trim().split(':').map(Number);if(!p.length||p.some(Number.isNaN))return null;if(p.length===3)return p[0]*3600+p[1]*60+p[2];if(p.length===2)return p[0]*60+p[1];if(p.length===1)return p[0]*60;return null}function formatPace(sec){if(!isFinite(sec)||sec<=0)return '';const m=Math.floor(sec/60),s=Math.round(sec%60);return m+':'+String(s===60?0:s).padStart(2,'0')+(s===60?' (approx.)':'')+' /mi'}function updatePace(){const miles=parseFloat(distance.value),seconds=parseDuration(duration.value);if(miles>0&&seconds>0)pace.value=formatPace(seconds/miles)}distance.addEventListener('input',updatePace);duration.addEventListener('input',updatePace);function toggleForm(force){logForm.classList.toggle('open',force===true?true:undefined);if(logForm.classList.contains('open'))logForm.scrollIntoView({behavior:'smooth',block:'start'})}
 function runData(){return {run_type:type.value,run_date:date.value,distance_miles:distance.value,duration:duration.value.trim(),pace:pace.value.trim(),run_name:name.value.trim(),location:location.value.trim(),heart_rate:hr.value,sleep_hours:sleep.value,temperature_f:temp.value,humidity:humidity.value,notes:notes.value.trim(),splits:splits.value.trim(),division:division.value.trim(),place:place.value,is_pr:pr.value==='1'}}
 async function saveRun(){const d=runData();if(!d.run_date||!d.distance_miles)return alert('Enter the run date and distance.');const r=typeof s1SaveRun==='function'?await s1SaveRun(d):null;if(r){saved.style.display='block';await loadRuns()}}
 async function loadRuns(){if(typeof s1LoadRuns!=='function')return;const a=await s1LoadRuns();const box=document.getElementById('runs');if(!a?.length)return;box.innerHTML=a.map(x=>'<div class="run"><div><b>'+esc(x.run_name||x.run_type||'Run')+'</b><div class="meta">'+esc(x.run_date||'')+' · '+esc(x.distance_miles||'—')+' mi'+(x.duration?' · '+esc(x.duration):'')+'</div></div><div class="pace">'+esc(x.pace||'')+'</div></div>').join('')}
-window.addEventListener('DOMContentLoaded',()=>setTimeout(loadRuns,350));</script></body></html>
+window.addEventListener('DOMContentLoaded',()=>setTimeout(async()=>{if(typeof s1LoadRunContext==='function')await s1LoadRunContext();await loadRuns()},350));</script></body></html>

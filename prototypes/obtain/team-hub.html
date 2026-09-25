@@ -1,38 +1,30 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SPARTANS1ST™ Team Hub</title>
-<style>
-:root{--nav:#0C1262;--cobalt:#111D6C;--light:#F8FAFF;--soft:#EEF2FF;--text:#10184F;--gold:#D8B64C;--cyan:#24E8FF;--line:#D7DEF0}
-*{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--text);font:15px Inter,Arial,sans-serif}
-header{background:var(--nav);color:white;padding:16px 20px;border-bottom:3px solid var(--gold)}
-.head{max-width:960px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:23px;font-weight:1000;font-style:italic}.role{font-size:10px;letter-spacing:.15em;color:#dce6ff}
-.back{color:white;text-decoration:none;border:1px solid #ffffff55;border-radius:999px;padding:9px 13px;font-weight:800}
-main{max-width:960px;margin:auto;padding:28px 18px 100px}.eyebrow{font-size:11px;letter-spacing:.15em;color:#56629a;font-weight:900}
-h1{font-size:34px;margin:7px 0 6px}.intro{margin:0 0 24px;color:#566078;line-height:1.5}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
-.card{position:relative;display:grid;grid-template-columns:58px 1fr 24px;align-items:center;gap:15px;padding:20px;background:white;border:1px solid var(--line);border-left:5px solid #1677e8;border-radius:17px;text-decoration:none;color:var(--text);box-shadow:0 8px 22px #111d6c12;min-height:116px;transition:.15s}
-.card:hover,.card:focus{transform:translateY(-2px);border-color:#6eb9ff;box-shadow:0 10px 26px #111d6c20;outline:none}
-.icon{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:#e8f4ff;color:#0c69dc;font-size:26px;font-weight:900}
-.card h2{margin:0 0 5px;font-size:21px}.card p{margin:0;color:#626b7d;line-height:1.35}.arrow{font-size:29px;color:#a7afbd}
-.course{border-left-color:var(--gold)}.course .icon{background:#fff6d8;color:#9b7610}
-.performance{border-left-color:var(--cyan)}.performance .icon{background:#e6fcff;color:#087a8c}
-.note{margin-top:22px;padding:14px 16px;border-radius:13px;background:#fff;border:1px solid var(--line);font-size:13px;color:#59637b}.note b{color:var(--nav)}
-@media(max-width:680px){.grid{grid-template-columns:1fr}h1{font-size:30px}.card{min-height:105px;padding:17px}.brand{font-size:20px}}
-</style></head>
-<body>
-<header><div class="head"><div><div class="brand">SPARTANS1ST™</div><div class="role">COACH · TEAM HUB</div></div><a class="back" href="coach.html">Coach Home</a></div></header>
-<main>
-<div class="eyebrow">TEAM OPERATIONS</div><h1>Team Hub</h1>
-<p class="intro">One place for the coach to reach the team's people, schedule, competition, communication, performance, and development system.</p>
-<section class="grid" aria-label="Team Hub destinations">
-<a class="card" href="coach.html#roster"><div class="icon">♟</div><div><h2>Athletes</h2><p>Roster, athlete profiles, development records, and authorized athlete information.</p></div><div class="arrow">›</div></a>
-<a class="card" href="coach.html#calendar"><div class="icon">▦</div><div><h2>Calendar</h2><p>Practices, workouts, meets, recovery days, team events, MARK targets, and reviews.</p></div><div class="arrow">›</div></a>
-<a class="card" href="coach.html#meets"><div class="icon">★</div><div><h2>Meets</h2><p>Upcoming competition, race information, entries, and results.</p></div><div class="arrow">›</div></a>
-<a class="card" href="coach.html#messages"><div class="icon">✉</div><div><h2>Messages</h2><p>Coach-to-team communication, announcements, and important updates.</p></div><div class="arrow">›</div></a>
-<a class="card performance" href="team-performance.html"><div class="icon">↗</div><div><h2>Team Performance</h2><p>Leaderboard, Team Rankings, Performance Trends, and Training Analysis.</p></div><div class="arrow">›</div></a>
-<a class="card course" href="athlete.html#course"><div class="icon">◎</div><div><h2>XC Course</h2><p>VISION → LOGOS → RHEMA → FAITH → DECLARATION → DOiT™ → RESULT → i3E™ REVIEW → IMPROVE.</p></div><div class="arrow">›</div></a>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SPARTANS1ST™ Team Hub</title><style>
+:root{--nav:#0C1262;--blue:#111D6C;--lift:#24317E;--light:#F8FAFF;--soft:#EEF2FF;--text:#10184F;--gold:#D8B64C;--cyan:#24E8FF;--line:#D7DEF0}*{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--text);font:15px Inter,Arial,sans-serif}header{background:var(--nav);color:#fff;padding:14px 20px;border-bottom:3px solid var(--gold)}.head{max-width:1080px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:24px;font-weight:1000;font-style:italic}.role{font-size:10px;letter-spacing:.15em;color:#dce6ff}.back{color:#fff;text-decoration:none;border:1px solid #ffffff55;border-radius:999px;padding:9px 13px;font-weight:900}main{max-width:1080px;margin:auto;padding:25px 18px 90px}.eyebrow{font-size:11px;letter-spacing:.15em;color:#56629a;font-weight:900}h1{font-size:34px;margin:6px 0}.intro{margin:0 auto 15px;color:#566078;line-height:1.5;max-width:760px;text-align:center}
+.hub-shell{position:relative;width:min(88vw,720px);aspect-ratio:1;margin:4px auto 24px;border-radius:50%;background:radial-gradient(circle,#fff 0 29%,#eef5ff 30% 47%,#dfeaff 48% 61%,transparent 62%);filter:drop-shadow(0 12px 24px #111d6c18)}
+.hub-shell:before,.hub-shell:after{content:"";position:absolute;border-radius:50%;pointer-events:none}.hub-shell:before{inset:10%;border:2px solid var(--gold);box-shadow:0 0 0 8px #fff8,0 0 28px #24e8ff28}.hub-shell:after{inset:26%;border:2px solid var(--cyan)}
+.spoke{position:absolute;left:50%;top:50%;height:2px;width:31%;background:linear-gradient(90deg,var(--cyan),var(--gold));transform-origin:0 50%;opacity:.75;z-index:1}.spoke:nth-of-type(1){transform:rotate(-90deg)}.spoke:nth-of-type(2){transform:rotate(-30deg)}.spoke:nth-of-type(3){transform:rotate(30deg)}.spoke:nth-of-type(4){transform:rotate(90deg)}.spoke:nth-of-type(5){transform:rotate(150deg)}.spoke:nth-of-type(6){transform:rotate(210deg)}
+.center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:34%;aspect-ratio:1;border-radius:50%;z-index:5;background:linear-gradient(145deg,#0C1262,#24317E);border:5px solid var(--gold);box-shadow:0 0 0 7px #fff,0 0 28px #24e8ff88;display:grid;place-items:center;text-align:center;color:#fff;padding:18px}.center strong{display:block;font-size:clamp(17px,3vw,29px);font-style:italic}.center b{display:block;color:var(--gold);font-size:clamp(12px,2vw,18px);margin-top:4px}.center small{display:block;margin-top:8px;font-size:clamp(8px,1.3vw,11px);letter-spacing:.08em;color:#d9e6ff}.node{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(var(--a)) translateY(-280px) rotate(calc(-1 * var(--a)));width:150px;min-height:82px;border-radius:16px;background:#fff;border:2px solid #9fc9f5;border-top:4px solid var(--gold);box-shadow:0 8px 20px #111d6c24;z-index:4;text-decoration:none;color:var(--text);display:grid;place-items:center;text-align:center;padding:10px;transition:.15s}.node:hover,.node:focus{outline:none;transform:translate(-50%,-50%) rotate(var(--a)) translateY(-280px) rotate(calc(-1 * var(--a))) scale(1.06);border-color:var(--cyan);box-shadow:0 8px 24px #24e8ff55}.node .ico{font-size:22px;color:#0c69dc}.node b{display:block;font-size:14px}.node small{font-size:9px;color:#68738a}.today{position:absolute;left:50%;top:69%;transform:translateX(-50%);z-index:6;width:35%;text-align:center;font-size:10px;color:#506080}.today b{color:var(--nav)}
+.mobile-grid{display:none}.note{max-width:800px;margin:0 auto;padding:13px 16px;border-radius:13px;background:#fff;border:1px solid var(--line);font-size:12px;color:#59637b;text-align:center}.note b{color:var(--nav)}
+@media(max-width:760px){.hub-shell{display:none}.mobile-grid{display:grid;grid-template-columns:1fr;gap:12px}.mobile-grid a{display:grid;grid-template-columns:45px 1fr 20px;align-items:center;gap:10px;padding:15px;background:#fff;border:1px solid var(--line);border-left:5px solid #1677e8;border-radius:14px;text-decoration:none;color:var(--text);box-shadow:0 6px 18px #111d6c12}.mobile-grid b{font-size:17px}.mobile-grid small{display:block;color:#667187;margin-top:3px}h1{text-align:left;font-size:30px}.intro{text-align:left}.note{margin-top:16px;text-align:left}}
+@media(min-width:761px) and (max-width:900px){.node{transform:translate(-50%,-50%) rotate(var(--a)) translateY(-235px) rotate(calc(-1 * var(--a)));width:135px}.node:hover,.node:focus{transform:translate(-50%,-50%) rotate(var(--a)) translateY(-235px) rotate(calc(-1 * var(--a))) scale(1.05)}}
+</style></head><body><header><div class="head"><div><div class="brand">SPARTANS1ST™</div><div class="role">COACH · TEAM HUB</div></div><a class="back" href="coach.html">Coach Home</a></div></header><main><div class="eyebrow" style="text-align:center">TEAM OPERATIONS</div><h1 style="text-align:center">Team Hub</h1><p class="intro">The connection point for the people, schedule, competition, communication, performance, and development of Spartans1st™ Cross Country.</p>
+<section class="hub-shell" aria-label="Spartans1st Team Hub">
+<i class="spoke"></i><i class="spoke"></i><i class="spoke"></i><i class="spoke"></i><i class="spoke"></i><i class="spoke"></i>
+<div class="center"><div><strong>SPARTANS1ST™</strong><b>TEAM HUB</b><small>FIGHT. PRESS. WIN.™</small></div></div>
+<a class="node" style="--a:0deg" href="coach.html#roster"><div><span class="ico">♟</span><b>ATHLETES</b><small>Roster · Profiles · Development</small></div></a>
+<a class="node" style="--a:60deg" href="coach.html#calendar"><div><span class="ico">▦</span><b>CALENDAR</b><small>Training · Meets · Events</small></div></a>
+<a class="node" style="--a:120deg" href="coach.html#meets"><div><span class="ico">★</span><b>MEETS</b><small>Competition · Entries · Results</small></div></a>
+<a class="node" style="--a:180deg" href="coach.html#messages"><div><span class="ico">✉</span><b>MESSAGES</b><small>Team Communication</small></div></a>
+<a class="node" style="--a:240deg" href="team-performance.html"><div><span class="ico">↗</span><b>TEAM PERFORMANCE</b><small>Achievement · Position · Trends</small></div></a>
+<a class="node" style="--a:300deg" href="athlete.html#course"><div><span class="ico">◎</span><b>XC COURSE</b><small>Develop · Review · Improve</small></div></a>
+<div class="today"><b>TODAY</b><br>Team status and priority information can surface here without turning the Hub into another dashboard.</div></section>
+<section class="mobile-grid" aria-label="Team Hub mobile navigation">
+<a href="coach.html#roster"><span>♟</span><div><b>Athletes</b><small>Roster, profiles, development</small></div><span>›</span></a>
+<a href="coach.html#calendar"><span>▦</span><div><b>Calendar</b><small>Training, meets, team events</small></div><span>›</span></a>
+<a href="coach.html#meets"><span>★</span><div><b>Meets</b><small>Competition and results</small></div><span>›</span></a>
+<a href="coach.html#messages"><span>✉</span><div><b>Messages</b><small>Team communication</small></div><span>›</span></a>
+<a href="team-performance.html"><span>↗</span><div><b>Team Performance</b><small>Leaderboard, rankings, trends, analysis</small></div><span>›</span></a>
+<a href="athlete.html#course"><span>◎</span><div><b>XC Course</b><small>Development course</small></div><span>›</span></a>
 </section>
-<div class="note"><b>IAM™ / RAD™ is intentionally not a permanent Team Hub destination.</b> Athlete readiness and observations should surface to the coach first; RAD™ is the escalation path when a condition requires formal assessment.</div>
+<div class="note"><b>Hub = Navigate.</b> XC Course = Develop. IAM™ = Identify • Assess • Mitigate. RAD™ = Assess Risk. Team Performance = Analyze. i3E™ = Review & Improve.</div>
 </main></body></html>

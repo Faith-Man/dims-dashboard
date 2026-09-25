@@ -104,3 +104,32 @@ async function s1DeleteCalendarEvent(id,title){
  if(!confirm('Remove "'+title+'" from the calendar?'))return false;
  try{await s1('spartans1st_calendar_events?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{Prefer:'return=minimal'}});await s1LoadCoachCalendar();return true}catch(e){console.error(e);alert('Event was not removed.');return false}
 }
+
+
+/* My Runs extends the existing RESULT record instead of creating a competing run-log store.
+   Run-specific fields are serialized in result_text until governed schema fields are warranted. */
+async function s1SaveRun(data){
+ if(window.s1Demo||localStorage.getItem('spartans1st_demo_mode')==='1'){
+  const a=JSON.parse(localStorage.getItem('s1_demo_runs')||'[]');a.unshift({...data,id:'demo-run-'+Date.now()});localStorage.setItem('s1_demo_runs',JSON.stringify(a));return a[0]
+ }
+ if(!window.s1AthleteId){
+  try{const aa=await s1('spartans1st_athletes?select=id&limit=1');if(aa?.[0])window.s1AthleteId=aa[0].id}catch(e){}
+ }
+ if(!window.s1AthleteId){alert('Sign-in/profile connection required before saving.');return null}
+ try{
+  const payload={...data,kind:'run'};
+  const rows=await s1('spartans1st_results',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({athlete_id:window.s1AthleteId,training_assignment_id:window.s1TrainingId||null,result_date:data.run_date,result_text:JSON.stringify(payload),is_pr:!!data.is_pr,prize:data.is_pr?'PR':null})});
+  return rows?.[0]||null
+ }catch(e){console.error(e);alert('Run was not saved.');return null}
+}
+async function s1LoadRuns(){
+ if(window.s1Demo||localStorage.getItem('spartans1st_demo_mode')==='1')return JSON.parse(localStorage.getItem('s1_demo_runs')||'[]');
+ if(!window.s1AthleteId){
+  try{const aa=await s1('spartans1st_athletes?select=id&limit=1');if(aa?.[0])window.s1AthleteId=aa[0].id}catch(e){}
+ }
+ if(!window.s1AthleteId)return [];
+ try{
+  const rows=await s1('spartans1st_results?select=id,result_date,result_text,is_pr,prize,training_assignment_id&athlete_id=eq.'+window.s1AthleteId+'&order=result_date.desc,created_at.desc&limit=100');
+  return (rows||[]).map(x=>{let d={};try{d=JSON.parse(x.result_text||'{}')}catch(e){d={run_name:'Result',notes:x.result_text||''}};return {...d,id:x.id,run_date:d.run_date||x.result_date,is_pr:x.is_pr,training_assignment_id:x.training_assignment_id}}).filter(x=>x.kind==='run'||x.distance_miles||x.duration)
+ }catch(e){console.error(e);return []}
+}

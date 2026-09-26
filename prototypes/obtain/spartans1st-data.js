@@ -1,0 +1,148 @@
+// Spartans1st browser data client. Publishable key only; RLS is the authorization boundary.
+const S1_URL='https://sdquzhsylqpbhrmqjqgk.supabase.co',S1_KEY='sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How';
+async function s1(path,options={}){const token=localStorage.getItem('spartans1st_access_token');const headers={apikey:S1_KEY,'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{}),...(options.headers||{})};const r=await fetch(S1_URL+'/rest/v1/'+path,{...options,headers});if(!r.ok)throw new Error('S1 data '+r.status);const t=await r.text();return t?JSON.parse(t):null}
+function esc(v){const d=document.createElement('div');d.textContent=v??'';return d.innerHTML}
+async function s1LoadAthleteHome(){if(localStorage.getItem('spartans1st_demo_mode')==='1'){window.s1Demo=true;document.documentElement.dataset.s1Data='demo';document.querySelector('.hero h1').textContent='Today · Test Athlete';document.querySelector('.mark span').textContent='Test MARK — demonstrate disciplined daily progress toward a measurable season goal.';const w=document.querySelectorAll('#word .word small');w[0].textContent='Test LOGOS — governing truth / standard';w[1].textContent='Test RHEMA — apply today’s standard to today’s work';w[2].textContent='Test DECLARATION — I will train with purpose, fight through challenge, and press toward the mark.';document.querySelector('#doit p').innerHTML='<b>Coach-assigned workout:</b> Test progression run — fictional sample assignment for functional testing.';return}if(!localStorage.getItem('spartans1st_access_token')){document.documentElement.dataset.s1Data='awaiting-auth';return}try{const aa=await s1('spartans1st_athletes?select=id,display_name&limit=1');if(!aa?.length){document.documentElement.dataset.s1Data='no-athlete-profile';return}const a=aa[0],today=new Date().toISOString().slice(0,10);const [m,w,r,t]=await Promise.all([s1('spartans1st_marks?select=mark&athlete_id=eq.'+a.id+'&status=eq.active&order=updated_at.desc&limit=1'),s1('spartans1st_daily_content?select=logos,rhema,declaration&content_date=eq.'+today+'&audience=eq.athlete&limit=1'),s1('spartans1st_readiness?select=status,athlete_note&athlete_id=eq.'+a.id+'&readiness_date=eq.'+today+'&limit=1'),s1('spartans1st_training_assignments?select=id,title,instructions,status&athlete_id=eq.'+a.id+'&training_date=eq.'+today+'&limit=1')]);document.querySelector('.hero h1').textContent='Today · '+a.display_name;if(m?.[0])document.querySelector('.mark span').textContent=m[0].mark;if(w?.[0]){const z=document.querySelectorAll('#word .word small');z[0].textContent=w[0].logos||'—';z[1].textContent=w[0].rhema||'—';z[2].textContent=w[0].declaration||'—'}if(r?.[0]){const q=document.getElementById('readinessSelect');if(q){q.value=r[0].status||'';readinessChanged(q.value)}const n=document.getElementById('readinessNote');if(n)n.value=r[0].athlete_note||'';}if(t?.[0]){document.querySelector('#doit p').innerHTML='<b>Coach-assigned workout:</b> '+esc(t[0].title)+(t[0].instructions?' — '+esc(t[0].instructions):'');window.s1TrainingId=t[0].id;if(t[0].status==='completed'){localStorage.setItem('s1_demo_training','completed');document.getElementById('bar').style.width='100%';document.getElementById('trainingStatus').textContent='COMPLETED · 100%'}}window.s1AthleteId=a.id;const [rr,vv]=await Promise.all([s1('spartans1st_results?select=id,result_text,is_pr,prize&athlete_id=eq.'+a.id+'&result_date=eq.'+today+'&order=created_at.desc&limit=1'),s1('spartans1st_reviews?select=integrity_note,effectiveness_note,efficiency_note,excellence_note,improve_next,result_id&athlete_id=eq.'+a.id+'&order=created_at.desc&limit=1')]);if(rr?.[0]){window.s1ResultId=rr[0].id;let rd={};try{rd=JSON.parse(rr[0].result_text||'{}')}catch{};localStorage.setItem('s1_demo_result',JSON.stringify(rd));localStorage.setItem('s1_demo_pr',rr[0].is_pr?'1':'0')}if(vv?.[0]&&(!rr?.[0]||!vv[0].result_id||vv[0].result_id===rr[0].id)){localStorage.setItem('s1_demo_review',JSON.stringify({integrity:vv[0].integrity_note,effectiveness:vv[0].effectiveness_note,efficiency:vv[0].efficiency_note,excellence:vv[0].excellence_note,improve:vv[0].improve_next}))}if(typeof restoreFlow==='function')restoreFlow();document.documentElement.dataset.s1Data='connected'}catch(e){document.documentElement.dataset.s1Data='error';console.error(e)}}
+async function s1SaveReadiness(status,note=''){if(window.s1Demo){localStorage.setItem('spartans1st_demo_readiness',status);localStorage.setItem('s1_demo_readiness_note',note);return say('Test readiness saved locally: '+status)}if(!window.s1AthleteId)return say('Sign-in/profile connection required before saving.');const today=new Date().toISOString().slice(0,10);try{await s1('spartans1st_readiness?on_conflict=athlete_id,readiness_date',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({athlete_id:window.s1AthleteId,readiness_date:today,status,athlete_note:note||null})});say('Readiness saved.')}catch(e){say('Readiness was not saved.')}}
+window.addEventListener('DOMContentLoaded',s1LoadAthleteHome);
+async function s1CompleteTraining(){
+ if(window.s1Demo||!window.s1TrainingId)return true;
+ try{await s1('spartans1st_training_assignments?id=eq.'+window.s1TrainingId,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({status:'completed',completed_at:new Date().toISOString()})});return true}catch(e){say('Training completion was not saved.');return false}
+}
+async function s1SaveResult(data){
+ if(window.s1Demo){localStorage.setItem('s1_demo_result',JSON.stringify(data));return {id:'demo-result'}}
+ if(!window.s1AthleteId)return say('Sign-in/profile connection required before saving.');
+ try{const rows=await s1('spartans1st_results',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({athlete_id:window.s1AthleteId,training_assignment_id:window.s1TrainingId||null,result_date:new Date().toISOString().slice(0,10),result_text:JSON.stringify(data),is_pr:!!data.is_pr,prize:data.prize||null})});window.s1ResultId=rows?.[0]?.id||null;return rows?.[0]||null}catch(e){say('Result was not saved.');return null}
+}
+async function s1SaveReview(data){
+ if(window.s1Demo){localStorage.setItem('s1_demo_review',JSON.stringify(data));return true}
+ if(!window.s1AthleteId)return say('Sign-in/profile connection required before saving.');
+ try{await s1('spartans1st_reviews',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({athlete_id:window.s1AthleteId,result_id:window.s1ResultId||null,integrity_note:data.integrity||null,effectiveness_note:data.effectiveness||null,efficiency_note:data.efficiency||null,excellence_note:data.excellence||null,improve_next:data.improve||null})});return true}catch(e){say('Review was not saved.');return false}
+}
+
+async function s1LoadCoachHome(){
+ if(localStorage.getItem('spartans1st_demo_mode')==='1'){window.s1Demo=true;window.s1CoachRoster=[{id:'demo-athlete',display_name:'Test Athlete'}];const q=document.getElementById('assignAthlete');if(q)q.innerHTML='<option value="">Select athlete</option><option value="demo-athlete">Test Athlete</option>';return}
+ if(!localStorage.getItem('spartans1st_access_token'))return;
+ try{
+  const links=await s1('spartans1st_coach_assignments?select=athlete_id&active=eq.true');
+  const ids=(links||[]).map(x=>x.athlete_id);
+  if(!ids.length)return;
+  const athletes=await s1('spartans1st_athletes?select=id,display_name&id=in.('+ids.join(',')+')&active=eq.true&order=display_name');
+  const q=document.getElementById('assignAthlete');if(q){q.innerHTML='<option value="">Select athlete</option>';(athletes||[]).forEach(a=>q.insertAdjacentHTML('beforeend','<option value="'+esc(a.id)+'">'+esc(a.display_name)+'</option>'))}
+  window.s1CoachRoster=athletes||[];
+ }catch(e){console.error(e);const x=document.getElementById('assignSaved');if(x)x.textContent='Coach roster could not be loaded.'}
+}
+async function s1AssignWorkout(data){
+ if(window.s1Demo){localStorage.setItem('spartans1st_demo_coach_assignment',JSON.stringify(data));return true}
+ if(!data.athlete_id)return false;
+ try{
+  const token=localStorage.getItem('spartans1st_access_token');const payload=JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));const uid=payload.sub;
+  await s1('spartans1st_training_assignments',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({athlete_id:data.athlete_id,assigned_by:uid,training_date:data.training_date,title:data.title,instructions:data.instructions,status:'assigned'})});return true
+ }catch(e){console.error(e);return false}
+}
+
+async function s1LoadParentHome(){
+ if(localStorage.getItem('spartans1st_demo_mode')==='1'){window.s1Demo=true;return}
+ if(!localStorage.getItem('spartans1st_access_token'))return;
+ const msg=document.getElementById('parentStatus');
+ try{
+  const links=await s1('spartans1st_parent_links?select=athlete_id&active=eq.true&limit=1');
+  if(!links?.length){if(msg)msg.textContent='No athlete is linked to this parent account.';return}
+  const id=links[0].athlete_id;
+  const [ath,train,res]=await Promise.all([
+   s1('spartans1st_athletes?select=id,display_name&id=eq.'+id+'&limit=1'),
+   s1('spartans1st_training_assignments?select=training_date,title,status&athlete_id=eq.'+id+'&order=training_date.desc&limit=7'),
+   s1('spartans1st_results?select=result_date,result_text,is_pr,prize&athlete_id=eq.'+id+'&order=result_date.desc&limit=1')
+  ]);
+  if(ath?.[0]){const x=document.getElementById('parentAthlete');if(x)x.textContent=ath[0].display_name}
+  const assigned=(train||[]).length,completed=(train||[]).filter(x=>x.status==='completed').length,next=(train||[]).find(x=>x.status!=='completed');
+  if(document.getElementById('parentAssigned'))parentAssigned.textContent=assigned;
+  if(document.getElementById('parentCompleted'))parentCompleted.textContent=completed;const cal=document.getElementById('parentCalendarItems');if(cal)cal.innerHTML=(train||[]).length?(train||[]).slice().sort((a,b)=>a.training_date.localeCompare(b.training_date)).map(x=>'<div class="row"><span><b>'+esc(x.training_date)+'</b><br>'+esc(x.title)+'</span><b>'+esc(x.status||'assigned')+'</b></div>').join(''):'<p class="muted">No linked-athlete training is scheduled.</p>';
+  if(document.getElementById('parentNext'))parentNext.textContent=next?.title||'No pending session';
+  if(res?.[0]){let d={};try{d=JSON.parse(res[0].result_text||'{}')}catch{};const x=document.getElementById('parentResult');if(x)x.textContent=d.result||res[0].result_text||'Result recorded';const y=document.getElementById('parentResultNote');if(y)y.textContent=(res[0].is_pr?'Personal record • ':'')+(res[0].prize||'Latest recorded result')}
+  if(typeof s1LoadParentCalendar==='function')s1LoadParentCalendar();if(msg)msg.textContent='';
+ }catch(e){console.error(e);if(msg)msg.textContent='Parent-visible progress could not be loaded.'}
+}
+
+async function s1LoadAthleteCalendar(){
+ const box=document.getElementById('athleteCalendarItems');if(!box)return;
+ if(window.s1Demo){box.innerHTML='<div class="row"><b>Test Training</b><span>Scheduled</span></div><div class="row"><b>Weekly i3E™ Review</b><span>Friday</span></div>';return}
+ if(!window.s1AthleteId){box.innerHTML='<p class="hint">Sign in to load your schedule.</p>';return}
+ try{const range=s1WeekRange(window.s1CalOffset||0),f=range.from,t=range.to;const label=document.getElementById('athleteCalendarLabel');if(label)label.textContent=range.label;const [rows,events]=await Promise.all([s1('spartans1st_training_assignments?select=id,training_date,title,status,instructions&athlete_id=eq.'+window.s1AthleteId+'&training_date=gte.'+f+'&training_date=lte.'+t+'&order=training_date'),s1CalendarEvents([window.s1AthleteId],f,t)]);const items=[...(rows||[]).map(x=>({date:x.training_date,title:x.title,type:'TRAINING',href:'#doit'})),...(events||[]).map(x=>({date:x.event_date,title:x.title,type:x.event_type.replace('_',' ').toUpperCase(),details:x.details,href:x.training_assignment_id?'#doit':'#calendar'}))].sort((a,b)=>a.date.localeCompare(b.date));box.innerHTML=items.length?items.map(x=>'<a class="row" href="'+x.href+'" style="text-decoration:none;color:inherit"><span><b>'+esc(x.date)+'</b> · '+esc(x.title)+'</span><span>'+esc(x.type)+'</span></a>').join(''):'<p class="hint">No activities scheduled this week.</p>'}catch(e){box.innerHTML='<p class="hint">Schedule could not be loaded.</p>'}
+}
+async function s1LoadCoachCalendar(){
+ const box=document.getElementById('coachCalendarItems');if(!box)return;
+ if(window.s1Demo){box.innerHTML='<div class="row"><span>Test Athlete · Tempo + Finish</span><span class="pill">SCHEDULED</span></div>';return}
+ const roster=window.s1CoachRoster||[];if(!roster.length){box.innerHTML='<p>No authorized athlete schedule is loaded.</p>';return}
+ try{const ids=roster.map(x=>x.id),range=s1WeekRange(window.s1CalOffset||0),f=range.from,t=range.to;const label=document.getElementById('coachCalendarLabel');if(label)label.textContent=range.label;const [rows,events]=await Promise.all([s1('spartans1st_training_assignments?select=athlete_id,training_date,title,status&athlete_id=in.('+ids.join(',')+')&training_date=gte.'+f+'&training_date=lte.'+t+'&order=training_date'),s1CalendarEvents(ids,f,t)]);const names=Object.fromEntries(roster.map(x=>[x.id,x.display_name]));const items=[...(rows||[]).map(x=>({date:x.training_date,athlete_id:x.athlete_id,title:x.title,type:x.status||'assigned'})),...(events||[]).map(x=>({id:x.id,date:x.event_date,athlete_id:x.athlete_id,title:x.title,type:x.event_type,details:x.details,event:true}))].sort((a,b)=>a.date.localeCompare(b.date));box.innerHTML=items.length?items.map(x=>'<div class="row"><span><b>'+esc(x.date)+'</b> · '+esc(names[x.athlete_id]||'Athlete')+' · '+esc(x.title)+(x.details?'<br><small>'+esc(x.details)+'</small>':'')+'</span><span class="pill">'+esc(x.type).replace('_',' ').toUpperCase()+'</span>'+(x.event?'<span><button onclick="s1UpdateCalendarEvent(\''+x.id+'\',\''+x.date+'\',\''+String(x.title).replace(/\'/g,"\\'")+'\',\''+String(x.details||'').replace(/\'/g,"\\'")+'\')">Edit</button> <button onclick="s1DeleteCalendarEvent(\''+x.id+'\',\''+String(x.title).replace(/\'/g,"\\'")+'\')">Delete</button></span>':'')+'</div>').join(''):'<p>No authorized activities scheduled this week.</p>'}catch(e){box.innerHTML='<p>Team schedule could not be loaded.</p>'}
+}
+
+async function s1CalendarEvents(athleteIds,from,to){
+ if(!athleteIds?.length)return [];
+ return await s1('spartans1st_calendar_events?select=id,athlete_id,event_date,event_type,title,details,visibility,training_assignment_id&athlete_id=in.('+athleteIds.join(',')+')&event_date=gte.'+from+'&event_date=lte.'+to+'&order=event_date');
+}
+
+async function s1CreateCalendarEvent(data){
+ if(window.s1Demo){const a=JSON.parse(localStorage.getItem('s1_demo_calendar_events')||'[]');a.push(data);localStorage.setItem('s1_demo_calendar_events',JSON.stringify(a));return true}
+ if(!data.athlete_id)return false;
+ try{const token=localStorage.getItem('spartans1st_access_token'),payload=JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));await s1('spartans1st_calendar_events',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify({athlete_id:data.athlete_id,created_by:payload.sub,event_date:data.event_date,event_type:data.event_type,title:data.title,details:data.details||null,visibility:data.visibility||'athlete_coach_parent'})});return true}catch(e){console.error(e);return false}
+}
+
+function s1WeekRange(offset){const now=new Date(),start=new Date(now);start.setDate(now.getDate()-((now.getDay()+6)%7)+(offset||0)*7);const end=new Date(start);end.setDate(start.getDate()+6);return {from:start.toISOString().slice(0,10),to:end.toISOString().slice(0,10),label:start.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' - '+end.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}}
+function s1CalendarNav(role,delta){window.s1CalOffset=(window.s1CalOffset||0)+delta;if(role==='athlete')s1LoadAthleteCalendar();else if(role==='coach')s1LoadCoachCalendar();else if(role==='parent')s1LoadParentCalendar()}
+
+async function s1LoadParentCalendar(){const box=document.getElementById('parentCalendarItems');if(!box||!window.s1ParentAthleteId)return;const range=s1WeekRange(window.s1CalOffset||0),label=document.getElementById('parentCalendarLabel');if(label)label.textContent=range.label;try{const events=await s1CalendarEvents([window.s1ParentAthleteId],range.from,range.to);const rows=(events||[]).filter(x=>x.visibility==='athlete_coach_parent');box.innerHTML=rows.length?rows.map(x=>'<div class="row" onclick="s1ShowCalendarDetail(\''+String(x.title).replace(/\'/g,"\\'")+'\',\''+x.event_date+'\',\''+x.event_type+'\',\''+String(x.details||'').replace(/\'/g,"\\'")+'\')"><span><b>'+esc(x.event_date)+'</b> · '+esc(x.title)+(x.details?'<br><small>'+esc(x.details)+'</small>':'')+'</span><b>'+esc(x.event_type).replace('_',' ').toUpperCase()+'</b></div>').join(''):'<p class="muted">No parent-visible events this week.</p>'}catch(e){box.innerHTML='<p class="muted">Calendar could not be loaded.</p>'}}
+
+function s1ShowCalendarDetail(title,date,type,details){alert(title+'\n'+date+' · '+String(type).replaceAll('_',' ').toUpperCase()+(details?'\n\n'+details:''))}
+async function s1UpdateCalendarEvent(id,currentDate,currentTitle,currentDetails){
+ const event_date=prompt('Event date (YYYY-MM-DD)',currentDate);if(event_date===null)return false;
+ const title=prompt('Event title',currentTitle);if(title===null||!title.trim())return false;
+ const details=prompt('Event details',currentDetails||'');if(details===null)return false;
+ try{await s1('spartans1st_calendar_events?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({event_date,title:title.trim(),details:details.trim()||null,updated_at:new Date().toISOString()})});await s1LoadCoachCalendar();return true}catch(e){console.error(e);alert('Event was not updated.');return false}
+}
+async function s1DeleteCalendarEvent(id,title){
+ if(!confirm('Remove "'+title+'" from the calendar?'))return false;
+ try{await s1('spartans1st_calendar_events?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{Prefer:'return=minimal'}});await s1LoadCoachCalendar();return true}catch(e){console.error(e);alert('Event was not removed.');return false}
+}
+
+
+/* My Runs extends the existing RESULT record instead of creating a competing run-log store.
+   Run-specific fields are serialized in result_text until governed schema fields are warranted. */
+async function s1SaveRun(data){
+ if(window.s1Demo||localStorage.getItem('spartans1st_demo_mode')==='1'){
+  const a=JSON.parse(localStorage.getItem('s1_demo_runs')||'[]');a.unshift({...data,id:'demo-run-'+Date.now()});localStorage.setItem('s1_demo_runs',JSON.stringify(a));return a[0]
+ }
+ if(!window.s1AthleteId){
+  try{const aa=await s1('spartans1st_athletes?select=id&limit=1');if(aa?.[0])window.s1AthleteId=aa[0].id}catch(e){}
+ }
+ if(!window.s1AthleteId){alert('Sign-in/profile connection required before saving.');return null}
+ try{
+  const payload={...data,kind:'run'};
+  const rows=await s1('spartans1st_results',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({athlete_id:window.s1AthleteId,training_assignment_id:window.s1TrainingId||null,result_date:data.run_date,result_text:JSON.stringify(payload),is_pr:!!data.is_pr,prize:data.is_pr?'PR':null})});
+  return rows?.[0]||null
+ }catch(e){console.error(e);alert('Run was not saved.');return null}
+}
+async function s1LoadRuns(){
+ if(window.s1Demo||localStorage.getItem('spartans1st_demo_mode')==='1')return JSON.parse(localStorage.getItem('s1_demo_runs')||'[]');
+ if(!window.s1AthleteId){
+  try{const aa=await s1('spartans1st_athletes?select=id&limit=1');if(aa?.[0])window.s1AthleteId=aa[0].id}catch(e){}
+ }
+ if(!window.s1AthleteId)return [];
+ try{
+  const rows=await s1('spartans1st_results?select=id,result_date,result_text,is_pr,prize,training_assignment_id&athlete_id=eq.'+window.s1AthleteId+'&order=result_date.desc,created_at.desc&limit=100');
+  return (rows||[]).map(x=>{let d={};try{d=JSON.parse(x.result_text||'{}')}catch(e){d={run_name:'Result',notes:x.result_text||''}};return {...d,id:x.id,run_date:d.run_date||x.result_date,is_pr:x.is_pr,training_assignment_id:x.training_assignment_id}}).filter(x=>x.kind==='run'||x.distance_miles||x.duration)
+ }catch(e){console.error(e);return []}
+}
+
+async function s1LoadRunContext(){
+ const box=document.getElementById('assignmentContext');
+ if(window.s1Demo||localStorage.getItem('spartans1st_demo_mode')==='1'){if(box)box.textContent='Test mode · runs may be logged as scheduled or unscheduled.';return}
+ if(!window.s1AthleteId){try{const aa=await s1('spartans1st_athletes?select=id&limit=1');if(aa?.[0])window.s1AthleteId=aa[0].id}catch(e){}}
+ if(!window.s1AthleteId){if(box)box.textContent='Sign in to connect runs to coach assignments.';return}
+ const day=(document.getElementById('date')?.value)||new Date().toISOString().slice(0,10);
+ try{
+  const rows=await s1('spartans1st_training_assignments?select=id,title,instructions,status&athlete_id=eq.'+window.s1AthleteId+'&training_date=eq.'+day+'&order=created_at.desc&limit=1');
+  if(rows?.[0]){window.s1TrainingId=rows[0].id;if(box)box.innerHTML='<b>Coach assignment:</b> '+esc(rows[0].title)+(rows[0].status?' · '+esc(rows[0].status):'');const n=document.getElementById('name');if(n&&!n.value)n.value=rows[0].title||''}
+  else{window.s1TrainingId=null;if(box)box.textContent='No coach assignment found for this date · this run will be logged as unscheduled.'}
+ }catch(e){console.error(e);if(box)box.textContent='Assignment context could not be loaded. You can still review your run history.'}
+}

@@ -57,6 +57,16 @@ const { data: authListener } = supabase.auth.onAuthStateChange((event, session) 
     return;
   }
   if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+    if (new URLSearchParams(window.location.search).get('recover') === '1') {
+      toggleAuth(true);
+      securityMsg.textContent = 'Enter and confirm your new password below.';
+      return;
+    }
+    if (new URLSearchParams(window.location.search).get('recover') === '1') {
+      toggleAuth(true);
+      securityMsg.textContent = 'Enter and confirm your new password below.';
+      return;
+    }
     if (shouldReturnHome()) {
       redirectToDomeHome();
       return;

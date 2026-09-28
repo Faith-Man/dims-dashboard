@@ -32,12 +32,15 @@ const loadBtn = document.getElementById('load');
 const newBtn = document.getElementById('new');
 const saveMsg = document.getElementById('save-msg');
 
-function shouldReturnHome() {
-  return new URLSearchParams(window.location.search).get('return') === 'home';
+function safeReturnPath() {
+  const value = new URLSearchParams(window.location.search).get('return');
+  if (!value || value === 'home') return DOME_HOME;
+  const allowed = new Set(['tetelestai-automations.html']);
+  return allowed.has(value) ? `/${value}` : DOME_HOME;
 }
 
-function redirectToDomeHome() {
-  window.location.replace(DOME_HOME);
+function redirectAfterSignIn() {
+  window.location.replace(safeReturnPath());
 }
 
 // Fail closed: authenticated controls stay hidden until Supabase verifies the
@@ -62,16 +65,7 @@ const { data: authListener } = supabase.auth.onAuthStateChange((event, session) 
       securityMsg.textContent = 'Enter and confirm your new password below.';
       return;
     }
-    if (new URLSearchParams(window.location.search).get('recover') === '1') {
-      toggleAuth(true);
-      securityMsg.textContent = 'Enter and confirm your new password below.';
-      return;
-    }
-    if (shouldReturnHome()) {
-      redirectToDomeHome();
-      return;
-    }
-    toggleAuth(true);
+    redirectAfterSignIn();
   }
 });
 
@@ -82,11 +76,12 @@ async function initializeAuth() {
       toggleAuth(false);
       return;
     }
-    if (shouldReturnHome()) {
-      redirectToDomeHome();
+    if (new URLSearchParams(window.location.search).get('recover') === '1') {
+      toggleAuth(true);
+      securityMsg.textContent = 'Enter and confirm your new password below.';
       return;
     }
-    toggleAuth(true);
+    redirectAfterSignIn();
   } catch (error) {
     console.error('Auth initialization failed.', error);
     toggleAuth(false);
@@ -108,15 +103,16 @@ passwordSignInBtn.onclick = async () => {
     authMsg.textContent = `Error: ${error.message}`;
     return;
   }
-  authMsg.textContent = 'Signed in. Opening DOME Home...';
-  redirectToDomeHome();
+  authMsg.textContent = 'Signed in. Returning to your requested DIMS page...';
+  redirectAfterSignIn();
 };
 
 sendLinkBtn.onclick = async () => {
   const email = emailEl.value.trim();
   if (!email) { authMsg.textContent = 'Enter an email.'; return; }
   authMsg.textContent = 'Sending magic link...';
-  const emailRedirectTo = `${window.location.origin}${window.location.pathname}?return=home`;
+  const returnTarget = new URLSearchParams(window.location.search).get('return') || 'home';
+  const emailRedirectTo = `${window.location.origin}${window.location.pathname}?return=${encodeURIComponent(returnTarget)}`;
   const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo } });
   authMsg.textContent = error ? `Error: ${error.message}` : 'Check your email!';
 };

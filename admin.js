@@ -12,6 +12,7 @@ const emailEl = document.getElementById('email');
 const loginPasswordEl = document.getElementById('login-password');
 const passwordSignInBtn = document.getElementById('password-sign-in');
 const sendLinkBtn = document.getElementById('send-link');
+const forgotPasswordBtn = document.getElementById('forgot-password');
 const authMsg = document.getElementById('auth-msg');
 const signOutBtn = document.getElementById('sign-out');
 const newPasswordEl = document.getElementById('new-password');
@@ -45,12 +46,27 @@ let authResolved = false;
 toggleAuth(false);
 
 const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    toggleAuth(true);
+    securityMsg.textContent = 'Enter and confirm your new password below.';
+    return;
+  }
   if (event === 'INITIAL_SESSION' && !authResolved) return;
   if (event === 'SIGNED_OUT' || !session?.user) {
     toggleAuth(false);
     return;
   }
   if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+    if (new URLSearchParams(window.location.search).get('recover') === '1') {
+      toggleAuth(true);
+      securityMsg.textContent = 'Enter and confirm your new password below.';
+      return;
+    }
+    if (new URLSearchParams(window.location.search).get('recover') === '1') {
+      toggleAuth(true);
+      securityMsg.textContent = 'Enter and confirm your new password below.';
+      return;
+    }
     if (shouldReturnHome()) {
       redirectToDomeHome();
       return;
@@ -103,6 +119,17 @@ sendLinkBtn.onclick = async () => {
   const emailRedirectTo = `${window.location.origin}${window.location.pathname}?return=home`;
   const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo } });
   authMsg.textContent = error ? `Error: ${error.message}` : 'Check your email!';
+};
+
+forgotPasswordBtn.onclick = async () => {
+  const email = emailEl.value.trim();
+  if (!email) { authMsg.textContent = 'Enter your email address first.'; return; }
+  forgotPasswordBtn.disabled = true;
+  authMsg.textContent = 'Sending password-reset email...';
+  const redirectTo = `${window.location.origin}${window.location.pathname}?recover=1`;
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+  authMsg.textContent = error ? `Error: ${error.message}` : 'Password-reset email sent. Check your inbox and follow the secure link.';
+  setTimeout(() => { forgotPasswordBtn.disabled = false; }, error ? 60000 : 60000);
 };
 
 setPasswordBtn.onclick = async () => {

@@ -35,7 +35,7 @@ const saveMsg = document.getElementById('save-msg');
 function safeReturnPath() {
   const value = new URLSearchParams(window.location.search).get('return');
   if (!value || value === 'home') return DOME_HOME;
-  const allowed = new Set(['tetelestai-automations.html']);
+  const allowed = new Set(['tetelestai-automations.html', 'dmi-inbox.html']);
   return allowed.has(value) ? `/${value}` : DOME_HOME;
 }
 

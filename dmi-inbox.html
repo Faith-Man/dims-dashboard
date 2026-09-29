@@ -329,7 +329,7 @@ async function openMessage(id){
    <div class="warn">During testing, TETELESTAI task titles can be seen without signing in. Keep private details out of the title — the email itself stays private in DMI.</div>
    <button class="goldbtn" id="mkTask" type="button" style="margin-top:10px;width:100%">Create task</button></div>`);
  bindClose();
- $('listenMsg').onclick=()=>speak(`${m.subject||'No subject'}. From ${who(m.sender)}. ${m.body_text||m.snippet||''}`.slice(0,4000));
+ $('listenMsg').onclick=()=>speak(`${m.subject||'No subject'}. From ${who(m.sender)}. ${speakable(m.body_text||m.snippet||'')}`,$('listenMsg'));
  $('sheet').querySelectorAll('[data-move]').forEach(b=>b.onclick=async()=>{
   const {error}=await sb.rpc('dmi_set_category',{p_message_id:id,p_category:b.dataset.move,p_scope:$('always').checked?'sender':'message'});
   if(error)return toast(error.message);toast('Moved to '+CAT[b.dataset.move]+'.');closeSheet();await load()});
@@ -352,8 +352,40 @@ function briefText(){
 function showBrief(){const lines=briefText();
  openSheet(`<button class="close" type="button">Close</button><h3 id="sheetTitle">Your DMI Brief</h3>${lines.map(l=>`<p class="brief-line">${esc(l)}</p>`).join('')}
   <div class="fu-actions" style="margin-top:12px"><button class="goldbtn" id="listenBrief" type="button">Listen</button>${owed().length?'<button class="act" id="toFollow" type="button">Open follow-ups</button>':''}</div>`);
- bindClose();$('listenBrief').onclick=()=>speak(lines.join(' '));$('toFollow')?.addEventListener('click',()=>{closeSheet();openMail('followups')})}
-function speak(t){if(!('speechSynthesis' in window))return toast('Listening is not supported on this browser.');speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1;speechSynthesis.speak(u)}
+ bindClose();$('listenBrief').onclick=()=>speak(lines.join(' '),$('listenBrief'));$('toFollow')?.addEventListener('click',()=>{closeSheet();openMail('followups')})}
+
+// Turn an email body into something pleasant to hear: no web addresses, codes, quoted replies,
+// signatures, invisible characters or symbol runs, and a sensible length.
+const SPEAK_MAX=1500;
+function speakable(raw){
+ let t=String(raw||'').replace(/&#39;|&apos;/g,"'").replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').replace(/&[a-z]+;|&#\d+;/gi,' ');
+ t=t.replace(/[­͏؜ᅟᅠ឴឵᠎​-‏‪-‮⁠-⁯ㅤ︀-️﻿]/g,'');
+ const lines=[];
+ for(let line of t.split(/\r?\n/)){
+  if(/^\s*>/.test(line))continue;                                         // quoted earlier reply
+  if(/^\s*On .{3,160} wrote:\s*$/i.test(line))break;                       // "On Mon, … wrote:" starts the quoted thread
+  if(/^\s*--\s*$/.test(line)||/^\s*[-_]*\s*(Original Message|Forwarded message)\b/i.test(line))break; // signature / forwarded block
+  if(/^\s*[-_=*~.]{3,}\s*$/.test(line))continue;                           // divider lines
+  if(/^\s*(unsubscribe|view (this|in) (email|browser)|privacy policy|manage preferences)/i.test(line))continue;
+  lines.push(line)}
+ t=lines.join('\n')
+  .replace(/https?:\/\/\S+|www\.\S+/gi,' a link ')                          // web addresses
+  .replace(/\b[\w.+-]+@[\w-]+(\.[\w-]+)+\b/g,' an email address ')          // email addresses
+  .replace(/\b(?=[A-Za-z0-9_-]{24,}\b)(?=\S*\d)\S+/g,' ')                    // long codes and tracking IDs
+  .replace(/([^\w\s'",.!?;:()])\1{2,}/g,' ')                                 // runs of repeated symbols (-----, ****)
+  .replace(/[<>{}\[\]|\\^~`#*_=+]+/g,' ')
+  .replace(/(\s*a link\s*){2,}/g,' several links ')
+  .replace(/[ \t]+/g,' ').replace(/\s*\n\s*/g,'. ').replace(/([,;:!?])\s*\.(\s|$)/g,'$1$2').replace(/(\.\s*){2,}/g,'. ').trim();
+ if(t.length>SPEAK_MAX){const cut=t.slice(0,SPEAK_MAX);const end=Math.max(cut.lastIndexOf('. '),cut.lastIndexOf('? '),cut.lastIndexOf('! '));
+  t=(end>SPEAK_MAX*0.5?cut.slice(0,end+1):cut)+' … The rest of this message is on your screen.'}
+ return t||'This message has no readable text.'}
+
+// Tap Listen to hear it; tap again (Stop) to end.
+function speak(t,btn){if(!('speechSynthesis' in window))return toast('Listening is not supported on this browser.');
+ if(speechSynthesis.speaking&&btn?.dataset.playing==='1'){speechSynthesis.cancel();return}
+ speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1;
+ if(btn){const label=btn.textContent;btn.dataset.playing='1';btn.textContent='Stop';u.onend=u.onerror=()=>{btn.dataset.playing='';btn.textContent=label}}
+ speechSynthesis.speak(u)}
 
 // ---- Start: administrators only ----
 const {data:u,error:ue}=await sb.auth.getUser();

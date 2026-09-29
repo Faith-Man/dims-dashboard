@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DMI™ Inbox — DOME™</title>
+<link rel="stylesheet" href="dims-shared.css?v=26">
+<style>
+.mail-shell{display:grid;grid-template-columns:360px minmax(0,1fr);gap:16px}.mail-list,.message{min-height:560px}.mail-item{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:#fff;padding:13px;cursor:pointer}.mail-item:hover{background:#f6f8fc}.mail-item strong{display:block;color:#0c1475}.mail-meta,.muted{font-size:.76rem;color:var(--muted)}.mail-subject{margin:4px 0;font-weight:800}.toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}.badge{display:inline-block;padding:4px 8px;border:1px solid var(--gold3);border-radius:999px;font-size:.72rem;font-weight:800}.empty{padding:32px;text-align:center;color:var(--muted)}.hidden{display:none!important}.message-body{white-space:pre-wrap;line-height:1.55}.auth-gate{max-width:720px;margin:28px auto}@media(max-width:850px){.mail-shell{grid-template-columns:1fr}.mail-list,.message{min-height:auto}}
+</style>
+</head>
+<body>
+<div class="page-header"><div><div class="page-title">✉ DMI™ Inbox</div><div class="page-sub">Dominion Intelligence Mail System™ · Governed email workspace</div></div><a href="tetelestai-automations.html" style="color:var(--gold);font-size:.8rem;border:1px solid var(--gold3);padding:6px 12px;text-decoration:none">Automations →</a></div>
+<nav class="nav-pills"><a class="nav-pill" href="mission-control.html">🎯 Mission Control</a><a class="nav-pill" href="projects-tasks.html">✅ TETELESTAI™</a><a class="nav-pill active" href="dmi-inbox.html">✉ DMI™</a><a class="nav-pill" href="tetelestai-automations.html">⏱ Automations</a></nav>
+<div class="wrap">
+<div id="authGate" class="card auth-gate hidden"><div class="card-title">Sign in required</div><p>DMI mailbox contents are restricted to an authorized DIMS administrator.</p><a class="btn" href="admin.html?return=dmi-inbox.html">Open DIMS Sign In →</a></div>
+<div id="app" class="hidden">
+<div class="toolbar card"><div><strong>Unified Inbox</strong><div class="muted">Dedicated: michael@dominion1st.org · Source: pistiskratos@gmail.com</div></div><div><span id="syncBadge" class="badge">DMI sync foundation</span> <button class="btn" id="refreshBtn">Refresh</button></div></div>
+<div class="mail-shell">
+<section class="card mail-list"><div class="card-title">Inbox</div><div id="list" class="empty">Loading…</div></section>
+<section class="card message"><div class="card-title">Message Detail</div><div id="detail" class="empty">Select a message to view it here.</div></section>
+</div></div></div>
+<div class="scripture-bar">"Let all things be done decently and in order." <strong>— 1 Corinthians 14:40</strong></div>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const sb=createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How');
+const $=id=>document.getElementById(id); const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function sender(v){if(!v)return 'Unknown sender';if(Array.isArray(v)){const x=v[0]||{};return x.name?x.name+' <'+(x.email||'')+'>':x.email||'Unknown sender'}return typeof v==='string'?v:JSON.stringify(v)}
+async function load(){ $('list').textContent='Loading…'; const {data,error}=await sb.rpc('dmi_list_inbox',{p_mailbox_email:null,p_limit:50}); if(error){$('list').innerHTML='<span style="color:#9f1d1d">'+esc(error.message)+'</span>';return} if(!data?.length){$('list').innerHTML='<div class="empty"><strong>No synchronized messages yet.</strong><br>DMI Inbox is deployed. michael@dominion1st.org ingestion is the next connection gate.</div>';return} $('list').innerHTML=data.map(m=>'<button class="mail-item" data-id="'+m.message_id+'"><strong>'+esc(sender(m.sender))+'</strong><div class="mail-subject">'+esc(m.subject||'(No subject)')+'</div><div class="mail-meta">'+esc(m.mailbox_email)+' · '+esc(m.received_at?new Date(m.received_at).toLocaleString():'')+'</div><div class="muted">'+esc(m.snippet||'')+'</div></button>').join(''); document.querySelectorAll('.mail-item').forEach(b=>b.onclick=()=>openMessage(b.dataset.id));}
+async function openMessage(id){$('detail').textContent='Loading…';const {data,error}=await sb.rpc('dmi_get_message',{p_message_id:id});if(error){$('detail').innerHTML='<span style="color:#9f1d1d">'+esc(error.message)+'</span>';return}const m=data?.[0];if(!m){$('detail').textContent='Message not found.';return}$('detail').innerHTML='<h2>'+esc(m.subject||'(No subject)')+'</h2><div class="mail-meta"><strong>From:</strong> '+esc(sender(m.sender))+'<br><strong>Mailbox:</strong> '+esc(m.mailbox_email)+'<br><strong>Received:</strong> '+esc(m.received_at?new Date(m.received_at).toLocaleString():'—')+'</div><hr><div class="message-body">'+esc(m.body_text||m.snippet||'No text body available.')+'</div>';}
+$('refreshBtn').onclick=load;
+async function init(){const {data,error}=await sb.auth.getUser();if(error||!data?.user){$('authGate').classList.remove('hidden');return}$('app').classList.remove('hidden');await load();}
+await init();
+</script></body></html>

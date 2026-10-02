@@ -63,7 +63,8 @@ a{color:var(--gold-lt)}
 /* Mail view */
 .mailbar{display:flex;align-items:center;gap:10px;padding:14px 16px 6px}
 .back{width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.mailbar h2{margin:0;font-size:18px;font-weight:900}
+.mailbar h2{margin:0;font-size:18px;font-weight:900;flex:1}
+.compose{min-height:38px;padding:0 14px;border-radius:999px;border:0;background:linear-gradient(180deg,#FFF0B8,#E9B544);color:#0A0F4A;font-weight:900;font-size:12px;cursor:pointer}
 .tabs{display:flex;flex-wrap:wrap;gap:8px;padding:8px 16px}
 .tabs button{min-height:38px;padding:0 13px;border-radius:999px;border:1px solid rgba(255,255,255,.45);background:transparent;color:#fff;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px}
 .tabs button[aria-pressed="true"]{background:#fff;color:#0A28B4;font-weight:900}
@@ -89,7 +90,8 @@ a{color:var(--gold-lt)}
 .sheet .section{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
 .sheet .section h4{margin:0 0 8px;font-size:12px;letter-spacing:.12em;color:var(--muted)}
 .sheet label{font-size:12px;font-weight:700;color:var(--muted)}
-.sheet input[type=text],.sheet select{width:100%;min-height:42px;border:1px solid #9BA7C5;border-radius:10px;padding:0 10px;font:inherit;font-size:14px;margin-top:4px}
+.sheet input[type=text],.sheet input[type=email],.sheet select,.sheet textarea{width:100%;min-height:42px;border:1px solid #9BA7C5;border-radius:10px;padding:10px;font:inherit;font-size:14px;margin-top:4px}
+.sheet textarea{min-height:180px;resize:vertical}
 .warn{font-size:11px;color:#8A5A00;background:#FFF6DC;border:1px solid #F2D58A;border-radius:10px;padding:8px 10px;margin-top:8px}
 .close{float:right;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid #C8D0E8;background:#fff;color:var(--ink);font-weight:800;cursor:pointer}
 .brief-line{font-size:15px;line-height:1.55;margin:6px 0}
@@ -168,7 +170,7 @@ a{color:var(--gold-lt)}
 
 <!-- MAIL: classic inbox -->
 <section id="v-mail" class="hidden" aria-label="Mail">
-<div class="mailbar"><button class="back" type="button" id="mailBack" aria-label="Back"><svg viewBox="0 0 24 24" width="20" height="20" class="ic"><path d="M15 5l-7 7 7 7"/></svg></button><h2>DMI Mail</h2></div>
+<div class="mailbar"><button class="back" type="button" id="mailBack" aria-label="Back"><svg viewBox="0 0 24 24" width="20" height="20" class="ic"><path d="M15 5l-7 7 7 7"/></svg></button><h2>DMI Mail</h2><button class="compose" type="button" id="composeBtn">Compose</button></div>
 <div class="tabs" role="group" aria-label="Mail categories">
 <button type="button" data-tab="imbox" aria-pressed="true">Imbox <span class="n" id="n-imbox">0</span></button>
 <button type="button" data-tab="followups" aria-pressed="false">Follow-ups <span class="n" id="n-followups">0</span></button>
@@ -307,6 +309,33 @@ async function setFollowup(thread,kind,action){
  if(error)return toast(error.message);
  toast(action==='done'?'Marked done.':action==='snooze'?'Snoozed until tomorrow 8 AM.':'Dismissed.');await load()}
 
+// ---- Compose / Reply (TASK-0098 no-send test stage) ----
+function replySubject(s){s=String(s||'').trim();return /^re:/i.test(s)?s:'Re: '+s}
+function newSendKey(){return 'dmi-ui-'+crypto.randomUUID()}
+function openComposer(opts={}){
+ const key=newSendKey(), isReply=!!opts.replyMessageId;
+ openSheet(`<button class="close" type="button">Close</button><h3 id="sheetTitle">${isReply?'Reply':'Compose'}</h3>
+ <div class="from">From: H. Michael Daniels &lt;michael@dominion1st.org&gt;</div>
+ <label>To</label><input type="email" id="sendTo" value="${esc(opts.to||'')}" autocomplete="off">
+ <label style="display:block;margin-top:8px">CC</label><input type="text" id="sendCc" autocomplete="off">
+ <label style="display:block;margin-top:8px">BCC</label><input type="text" id="sendBcc" autocomplete="off">
+ <label style="display:block;margin-top:8px">Subject</label><input type="text" id="sendSubject" maxlength="998" value="${esc(opts.subject||'')}">
+ <label style="display:block;margin-top:8px">Message</label><textarea id="sendBody" maxlength="100000" placeholder="Write your message…"></textarea>
+ <div class="warn">TASK-0098 test stage: live transmission is locked until Michael authorizes the first Compose/Reply send.</div>
+ <div class="fu-actions"><button class="goldbtn" id="validateDraft" type="button">Validate draft</button><button class="act" id="liveSendLocked" type="button" disabled>Send — authorization required</button></div>
+ <div id="draftState" class="from" style="margin-top:8px">Draft · not transmitted</div>`);
+ bindClose();
+ const validate=()=>{
+  const to=$('sendTo').value.trim(),subject=$('sendSubject').value,body=$('sendBody').value;
+  if(!to||!to.includes('@'))return toast('Enter a valid recipient.');
+  if(!body.trim())return toast('Write a message before sending.');
+  $('draftState').textContent='Validated · not transmitted · idempotency '+key.slice(-8);
+  toast('Draft validated. Nothing was sent.');
+ };
+ $('validateDraft').onclick=validate;
+}
+$('composeBtn').onclick=()=>openComposer();
+
 // ---- Message sheet: read, move, create task ----
 async function openMessage(id){
  openSheet('<div class="empty">Opening…</div>');
@@ -319,7 +348,7 @@ async function openMessage(id){
   <div class="from">${esc(who(m.sender))} &lt;${esc(m.sender?.[0]?.email||'')}&gt; · ${esc(new Date(m.received_at||m.sent_at).toLocaleString())}</div>
   ${row.dmi_category?`<span class="chip c-${row.dmi_category}">${esc(CAT[row.dmi_category])} · ${esc(row.category_reason||'')}</span>`:''}
   <div class="body">${esc(m.body_text||m.snippet||'No text body available.')}</div>
-  <div class="fu-actions"><button class="act" id="listenMsg" type="button">Listen</button></div>
+  <div class="fu-actions"><button class="act" id="listenMsg" type="button">Listen</button><button class="act" id="replyMsg" type="button">Reply</button></div>
   ${row.dmi_category?`<div class="section"><h4>MOVE TO</h4><div class="fu-actions">${Object.entries(CAT).filter(([k])=>k!==row.dmi_category).map(([k,v])=>`<button class="act" data-move="${k}" type="button">${v}</button>`).join('')}</div>
    <label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" id="always" checked> Always do this for ${esc(m.sender?.[0]?.email||'this sender')}</label></div>`:''}
   <div class="section"><h4>TETELESTAI</h4>
@@ -330,6 +359,7 @@ async function openMessage(id){
    <button class="goldbtn" id="mkTask" type="button" style="margin-top:10px;width:100%">Create task</button></div>`);
  bindClose();
  $('listenMsg').onclick=()=>speak(`${m.subject||'No subject'}. From ${who(m.sender)}. ${speakable(m.body_text||m.snippet||'')}`,$('listenMsg'));
+ $('replyMsg').onclick=()=>openComposer({to:m.sender?.[0]?.email||'',subject:replySubject(m.subject||''),replyMessageId:id});
  $('sheet').querySelectorAll('[data-move]').forEach(b=>b.onclick=async()=>{
   const {error}=await sb.rpc('dmi_set_category',{p_message_id:id,p_category:b.dataset.move,p_scope:$('always').checked?'sender':'message'});
   if(error)return toast(error.message);toast('Moved to '+CAT[b.dataset.move]+'.');closeSheet();await load()});

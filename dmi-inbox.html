@@ -331,7 +331,16 @@ function openComposer(opts={}){
  <div class="fu-actions"><button class="goldbtn" id="validateDraft" type="button">Validate draft</button><button class="act" id="liveSendLocked" type="button" disabled>Send — authorization required</button></div>
  <div id="draftState" class="from" style="margin-top:8px">Draft · not transmitted</div>`);
  bindClose();
- const validate=()=>{
+ const pollDispatch=async requestId=>{
+  for(let i=0;i<12;i++){
+   const {data,error}=await sb.rpc('dmi_ui_dispatch_status',{p_request_id:requestId});
+   if(error)throw error;
+   if(data?.length)return data[0];
+   await new Promise(r=>setTimeout(r,500));
+  }
+  throw new Error('Secure-route validation timed out.');
+ };
+ const validate=async()=>{
   const to=$('sendTo').value.trim(),cc=$('sendCc').value.trim(),bcc=$('sendBcc').value.trim(),subject=$('sendSubject').value,body=$('sendBody').value;
   const addr=/^[^\\s@<>()",;:]+@[^\\s@<>()",;:]+\\.[^\\s@<>()",;:]+$/;
   const validList=v=>!v||v.split(',').map(x=>x.trim()).filter(Boolean).every(x=>addr.test((x.match(/<([^<>]+)>$/)||[,x])[1]));
@@ -341,8 +350,19 @@ function openComposer(opts={}){
   if(!body.trim())return toast('Write a message before sending.');
   const draft={action:'email_send',task_number:'TASK-0098',idempotency_key:key,mailbox:'michael@dominion1st.org',to,cc:cc||undefined,bcc:bcc||undefined,subject,body,reply_message_id:opts.replyMessageId||undefined};
   sessionStorage.setItem('dmiValidatedDraft',JSON.stringify(draft));
-  $('draftState').textContent='Validated · not transmitted · idempotency '+key.slice(-8);
-  toast('Draft validated. Nothing was sent.');
+  $('validateDraft').disabled=true;$('draftState').textContent='Checking secure route · nothing transmitted…';
+  try{
+   const probe={mailbox:draft.mailbox,task_number:draft.task_number,idempotency_key:draft.idempotency_key};
+   const {data:requestId,error}=await sb.rpc('dmi_ui_dispatch',{p_action:'validate',p_payload:probe});
+   if(error)throw error;
+   const result=await pollDispatch(requestId);
+   if(result.status_code<200||result.status_code>=300||result.response_body?.ok!==true)throw new Error(result.response_body?.error||result.error_msg||'Secure route not ready.');
+   $('draftState').textContent='Validated · secure route ready · not transmitted · idempotency '+key.slice(-8);
+   toast('Draft and secure route validated. Nothing was sent.');
+  }catch(e){
+   $('draftState').textContent='Draft valid · secure route check failed · not transmitted';
+   toast(e.message||'Secure route check failed.');
+  }finally{$('validateDraft').disabled=false}
  };
  $('validateDraft').onclick=validate;
 }

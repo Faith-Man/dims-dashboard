@@ -311,6 +311,12 @@ async function setFollowup(thread,kind,action){
 
 // ---- Compose / Reply (TASK-0098 no-send test stage) ----
 function replySubject(s){s=String(s||'').trim();return /^re:/i.test(s)?s:'Re: '+s}
+function replyAddress(m){
+ const own='michael@dominion1st.org';
+ const candidates=[...(Array.isArray(m?.sender)?m.sender:[]),...(Array.isArray(m?.recipients)?m.recipients:[])];
+ const hit=candidates.find(x=>String(x?.email||'').toLowerCase()!==own);
+ return hit?.email||'';
+}
 function newSendKey(){return 'dmi-ui-'+crypto.randomUUID()}
 function openComposer(opts={}){
  const key=newSendKey(), isReply=!!opts.replyMessageId;
@@ -365,7 +371,7 @@ async function openMessage(id){
    <button class="goldbtn" id="mkTask" type="button" style="margin-top:10px;width:100%">Create task</button></div>`);
  bindClose();
  $('listenMsg').onclick=()=>speak(`${m.subject||'No subject'}. From ${who(m.sender)}. ${speakable(m.body_text||m.snippet||'')}`,$('listenMsg'));
- $('replyMsg').onclick=()=>openComposer({to:m.sender?.[0]?.email||'',subject:replySubject(m.subject||''),replyMessageId:id});
+ $('replyMsg').onclick=()=>openComposer({to:replyAddress(m),subject:replySubject(m.subject||''),replyMessageId:id});
  $('sheet').querySelectorAll('[data-move]').forEach(b=>b.onclick=async()=>{
   const {error}=await sb.rpc('dmi_set_category',{p_message_id:id,p_category:b.dataset.move,p_scope:$('always').checked?'sender':'message'});
   if(error)return toast(error.message);toast('Moved to '+CAT[b.dataset.move]+'.');closeSheet();await load()});

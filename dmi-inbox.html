@@ -326,9 +326,15 @@ function openComposer(opts={}){
  <div id="draftState" class="from" style="margin-top:8px">Draft · not transmitted</div>`);
  bindClose();
  const validate=()=>{
-  const to=$('sendTo').value.trim(),subject=$('sendSubject').value,body=$('sendBody').value;
-  if(!to||!to.includes('@'))return toast('Enter a valid recipient.');
+  const to=$('sendTo').value.trim(),cc=$('sendCc').value.trim(),bcc=$('sendBcc').value.trim(),subject=$('sendSubject').value,body=$('sendBody').value;
+  const addr=/^[^\\s@<>()",;:]+@[^\\s@<>()",;:]+\\.[^\\s@<>()",;:]+$/;
+  const validList=v=>!v||v.split(',').map(x=>x.trim()).filter(Boolean).every(x=>addr.test((x.match(/<([^<>]+)>$/)||[,x])[1]));
+  if(!validList(to)||!to)return toast('Enter a valid recipient.');
+  if(!validList(cc)||!validList(bcc))return toast('Check the CC/BCC addresses.');
+  if(/[\\r\\n]/.test(subject))return toast('Subject must be one line.');
   if(!body.trim())return toast('Write a message before sending.');
+  const draft={action:'email_send',task_number:'TASK-0098',idempotency_key:key,mailbox:'michael@dominion1st.org',to,cc:cc||undefined,bcc:bcc||undefined,subject,body,reply_message_id:opts.replyMessageId||undefined};
+  sessionStorage.setItem('dmiValidatedDraft',JSON.stringify(draft));
   $('draftState').textContent='Validated · not transmitted · idempotency '+key.slice(-8);
   toast('Draft validated. Nothing was sent.');
  };

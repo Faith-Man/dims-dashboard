@@ -1,4 +1,89 @@
-.git/
-.github/
-.wrangler/
-src/
+# TASK-0163: default-deny allowlist for the DOME Worker's static assets.
+# wrangler.jsonc publishes the repo root ("assets.directory": "."), so everything
+# is private unless re-included below. Syntax is .gitignore (wrangler uses the
+# `ignore` library); _redirects, _headers and this file are never uploaded.
+# To publish a new page, script, style or image, add a `!/path` line here.
+
+/*
+
+# Pages
+!/index.html
+!/admin.html
+!/books-publishing.html
+!/command-alerts.html
+!/dashboard-v3.html
+!/dims-blueprint.html
+!/enterprise-forms-package.html
+!/enterprise-forms.html
+!/executive-dashboard.html
+!/institutional-queue.html
+!/intelligence-briefing.html
+!/med-marriage-evaluation-dome-secure.html
+!/med-marriage-evaluation-dome.html
+!/mission-control.html
+!/neshamah.html
+!/orel-studio.html
+!/orel-teaching-studio.html
+!/peace-safety-intelligence.html
+!/projects-tasks.html
+!/quotes-library.html
+!/rac-epi-apn-guide.html
+!/system-health.html
+!/system-status.html
+!/teaching-library-v3.html
+!/vault-architecture.html
+!/yaratheke.html
+
+# Legacy pages kept reachable (review for retirement)
+!/dashboard-v3a.html
+!/index-old-dims.html
+!/projects-tasks-live-20260822.html
+!/rad-guide-live-20260822.html
+
+# Scripts and styles loaded by the pages and the Worker
+!/admin.js
+!/dea-execution-priority.js
+!/dea-risk-matrix.css
+!/dea-risk-matrix.js
+!/di-companion.css
+!/di-companion.js
+!/dims-shared.css
+!/dims-ui-preferences.js
+!/med-admin.js
+!/med-counselor-dashboard.js
+!/med-password-recovery.js
+!/tetelestai-closed-loop.js
+!/tetelestai-deep-links.js
+!/tetelestai-rac-priority-prototype.js
+!/tetelestai-rac-ui-v3.js
+!/tetelestai-risk-ui-v2.js
+
+# Public folders (every file inside is public)
+!/assets/
+!/dims-enterprise-grid/
+!/glossary/
+!/teachings/
+
+# TASK-0071 additions (test branch). Each new public page or asset is listed on purpose.
+!/dashboard-v3-current.html
+!/dmi-inbox.html
+!/peace-safety-intelligence-tsi-review.html
+!/shamar-intelligence-dome.html
+!/shamar-tsi-evidence-timeline.html
+!/shamar-tsi-methodology.html
+!/tetelestai-automations.html
+!/dome-global-nav.js
+!/tetelestai-auth-gate.js
+!/tetelestai-rac-meter-v2.css
+!/ekklesia/
+!/gegraptai/
+!/gregoreo/
+!/neshamah/
+!/oikonomos/
+!/orel/
+!/tetelestai/
+!/yaratheke/
+# DOME Home lives under prototypes/; publish only that one prototype.
+!/prototypes/
+/prototypes/*
+!/prototypes/dome-eight-module-home/

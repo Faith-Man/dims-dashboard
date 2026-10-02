@@ -365,6 +365,10 @@ function openComposer(opts={}){
   }finally{$('validateDraft').disabled=false}
  };
  $('validateDraft').onclick=validate;
+ // The live control intentionally has no click handler during no-send verification.
+ // After Michael's explicit authorization, wire this same validated draft to
+ // dmi_ui_dispatch('email_send', draft), reuse its idempotency key for retries,
+ // disable during submission, and poll dmi_ui_dispatch_status. Never auto-retry in_doubt.
 }
 $('composeBtn').onclick=()=>openComposer();
 

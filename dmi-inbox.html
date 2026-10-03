@@ -310,8 +310,8 @@ async function setFollowup(thread,kind,action){
  toast(action==='done'?'Marked done.':action==='snooze'?'Snoozed until tomorrow 8 AM.':'Dismissed.');await load()}
 
 // ---- Compose / Reply (TASK-0098) ----
-// Live-sending switch. OFF until Michael's explicit "go": while false, this page never calls email_send.
-const DMI_LIVE_SEND=false;
+// Live-sending switch. ON since Michael's go (2026-10-03). Set to false to stop all sending from this page.
+const DMI_LIVE_SEND=true;
 const OWN_MAILBOX='michael@dominion1st.org';
 const ADDR=/^[^\s@<>()",;:\\]+@[^\s@<>()",;:\\]+\.[^\s@<>()",;:\\]+$/;
 const validList=v=>!v||v.split(',').map(x=>x.trim()).filter(Boolean).every(x=>ADDR.test(((x.match(/<([^<>]+)>$/)||[,x])[1]).trim()));

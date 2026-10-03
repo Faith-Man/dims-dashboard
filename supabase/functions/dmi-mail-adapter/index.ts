@@ -1,12 +1,15 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 
-// dmi-mail-adapter v10 (TASK-0098)
+// dmi-mail-adapter v11 (TASK-0098) — v10 + Reply threading for the michael@ Gmail route.
 // Legacy behavior (v9) is preserved exactly for every request WITHOUT a `mailbox` field:
 // email_send / email_draft / email_watch go to the Apps Script bridge (pistiskratos@gmail.com).
 // NEW isolated route: action=email_send + mailbox=michael@dominion1st.org -> Gmail API,
 // guarded by the durable idempotency ledger public.dmi_outbound_sends (dmi_outbound_* RPCs).
 // Any other mailbox value, or a mailbox on any other action, fails closed. Tokens are never logged or returned.
+// v11: email_send may carry reply_message_id (DMI message uuid). The adapter resolves the original message's
+// Internet Message-ID and Gmail thread id server-side (service role, michael@ mailbox only), adds
+// In-Reply-To/References and sends with threadId. Any unresolvable reply context fails closed (nothing sent).
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
   status,
@@ -125,13 +128,17 @@ function htmlToText(h: string): string {
 
 const safeHeaderToken = (s: string) => s.replace(/[^\x21-\x7e]/g, "").slice(0, 200);
 
-function buildMime(f: { to: string[]; cc: string[]; bcc: string[]; subject: string; body: string | null; html: string | null; idempotencyKey: string; taskNumber: string }): string {
+function buildMime(f: { to: string[]; cc: string[]; bcc: string[]; subject: string; body: string | null; html: string | null; idempotencyKey: string; taskNumber: string; inReplyTo?: string | null }): string {
   // No From header: Gmail sets the authenticated mailbox (michael@dominion1st.org) as sender.
   const h: string[] = [];
   h.push(`To: ${f.to.map(formatAddress).join(", ")}`);
   if (f.cc.length) h.push(`Cc: ${f.cc.map(formatAddress).join(", ")}`);
   if (f.bcc.length) h.push(`Bcc: ${f.bcc.map(formatAddress).join(", ")}`);
   h.push(`Subject: ${encodeHeaderValue(f.subject)}`);
+  if (f.inReplyTo) {
+    h.push(`In-Reply-To: ${f.inReplyTo}`);
+    h.push(`References: ${f.inReplyTo}`);
+  }
   h.push("MIME-Version: 1.0");
   h.push(`X-DMI-Task-Number: ${safeHeaderToken(f.taskNumber)}`);
   h.push(`X-DMI-Idempotency-Key: ${safeHeaderToken(f.idempotencyKey)}`);
@@ -160,6 +167,49 @@ function buildMime(f: { to: string[]; cc: string[]; bcc: string[]; subject: stri
 async function sha256Hex(s: string): Promise<string> {
   const d = await crypto.subtle.digest("SHA-256", enc.encode(s));
   return Array.from(new Uint8Array(d), (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// ---------------- Reply threading (v11) ----------------
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MSGID_RE = /^<[^<>\s]{3,990}>$/;
+const THREAD_RE = /^[0-9a-f]{6,64}$/i;
+
+// Gmail only threads when subjects match (ignoring Re:/Fwd: prefixes).
+function normalizeSubject(s: string): string {
+  let t = String(s ?? "").trim();
+  for (let i = 0; i < 10; i++) {
+    const n = t.replace(/^(re|fw|fwd)\s*:\s*/i, "");
+    if (n === t) break;
+    t = n;
+  }
+  return t.replace(/\s+/g, " ").toLowerCase();
+}
+
+type ReplyContext = { ok: true; inReplyTo: string; threadId: string } | { ok: false; status: number; error: string };
+
+// Server-side lookup with the service role (the admin-only dmi_reply_context() RPC requires a signed-in user,
+// which this internal route does not have). Same data: original Internet Message-ID + Gmail thread id.
+async function resolveReplyContext(sb: ReturnType<typeof serviceClient>, replyMessageId: string, subject: string): Promise<ReplyContext> {
+  const { data: m, error: mErr } = await sb.from("dmi_messages")
+    .select("id,internet_message_id,thread_id,mailbox_id,subject").eq("id", replyMessageId).maybeSingle();
+  if (mErr) return { ok: false, status: 500, error: "Reply context lookup failed; nothing sent" };
+  if (!m) return { ok: false, status: 400, error: "reply_message_id not found; nothing sent" };
+  const { data: mb, error: mbErr } = await sb.from("dmi_mailboxes").select("email_address").eq("id", m.mailbox_id).maybeSingle();
+  if (mbErr) return { ok: false, status: 500, error: "Reply context lookup failed; nothing sent" };
+  if (!mb || String(mb.email_address).toLowerCase() !== GMAIL_ROUTE_MAILBOX) {
+    return { ok: false, status: 400, error: "Reply target is not in the michael@dominion1st.org mailbox; nothing sent" };
+  }
+  const { data: t, error: tErr } = await sb.from("dmi_threads").select("provider_thread_id").eq("id", m.thread_id).maybeSingle();
+  if (tErr) return { ok: false, status: 500, error: "Reply context lookup failed; nothing sent" };
+  let msgId = String(m.internet_message_id ?? "").trim();
+  if (msgId && !msgId.startsWith("<")) msgId = `<${msgId}>`;
+  const threadId = String(t?.provider_thread_id ?? "").trim();
+  if (!MSGID_RE.test(msgId) || /[\r\n]/.test(msgId)) return { ok: false, status: 409, error: "Original message has no valid Message-ID; reply context cannot be validated; nothing sent" };
+  if (!THREAD_RE.test(threadId)) return { ok: false, status: 409, error: "Original message has no valid Gmail thread id; reply context cannot be validated; nothing sent" };
+  if (normalizeSubject(subject) !== normalizeSubject(String(m.subject ?? ""))) {
+    return { ok: false, status: 400, error: "Reply subject must match the original conversation (Re: prefix allowed); nothing sent" };
+  }
+  return { ok: true, inReplyTo: msgId, threadId };
 }
 
 // ---------------- OAuth (same pattern as dmi-gmail-sync) ----------------
@@ -226,18 +276,36 @@ async function gmailSend(body: Record<string, unknown>, taskNumber: string, idem
   const html = typeof body.html_body === "string" && body.html_body !== "" ? body.html_body : null;
   if (!text && !html) return json({ ok: false, duplicate: false, error: "body or html_body is required; nothing sent", ...base }, 400);
 
+  // v11 Reply threading: optional reply_message_id (DMI message uuid). Present => must resolve, or fail closed.
+  const rawReply = body.reply_message_id;
+  const isReply = rawReply !== undefined && rawReply !== null && !(typeof rawReply === "string" && rawReply.trim() === "");
+  const replyMessageId = isReply ? String(rawReply).trim().toLowerCase() : null;
+  if (isReply && (typeof rawReply !== "string" || !UUID_RE.test(replyMessageId!))) {
+    return json({ ok: false, duplicate: false, error: "reply_message_id must be a DMI message uuid; nothing sent", ...base }, 400);
+  }
+
   // Canonical payload hash: JSON with alphabetically ordered keys.
-  const payloadHash = await sha256Hex(JSON.stringify({
-    bcc, body: text, cc, html_body: html, mailbox: GMAIL_ROUTE_MAILBOX, subject, to,
-  }));
+  // Non-replies hash exactly as in v10; replies add reply_message_id (alphabetical position preserved).
+  const payloadHash = await sha256Hex(JSON.stringify(replyMessageId
+    ? { bcc, body: text, cc, html_body: html, mailbox: GMAIL_ROUTE_MAILBOX, reply_message_id: replyMessageId, subject, to }
+    : { bcc, body: text, cc, html_body: html, mailbox: GMAIL_ROUTE_MAILBOX, subject, to }));
 
   const sb = serviceClient();
+
+  // Resolve reply context BEFORE reserving, so an invalid reply never consumes an idempotency key.
+  let reply: { inReplyTo: string; threadId: string } | null = null;
+  if (replyMessageId) {
+    const rc = await resolveReplyContext(sb, replyMessageId, subject);
+    if (!rc.ok) return json({ ok: false, duplicate: false, error: rc.error, reply_message_id: replyMessageId, ...base }, rc.status);
+    reply = { inReplyTo: rc.inReplyTo, threadId: rc.threadId };
+  }
+
   const { data: res, error: resErr } = await sb.rpc("dmi_outbound_reserve", {
     p_idempotency_key: idempotencyKey,
     p_task_number: taskNumber,
     p_mailbox: GMAIL_ROUTE_MAILBOX,
     p_payload_hash: payloadHash,
-    p_recipients: { to, cc, bcc },
+    p_recipients: replyMessageId ? { to, cc, bcc, reply_message_id: replyMessageId } : { to, cc, bcc },
     p_subject: subject,
   });
   if (resErr || !res) return json({ ok: false, duplicate: false, error: "Idempotency reservation failed; nothing sent", ...base }, 500);
@@ -274,7 +342,7 @@ async function gmailSend(body: Record<string, unknown>, taskNumber: string, idem
 
   let raw: string;
   try {
-    raw = b64url(buildMime({ to, cc, bcc, subject, body: text, html, idempotencyKey, taskNumber }));
+    raw = b64url(buildMime({ to, cc, bcc, subject, body: text, html, idempotencyKey, taskNumber, inReplyTo: reply?.inReplyTo ?? null }));
   } catch {
     await fail("permanent", "mime_build_failed");
     return json({ ok: false, duplicate: false, error: "MIME build failed; nothing sent", send_id: sendId, attempt, ...base }, 422);
@@ -287,7 +355,7 @@ async function gmailSend(body: Record<string, unknown>, taskNumber: string, idem
     resp = await fetch(GMAIL_SEND_URL, {
       method: "POST",
       headers: { authorization: `Bearer ${tok.access}`, "content-type": "application/json" },
-      body: JSON.stringify({ raw }),
+      body: JSON.stringify(reply ? { raw, threadId: reply.threadId } : { raw }),
       signal: ctrl.signal,
     });
   } catch (e) {
@@ -304,7 +372,11 @@ async function gmailSend(body: Record<string, unknown>, taskNumber: string, idem
 
   if (resp.ok && gb?.id) {
     const sentAt = new Date().toISOString();
-    const result = { status: "sent", provider_message_id: String(gb.id), provider_thread_id: gb.threadId ? String(gb.threadId) : null, label_ids: gb.labelIds ?? [], sent_at: sentAt, attempt };
+    const result = {
+      status: "sent", provider_message_id: String(gb.id), provider_thread_id: gb.threadId ? String(gb.threadId) : null,
+      label_ids: gb.labelIds ?? [], sent_at: sentAt, attempt,
+      ...(reply ? { reply_message_id: replyMessageId, in_reply_to: reply.inReplyTo, requested_thread_id: reply.threadId, threaded: String(gb.threadId ?? "") === reply.threadId } : {}),
+    };
     const { error: cErr } = await sb.rpc("dmi_outbound_complete", {
       p_send_id: sendId, p_provider_message_id: result.provider_message_id, p_provider_thread_id: result.provider_thread_id, p_result: result,
     });
@@ -362,13 +434,14 @@ Deno.serve(async (req: Request) => {
       live_mail_enabled: configured,
       bridge_configured: configured,
       supported_actions: ["email_send", "email_draft", "email_watch"],
-      adapter_version: "v10",
+      adapter_version: "v11",
       gmail_route: {
         mailbox: GMAIL_ROUTE_MAILBOX,
         transport: "gmail_api",
         actions: ["email_send"],
         configured: GMAIL_ROUTE_CONFIGURED,
         selector: "mailbox",
+        reply_threading: true,
       },
     });
   }

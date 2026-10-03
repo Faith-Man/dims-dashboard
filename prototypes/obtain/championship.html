@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SPARTANS1ST™ Championship Vision</title>
+<style>
+:root{--navy:#07194d;--blue:#0d3f91;--cyan:#28d9ff;--gold:#e5b843;--white:#f8fbff;--red:#c51f32}
+*{box-sizing:border-box}body{margin:0;color:var(--white);font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at 50% 0,#174ca0 0,#091c55 42%,#030b22 100%);min-height:100vh}
+.shell{max-width:980px;margin:auto;padding:18px}.top{text-align:center;padding:16px 10px}.brand{font:900 italic clamp(24px,6vw,42px) Georgia,serif;letter-spacing:.02em}.brand span{color:var(--gold)}
+.kicker{color:#b9d9ff;letter-spacing:.18em;font-weight:900;font-size:11px;margin-top:7px}.hero{border:1px solid #4f8ee077;border-top:3px solid var(--gold);border-radius:24px;padding:22px;background:linear-gradient(145deg,#0b2b6be8,#07194de8);box-shadow:0 20px 50px #0007;text-align:center}
+.event{font-size:12px;letter-spacing:.14em;color:var(--gold);font-weight:900}.count{font-size:clamp(70px,18vw,150px);line-height:.9;font-weight:1000;margin:12px 0 0;text-shadow:0 8px 28px #000}.days{font-size:clamp(20px,5vw,34px);font-weight:1000;letter-spacing:.12em}.date{margin:8px 0 18px;color:#c8dcff;font-weight:800}
+.phase{display:inline-block;border:1px solid var(--cyan);border-radius:999px;padding:8px 16px;color:var(--cyan);font-weight:1000;letter-spacing:.1em}.vision{font:900 clamp(22px,5vw,34px) Georgia,serif;margin:20px auto 4px;max-width:780px}.vision b{color:var(--gold)}
+.grid{display:grid;grid-template-columns:1.3fr .7fr;gap:14px;margin-top:14px}.card{border:1px solid #4f8ee055;border-radius:20px;padding:20px;background:#071a4dcc;box-shadow:0 12px 28px #0005}.label{font-size:10px;letter-spacing:.17em;color:var(--gold);font-weight:1000}.word{font-size:clamp(30px,7vw,54px);font-weight:1000;margin:7px 0}.thought{font-size:18px;line-height:1.5;color:#e7f1ff}.scripture{margin-top:16px;padding:14px;border-left:3px solid var(--gold);background:#ffffff0a;line-height:1.5;font-family:Georgia,serif}.coach{font-size:22px;font-weight:900;line-height:1.35;margin:10px 0}.standard{color:#b8d7ff;line-height:1.55}
+.track{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:14px 0}.step{text-align:center;padding:11px 4px;border-radius:12px;background:#ffffff0a;border:1px solid #ffffff18;font-size:10px;font-weight:900}.step.on{background:linear-gradient(135deg,#0b62c8,#0d3f91);border-color:var(--cyan);box-shadow:0 0 20px #28d9ff33}.step.done{border-color:#e5b84377;color:var(--gold)}
+.core{text-align:center;margin:15px 0;padding:18px;border-radius:18px;background:linear-gradient(90deg,#081b50,#102f73,#081b50);border:1px solid #e5b84355;font-size:clamp(17px,4vw,23px);font-weight:1000}.core span{color:var(--gold)}
+.actions{text-align:center;font-size:clamp(17px,4vw,26px);font-weight:1000;letter-spacing:.04em;margin:22px 0}.actions b{color:var(--gold)}
+.footer{text-align:center;color:#9dbce8;font-size:11px;padding:14px}.champ{color:var(--gold);font-size:clamp(46px,12vw,92px)}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.shell{padding:10px}.hero,.card{border-radius:17px}.track{grid-template-columns:repeat(5,1fr)}}
+</style></head>
+<body><main class="shell">
+<header class="top"><div class="brand">SPARTANS<span>1ST™</span></div><div class="kicker">CHAMPIONSHIP VISION DASHBOARD</div></header>
+<section class="hero"><div class="event">FRONTIER VALLEY CONFERENCE CHAMPIONSHIP</div><div id="count" class="count">10</div><div id="days" class="days">DAYS TO CHAMPIONSHIP</div><div class="date">OCTOBER 13, 2026 • MUSKOGEE, OKLAHOMA</div><div id="phase" class="phase">BUILD</div>
+<div class="vision">VISION SEES BEYOND <b>WHERE YOU ARE</b> TO WHERE YOU <b>CAN BE.</b></div></section>
+<div class="track"><div class="step" data-p="BUILD">BUILD</div><div class="step" data-p="SHARPEN">SHARPEN</div><div class="step" data-p="FOCUS">FOCUS</div><div class="step" data-p="READY">READY</div><div class="step" data-p="OBTAIN">OBTAIN 🏆</div></div>
+<section class="grid"><article class="card"><div class="label">TODAY'S WORD</div><div id="word" class="word">VISION 👁️</div><div id="thought" class="thought"></div><div id="scripture" class="scripture"></div></article>
+<aside class="card"><div class="label">COACH'S WORD</div><div id="coach" class="coach"></div><div class="standard">STAY CALM.<br>STAY CLEAR.<br>STAY CONSISTENT.<br><b>KEEP THE VISION. MAINTAIN THE STANDARD.</b></div></aside></section>
+<div class="core">YOU DON'T BECOME PREPARED AT THE STARTING LINE.<br><span>THE STARTING LINE REVEALS HOW YOU PREPARED.</span></div>
+<div class="actions">SEE IT • SPEAK IT • PREPARE FOR IT • RUN IT • PRESS • <b>OBTAIN!</b> 🏆</div>
+<footer class="footer">RUN TO OBTAIN™ • SPARTANS1ST™ • “So run, that ye may obtain.” — 1 Corinthians 9:24 KJV</footer>
+</main>
+<script>
+const target=new Date('2026-10-13T00:00:00-05:00');
+const daily={
+10:['VISION 👁️','See beyond where you are to where you CAN BE. The destination becomes clearer when the vision stays in front of you.','“Where there is no vision, the people perish.” — Proverbs 29:18 KJV','See them beyond where they are. Lead them toward what they can become.'],
+9:['PREPARATION 🏗️','Preparation today determines what the starting line will reveal. Build deliberately.','“Prepare thy work without, and make it fit for thyself in the field.” — Proverbs 24:27 KJV','Prepare them for where they are going, not merely where they are today.'],
+8:['DISCIPLINE 🎯','Championship habits are built before Championship Day. Do the work when nobody is watching.','“Every man that striveth for the mastery is temperate in all things.” — 1 Corinthians 9:25 KJV','Maintain the standard. Consistency turns vision into culture.'],
+7:['PURPOSE 🔥','Run with purpose. Every practice, every stride and every decision should move toward the mark.','“I therefore so run, not as uncertainly.” — 1 Corinthians 9:26 KJV','Make the purpose clear enough that every runner knows why today matters.'],
+6:['SHARPEN ⚔️','Sharpen what is working. Correct what needs improving. Small refinements create championship readiness.','“Iron sharpeneth iron; so a man sharpeneth the countenance of his friend.” — Proverbs 27:17 KJV','Correct without crushing. Encourage without lowering the standard.'],
+5:['BELIEVE 💪🏾','You have trained for this. Believe you can execute what preparation has produced.','“All things are possible to him that believeth.” — Mark 9:23 KJV','Strengthen their confidence. Help them recognize the progress already in them.'],
+4:['PRESS 🔥','When it gets difficult, PRESS. The mark is ahead, not behind.','“I press toward the mark for the prize of the high calling of God in Christ Jesus.” — Philippians 3:14 KJV','Teach them that pressure is not permission to abandon the plan.'],
+3:['FOCUS 🎯','The destination is close. Eliminate distractions and give attention to what matters now.','“Let thine eyes look right on, and let thine eyelids look straight before thee.” — Proverbs 4:25 KJV','Simplify the message. Calm minds execute clear instructions.'],
+2:['CONFIDENCE 🛡️','Trust the preparation. Trust the training. Compete with confidence, not anxiety.','“For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind.” — 2 Timothy 1:7 KJV','Your calm becomes their calm. Lead with confidence and clarity.'],
+1:['READY ⚡','Tomorrow the starting line reveals how you prepared. Rest. Focus. See the race. Be ready.','“Let us run with patience the race that is set before us.” — Hebrews 12:1 KJV','The work is done. Reinforce the vision and let preparation speak.'],
+0:['OBTAIN! 🏆','CHAMPIONSHIP DAY. Run with purpose. Press through adversity. Finish what you prepared to do.','“Know ye not that they which run in a race run all, but one receiveth the prize? So run, that ye may obtain.” — 1 Corinthians 9:24 KJV','You prepared them. Now lead them into the moment.']
+};
+function centralNow(){return new Date(new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}))}
+function render(){const now=centralNow(); const today=new Date(now.getFullYear(),now.getMonth(),now.getDate()); const t=new Date(2026,9,13); let d=Math.ceil((t-today)/86400000); if(d<0)d=0;if(d>10)d=10;
+let phase=d>=7?'BUILD':d>=4?'SHARPEN':d>=2?'FOCUS':d===1?'READY':'OBTAIN'; const x=daily[d]||daily[10];
+document.getElementById('count').textContent=d===0?'🏆':d;document.getElementById('count').className=d===0?'count champ':'count';document.getElementById('days').textContent=d===0?'CHAMPIONSHIP DAY':'DAYS TO CHAMPIONSHIP';document.getElementById('phase').textContent=phase;document.getElementById('word').textContent=x[0];document.getElementById('thought').textContent=x[1];document.getElementById('scripture').textContent=x[2];document.getElementById('coach').textContent=x[3];document.querySelectorAll('.step').forEach(e=>{e.classList.toggle('on',e.dataset.p===phase)})}
+render();setInterval(render,60000);
+</script></body></html>

@@ -1,50 +1,150 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SPARTANS1ST™ Championship Vision</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spartans1st™ Championship Vision Dashboard</title>
+<meta name="theme-color" content="#01030c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
 <style>
-:root{--n:#020b22;--b:#073f9b;--e:#24cfff;--g:#f2c24f;--r:#d4142f;--w:#fff}
-*{box-sizing:border-box}body{margin:0;color:#fff;font-family:Arial,sans-serif;background:radial-gradient(circle at 50% -10%,#1755b3 0,#06194b 38%,#010713 80%);min-height:100vh}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(90deg,#005dff10 1px,transparent 1px),linear-gradient(#005dff0d 1px,transparent 1px);background-size:42px 42px}
-.shell{position:relative;max-width:1240px;margin:auto;padding:14px}.top{text-align:center;padding:8px}.brand{font:1000 italic clamp(28px,5vw,52px) Impact,Arial,sans-serif;text-shadow:0 4px 0 #00113b,0 0 20px #238fff}.brand span{color:var(--g)}.kicker{font:1000 italic clamp(25px,6vw,58px) Impact,Arial,sans-serif;letter-spacing:.03em;text-shadow:0 5px 0 #000,0 0 18px #147cff;margin-top:4px}
-.hero{position:relative;text-align:center;border:2px solid #1988ff;border-top:5px solid var(--g);padding:16px 20px 25px;background:linear-gradient(145deg,#06245ce8,#020c2ae8);box-shadow:inset 0 0 35px #0c6dff33,0 15px 40px #000a}
-.event{color:var(--g);font-weight:1000;letter-spacing:.16em}.date{font-weight:900;color:#bcd8ff;margin:6px 0}.vision{font:italic 1000 clamp(20px,3.5vw,38px) Impact,Arial,sans-serif;letter-spacing:.02em}.vision b{color:var(--g)}
-.countwrap{width:min(330px,74vw);aspect-ratio:1;margin:15px auto;display:grid;place-items:center;border-radius:50%;position:relative;background:radial-gradient(circle,#07173c 45%,#123b86 46%,#061333 58%,#e7b83e 59%,#0b58c7 61%,#061333 69%);box-shadow:0 0 25px #1599ff,0 0 50px #e1182c55,inset 0 0 35px #000}
-.countwrap:before,.countwrap:after{content:"";position:absolute;inset:8%;border-radius:50%;border:3px solid #d71c37;box-shadow:0 0 18px #ff193c}.countwrap:after{inset:3%;border-color:#27aaff;border-width:2px}
-.count{font:1000 clamp(92px,20vw,170px) Impact,Arial,sans-serif;line-height:.75;color:var(--g);text-shadow:0 5px 0 #5b3200,0 0 20px #ffd76c}.days{font:1000 italic clamp(18px,4vw,31px) Impact,Arial,sans-serif;letter-spacing:.08em;margin-top:-76px;position:relative;z-index:2}.phase{display:inline-block;background:#081b4d;border:2px solid #2acaff;padding:8px 20px;font-weight:1000;color:#fff;box-shadow:0 0 16px #16a6ff}
-.track{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:10px 0}.step{padding:12px 5px;text-align:center;border:1px solid #1687e8;background:linear-gradient(#082a6a,#03122f);font:1000 italic 13px Impact,Arial,sans-serif}.step.on{border:2px solid var(--g);color:var(--g);box-shadow:0 0 16px #e8b93b88,inset 0 0 15px #d9182b33}
-.grid{display:grid;grid-template-columns:1.35fr .65fr;gap:10px}.card{border:2px solid #147ee0;background:linear-gradient(145deg,#08245b,#020c25);padding:18px;box-shadow:inset 0 0 24px #0d63cb30}.label{display:inline-block;background:linear-gradient(90deg,#0c55bd,#092a67);border:1px solid #42baff;padding:7px 13px;font-weight:1000;font-style:italic}.word{font:1000 italic clamp(31px,6vw,55px) Impact,Arial,sans-serif;margin:10px 0;color:#fff;text-shadow:0 3px 0 #00143c}.thought{font-size:18px;line-height:1.45}.scripture{margin-top:15px;padding:13px;border-left:4px solid var(--g);font:italic 18px Georgia,serif;background:#0005}.coach{font:1000 italic 24px/1.3 Impact,Arial,sans-serif;margin:12px 0}.standard{line-height:1.6;color:#c7dcff;font-weight:800}.standard b{color:var(--g)}
-.core{margin:10px 0;text-align:center;border:2px solid #147ee0;background:#020a1de8;padding:17px;font:1000 italic clamp(20px,4vw,34px) Impact,Arial,sans-serif}.core span{color:var(--g)}
-.actions{text-align:center;border-top:3px solid #147ee0;border-bottom:3px solid #d31a35;padding:14px 4px;font:1000 italic clamp(18px,3vw,29px) Impact,Arial,sans-serif}.actions b{color:var(--g)}.footer{text-align:center;padding:15px;font:italic 16px Georgia,serif}.champ{font-size:100px}
-@media(max-width:720px){.grid{grid-template-columns:1fr}.track{grid-template-columns:repeat(5,1fr)}.step{font-size:10px;padding:9px 2px}.shell{padding:7px}.hero{padding:12px 8px 20px}}
-</style></head>
-<body><main class="shell">
-<header class="top"><div class="brand">SPARTANS<span>1ST™</span> CROSS COUNTRY</div><div class="kicker">CHAMPIONSHIP VISION DASHBOARD</div></header>
-<section class="hero"><div class="event">FRONTIER VALLEY CONFERENCE CHAMPIONSHIP</div><div class="date">OCTOBER 13, 2026 • MUSKOGEE, OKLAHOMA</div><div class="vision">“VISION SEES BEYOND WHERE YOU ARE TO WHERE YOU <b>CAN BE.</b>”</div>
-<div class="countwrap"><div id="count" class="count">10</div></div><div id="days" class="days">DAYS TO CHAMPIONSHIP</div><div id="phase" class="phase">BUILD</div></section>
-<div class="track"><div class="step" data-p="BUILD">DAYS 10–7<br>BUILD</div><div class="step" data-p="SHARPEN">DAYS 6–4<br>SHARPEN</div><div class="step" data-p="FOCUS">DAYS 3–2<br>FOCUS</div><div class="step" data-p="READY">DAY 1<br>READY</div><div class="step" data-p="OBTAIN">CHAMPIONSHIP<br>OBTAIN! 🏆</div></div>
-<section class="grid"><article class="card"><div class="label">TODAY'S FOCUS</div><div id="word" class="word">VISION 👁️</div><div id="thought" class="thought"></div><div id="scripture" class="scripture"></div></article>
-<aside class="card"><div class="label">COACH'S FOCUS</div><div id="coach" class="coach"></div><div class="standard">SEE THEM • DEVELOP THEM • PREPARE THEM • BELIEVE IN THEM • LEAD THEM<br><br><b>STAY CALM. STAY CLEAR. STAY CONSISTENT.</b></div></aside></section>
-<div class="core">YOU DON'T BECOME <span>PREPARED</span> AT THE STARTING LINE.<br>THE STARTING LINE REVEALS <span>HOW YOU PREPARED.</span></div>
-<div class="actions">👁 SEE IT. 〉 💬 SPEAK IT. 〉 🏋 PREPARE FOR IT. 〉 🏃 RUN IT. 〉 🔥 PRESS. 〉 🏆 <b>OBTAIN.</b></div>
-<footer class="footer">“Where there is no vision, the people perish.” — Proverbs 29:18 KJV &nbsp; • &nbsp; “So run, that ye may obtain.” — 1 Corinthians 9:24 KJV</footer>
-</main><script>
-const target=new Date('2026-10-13T00:00:00-05:00');
-const daily={
-10:['VISION 👁️','See beyond where you are to where you CAN BE. The destination becomes clearer when the vision stays in front of you.','“Where there is no vision, the people perish.” — Proverbs 29:18 KJV','See them beyond where they are. Lead them toward what they can become.'],
-9:['PREPARATION 🏗️','Preparation today determines what the starting line will reveal. Build deliberately.','“Prepare thy work without, and make it fit for thyself in the field.” — Proverbs 24:27 KJV','Prepare them for where they are going, not merely where they are today.'],
-8:['DISCIPLINE 🎯','Championship habits are built before Championship Day. Do the work when nobody is watching.','“Every man that striveth for the mastery is temperate in all things.” — 1 Corinthians 9:25 KJV','Maintain the standard. Consistency turns vision into culture.'],
-7:['PURPOSE 🔥','Run with purpose. Every practice, every stride and every decision should move toward the mark.','“I therefore so run, not as uncertainly.” — 1 Corinthians 9:26 KJV','Make the purpose clear enough that every runner knows why today matters.'],
-6:['SHARPEN ⚔️','Sharpen what is working. Correct what needs improving. Small refinements create championship readiness.','“Iron sharpeneth iron; so a man sharpeneth the countenance of his friend.” — Proverbs 27:17 KJV','Correct without crushing. Encourage without lowering the standard.'],
-5:['BELIEVE 💪🏾','You have trained for this. Believe you can execute what preparation has produced.','“All things are possible to him that believeth.” — Mark 9:23 KJV','Strengthen their confidence. Help them recognize the progress already in them.'],
-4:['PRESS 🔥','When it gets difficult, PRESS. The mark is ahead, not behind.','“I press toward the mark for the prize of the high calling of God in Christ Jesus.” — Philippians 3:14 KJV','Teach them that pressure is not permission to abandon the plan.'],
-3:['FOCUS 🎯','The destination is close. Eliminate distractions and give attention to what matters now.','“Let thine eyes look right on, and let thine eyelids look straight before thee.” — Proverbs 4:25 KJV','Simplify the message. Calm minds execute clear instructions.'],
-2:['CONFIDENCE 🛡️','Trust the preparation. Trust the training. Compete with confidence, not anxiety.','“For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind.” — 2 Timothy 1:7 KJV','Your calm becomes their calm. Lead with confidence and clarity.'],
-1:['READY ⚡','Tomorrow the starting line reveals how you prepared. Rest. Focus. See the race. Be ready.','“Let us run with patience the race that is set before us.” — Hebrews 12:1 KJV','The work is done. Reinforce the vision and let preparation speak.'],
-0:['OBTAIN! 🏆','CHAMPIONSHIP DAY. Run with purpose. Press through adversity. Finish what you prepared to do.','“Know ye not that they which run in a race run all, but one receiveth the prize? So run, that ye may obtain.” — 1 Corinthians 9:24 KJV','You prepared them. Now lead them into the moment.']
-};
-function centralNow(){return new Date(new Date().toLocaleString('en-US',{timeZone:'America/Chicago'}))}
-function render(){const now=centralNow(); const today=new Date(now.getFullYear(),now.getMonth(),now.getDate()); const t=new Date(2026,9,13); let d=Math.ceil((t-today)/86400000); if(d<0)d=0;if(d>10)d=10;
-let phase=d>=7?'BUILD':d>=4?'SHARPEN':d>=2?'FOCUS':d===1?'READY':'OBTAIN'; const x=daily[d]||daily[10];
-document.getElementById('count').textContent=d===0?'🏆':d;document.getElementById('count').className=d===0?'count champ':'count';document.getElementById('days').textContent=d===0?'CHAMPIONSHIP DAY':'DAYS TO CHAMPIONSHIP';document.getElementById('phase').textContent=phase;document.getElementById('word').textContent=x[0];document.getElementById('thought').textContent=x[1];document.getElementById('scripture').textContent=x[2];document.getElementById('coach').textContent=x[3];document.querySelectorAll('.step').forEach(e=>{e.classList.toggle('on',e.dataset.p===phase)})}
-render();setInterval(render,60000);
-</script></body></html>
+  /* Version 3 — the master artwork IS the page. Only the countdown is live. */
+  html, body { margin: 0; height: 100%; background: #01030c; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100dvh;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+             env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    box-sizing: border-box;
+  }
+
+  /* Locked 3:2 board, scaled to fit the screen in both directions. */
+  .board {
+    position: relative;
+    width: min(100vw, calc(100dvh * 1.5));
+    aspect-ratio: 1536 / 1024;
+    container-type: inline-size;
+    overflow: hidden;
+  }
+  .board img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    display: block; user-select: none; -webkit-user-drag: none;
+  }
+
+  /* Patches sit exactly over the baked-in "10" and "DAYS".
+     All coordinates are percentages of the 1536×1024 master. */
+  .patch {
+    position: absolute;
+    background: #01030c;
+    border-radius: 1.2cqw;
+    box-shadow: 0 0 0.9cqw 0.7cqw #01030c;   /* feathered edge blends into the dark center */
+    pointer-events: none;
+  }
+  .patch-num  { left: 44.40%; width: 11.20%; top: 62.20%; height: 13.40%; }   /* x 682–854, y 637–774 */
+  .patch-days { left: 45.05%; width: 9.90%;  top: 76.00%; height: 4.00%;  }   /* x 692–844, y 778–819 */
+  .patch-days { display: none; }
+
+  .num, .days, .champ {
+    position: absolute; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: "Anton", "Oswald", Impact, "Arial Narrow", sans-serif;
+    line-height: 1; white-space: nowrap; text-align: center;
+    pointer-events: none;
+  }
+  .gold {
+    background: linear-gradient(175deg, #fff6c8 0%, #f6d36b 22%, #c8901e 48%, #ffe39a 66%, #a86b0c 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0.15cqw 0.25cqw rgba(0,0,0,.85)) drop-shadow(0 0 0.6cqw rgba(255,190,60,.35));
+  }
+  .num  { top: 68.9%; font-size: 10.6cqw; letter-spacing: 0.1cqw; }
+  .days {
+    top: 77.9%; font-size: 2.9cqw; letter-spacing: 0.15cqw; display: none;
+    background: linear-gradient(180deg, #ffffff 0%, #e4e6ea 45%, #9aa0a8 60%, #f2f3f5 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0.12cqw 0.2cqw rgba(0,0,0,.9));
+  }
+  .champ { top: 71.5%; display: none; }
+  .champ span { display: block; }
+  .champ .c1 { font-size: 2.0cqw; letter-spacing: 0.08cqw; }
+  .champ .c2 { font-size: 6.6cqw; margin-top: 0.4cqw; }
+
+  /* Championship day: cover number + DAYS, show the day itself. */
+  .board[data-state="day1"] .patch-days,
+  .board[data-state="day1"] .days { display: block; }
+  .board[data-state="race"] .patch-num  { top: 62.2%; height: 17.8%; }
+  .board[data-state="race"] .patch-days { display: block; }
+  .board[data-state="race"] .num { display: none; }
+  .board[data-state="race"] .champ { display: block; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .num.tick { animation: tick 700ms ease-out; }
+    @keyframes tick { from { opacity: 0; transform: translate(-50%, -46%) scale(1.06); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+  }
+</style>
+</head>
+<body>
+  <main class="board" id="board" data-state="count">
+    <img src="championship-dashboard-master.jpg" width="1536" height="1024"
+         alt="Spartans1st Cross Country Championship Vision Dashboard: Coach's Focus, Team Focus, Vision, Prepare, Believe, Execute, Obtain, the 10-Day Mission, and Proverbs 29:18 and 1 Corinthians 9:24.">
+    <div class="patch patch-num" aria-hidden="true"></div>
+    <div class="patch patch-days" aria-hidden="true"></div>
+    <div class="num gold" id="num" aria-hidden="true">10</div>
+    <div class="days" id="days" aria-hidden="true">DAY</div>
+    <div class="champ gold" aria-hidden="true"><span class="c1">CHAMPIONSHIP</span><span class="c2">DAY</span></div>
+    <p class="sr-only" id="announce" aria-live="polite"></p>
+  </main>
+
+<script>
+  // ── Configuration ──────────────────────────────────────────────
+  const CHAMPIONSHIP_DATE = "2026-10-13";      // YYYY-MM-DD, race day
+  const TIME_ZONE = "America/Chicago";
+  // Testing: append ?today=2026-10-12 to preview any day.
+  // ───────────────────────────────────────────────────────────────
+
+  const board = document.getElementById("board");
+  const numEl = document.getElementById("num");
+  const announce = document.getElementById("announce");
+
+  function todayInZone() {
+    const override = new URLSearchParams(location.search).get("today");
+    if (override && /^\d{4}-\d{2}-\d{2}$/.test(override)) return override;
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: TIME_ZONE, year: "numeric", month: "2-digit", day: "2-digit"
+    }).formatToParts(new Date());
+    const get = t => parts.find(p => p.type === t).value;
+    return `${get("year")}-${get("month")}-${get("day")}`;
+  }
+
+  function dayNumber(ymd) {
+    const [y, m, d] = ymd.split("-").map(Number);
+    return Date.UTC(y, m - 1, d) / 86400000;
+  }
+
+  let last = null;
+  function render() {
+    const daysLeft = dayNumber(CHAMPIONSHIP_DATE) - dayNumber(todayInZone());
+    let state, text;
+    if (daysLeft <= 0)      { state = "race";  text = "Championship day."; }
+    else if (daysLeft === 1){ state = "day1";  text = "1 day until the championship."; }
+    else                    { state = "count"; text = `${daysLeft} days until the championship.`; }
+
+    if (daysLeft === last) return;
+    last = daysLeft;
+    board.dataset.state = state;
+    if (state !== "race") {
+      numEl.textContent = String(daysLeft);
+      numEl.classList.remove("tick"); void numEl.offsetWidth; numEl.classList.add("tick");
+    }
+    announce.textContent = text;
+  }
+
+  render();
+  setInterval(render, 30000);                       // rolls over at Chicago midnight
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) render(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spartans1st™ Championship Vision Dashboard</title>
+<meta name="theme-color" content="#01030c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+<style>
+  /* Version 3 — the master artwork IS the page. Only the countdown is live. */
+  html, body { margin: 0; height: 100%; background: #01030c; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100dvh;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+             env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    box-sizing: border-box;
+  }
+
+  /* Locked 3:2 board, scaled to fit the screen in both directions. */
+  .board {
+    position: relative;
+    width: min(100vw, calc(100dvh * 1.5));
+    aspect-ratio: 1536 / 1024;
+    container-type: inline-size;
+    overflow: hidden;
+  }
+  .board img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    display: block; user-select: none; -webkit-user-drag: none;
+  }
+
+  /* Patches sit exactly over the baked-in "10" and "DAYS".
+     All coordinates are percentages of the 1536×1024 master. */
+  .patch {
+    position: absolute;
+    background: #01030c;
+    border-radius: 1.2cqw;
+    box-shadow: 0 0 0.9cqw 0.7cqw #01030c;   /* feathered edge blends into the dark center */
+    pointer-events: none;
+  }
+  .patch-num  { left: 44.40%; width: 11.20%; top: 62.20%; height: 13.40%; }   /* x 682–854, y 637–774 */
+  .patch-days { left: 45.05%; width: 9.90%;  top: 76.00%; height: 4.00%;  }   /* x 692–844, y 778–819 */
+  .patch-days { display: none; }
+
+  .num, .days, .champ {
+    position: absolute; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: "Anton", "Oswald", Impact, "Arial Narrow", sans-serif;
+    line-height: 1; white-space: nowrap; text-align: center;
+    pointer-events: none;
+  }
+  .gold {
+    background: linear-gradient(175deg, #fff6c8 0%, #f6d36b 22%, #c8901e 48%, #ffe39a 66%, #a86b0c 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0.15cqw 0.25cqw rgba(0,0,0,.85)) drop-shadow(0 0 0.6cqw rgba(255,190,60,.35));
+  }
+  .num  { top: 68.9%; font-size: 10.6cqw; letter-spacing: 0.1cqw; }
+  .days {
+    top: 77.9%; font-size: 2.9cqw; letter-spacing: 0.15cqw; display: none;
+    background: linear-gradient(180deg, #ffffff 0%, #e4e6ea 45%, #9aa0a8 60%, #f2f3f5 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0.12cqw 0.2cqw rgba(0,0,0,.9));
+  }
+  .champ { top: 71.5%; display: none; }
+  .champ span { display: block; }
+  .champ .c1 { font-size: 2.0cqw; letter-spacing: 0.08cqw; }
+  .champ .c2 { font-size: 6.6cqw; margin-top: 0.4cqw; }
+
+  /* Championship day: cover number + DAYS, show the day itself. */
+  .board[data-state="day1"] .patch-days,
+  .board[data-state="day1"] .days { display: block; }
+  .board[data-state="race"] .patch-num  { top: 62.2%; height: 17.8%; }
+  .board[data-state="race"] .patch-days { display: block; }
+  .board[data-state="race"] .num { display: none; }
+  .board[data-state="race"] .champ { display: block; }
+
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .num.tick { animation: tick 700ms ease-out; }
+    @keyframes tick { from { opacity: 0; transform: translate(-50%, -46%) scale(1.06); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+  }
+</style>
+</head>
+<body>
+  <main class="board" id="board" data-state="count">
+    <img src="championship-dashboard-master.jpg" width="1536" height="1024"
+         alt="Spartans1st Cross Country Championship Vision Dashboard: Coach's Focus, Team Focus, Vision, Prepare, Believe, Execute, Obtain, the 10-Day Mission, and Proverbs 29:18 and 1 Corinthians 9:24.">
+    <div class="patch patch-num" aria-hidden="true"></div>
+    <div class="patch patch-days" aria-hidden="true"></div>
+    <div class="num gold" id="num" aria-hidden="true">10</div>
+    <div class="days" id="days" aria-hidden="true">DAY</div>
+    <div class="champ gold" aria-hidden="true"><span class="c1">CHAMPIONSHIP</span><span class="c2">DAY</span></div>
+    <p class="sr-only" id="announce" aria-live="polite"></p>
+  </main>
+
+<script>
+  // ── Configuration ──────────────────────────────────────────────
+  const CHAMPIONSHIP_DATE = "2026-10-13";      // YYYY-MM-DD, race day
+  const TIME_ZONE = "America/Chicago";
+  // Testing: append ?today=2026-10-12 to preview any day.
+  // ───────────────────────────────────────────────────────────────
+
+  const board = document.getElementById("board");
+  const numEl = document.getElementById("num");
+  const announce = document.getElementById("announce");
+
+  function todayInZone() {
+    const override = new URLSearchParams(location.search).get("today");
+    if (override && /^\d{4}-\d{2}-\d{2}$/.test(override)) return override;
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: TIME_ZONE, year: "numeric", month: "2-digit", day: "2-digit"
+    }).formatToParts(new Date());
+    const get = t => parts.find(p => p.type === t).value;
+    return `${get("year")}-${get("month")}-${get("day")}`;
+  }
+
+  function dayNumber(ymd) {
+    const [y, m, d] = ymd.split("-").map(Number);
+    return Date.UTC(y, m - 1, d) / 86400000;
+  }
+
+  let last = null;
+  function render() {
+    const daysLeft = dayNumber(CHAMPIONSHIP_DATE) - dayNumber(todayInZone());
+    let state, text;
+    if (daysLeft <= 0)      { state = "race";  text = "Championship day."; }
+    else if (daysLeft === 1){ state = "day1";  text = "1 day until the championship."; }
+    else                    { state = "count"; text = `${daysLeft} days until the championship.`; }
+
+    if (daysLeft === last) return;
+    last = daysLeft;
+    board.dataset.state = state;
+    if (state !== "race") {
+      numEl.textContent = String(daysLeft);
+      numEl.classList.remove("tick"); void numEl.offsetWidth; numEl.classList.add("tick");
+    }
+    announce.textContent = text;
+  }
+
+  render();
+  setInterval(render, 30000);                       // rolls over at Chicago midnight
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) render(); });
+</script>
+</body>
+</html>

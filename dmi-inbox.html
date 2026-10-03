@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DMI™ — Dominion Messaging Intelligence (Test)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--royal0:#0A29A6;--royal1:#08219A;--royal2:#071B86;--royal3:#061572;--royal4:#05105C;--gold:#E8B640;--gold-lt:#FFE08A;--ink:#10184F;--muted:#4A5590;--paper:#F8FAFF;--line:#DDE3F7}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:#fff;font-family:'Montserrat',system-ui,sans-serif;background:radial-gradient(60% 40% at 80% 6%,rgba(70,140,255,.45),rgba(70,140,255,0) 70%),radial-gradient(80% 50% at 50% 38%,#1A44C4 0%,rgba(26,68,196,0) 70%),linear-gradient(180deg,var(--royal0),var(--royal1) 30%,var(--royal2) 60%,var(--royal3) 85%,var(--royal4))}
+button{font-family:inherit}
+a{color:var(--gold-lt)}
+.ic{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hidden{display:none!important}
+/* Header */
+.dmi-head{position:sticky;top:0;z-index:50;height:72px;padding:0 74px 0 14px;display:flex;align-items:center;gap:10px;border-bottom:1.5px solid rgba(80,160,255,.9);background:rgba(8,33,154,.92);backdrop-filter:blur(8px)}
+.dmi-head img{width:50px;height:50px;object-fit:contain;filter:drop-shadow(0 3px 8px rgba(0,8,60,.6))}
+.brand b{display:block;font-size:24px;font-weight:900;line-height:1}.brand b sup{font-size:10px}
+.brand small{display:block;font-size:8.5px;font-weight:700;letter-spacing:.16em;color:#CFE0FF;margin-top:3px}
+/* The shared DI² companion (injected site-wide) sits in the header instead of floating over content. */
+.di-launch{top:12px!important;right:14px!important;bottom:auto!important;width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important}
+.di-launch::before{font-size:13px!important}
+.wrap{max-width:430px;margin:0 auto;padding:0 0 40px}
+.views{display:flex;justify-content:center;gap:10px;padding:16px 0 4px}
+.views button{min-height:40px;padding:0 20px;border-radius:999px;border:1.5px solid #fff;background:transparent;color:#fff;font-size:13px;font-weight:800;cursor:pointer}
+.views button[aria-pressed="true"]{background:#fff;color:#0A28B4;font-weight:900;box-shadow:0 6px 18px rgba(0,8,60,.35)}
+.fitbox{width:100%;overflow:hidden;display:flex;justify-content:center}
+.stage{position:relative;width:390px;flex:0 0 390px;transform-origin:top center}
+.rays{position:absolute;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.13) 0deg 3deg,rgba(255,255,255,0) 3deg 15deg);-webkit-mask:radial-gradient(circle,#000 18%,transparent 68%);mask:radial-gradient(circle,#000 18%,transparent 68%);animation:spin 80s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 2px rgba(255,236,170,.5),0 0 36px rgba(120,170,255,.9),0 0 90px rgba(255,205,100,.4)}50%{box-shadow:0 0 0 2px rgba(255,236,170,.8),0 0 50px rgba(140,190,255,1),0 0 120px rgba(255,205,100,.6)}}
+@media(prefers-reduced-motion:reduce){.rays,.seal{animation:none!important}}
+.seal{position:absolute;border:0;padding:0;border-radius:50%;background:transparent;cursor:pointer;animation:glow 4.5s ease-in-out infinite}
+.seal svg{display:block;width:100%;height:100%}
+/* Medallions */
+.med{border-radius:50%;padding:4px;background:conic-gradient(from 210deg,#FFF4C4,#E8B640,#8C5E12,#F6D273,#FFF8DC,#C99425,#7A500C,#E8B640,#FFF4C4);box-shadow:0 0 0 1px #6B4608,0 6px 16px rgba(0,8,60,.55),0 0 18px rgba(255,210,110,.35);position:relative}
+.face{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,224,138,.6),inset 0 -8px 14px rgba(0,6,50,.5)}
+.f-royal{background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.55) 0,rgba(255,255,255,0) 22%),radial-gradient(circle at 50% 55%,#2F6BFF 0,#1437D6 42%,#0A1F8C 78%,#061266 100%);color:var(--gold-lt)}
+.f-teal{background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.6) 0,rgba(255,255,255,0) 22%),radial-gradient(circle at 50% 55%,#3FD8F0 0,#0E93B8 45%,#06546E 100%)}
+.f-amber{background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.6) 0,rgba(255,255,255,0) 22%),radial-gradient(circle at 50% 55%,#FFD36A 0,#D99414 45%,#7A4A04 100%)}
+.f-emerald{background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.6) 0,rgba(255,255,255,0) 22%),radial-gradient(circle at 50% 55%,#5BE39A 0,#16A05A 45%,#0A5530 100%)}
+.f-sapphire{background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.6) 0,rgba(255,255,255,0) 22%),radial-gradient(circle at 50% 55%,#8CBCFF 0,#2F6BFF 45%,#12318F 100%)}
+.f-crimson{background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.6) 0,rgba(255,255,255,0) 22%),radial-gradient(circle at 50% 55%,#FF8A7A 0,#D2352F 45%,#6E1212 100%)}
+.f-violet{background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.6) 0,rgba(255,255,255,0) 22%),radial-gradient(circle at 50% 55%,#C9A4FF 0,#7B3FE4 45%,#3A1680 100%)}
+.fn{position:absolute;width:96px;border:0;padding:0;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:#fff}
+.fn .lbl{font-size:11px;font-weight:900;letter-spacing:.1em;text-shadow:0 2px 8px rgba(0,8,60,.8)}
+.badge{position:absolute;right:-6px;top:-4px;min-width:24px;height:24px;padding:0 6px;border-radius:999px;background:#fff;color:#0A28B4;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px var(--gold),0 4px 10px rgba(0,8,60,.5)}
+.badge.gold{background:linear-gradient(180deg,#FFF0B8,#E9B544);color:#0A0F4A}
+.summary{text-align:center;padding:0 20px}
+.summary b{display:block;font-size:26px;font-weight:900;text-shadow:0 3px 12px rgba(0,8,60,.6)}
+.summary span{font-size:14px;font-weight:800;color:var(--gold-lt)}
+.dock{position:relative;width:390px;height:170px;margin:4px auto 0}
+.dk{position:absolute;width:62px;display:flex;flex-direction:column;align-items:center;gap:6px;border:0;background:transparent;padding:0;color:#fff;cursor:pointer;text-decoration:none}
+.dk .t{font-size:10px;font-weight:800;text-shadow:0 2px 6px rgba(0,8,60,.8)}
+.dk.soon{opacity:.55}
+.pill{display:flex;align-items:center;gap:10px;margin:14px 24px 0;padding:8px;border-radius:999px;border:1px solid rgba(255,224,138,.45);background:rgba(5,16,92,.45);color:#fff;text-decoration:none;cursor:pointer;width:calc(100% - 48px);text-align:left}
+.avatar{width:40px;height:40px;border-radius:50%;flex:0 0 40px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;color:#0C1262;background:radial-gradient(circle at 35% 30%,#F7E3A0,#B8962F 70%)}
+.avatar.blue{color:#fff;background:radial-gradient(circle at 35% 30%,#5A74F0,#1A2BA0 70%)}
+.pill .who{flex:1;min-width:0}.pill .who b{display:block;font-size:13px}.pill .who small{display:block;font-size:11px;color:#CFE0FF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.goldbtn{min-height:40px;padding:0 16px;border-radius:999px;border:0;background:linear-gradient(180deg,#FFF0B8,#E9B544);color:#0A0F4A;font-weight:900;font-size:12px;cursor:pointer}
+.ask{display:flex;flex-direction:column;align-items:center;gap:6px;margin:18px auto 0;border:0;background:transparent;color:#fff;cursor:pointer}
+.ask span{font-family:'Cinzel',serif;font-weight:900;font-size:11.5px;letter-spacing:.06em;color:var(--gold-lt)}
+.foot{text-align:center;font-family:'Cinzel',serif;font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--gold-lt);padding:22px 12px 0}
+/* Mail view */
+.mailbar{display:flex;align-items:center;gap:10px;padding:14px 16px 6px}
+.back{width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mailbar h2{margin:0;font-size:18px;font-weight:900;flex:1}
+.compose{min-height:38px;padding:0 14px;border-radius:999px;border:0;background:linear-gradient(180deg,#FFF0B8,#E9B544);color:#0A0F4A;font-weight:900;font-size:12px;cursor:pointer}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;padding:8px 16px}
+.tabs button{min-height:38px;padding:0 13px;border-radius:999px;border:1px solid rgba(255,255,255,.45);background:transparent;color:#fff;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.tabs button[aria-pressed="true"]{background:#fff;color:#0A28B4;font-weight:900}
+.tabs .n{padding:1px 7px;border-radius:999px;background:rgba(255,224,138,.9);color:#0A0F4A;font-size:10.5px;font-weight:900}
+.card{margin:10px 14px 0;border-radius:20px;background:var(--paper);color:var(--ink);overflow:hidden;box-shadow:0 14px 40px rgba(3,6,40,.45)}
+.row{display:flex;gap:12px;padding:13px 15px;border:0;border-bottom:1px solid var(--line);background:transparent;width:100%;text-align:left;color:var(--ink);cursor:pointer;font-family:inherit}
+.row:last-child{border-bottom:0}
+.row .main{flex:1;min-width:0}.row .top{display:flex;justify-content:space-between;gap:8px}
+.row b{font-size:13.5px}.row time,.row .meta{font-size:11px;color:var(--muted);white-space:nowrap}
+.row .subj{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .snip{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip{display:inline-block;margin-top:5px;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800}
+.c-imbox{background:#E7ECFF;color:#1A2BA0}.c-feed{background:#F3E8FF;color:#5B21B6}.c-paper_trail{background:#DDF6FB;color:#0B5563}.c-owed{background:#F6EBC6;color:#6B5210}.c-await{background:#E6F4EA;color:#14532D}
+.empty{padding:22px 16px;text-align:center;color:var(--muted);font-size:13px}
+.fu-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.fu-actions button,.act{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid #C8D0E8;background:#fff;color:#0A28B4;font-weight:800;font-size:11.5px;cursor:pointer}
+/* Sheets */
+.sheet-back{position:fixed;inset:0;z-index:8000;background:rgba(3,6,40,.55)}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:8001;max-height:88vh;overflow:auto;margin:0 auto;max-width:520px;border-radius:26px 26px 0 0;background:var(--paper);color:var(--ink);padding:18px 18px 28px;box-shadow:0 -12px 40px rgba(3,6,40,.5)}
+.sheet h3{margin:4px 0 6px;font-size:19px}
+.sheet .from{font-size:12px;color:var(--muted)}
+.sheet .body{white-space:pre-wrap;font-size:14px;line-height:1.55;margin:14px 0;padding:12px;border-radius:12px;background:#fff;border:1px solid var(--line);max-height:36vh;overflow:auto}
+.sheet .section{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.sheet .section h4{margin:0 0 8px;font-size:12px;letter-spacing:.12em;color:var(--muted)}
+.sheet label{font-size:12px;font-weight:700;color:var(--muted)}
+.sheet input[type=text],.sheet input[type=email],.sheet select,.sheet textarea{width:100%;min-height:42px;border:1px solid #9BA7C5;border-radius:10px;padding:10px;font:inherit;font-size:14px;margin-top:4px}
+.sheet textarea{min-height:180px;resize:vertical}
+.warn{font-size:11px;color:#8A5A00;background:#FFF6DC;border:1px solid #F2D58A;border-radius:10px;padding:8px 10px;margin-top:8px}
+.close{float:right;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid #C8D0E8;background:#fff;color:var(--ink);font-weight:800;cursor:pointer}
+.brief-line{font-size:15px;line-height:1.55;margin:6px 0}
+.toast{position:fixed;left:50%;bottom:24px;z-index:9500;transform:translateX(-50%);max-width:90vw;padding:12px 18px;border-radius:999px;background:#fff;color:#0A28B4;font-weight:800;font-size:13px;box-shadow:0 10px 30px rgba(3,6,40,.5)}
+.auth{max-width:420px;margin:40px auto;padding:24px;border-radius:20px;background:var(--paper);color:var(--ink);text-align:center}
+.auth a{display:inline-block;margin-top:10px;padding:12px 20px;border-radius:999px;background:#0A28B4;color:#fff;font-weight:900;text-decoration:none}
+</style></head>
+<body>
+<header class="dmi-head">
+<img src="assets/dominion1st-logo.png" alt="Dominion1st">
+<div class="brand"><b>DMI<sup>™</sup></b><small>DOMINION MESSAGING INTELLIGENCE</small></div>
+</header>
+
+<div id="auth" class="auth hidden"><h2 style="margin-top:0">Sign in to open DMI</h2><p>DMI shows your private email, so it is restricted to a DIMS administrator. You only need to sign in once on this device.</p><a href="admin.html?return=dmi-inbox.html">Sign in</a></div>
+<div id="denied" class="auth hidden"><h2 style="margin-top:0">Administrator access required</h2><p>This account is signed in but is not a DIMS administrator.</p></div>
+
+<main id="app" class="wrap hidden">
+<div class="views" role="group" aria-label="DMI view">
+<button type="button" data-view="basic" aria-pressed="false">Basic</button>
+<button type="button" data-view="advanced" aria-pressed="false">Advanced</button>
+<button type="button" data-view="mail" aria-pressed="false">Mail</button>
+</div>
+
+<!-- BASIC: the minimum -->
+<section id="v-basic" class="hidden" aria-label="Basic view">
+<div class="fitbox"><div class="stage" style="height:380px">
+<svg viewBox="0 0 390 380" width="390" height="380" style="position:absolute;left:0;top:0" aria-hidden="true">
+<defs><linearGradient id="b-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFF4C4"/><stop offset="30%" stop-color="#E8B640"/><stop offset="55%" stop-color="#8C5E12"/><stop offset="80%" stop-color="#F6D273"/><stop offset="100%" stop-color="#C99425"/></linearGradient>
+<path id="b-top" d="M 29,190 A 166,166 0 0,1 361,190"/><path id="b-bot" d="M 19,190 A 176,176 0 0,0 371,190"/></defs>
+<circle cx="195" cy="190" r="158" fill="none" stroke="url(#b-gold)" stroke-width="3"/>
+<circle cx="195" cy="190" r="134" fill="none" stroke="rgba(120,200,255,.45)" stroke-width="1.2"/>
+<text font-family="Cinzel,serif" font-size="10.5" font-weight="900" letter-spacing="2.2" fill="#FFE08A"><textPath href="#b-top" startOffset="50%" text-anchor="middle">BE STRONG AND OF A GOOD COURAGE</textPath></text>
+<text font-family="Cinzel,serif" font-size="9" font-weight="800" letter-spacing="2.4" fill="#FFE08A"><textPath href="#b-bot" startOffset="50%" text-anchor="middle">JOSHUA 1:9</textPath></text>
+</svg>
+<div id="b-dots"></div>
+<button class="seal brief-open" aria-label="Brief me" style="left:85px;top:80px;width:220px;height:220px"></button>
+</div></div>
+<div class="summary"><b id="b-count">…</b><span id="b-owed"></span></div>
+<div id="b-next"></div>
+<button class="ask ask-open" type="button" aria-label="Ask DMI"><div class="med" style="width:74px;height:74px;padding:5px"><div class="face f-royal" style="color:#fff"><svg viewBox="0 0 24 24" width="30" height="30" class="ic"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/></svg></div></div><span>ASK DMI</span></button>
+</section>
+
+<!-- ADVANCED: the full intelligence circle -->
+<section id="v-advanced" class="hidden" aria-label="Advanced view">
+<div class="fitbox" style="margin-top:-72px"><div class="stage" style="height:490px">
+<div class="rays" style="left:25px;top:110px;width:340px;height:340px"></div>
+<svg viewBox="0 0 390 490" width="390" height="490" style="position:absolute;left:0;top:0" aria-hidden="true">
+<defs><linearGradient id="a-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFF4C4"/><stop offset="30%" stop-color="#E8B640"/><stop offset="55%" stop-color="#8C5E12"/><stop offset="80%" stop-color="#F6D273"/><stop offset="100%" stop-color="#C99425"/></linearGradient>
+<path id="a-top" d="M 13,280 A 182,182 0 0,1 377,280"/><path id="a-bot" d="M 3,280 A 192,192 0 0,0 387,280"/></defs>
+<circle cx="195" cy="280" r="176" fill="none" stroke="url(#a-gold)" stroke-width="3.5"/>
+<circle cx="195" cy="280" r="170" fill="none" stroke="rgba(255,224,138,.5)" stroke-width="1"/>
+<circle cx="19" cy="280" r="5" fill="url(#a-gold)"/><circle cx="371" cy="280" r="5" fill="url(#a-gold)"/>
+<text font-family="Cinzel,serif" font-size="10.5" font-weight="900" letter-spacing="2.2" fill="#FFE08A"><textPath href="#a-top" startOffset="50%" text-anchor="middle">BE STRONG AND OF A GOOD COURAGE</textPath></text>
+<text font-family="Cinzel,serif" font-size="9" font-weight="800" letter-spacing="2.4" fill="#FFE08A"><textPath href="#a-bot" startOffset="50%" text-anchor="middle">JOSHUA 1:9</textPath></text>
+<circle cx="195" cy="280" r="112" fill="none" stroke="rgba(255,224,138,.55)" stroke-width="1.2" stroke-dasharray="2 5"/>
+<g stroke="rgba(255,224,138,.7)" stroke-width="1.4"><line x1="195" y1="280" x2="195" y2="168"/><line x1="195" y1="280" x2="292" y2="224"/><line x1="195" y1="280" x2="292" y2="336"/><line x1="195" y1="280" x2="195" y2="392"/><line x1="195" y1="280" x2="98" y2="336"/><line x1="195" y1="280" x2="98" y2="224"/></g>
+</svg>
+<button class="seal brief-open" aria-label="Brief me" style="left:127px;top:212px;width:136px;height:136px"></button>
+<button class="fn" data-fn="receive" style="left:147px;top:117px"><span class="lbl">RECEIVE</span><div class="med" style="width:62px;height:62px"><div class="face f-teal"><svg viewBox="0 0 24 24" width="25" height="25" class="ic"><path d="M4 13l2.5-7h11L20 13"/><path d="M4 13v5h16v-5h-5l-1 2h-4l-1-2z"/><path d="M12 3v7"/><path d="M9.5 7.5L12 10l2.5-2.5"/></svg></div><span id="a-receive" class="badge hidden"></span></div></button>
+<button class="fn" data-fn="reveal" style="left:244px;top:173px"><span class="lbl">REVEAL</span><div class="med" style="width:62px;height:62px"><div class="face f-amber"><svg viewBox="0 0 24 24" width="25" height="25" class="ic"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></div><span id="a-reveal" class="badge gold hidden"></span></div></button>
+<button class="fn" data-fn="route" style="left:244px;top:305px"><div class="med" style="width:62px;height:62px"><div class="face f-emerald"><svg viewBox="0 0 24 24" width="25" height="25" class="ic"><circle cx="6" cy="6" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="12" cy="19" r="2.2"/><path d="M6 8.2v1.3c0 2 1.6 3.5 3.5 3.5h5c1.9 0 3.5-1.6 3.5-3.5V8.2"/><path d="M12 13v3.8"/></svg></div></div><span class="lbl">ROUTE</span></button>
+<button class="fn" data-fn="respond" style="left:147px;top:361px"><div class="med" style="width:62px;height:62px"><div class="face f-sapphire"><svg viewBox="0 0 24 24" width="25" height="25" class="ic"><path d="M4 5.5h16v10H9l-5 4z"/><path d="M8 10.5h8"/></svg></div></div><span class="lbl">RESPOND</span></button>
+<button class="fn" data-fn="execute" style="left:50px;top:305px"><div class="med" style="width:62px;height:62px"><div class="face f-crimson"><svg viewBox="0 0 24 24" width="25" height="25" class="ic"><path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/></svg></div></div><span class="lbl">EXECUTE</span></button>
+<button class="fn" data-fn="insight" style="left:50px;top:173px"><span class="lbl">INSIGHT</span><div class="med" style="width:62px;height:62px"><div class="face f-violet"><svg viewBox="0 0 24 24" width="25" height="25" class="ic"><circle cx="5" cy="17" r="1.8"/><circle cx="11" cy="7" r="1.8"/><circle cx="19" cy="12" r="1.8"/><circle cx="15" cy="20" r="1.4"/><path d="M6.4 15.6l3.4-7M12.6 7.8l4.8 3.2M17.8 13.6l-2 4.8M6.8 17.3l6.8 2.4"/></svg></div></div></button>
+</div></div>
+<div class="summary"><b id="a-count">…</b><span id="a-owed"></span></div>
+<div class="fitbox"><div class="stage dock">
+<svg viewBox="0 0 390 170" width="390" height="170" style="position:absolute;left:0;top:0" aria-hidden="true"><path d="M 10,100 A 440,440 0 0,1 380,100" fill="none" stroke="url(#a-gold)" stroke-width="2.5"/></svg>
+<button class="dk" data-go="mail" style="left:10px;top:52px"><div class="med" style="width:48px;height:48px"><div class="face f-teal"><svg viewBox="0 0 24 24" width="20" height="20" class="ic"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></svg></div></div><span class="t">Mail</span></button>
+<button class="dk soon" data-soon="Calendar" style="left:81px;top:32px"><div class="med" style="width:48px;height:48px"><div class="face f-crimson"><svg viewBox="0 0 24 24" width="20" height="20" class="ic"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></div></div><span class="t">Calendar</span></button>
+<button class="ask ask-open" type="button" aria-label="Ask DMI" style="position:absolute;left:153px;top:0;margin:0"><div class="med" style="width:74px;height:74px;padding:5px"><div class="face f-royal" style="color:#fff"><svg viewBox="0 0 24 24" width="30" height="30" class="ic"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/></svg></div></div><span>ASK DMI</span></button>
+<a class="dk" href="projects-tasks.html" style="left:247px;top:32px"><div class="med" style="width:48px;height:48px"><div class="face f-emerald"><svg viewBox="0 0 24 24" width="20" height="20" class="ic"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/></svg></div></div><span class="t">Tasks</span></a>
+<a class="dk" href="mission-control.html" style="left:318px;top:52px"><div class="med" style="width:48px;height:48px"><div class="face f-royal"><svg viewBox="0 0 24 24" width="20" height="20" class="ic"><path d="M3 18h18"/><path d="M5 18a7 7 0 0 1 14 0"/><path d="M12 5v6M9.5 7.5L12 5l2.5 2.5"/></svg></div></div><span class="t">DOME</span></a>
+</div></div>
+</section>
+
+<!-- MAIL: classic inbox -->
+<section id="v-mail" class="hidden" aria-label="Mail">
+<div class="mailbar"><button class="back" type="button" id="mailBack" aria-label="Back"><svg viewBox="0 0 24 24" width="20" height="20" class="ic"><path d="M15 5l-7 7 7 7"/></svg></button><h2>DMI Mail</h2><button class="compose" type="button" id="composeBtn">Compose</button></div>
+<div class="tabs" role="group" aria-label="Mail categories">
+<button type="button" data-tab="imbox" aria-pressed="true">Imbox <span class="n" id="n-imbox">0</span></button>
+<button type="button" data-tab="followups" aria-pressed="false">Follow-ups <span class="n" id="n-followups">0</span></button>
+<button type="button" data-tab="feed" aria-pressed="false">Feed <span class="n" id="n-feed">0</span></button>
+<button type="button" data-tab="paper_trail" aria-pressed="false">Paper Trail <span class="n" id="n-paper_trail">0</span></button>
+</div>
+<div class="card" id="list"><div class="empty">Loading…</div></div>
+</section>
+
+<div class="foot">DECENTLY AND IN ORDER · 1 COR. 14:40</div>
+</main>
+
+<div id="sheetBack" class="sheet-back hidden"></div>
+<div id="sheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="sheetTitle"></div>
+
+<script type="module">
+import{createClient}from'https://esm.sh/@supabase/supabase-js@2';
+const sb=createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co','sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How');
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const CAT={imbox:'Imbox',feed:'Feed',paper_trail:'Paper Trail'};
+const state={inbox:[],counts:{},followups:[],view:'basic',tab:'imbox',prevView:'basic'};
+
+// ---- The DMI seal (drawn once per size; ids prefixed per instance) ----
+function sealSVG(p){return `<svg viewBox="0 0 176 176" aria-hidden="true"><defs>
+<linearGradient id="${p}r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFF8DC"/><stop offset="22%" stop-color="#F2C95A"/><stop offset="45%" stop-color="#8C5E12"/><stop offset="62%" stop-color="#FCE6A0"/><stop offset="82%" stop-color="#C99425"/><stop offset="100%" stop-color="#6E4808"/></linearGradient>
+<radialGradient id="${p}b" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#2358F5"/><stop offset="70%" stop-color="#0C2BB8"/><stop offset="100%" stop-color="#071A80"/></radialGradient>
+<radialGradient id="${p}f" cx="45%" cy="38%" r="65%"><stop offset="0%" stop-color="#5C8CFF"/><stop offset="30%" stop-color="#1E4FE8"/><stop offset="70%" stop-color="#0A1F8C"/><stop offset="100%" stop-color="#050C4A"/></radialGradient>
+<radialGradient id="${p}g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#FFF6D6" stop-opacity=".9"/><stop offset="40%" stop-color="#FFD66E" stop-opacity=".35"/><stop offset="100%" stop-color="#FFD66E" stop-opacity="0"/></radialGradient>
+<linearGradient id="${p}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="55%" stop-color="#E6ECF7"/><stop offset="100%" stop-color="#AEB9CF"/></linearGradient>
+<path id="${p}t" d="M 20,88 A 68,68 0 0,1 156,88"/><path id="${p}m" d="M 13,88 A 75,75 0 0,0 163,88"/></defs>
+<circle cx="88" cy="88" r="88" fill="url(#${p}r)"/><circle cx="88" cy="88" r="80" fill="#5A3A08"/><circle cx="88" cy="88" r="79" fill="url(#${p}b)"/>
+<text font-family="Cinzel,serif" font-size="7.6" font-weight="900" letter-spacing="1" fill="#FFD66E"><textPath href="#${p}t" startOffset="50%" text-anchor="middle">DOMINION MESSAGING INTELLIGENCE</textPath></text>
+<text font-family="Cinzel,serif" font-size="13" font-weight="900" letter-spacing="4" fill="#FFFFFF"><textPath href="#${p}m" startOffset="50%" text-anchor="middle">DMI</textPath></text>
+<circle cx="19" cy="88" r="3.2" fill="url(#${p}r)"/><circle cx="157" cy="88" r="3.2" fill="url(#${p}r)"/>
+<circle cx="88" cy="88" r="58" fill="url(#${p}r)"/><circle cx="88" cy="88" r="54" fill="url(#${p}f)"/><circle cx="88" cy="96" r="40" fill="url(#${p}g)"/>
+<circle cx="62" cy="62" r=".9" fill="#fff"/><circle cx="114" cy="58" r="1.1" fill="#fff"/><circle cx="120" cy="104" r=".8" fill="#fff"/><circle cx="56" cy="112" r="1" fill="#fff"/><circle cx="76" cy="50" r=".7" fill="#fff"/>
+<path d="M88 58l2.4 6.6 6.6 2.4-6.6 2.4-2.4 6.6-2.4-6.6-6.6-2.4 6.6-2.4z" fill="#FFE08A"/>
+<text x="88" y="96" font-family="Cinzel,serif" font-size="17" font-weight="900" letter-spacing="1.5" text-anchor="middle" fill="url(#${p}s)" stroke="#B8862A" stroke-width=".6" paint-order="stroke">BRIEF</text>
+<text x="88" y="116" font-family="Cinzel,serif" font-size="17" font-weight="900" letter-spacing="1.5" text-anchor="middle" fill="url(#${p}s)" stroke="#B8862A" stroke-width=".6" paint-order="stroke">ME</text></svg>`}
+document.querySelectorAll('.seal').forEach((el,i)=>el.innerHTML=sealSVG('seal'+i));
+
+// ---- Fit the 390px stages to narrow phones ----
+function fit(){const w=Math.min(document.documentElement.clientWidth,430);const s=Math.min(1,w/390);
+ document.querySelectorAll('.stage').forEach(st=>{st.style.transform=s<1?`scale(${s})`:'';const box=st.parentElement;const h=parseFloat(st.style.height||st.offsetHeight);box.style.height=(h*s)+'px'})}
+addEventListener('resize',fit);
+
+// ---- Helpers ----
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+function who(v){if(Array.isArray(v)&&v[0])return v[0].name||v[0].email||'Unknown sender';return 'Unknown sender'}
+function initial(v){return (who(v).trim()[0]||'?').toUpperCase()}
+function when(ts){if(!ts)return'';const d=new Date(ts);const today=new Date();return d.toDateString()===today.toDateString()?d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}):d.toLocaleDateString([], {month:'short',day:'numeric'})}
+function days(n){n=Number(n);return n<1?'today':(Math.round(n)===1?'1 day':Math.round(n)+' days')}
+function openSheet(html){$('sheet').innerHTML=html;$('sheet').classList.remove('hidden');$('sheetBack').classList.remove('hidden');$('sheet').querySelector('.close')?.focus()}
+function closeSheet(){$('sheet').classList.add('hidden');$('sheetBack').classList.add('hidden');window.speechSynthesis?.cancel()}
+$('sheetBack').onclick=closeSheet;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('sheet').classList.contains('hidden'))closeSheet()});
+
+// ---- Views (remembered per device) ----
+function setView(v){if(v!=='mail')state.prevView=v;state.view=v;
+ document.querySelectorAll('.views button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===v)));
+ ['basic','advanced','mail'].forEach(x=>$('v-'+x).classList.toggle('hidden',x!==v));
+ try{if(v!=='mail')localStorage.setItem('dmi.view',v)}catch{}
+ fit();if(v==='mail')renderList()}
+document.querySelectorAll('.views button').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+$('mailBack').onclick=()=>setView(state.prevView||'basic');
+function openMail(tab){state.tab=tab||'imbox';setView('mail');syncTabs()}
+function syncTabs(){document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tab===state.tab)))}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{state.tab=b.dataset.tab;syncTabs();renderList()});
+document.querySelectorAll('[data-go="mail"]').forEach(b=>b.onclick=()=>openMail('imbox'));
+document.querySelectorAll('[data-soon]').forEach(b=>b.onclick=()=>toast(b.dataset.soon+' is coming to DOME.'));
+document.querySelectorAll('.ask-open').forEach(b=>b.onclick=()=>toast('Ask DMI arrives in Phase 2 (TASK-0150).'));
+document.querySelectorAll('.brief-open').forEach(b=>b.onclick=showBrief);
+const FN={receive:()=>openMail('imbox'),reveal:()=>openMail('followups'),execute:()=>{openMail('imbox');toast('Open a message and tap “Create task”.')},
+ route:()=>toast('ROUTE arrives in Phase 3 (TASK-0151). For now, open a message to move it.'),respond:()=>toast('RESPOND (suggested replies) arrives in Phase 2 (TASK-0150).'),insight:()=>toast('INSIGHT arrives in Phase 2 (TASK-0150).')};
+document.querySelectorAll('.fn').forEach(b=>b.onclick=()=>FN[b.dataset.fn]?.());
+
+// ---- Data ----
+async function load(){
+ const [inbox,counts,fu]=await Promise.all([
+  sb.rpc('dmi_list_inbox',{p_mailbox_email:null,p_limit:200,p_category:null}),
+  sb.rpc('dmi_inbox_counts',{p_mailbox_email:null}),
+  sb.rpc('dmi_list_followups',{p_min_days:0})]);
+ const err=inbox.error||counts.error||fu.error;
+ if(err){if(/Administrator/i.test(err.message)){$('app').classList.add('hidden');$('denied').classList.remove('hidden');return false}toast('DMI could not load: '+err.message);return false}
+ state.inbox=inbox.data||[];state.followups=fu.data||[];state.counts={};(counts.data||[]).forEach(r=>{if(r.category)state.counts[r.category]=r});
+ renderSummary();renderList();return true}
+
+function recent(){const cut=Date.now()-7*864e5;return state.inbox.filter(m=>m.received_at&&new Date(m.received_at).getTime()>=cut)}
+function owed(){return state.followups.filter(f=>f.kind==='reply_owed')}
+function renderSummary(){
+ const n=recent().length,o=owed().length;
+ const line=n===1?'1 came in':n+' came in';const sub=o?(o===1?'1 needs your reply':o+' need your reply'):'Nothing waiting on you';
+ $('b-count').textContent=line;$('a-count').textContent=line;$('b-owed').textContent=sub;$('a-owed').textContent=sub;
+ const unread=state.inbox.filter(m=>(m.labels||[]).includes('UNREAD')&&m.dmi_category==='imbox').length;
+ const rb=$('a-receive');rb.textContent=unread;rb.classList.toggle('hidden',!unread);
+ const vb=$('a-reveal');vb.textContent=o;vb.classList.toggle('hidden',!o);
+ ['imbox','feed','paper_trail'].forEach(c=>$('n-'+c).textContent=state.counts[c]?.total||0);$('n-followups').textContent=state.followups.length;
+ // Basic view: one glowing point per message this week around the seal; replies owed shine gold.
+ const pts=recent().slice(0,16),owedIds=new Set(owed().map(f=>f.last_message_id));
+ $('b-dots').innerHTML=pts.map((m,i)=>{const a=(-90+i*(360/Math.max(pts.length,6)))*Math.PI/180,x=195+134*Math.cos(a),y=190+134*Math.sin(a);
+  return owedIds.has(m.message_id)?`<button class="avatar" data-open="${m.message_id}" aria-label="${esc(who(m.sender))} — reply owed" style="position:absolute;left:${x-19}px;top:${y-19}px;width:38px;height:38px;border:0;cursor:pointer;box-shadow:0 0 0 3px rgba(255,224,138,.3),0 0 22px rgba(255,210,110,.7)">${esc(initial(m.sender))}</button>`
+  :`<span aria-hidden="true" style="position:absolute;left:${x-5}px;top:${y-5}px;width:10px;height:10px;border-radius:50%;background:${m.dmi_category==='imbox'?'#8FF4FF':'rgba(207,224,255,.55)'};box-shadow:0 0 12px ${m.dmi_category==='imbox'?'#24E8FF':'transparent'}"></span>`}).join('');
+ $('b-dots').querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openMessage(b.dataset.open));
+ const f=owed()[0];
+ $('b-next').innerHTML=f?`<button class="pill" type="button" data-open="${f.last_message_id}"><span class="avatar">${esc(initial(f.counterpart))}</span><span class="who"><b>${esc(who(f.counterpart))}</b><small>${esc(f.subject||'(No subject)')} · waiting ${days(f.days_waiting)}</small></span><span class="goldbtn" style="display:flex;align-items:center">Open</span></button>`:'';
+ $('b-next').querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openMessage(b.dataset.open));
+}
+
+function renderList(){
+ const el=$('list');
+ if(state.tab==='followups'){
+  if(!state.followups.length){el.innerHTML='<div class="empty">No follow-ups. Nothing is waiting on you or on anyone else.</div>';return}
+  el.innerHTML=state.followups.map(f=>`<div class="row" style="cursor:default"><span class="avatar ${f.kind==='reply_owed'?'':'blue'}">${esc(initial(f.counterpart))}</span><div class="main">
+   <div class="top"><b>${esc(who(f.counterpart))}</b><span class="meta">waiting ${days(f.days_waiting)}</span></div>
+   <div class="subj">${esc(f.subject||'(No subject)')}</div>
+   <span class="chip ${f.kind==='reply_owed'?'c-owed':'c-await'}">${f.kind==='reply_owed'?'You owe a reply':'Awaiting their reply'}</span>
+   <div class="fu-actions"><button data-open="${f.last_message_id}">Open</button><button data-fu="done" data-t="${f.thread_id}" data-k="${f.kind}">Done</button><button data-fu="snooze" data-t="${f.thread_id}" data-k="${f.kind}">Tomorrow</button><button data-fu="dismiss" data-t="${f.thread_id}" data-k="${f.kind}">Dismiss</button></div>
+  </div></div>`).join('');
+  el.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openMessage(b.dataset.open));
+  el.querySelectorAll('[data-fu]').forEach(b=>b.onclick=()=>setFollowup(b.dataset.t,b.dataset.k,b.dataset.fu));
+  return}
+ const rows=state.inbox.filter(m=>m.dmi_category===state.tab);
+ if(!rows.length){el.innerHTML=`<div class="empty">Nothing in ${CAT[state.tab]}.</div>`;return}
+ el.innerHTML=rows.map(m=>`<button class="row" type="button" data-open="${m.message_id}"><span class="avatar ${m.dmi_category==='imbox'?'':'blue'}">${esc(initial(m.sender))}</span><span class="main">
+  <span class="top"><b>${esc(who(m.sender))}</b><time>${esc(when(m.received_at))}</time></span>
+  <span class="subj" style="display:block;${(m.labels||[]).includes('UNREAD')?'font-weight:800':''}">${esc(m.subject||'(No subject)')}</span>
+  <span class="snip" style="display:block">${esc(m.snippet||'')}</span>
+  <span class="chip c-${m.dmi_category}">${esc(m.category_reason||CAT[m.dmi_category])}</span></span></button>`).join('');
+ el.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openMessage(b.dataset.open));
+}
+
+async function setFollowup(thread,kind,action){
+ const until=new Date();until.setDate(until.getDate()+1);until.setHours(8,0,0,0);
+ const {error}=await sb.rpc('dmi_set_followup',{p_thread_id:thread,p_kind:kind,p_action:action,p_snooze_until:action==='snooze'?until.toISOString():null});
+ if(error)return toast(error.message);
+ toast(action==='done'?'Marked done.':action==='snooze'?'Snoozed until tomorrow 8 AM.':'Dismissed.');await load()}
+
+// ---- Compose / Reply (TASK-0098) ----
+// Live-sending switch. ON since Michael's go (2026-10-03). Set to false to stop all sending from this page.
+const DMI_LIVE_SEND=true;
+const OWN_MAILBOX='michael@dominion1st.org';
+const ADDR=/^[^\s@<>()",;:\\]+@[^\s@<>()",;:\\]+\.[^\s@<>()",;:\\]+$/;
+const validList=v=>!v||v.split(',').map(x=>x.trim()).filter(Boolean).every(x=>ADDR.test(((x.match(/<([^<>]+)>$/)||[,x])[1]).trim()));
+function replySubject(s){s=String(s||'').trim();return /^re:/i.test(s)?s:'Re: '+s}
+// Same rule the adapter uses: Gmail only threads a reply whose subject matches the original (Re:/Fwd:, case, spacing ignored).
+function sameConversation(a,b){const n=s=>{let t=String(s||'').trim();for(let i=0;i<10;i++){const x=t.replace(/^(re|fw|fwd)\s*:\s*/i,'');if(x===t)break;t=x}return t.replace(/\s+/g,' ').toLowerCase()};return n(a)===n(b)}
+function replyAddress(m){
+ const candidates=[...(Array.isArray(m?.sender)?m.sender:[]),...(Array.isArray(m?.recipients)?m.recipients:[])];
+ const hit=candidates.find(x=>String(x?.email||'').toLowerCase()!==OWN_MAILBOX);
+ return hit?.email||'';
+}
+function newSendKey(){return 'dmi-ui-'+crypto.randomUUID()}
+// Poll the pg_net response for a dispatch. Returns null if no response arrived in time (outcome unknown).
+async function pollDispatch(requestId,tries){
+ for(let i=0;i<tries;i++){
+  const {data,error}=await sb.rpc('dmi_ui_dispatch_status',{p_request_id:requestId});
+  if(error)throw error;
+  if(data?.length)return data[0];
+  await new Promise(r=>setTimeout(r,500));
+ }
+ return null;
+}
+// Map an adapter response to a UI state. Anything that may have reached Gmail is in_doubt, never failed.
+function classifySend(r){
+ if(!r||r.status_code==null)return {state:'in_doubt',msg:'No answer from the mail route yet. The email may still go out — check status before writing it again.'};
+ const b=r.response_body||{},s=r.status_code;
+ if(s>=200&&s<300&&b.ok===true)return {state:'sent',msg:b.duplicate?'Already sent earlier with this draft — not sent twice.':'Sent.',body:b};
+ if(b.outcome==='in_doubt'||b.decision==='in_doubt'||/outcome unknown/i.test(b.error||''))return {state:'in_doubt',msg:'Gmail did not confirm this send. Check Sent mail in Gmail before writing it again.'};
+ if(b.decision==='in_progress')return {state:'in_doubt',msg:'This draft is still being sent. Check status again in a moment.'};
+ if(b.outcome==='retryable'||s===502||s===500||s===503)return {state:'failed',retry:true,msg:(b.error||r.error_msg||'Mail route error')+' — nothing was sent. You can retry.'};
+ return {state:'failed',retry:false,msg:(b.error||r.error_msg||'Send rejected')+' — nothing was sent.'};
+}
+const SEND_LABEL={draft:'Draft · not transmitted',validated:'Validated · secure route ready · not transmitted',sending:'Sending…',sent:'Sent',failed:'Failed',in_doubt:'In doubt'};
+function openComposer(opts={}){
+ let key=newSendKey(),sendState='draft',validatedFingerprint=null,lastRequest=null,busy=false;
+ const isReply=!!opts.replyMessageId;
+ openSheet(`<button class="close" type="button">Close</button><h3 id="sheetTitle">${isReply?'Reply':'Compose'}</h3>
+ <div class="from">From: H. Michael Daniels &lt;michael@dominion1st.org&gt;</div>
+ <label>To</label><input type="email" id="sendTo" value="${esc(opts.to||'')}" autocomplete="off">
+ <label style="display:block;margin-top:8px">CC</label><input type="text" id="sendCc" autocomplete="off">
+ <label style="display:block;margin-top:8px">BCC</label><input type="text" id="sendBcc" autocomplete="off">
+ <label style="display:block;margin-top:8px">Subject</label><input type="text" id="sendSubject" maxlength="998" value="${esc(opts.subject||'')}">
+ <label style="display:block;margin-top:8px">Message</label><textarea id="sendBody" maxlength="100000" placeholder="Write your message…"></textarea>
+ ${DMI_LIVE_SEND?'':'<div class="warn">Live sending is off. You can write and validate a draft; nothing can be sent from this page until Michael turns live sending on.</div>'}
+ <div class="fu-actions"><button class="goldbtn" id="validateDraft" type="button">Validate draft</button><button class="act" id="sendDraft" type="button" disabled>${DMI_LIVE_SEND?'Send':'Send — live sending off'}</button><button class="act hidden" id="retrySend" type="button">Retry</button><button class="act hidden" id="checkSend" type="button">Check status</button><button class="act hidden" id="editDraft" type="button">Edit draft</button></div>
+ <div id="draftState" class="from" style="margin-top:8px" data-state="draft">${SEND_LABEL.draft}</div>`);
+ bindClose();
+ const fields=['sendTo','sendCc','sendBcc','sendSubject','sendBody'];
+ const readDraft=()=>{
+  const to=$('sendTo').value.trim(),cc=$('sendCc').value.trim(),bcc=$('sendBcc').value.trim(),subject=$('sendSubject').value,body=$('sendBody').value;
+  return {action:'email_send',task_number:'TASK-0098',idempotency_key:key,mailbox:OWN_MAILBOX,to,cc:cc||undefined,bcc:bcc||undefined,subject,body,reply_message_id:opts.replyMessageId||undefined};
+ };
+ const fingerprint=d=>JSON.stringify([d.to,d.cc,d.bcc,d.subject,d.body,d.reply_message_id]);
+ const lockFields=on=>fields.forEach(f=>{$(f).readOnly=on});
+ const setState=(st,detail)=>{
+  sendState=st;const el=$('draftState');if(!el)return;
+  el.dataset.state=st;el.textContent=SEND_LABEL[st]+(detail?' · '+detail:'');
+  const canSend=DMI_LIVE_SEND&&st==='validated'&&!busy;
+  $('sendDraft').disabled=!canSend;
+  $('validateDraft').disabled=busy||!['draft','validated'].includes(st);
+  $('retrySend').classList.toggle('hidden',!(st==='failed'&&lastRequest?.retry));
+  $('checkSend').classList.toggle('hidden',st!=='in_doubt');
+  $('editDraft').classList.toggle('hidden',!(st==='failed'&&!lastRequest?.retry));
+  lockFields(!['draft','validated'].includes(st));
+ };
+ // Editing after validation invalidates it.
+ fields.forEach(f=>$(f).addEventListener('input',()=>{if(sendState==='validated'){validatedFingerprint=null;setState('draft')}}));
+ const checkDraft=d=>{
+  if(!d.to||!validList(d.to))return 'Enter a valid recipient.';
+  if(!validList(d.cc||'')||!validList(d.bcc||''))return 'Check the CC/BCC addresses.';
+  if(/[\r\n]/.test(d.subject))return 'Subject must be one line.';
+  if(!d.subject.trim())return 'Add a subject.';
+  if(!d.body.trim())return 'Write a message before sending.';
+  if(isReply&&!sameConversation(d.subject,opts.originalSubject))return 'Keep the original subject (Re: is fine) so Gmail threads the reply.';
+  return null;
+ };
+ const validate=async()=>{
+  if(busy)return;
+  const d=readDraft(),problem=checkDraft(d);
+  if(problem)return toast(problem);
+  busy=true;setState('draft','checking secure route…');
+  try{
+   const probe={mailbox:d.mailbox,task_number:d.task_number,idempotency_key:d.idempotency_key};
+   const {data:requestId,error}=await sb.rpc('dmi_ui_dispatch',{p_action:'validate',p_payload:probe});
+   if(error)throw error;
+   const result=await pollDispatch(requestId,12);
+   if(!result)throw new Error('Secure-route check timed out.');
+   if(result.status_code<200||result.status_code>=300||result.response_body?.ok!==true)throw new Error(result.response_body?.error||result.error_msg||'Secure route not ready.');
+   validatedFingerprint=fingerprint(d);busy=false;setState('validated','key '+key.slice(-8));
+   toast(DMI_LIVE_SEND?'Draft validated. Ready to send.':'Draft validated. Nothing was sent.');
+  }catch(e){busy=false;setState('draft','secure route check failed');toast(e.message||'Secure route check failed.')}
+ };
+ // One dispatch of the current draft with the current key. Retries and status checks reuse the same key and payload,
+ // so the ledger returns the original outcome instead of sending twice.
+ const dispatchSend=async()=>{
+  if(!DMI_LIVE_SEND){toast('Live sending is off.');return}
+  if(busy)return;
+  const d=readDraft();
+  if(fingerprint(d)!==validatedFingerprint&&sendState==='validated')return toast('Validate the draft again before sending.');
+  busy=true;setState('sending');
+  let outcome;
+  try{
+   const {data:requestId,error}=await sb.rpc('dmi_ui_dispatch',{p_action:'email_send',p_payload:d});
+   if(error){outcome={state:'failed',retry:true,msg:(error.message||'Could not reach the mail route')+' — nothing was sent. You can retry.'}}
+   else outcome=classifySend(await pollDispatch(requestId,60));
+  }catch(e){outcome={state:'in_doubt',msg:'Lost contact while sending. Check status before writing it again.'}}
+  busy=false;lastRequest=outcome;
+  const b=outcome.body;
+  const detail=outcome.state==='sent'?(b?.duplicate?'already sent earlier — not sent twice · ':'')+(b?.result?.provider_message_id?'Gmail id '+b.result.provider_message_id:'')+(isReply&&b?.result?.threaded===true?' · in conversation':''):outcome.msg;
+  setState(outcome.state,detail);toast(outcome.msg);
+ };
+ $('validateDraft').onclick=validate;
+ $('sendDraft').onclick=()=>{if(sendState==='validated')dispatchSend()};
+ $('retrySend').onclick=()=>{if(sendState==='failed'&&lastRequest?.retry)dispatchSend()};
+ $('checkSend').onclick=()=>{if(sendState==='in_doubt')dispatchSend()};
+ // A rejected draft (nothing sent, not retryable) can be edited; the edited draft gets a new key.
+ $('editDraft').onclick=()=>{key=newSendKey();lastRequest=null;validatedFingerprint=null;setState('draft')};
+}
+$('composeBtn').onclick=()=>openComposer();
+
+// ---- Message sheet: read, move, create task ----
+async function openMessage(id){
+ openSheet('<div class="empty">Opening…</div>');
+ const [{data,error},tasks]=await Promise.all([sb.rpc('dmi_get_message',{p_message_id:id}),sb.rpc('dmi_list_message_tasks',{p_message_id:id})]);
+ if(error||!data?.[0]){openSheet(`<button class="close" type="button">Close</button><p>${esc(error?.message||'Message not found')}</p>`);bindClose();return}
+ const m=data[0],row=state.inbox.find(x=>x.message_id===id)||{};
+ const linked=(tasks.data||[]);
+ openSheet(`<button class="close" type="button">Close</button>
+  <h3 id="sheetTitle">${esc(m.subject||'(No subject)')}</h3>
+  <div class="from">${esc(who(m.sender))} &lt;${esc(m.sender?.[0]?.email||'')}&gt; · ${esc(new Date(m.received_at||m.sent_at).toLocaleString())}</div>
+  ${row.dmi_category?`<span class="chip c-${row.dmi_category}">${esc(CAT[row.dmi_category])} · ${esc(row.category_reason||'')}</span>`:''}
+  <div class="body">${esc(m.body_text||m.snippet||'No text body available.')}</div>
+  <div class="fu-actions"><button class="act" id="listenMsg" type="button">Listen</button><button class="act" id="replyMsg" type="button">Reply</button></div>
+  ${row.dmi_category?`<div class="section"><h4>MOVE TO</h4><div class="fu-actions">${Object.entries(CAT).filter(([k])=>k!==row.dmi_category).map(([k,v])=>`<button class="act" data-move="${k}" type="button">${v}</button>`).join('')}</div>
+   <label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" id="always" checked> Always do this for ${esc(m.sender?.[0]?.email||'this sender')}</label></div>`:''}
+  <div class="section"><h4>TETELESTAI</h4>
+   ${linked.length?linked.map(t=>`<div style="font-size:13px;margin-bottom:6px"><b>${esc(t.task_number)}</b> · ${esc(t.title)} <span class="chip c-imbox">${esc(t.status)}</span></div>`).join(''):'<div style="font-size:13px;color:var(--muted);margin-bottom:6px">No tasks from this conversation yet.</div>'}
+   <label for="taskTitle">Task title</label><input type="text" id="taskTitle" maxlength="160" placeholder="Follow up on DMI email">
+   <label for="taskPrio" style="display:block;margin-top:8px">Priority</label><select id="taskPrio"><option value="medium">Medium</option><option value="high">High</option><option value="low">Low</option></select>
+   <div class="warn">During testing, TETELESTAI task titles can be seen without signing in. Keep private details out of the title — the email itself stays private in DMI.</div>
+   <button class="goldbtn" id="mkTask" type="button" style="margin-top:10px;width:100%">Create task</button></div>`);
+ bindClose();
+ $('listenMsg').onclick=()=>speak(`${m.subject||'No subject'}. From ${who(m.sender)}. ${speakable(m.body_text||m.snippet||'')}`,$('listenMsg'));
+ $('replyMsg').onclick=()=>openComposer({to:replyAddress(m),subject:replySubject(m.subject||''),originalSubject:m.subject||'',replyMessageId:id});
+ $('sheet').querySelectorAll('[data-move]').forEach(b=>b.onclick=async()=>{
+  const {error}=await sb.rpc('dmi_set_category',{p_message_id:id,p_category:b.dataset.move,p_scope:$('always').checked?'sender':'message'});
+  if(error)return toast(error.message);toast('Moved to '+CAT[b.dataset.move]+'.');closeSheet();await load()});
+ $('mkTask').onclick=async()=>{$('mkTask').disabled=true;
+  const {data:t,error}=await sb.rpc('dmi_create_task_from_message',{p_message_id:id,p_title:$('taskTitle').value.trim()||null,p_priority:$('taskPrio').value,p_project_number:null,p_target_date:null,p_action_owner:'pastor_michael'});
+  $('mkTask').disabled=false;if(error)return toast(error.message);toast((t?.[0]?.task_number||'Task')+' created in TETELESTAI.');openMessage(id)};
+}
+function bindClose(){$('sheet').querySelector('.close')?.addEventListener('click',closeSheet)}
+
+// ---- BRIEF ME ----
+function briefText(){
+ const r=recent(),o=owed(),aw=state.followups.filter(f=>f.kind==='awaiting_reply');
+ const byCat=c=>r.filter(m=>m.dmi_category===c).length;
+ const lines=[`Be strong and of a good courage. Joshua 1:9.`,
+  `In the last seven days, ${r.length} ${r.length===1?'message':'messages'} came in: ${byCat('imbox')} in your Imbox, ${byCat('feed')} in the Feed, and ${byCat('paper_trail')} in the Paper Trail.`];
+ if(o.length)lines.push(`${o.length===1?'One person is':o.length+' people are'} waiting for your reply: `+o.slice(0,5).map(f=>`${who(f.counterpart)} about “${f.subject||'no subject'}”, waiting ${days(f.days_waiting)}`).join('; ')+'.');
+ else lines.push('No one is waiting on a reply from you.');
+ if(aw.length)lines.push(`You are waiting on ${aw.length}: `+aw.slice(0,5).map(f=>`${who(f.counterpart)} about “${f.subject||'no subject'}”`).join('; ')+'.');
+ return lines}
+function showBrief(){const lines=briefText();
+ openSheet(`<button class="close" type="button">Close</button><h3 id="sheetTitle">Your DMI Brief</h3>${lines.map(l=>`<p class="brief-line">${esc(l)}</p>`).join('')}
+  <div class="fu-actions" style="margin-top:12px"><button class="goldbtn" id="listenBrief" type="button">Listen</button>${owed().length?'<button class="act" id="toFollow" type="button">Open follow-ups</button>':''}</div>`);
+ bindClose();$('listenBrief').onclick=()=>speak(lines.join(' '),$('listenBrief'));$('toFollow')?.addEventListener('click',()=>{closeSheet();openMail('followups')})}
+
+// Turn an email body into something pleasant to hear: no web addresses, codes, quoted replies,
+// signatures, invisible characters or symbol runs, and a sensible length.
+const SPEAK_MAX=1500;
+function speakable(raw){
+ let t=String(raw||'').replace(/&#39;|&apos;/g,"'").replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').replace(/&[a-z]+;|&#\d+;/gi,' ');
+ t=t.replace(/[­͏؜ᅟᅠ឴឵᠎​-‏‪-‮⁠-⁯ㅤ︀-️﻿]/g,'');
+ const lines=[];
+ for(let line of t.split(/\r?\n/)){
+  if(/^\s*>/.test(line))continue;                                         // quoted earlier reply
+  if(/^\s*On .{3,160} wrote:\s*$/i.test(line))break;                       // "On Mon, … wrote:" starts the quoted thread
+  if(/^\s*--\s*$/.test(line)||/^\s*[-_]*\s*(Original Message|Forwarded message)\b/i.test(line))break; // signature / forwarded block
+  if(/^\s*[-_=*~.]{3,}\s*$/.test(line))continue;                           // divider lines
+  if(/^\s*(unsubscribe|view (this|in) (email|browser)|privacy policy|manage preferences)/i.test(line))continue;
+  lines.push(line)}
+ t=lines.join('\n')
+  .replace(/https?:\/\/\S+|www\.\S+/gi,' a link ')                          // web addresses
+  .replace(/\b[\w.+-]+@[\w-]+(\.[\w-]+)+\b/g,' an email address ')          // email addresses
+  .replace(/\b(?=[A-Za-z0-9_-]{24,}\b)(?=\S*\d)\S+/g,' ')                    // long codes and tracking IDs
+  .replace(/([^\w\s'",.!?;:()])\1{2,}/g,' ')                                 // runs of repeated symbols (-----, ****)
+  .replace(/[<>{}\[\]|\\^~`#*_=+]+/g,' ')
+  .replace(/(\s*a link\s*){2,}/g,' several links ')
+  .replace(/[ \t]+/g,' ').replace(/\s*\n\s*/g,'. ').replace(/([,;:!?])\s*\.(\s|$)/g,'$1$2').replace(/(\.\s*){2,}/g,'. ').trim();
+ if(t.length>SPEAK_MAX){const cut=t.slice(0,SPEAK_MAX);const end=Math.max(cut.lastIndexOf('. '),cut.lastIndexOf('? '),cut.lastIndexOf('! '));
+  t=(end>SPEAK_MAX*0.5?cut.slice(0,end+1):cut)+' … The rest of this message is on your screen.'}
+ return t||'This message has no readable text.'}
+
+// Tap Listen to hear it; tap again (Stop) to end.
+function speak(t,btn){if(!('speechSynthesis' in window))return toast('Listening is not supported on this browser.');
+ if(speechSynthesis.speaking&&btn?.dataset.playing==='1'){speechSynthesis.cancel();return}
+ speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=1;
+ if(btn){const label=btn.textContent;btn.dataset.playing='1';btn.textContent='Stop';u.onend=u.onerror=()=>{btn.dataset.playing='';btn.textContent=label}}
+ speechSynthesis.speak(u)}
+
+// ---- Start: administrators only ----
+const {data:u,error:ue}=await sb.auth.getUser();
+if(ue||!u?.user){$('auth').classList.remove('hidden')}
+else{$('app').classList.remove('hidden');let v='basic';try{v=localStorage.getItem('dmi.view')||'basic'}catch{};setView(['basic','advanced'].includes(v)?v:'basic');
+ if(await load())setInterval(load,5*60*1000)}
+</script>
+</body></html>

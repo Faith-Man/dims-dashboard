@@ -309,17 +309,45 @@ async function setFollowup(thread,kind,action){
  if(error)return toast(error.message);
  toast(action==='done'?'Marked done.':action==='snooze'?'Snoozed until tomorrow 8 AM.':'Dismissed.');await load()}
 
-// ---- Compose / Reply (TASK-0098 no-send test stage) ----
+// ---- Compose / Reply (TASK-0098) ----
+// Live-sending switch. OFF until Michael's explicit "go": while false, this page never calls email_send.
+const DMI_LIVE_SEND=false;
+const OWN_MAILBOX='michael@dominion1st.org';
+const ADDR=/^[^\s@<>()",;:\\]+@[^\s@<>()",;:\\]+\.[^\s@<>()",;:\\]+$/;
+const validList=v=>!v||v.split(',').map(x=>x.trim()).filter(Boolean).every(x=>ADDR.test(((x.match(/<([^<>]+)>$/)||[,x])[1]).trim()));
 function replySubject(s){s=String(s||'').trim();return /^re:/i.test(s)?s:'Re: '+s}
+// Same rule the adapter uses: Gmail only threads a reply whose subject matches the original (Re:/Fwd:, case, spacing ignored).
+function sameConversation(a,b){const n=s=>{let t=String(s||'').trim();for(let i=0;i<10;i++){const x=t.replace(/^(re|fw|fwd)\s*:\s*/i,'');if(x===t)break;t=x}return t.replace(/\s+/g,' ').toLowerCase()};return n(a)===n(b)}
 function replyAddress(m){
- const own='michael@dominion1st.org';
  const candidates=[...(Array.isArray(m?.sender)?m.sender:[]),...(Array.isArray(m?.recipients)?m.recipients:[])];
- const hit=candidates.find(x=>String(x?.email||'').toLowerCase()!==own);
+ const hit=candidates.find(x=>String(x?.email||'').toLowerCase()!==OWN_MAILBOX);
  return hit?.email||'';
 }
 function newSendKey(){return 'dmi-ui-'+crypto.randomUUID()}
+// Poll the pg_net response for a dispatch. Returns null if no response arrived in time (outcome unknown).
+async function pollDispatch(requestId,tries){
+ for(let i=0;i<tries;i++){
+  const {data,error}=await sb.rpc('dmi_ui_dispatch_status',{p_request_id:requestId});
+  if(error)throw error;
+  if(data?.length)return data[0];
+  await new Promise(r=>setTimeout(r,500));
+ }
+ return null;
+}
+// Map an adapter response to a UI state. Anything that may have reached Gmail is in_doubt, never failed.
+function classifySend(r){
+ if(!r||r.status_code==null)return {state:'in_doubt',msg:'No answer from the mail route yet. The email may still go out — check status before writing it again.'};
+ const b=r.response_body||{},s=r.status_code;
+ if(s>=200&&s<300&&b.ok===true)return {state:'sent',msg:b.duplicate?'Already sent earlier with this draft — not sent twice.':'Sent.',body:b};
+ if(b.outcome==='in_doubt'||b.decision==='in_doubt'||/outcome unknown/i.test(b.error||''))return {state:'in_doubt',msg:'Gmail did not confirm this send. Check Sent mail in Gmail before writing it again.'};
+ if(b.decision==='in_progress')return {state:'in_doubt',msg:'This draft is still being sent. Check status again in a moment.'};
+ if(b.outcome==='retryable'||s===502||s===500||s===503)return {state:'failed',retry:true,msg:(b.error||r.error_msg||'Mail route error')+' — nothing was sent. You can retry.'};
+ return {state:'failed',retry:false,msg:(b.error||r.error_msg||'Send rejected')+' — nothing was sent.'};
+}
+const SEND_LABEL={draft:'Draft · not transmitted',validated:'Validated · secure route ready · not transmitted',sending:'Sending…',sent:'Sent',failed:'Failed',in_doubt:'In doubt'};
 function openComposer(opts={}){
- const key=newSendKey(), isReply=!!opts.replyMessageId;
+ let key=newSendKey(),sendState='draft',validatedFingerprint=null,lastRequest=null,busy=false;
+ const isReply=!!opts.replyMessageId;
  openSheet(`<button class="close" type="button">Close</button><h3 id="sheetTitle">${isReply?'Reply':'Compose'}</h3>
  <div class="from">From: H. Michael Daniels &lt;michael@dominion1st.org&gt;</div>
  <label>To</label><input type="email" id="sendTo" value="${esc(opts.to||'')}" autocomplete="off">
@@ -327,48 +355,80 @@ function openComposer(opts={}){
  <label style="display:block;margin-top:8px">BCC</label><input type="text" id="sendBcc" autocomplete="off">
  <label style="display:block;margin-top:8px">Subject</label><input type="text" id="sendSubject" maxlength="998" value="${esc(opts.subject||'')}">
  <label style="display:block;margin-top:8px">Message</label><textarea id="sendBody" maxlength="100000" placeholder="Write your message…"></textarea>
- <div class="warn">TASK-0098 test stage: live transmission is locked until Michael authorizes the first Compose/Reply send.</div>
- <div class="fu-actions"><button class="goldbtn" id="validateDraft" type="button">Validate draft</button><button class="act" id="liveSendLocked" type="button" disabled>Send — authorization required</button></div>
- <div id="draftState" class="from" style="margin-top:8px">Draft · not transmitted</div>`);
+ ${DMI_LIVE_SEND?'':'<div class="warn">Live sending is off. You can write and validate a draft; nothing can be sent from this page until Michael turns live sending on.</div>'}
+ <div class="fu-actions"><button class="goldbtn" id="validateDraft" type="button">Validate draft</button><button class="act" id="sendDraft" type="button" disabled>${DMI_LIVE_SEND?'Send':'Send — live sending off'}</button><button class="act hidden" id="retrySend" type="button">Retry</button><button class="act hidden" id="checkSend" type="button">Check status</button><button class="act hidden" id="editDraft" type="button">Edit draft</button></div>
+ <div id="draftState" class="from" style="margin-top:8px" data-state="draft">${SEND_LABEL.draft}</div>`);
  bindClose();
- const pollDispatch=async requestId=>{
-  for(let i=0;i<12;i++){
-   const {data,error}=await sb.rpc('dmi_ui_dispatch_status',{p_request_id:requestId});
-   if(error)throw error;
-   if(data?.length)return data[0];
-   await new Promise(r=>setTimeout(r,500));
-  }
-  throw new Error('Secure-route validation timed out.');
+ const fields=['sendTo','sendCc','sendBcc','sendSubject','sendBody'];
+ const readDraft=()=>{
+  const to=$('sendTo').value.trim(),cc=$('sendCc').value.trim(),bcc=$('sendBcc').value.trim(),subject=$('sendSubject').value,body=$('sendBody').value;
+  return {action:'email_send',task_number:'TASK-0098',idempotency_key:key,mailbox:OWN_MAILBOX,to,cc:cc||undefined,bcc:bcc||undefined,subject,body,reply_message_id:opts.replyMessageId||undefined};
+ };
+ const fingerprint=d=>JSON.stringify([d.to,d.cc,d.bcc,d.subject,d.body,d.reply_message_id]);
+ const lockFields=on=>fields.forEach(f=>{$(f).readOnly=on});
+ const setState=(st,detail)=>{
+  sendState=st;const el=$('draftState');if(!el)return;
+  el.dataset.state=st;el.textContent=SEND_LABEL[st]+(detail?' · '+detail:'');
+  const canSend=DMI_LIVE_SEND&&st==='validated'&&!busy;
+  $('sendDraft').disabled=!canSend;
+  $('validateDraft').disabled=busy||!['draft','validated'].includes(st);
+  $('retrySend').classList.toggle('hidden',!(st==='failed'&&lastRequest?.retry));
+  $('checkSend').classList.toggle('hidden',st!=='in_doubt');
+  $('editDraft').classList.toggle('hidden',!(st==='failed'&&!lastRequest?.retry));
+  lockFields(!['draft','validated'].includes(st));
+ };
+ // Editing after validation invalidates it.
+ fields.forEach(f=>$(f).addEventListener('input',()=>{if(sendState==='validated'){validatedFingerprint=null;setState('draft')}}));
+ const checkDraft=d=>{
+  if(!d.to||!validList(d.to))return 'Enter a valid recipient.';
+  if(!validList(d.cc||'')||!validList(d.bcc||''))return 'Check the CC/BCC addresses.';
+  if(/[\r\n]/.test(d.subject))return 'Subject must be one line.';
+  if(!d.subject.trim())return 'Add a subject.';
+  if(!d.body.trim())return 'Write a message before sending.';
+  if(isReply&&!sameConversation(d.subject,opts.originalSubject))return 'Keep the original subject (Re: is fine) so Gmail threads the reply.';
+  return null;
  };
  const validate=async()=>{
-  const to=$('sendTo').value.trim(),cc=$('sendCc').value.trim(),bcc=$('sendBcc').value.trim(),subject=$('sendSubject').value,body=$('sendBody').value;
-  const addr=/^[^\\s@<>()",;:]+@[^\\s@<>()",;:]+\\.[^\\s@<>()",;:]+$/;
-  const validList=v=>!v||v.split(',').map(x=>x.trim()).filter(Boolean).every(x=>addr.test((x.match(/<([^<>]+)>$/)||[,x])[1]));
-  if(!validList(to)||!to)return toast('Enter a valid recipient.');
-  if(!validList(cc)||!validList(bcc))return toast('Check the CC/BCC addresses.');
-  if(/[\\r\\n]/.test(subject))return toast('Subject must be one line.');
-  if(!body.trim())return toast('Write a message before sending.');
-  const draft={action:'email_send',task_number:'TASK-0098',idempotency_key:key,mailbox:'michael@dominion1st.org',to,cc:cc||undefined,bcc:bcc||undefined,subject,body,reply_message_id:opts.replyMessageId||undefined};
-  sessionStorage.setItem('dmiValidatedDraft',JSON.stringify(draft));
-  $('validateDraft').disabled=true;$('draftState').textContent='Checking secure route · nothing transmitted…';
+  if(busy)return;
+  const d=readDraft(),problem=checkDraft(d);
+  if(problem)return toast(problem);
+  busy=true;setState('draft','checking secure route…');
   try{
-   const probe={mailbox:draft.mailbox,task_number:draft.task_number,idempotency_key:draft.idempotency_key};
+   const probe={mailbox:d.mailbox,task_number:d.task_number,idempotency_key:d.idempotency_key};
    const {data:requestId,error}=await sb.rpc('dmi_ui_dispatch',{p_action:'validate',p_payload:probe});
    if(error)throw error;
-   const result=await pollDispatch(requestId);
+   const result=await pollDispatch(requestId,12);
+   if(!result)throw new Error('Secure-route check timed out.');
    if(result.status_code<200||result.status_code>=300||result.response_body?.ok!==true)throw new Error(result.response_body?.error||result.error_msg||'Secure route not ready.');
-   $('draftState').textContent='Validated · secure route ready · not transmitted · idempotency '+key.slice(-8);
-   toast('Draft and secure route validated. Nothing was sent.');
-  }catch(e){
-   $('draftState').textContent='Draft valid · secure route check failed · not transmitted';
-   toast(e.message||'Secure route check failed.');
-  }finally{$('validateDraft').disabled=false}
+   validatedFingerprint=fingerprint(d);busy=false;setState('validated','key '+key.slice(-8));
+   toast(DMI_LIVE_SEND?'Draft validated. Ready to send.':'Draft validated. Nothing was sent.');
+  }catch(e){busy=false;setState('draft','secure route check failed');toast(e.message||'Secure route check failed.')}
+ };
+ // One dispatch of the current draft with the current key. Retries and status checks reuse the same key and payload,
+ // so the ledger returns the original outcome instead of sending twice.
+ const dispatchSend=async()=>{
+  if(!DMI_LIVE_SEND){toast('Live sending is off.');return}
+  if(busy)return;
+  const d=readDraft();
+  if(fingerprint(d)!==validatedFingerprint&&sendState==='validated')return toast('Validate the draft again before sending.');
+  busy=true;setState('sending');
+  let outcome;
+  try{
+   const {data:requestId,error}=await sb.rpc('dmi_ui_dispatch',{p_action:'email_send',p_payload:d});
+   if(error){outcome={state:'failed',retry:true,msg:(error.message||'Could not reach the mail route')+' — nothing was sent. You can retry.'}}
+   else outcome=classifySend(await pollDispatch(requestId,60));
+  }catch(e){outcome={state:'in_doubt',msg:'Lost contact while sending. Check status before writing it again.'}}
+  busy=false;lastRequest=outcome;
+  const b=outcome.body;
+  const detail=outcome.state==='sent'?(b?.duplicate?'already sent earlier — not sent twice · ':'')+(b?.result?.provider_message_id?'Gmail id '+b.result.provider_message_id:'')+(isReply&&b?.result?.threaded===true?' · in conversation':''):outcome.msg;
+  setState(outcome.state,detail);toast(outcome.msg);
  };
  $('validateDraft').onclick=validate;
- // The live control intentionally has no click handler during no-send verification.
- // After Michael's explicit authorization, wire this same validated draft to
- // dmi_ui_dispatch('email_send', draft), reuse its idempotency key for retries,
- // disable during submission, and poll dmi_ui_dispatch_status. Never auto-retry in_doubt.
+ $('sendDraft').onclick=()=>{if(sendState==='validated')dispatchSend()};
+ $('retrySend').onclick=()=>{if(sendState==='failed'&&lastRequest?.retry)dispatchSend()};
+ $('checkSend').onclick=()=>{if(sendState==='in_doubt')dispatchSend()};
+ // A rejected draft (nothing sent, not retryable) can be edited; the edited draft gets a new key.
+ $('editDraft').onclick=()=>{key=newSendKey();lastRequest=null;validatedFingerprint=null;setState('draft')};
 }
 $('composeBtn').onclick=()=>openComposer();
 
@@ -395,7 +455,7 @@ async function openMessage(id){
    <button class="goldbtn" id="mkTask" type="button" style="margin-top:10px;width:100%">Create task</button></div>`);
  bindClose();
  $('listenMsg').onclick=()=>speak(`${m.subject||'No subject'}. From ${who(m.sender)}. ${speakable(m.body_text||m.snippet||'')}`,$('listenMsg'));
- $('replyMsg').onclick=()=>openComposer({to:replyAddress(m),subject:replySubject(m.subject||''),replyMessageId:id});
+ $('replyMsg').onclick=()=>openComposer({to:replyAddress(m),subject:replySubject(m.subject||''),originalSubject:m.subject||'',replyMessageId:id});
  $('sheet').querySelectorAll('[data-move]').forEach(b=>b.onclick=async()=>{
   const {error}=await sb.rpc('dmi_set_category',{p_message_id:id,p_category:b.dataset.move,p_scope:$('always').checked?'sender':'message'});
   if(error)return toast(error.message);toast('Moved to '+CAT[b.dataset.move]+'.');closeSheet();await load()});

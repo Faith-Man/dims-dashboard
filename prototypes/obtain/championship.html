@@ -2,31 +2,32 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SPARTANS1ST™ Championship Vision</title>
 <style>
-:root{--navy:#07194d;--blue:#0d3f91;--cyan:#28d9ff;--gold:#e5b843;--white:#f8fbff;--red:#c51f32}
-*{box-sizing:border-box}body{margin:0;color:var(--white);font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at 50% 0,#174ca0 0,#091c55 42%,#030b22 100%);min-height:100vh}
-.shell{max-width:980px;margin:auto;padding:18px}.top{text-align:center;padding:16px 10px}.brand{font:900 italic clamp(24px,6vw,42px) Georgia,serif;letter-spacing:.02em}.brand span{color:var(--gold)}
-.kicker{color:#b9d9ff;letter-spacing:.18em;font-weight:900;font-size:11px;margin-top:7px}.hero{border:1px solid #4f8ee077;border-top:3px solid var(--gold);border-radius:24px;padding:22px;background:linear-gradient(145deg,#0b2b6be8,#07194de8);box-shadow:0 20px 50px #0007;text-align:center}
-.event{font-size:12px;letter-spacing:.14em;color:var(--gold);font-weight:900}.count{font-size:clamp(70px,18vw,150px);line-height:.9;font-weight:1000;margin:12px 0 0;text-shadow:0 8px 28px #000}.days{font-size:clamp(20px,5vw,34px);font-weight:1000;letter-spacing:.12em}.date{margin:8px 0 18px;color:#c8dcff;font-weight:800}
-.phase{display:inline-block;border:1px solid var(--cyan);border-radius:999px;padding:8px 16px;color:var(--cyan);font-weight:1000;letter-spacing:.1em}.vision{font:900 clamp(22px,5vw,34px) Georgia,serif;margin:20px auto 4px;max-width:780px}.vision b{color:var(--gold)}
-.grid{display:grid;grid-template-columns:1.3fr .7fr;gap:14px;margin-top:14px}.card{border:1px solid #4f8ee055;border-radius:20px;padding:20px;background:#071a4dcc;box-shadow:0 12px 28px #0005}.label{font-size:10px;letter-spacing:.17em;color:var(--gold);font-weight:1000}.word{font-size:clamp(30px,7vw,54px);font-weight:1000;margin:7px 0}.thought{font-size:18px;line-height:1.5;color:#e7f1ff}.scripture{margin-top:16px;padding:14px;border-left:3px solid var(--gold);background:#ffffff0a;line-height:1.5;font-family:Georgia,serif}.coach{font-size:22px;font-weight:900;line-height:1.35;margin:10px 0}.standard{color:#b8d7ff;line-height:1.55}
-.track{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:14px 0}.step{text-align:center;padding:11px 4px;border-radius:12px;background:#ffffff0a;border:1px solid #ffffff18;font-size:10px;font-weight:900}.step.on{background:linear-gradient(135deg,#0b62c8,#0d3f91);border-color:var(--cyan);box-shadow:0 0 20px #28d9ff33}.step.done{border-color:#e5b84377;color:var(--gold)}
-.core{text-align:center;margin:15px 0;padding:18px;border-radius:18px;background:linear-gradient(90deg,#081b50,#102f73,#081b50);border:1px solid #e5b84355;font-size:clamp(17px,4vw,23px);font-weight:1000}.core span{color:var(--gold)}
-.actions{text-align:center;font-size:clamp(17px,4vw,26px);font-weight:1000;letter-spacing:.04em;margin:22px 0}.actions b{color:var(--gold)}
-.footer{text-align:center;color:#9dbce8;font-size:11px;padding:14px}.champ{color:var(--gold);font-size:clamp(46px,12vw,92px)}
-@media(max-width:720px){.grid{grid-template-columns:1fr}.shell{padding:10px}.hero,.card{border-radius:17px}.track{grid-template-columns:repeat(5,1fr)}}
+:root{--n:#020b22;--b:#073f9b;--e:#24cfff;--g:#f2c24f;--r:#d4142f;--w:#fff}
+*{box-sizing:border-box}body{margin:0;color:#fff;font-family:Arial,sans-serif;background:radial-gradient(circle at 50% -10%,#1755b3 0,#06194b 38%,#010713 80%);min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(90deg,#005dff10 1px,transparent 1px),linear-gradient(#005dff0d 1px,transparent 1px);background-size:42px 42px}
+.shell{position:relative;max-width:1240px;margin:auto;padding:14px}.top{text-align:center;padding:8px}.brand{font:1000 italic clamp(28px,5vw,52px) Impact,Arial,sans-serif;text-shadow:0 4px 0 #00113b,0 0 20px #238fff}.brand span{color:var(--g)}.kicker{font:1000 italic clamp(25px,6vw,58px) Impact,Arial,sans-serif;letter-spacing:.03em;text-shadow:0 5px 0 #000,0 0 18px #147cff;margin-top:4px}
+.hero{position:relative;text-align:center;border:2px solid #1988ff;border-top:5px solid var(--g);padding:16px 20px 25px;background:linear-gradient(145deg,#06245ce8,#020c2ae8);box-shadow:inset 0 0 35px #0c6dff33,0 15px 40px #000a}
+.event{color:var(--g);font-weight:1000;letter-spacing:.16em}.date{font-weight:900;color:#bcd8ff;margin:6px 0}.vision{font:italic 1000 clamp(20px,3.5vw,38px) Impact,Arial,sans-serif;letter-spacing:.02em}.vision b{color:var(--g)}
+.countwrap{width:min(330px,74vw);aspect-ratio:1;margin:15px auto;display:grid;place-items:center;border-radius:50%;position:relative;background:radial-gradient(circle,#07173c 45%,#123b86 46%,#061333 58%,#e7b83e 59%,#0b58c7 61%,#061333 69%);box-shadow:0 0 25px #1599ff,0 0 50px #e1182c55,inset 0 0 35px #000}
+.countwrap:before,.countwrap:after{content:"";position:absolute;inset:8%;border-radius:50%;border:3px solid #d71c37;box-shadow:0 0 18px #ff193c}.countwrap:after{inset:3%;border-color:#27aaff;border-width:2px}
+.count{font:1000 clamp(92px,20vw,170px) Impact,Arial,sans-serif;line-height:.75;color:var(--g);text-shadow:0 5px 0 #5b3200,0 0 20px #ffd76c}.days{font:1000 italic clamp(18px,4vw,31px) Impact,Arial,sans-serif;letter-spacing:.08em;margin-top:-76px;position:relative;z-index:2}.phase{display:inline-block;background:#081b4d;border:2px solid #2acaff;padding:8px 20px;font-weight:1000;color:#fff;box-shadow:0 0 16px #16a6ff}
+.track{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:10px 0}.step{padding:12px 5px;text-align:center;border:1px solid #1687e8;background:linear-gradient(#082a6a,#03122f);font:1000 italic 13px Impact,Arial,sans-serif}.step.on{border:2px solid var(--g);color:var(--g);box-shadow:0 0 16px #e8b93b88,inset 0 0 15px #d9182b33}
+.grid{display:grid;grid-template-columns:1.35fr .65fr;gap:10px}.card{border:2px solid #147ee0;background:linear-gradient(145deg,#08245b,#020c25);padding:18px;box-shadow:inset 0 0 24px #0d63cb30}.label{display:inline-block;background:linear-gradient(90deg,#0c55bd,#092a67);border:1px solid #42baff;padding:7px 13px;font-weight:1000;font-style:italic}.word{font:1000 italic clamp(31px,6vw,55px) Impact,Arial,sans-serif;margin:10px 0;color:#fff;text-shadow:0 3px 0 #00143c}.thought{font-size:18px;line-height:1.45}.scripture{margin-top:15px;padding:13px;border-left:4px solid var(--g);font:italic 18px Georgia,serif;background:#0005}.coach{font:1000 italic 24px/1.3 Impact,Arial,sans-serif;margin:12px 0}.standard{line-height:1.6;color:#c7dcff;font-weight:800}.standard b{color:var(--g)}
+.core{margin:10px 0;text-align:center;border:2px solid #147ee0;background:#020a1de8;padding:17px;font:1000 italic clamp(20px,4vw,34px) Impact,Arial,sans-serif}.core span{color:var(--g)}
+.actions{text-align:center;border-top:3px solid #147ee0;border-bottom:3px solid #d31a35;padding:14px 4px;font:1000 italic clamp(18px,3vw,29px) Impact,Arial,sans-serif}.actions b{color:var(--g)}.footer{text-align:center;padding:15px;font:italic 16px Georgia,serif}.champ{font-size:100px}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.track{grid-template-columns:repeat(5,1fr)}.step{font-size:10px;padding:9px 2px}.shell{padding:7px}.hero{padding:12px 8px 20px}}
 </style></head>
 <body><main class="shell">
-<header class="top"><div class="brand">SPARTANS<span>1ST™</span></div><div class="kicker">CHAMPIONSHIP VISION DASHBOARD</div></header>
-<section class="hero"><div class="event">FRONTIER VALLEY CONFERENCE CHAMPIONSHIP</div><div id="count" class="count">10</div><div id="days" class="days">DAYS TO CHAMPIONSHIP</div><div class="date">OCTOBER 13, 2026 • MUSKOGEE, OKLAHOMA</div><div id="phase" class="phase">BUILD</div>
-<div class="vision">VISION SEES BEYOND <b>WHERE YOU ARE</b> TO WHERE YOU <b>CAN BE.</b></div></section>
-<div class="track"><div class="step" data-p="BUILD">BUILD</div><div class="step" data-p="SHARPEN">SHARPEN</div><div class="step" data-p="FOCUS">FOCUS</div><div class="step" data-p="READY">READY</div><div class="step" data-p="OBTAIN">OBTAIN 🏆</div></div>
-<section class="grid"><article class="card"><div class="label">TODAY'S WORD</div><div id="word" class="word">VISION 👁️</div><div id="thought" class="thought"></div><div id="scripture" class="scripture"></div></article>
-<aside class="card"><div class="label">COACH'S WORD</div><div id="coach" class="coach"></div><div class="standard">STAY CALM.<br>STAY CLEAR.<br>STAY CONSISTENT.<br><b>KEEP THE VISION. MAINTAIN THE STANDARD.</b></div></aside></section>
-<div class="core">YOU DON'T BECOME PREPARED AT THE STARTING LINE.<br><span>THE STARTING LINE REVEALS HOW YOU PREPARED.</span></div>
-<div class="actions">SEE IT • SPEAK IT • PREPARE FOR IT • RUN IT • PRESS • <b>OBTAIN!</b> 🏆</div>
-<footer class="footer">RUN TO OBTAIN™ • SPARTANS1ST™ • “So run, that ye may obtain.” — 1 Corinthians 9:24 KJV</footer>
-</main>
-<script>
+<header class="top"><div class="brand">SPARTANS<span>1ST™</span> CROSS COUNTRY</div><div class="kicker">CHAMPIONSHIP VISION DASHBOARD</div></header>
+<section class="hero"><div class="event">FRONTIER VALLEY CONFERENCE CHAMPIONSHIP</div><div class="date">OCTOBER 13, 2026 • MUSKOGEE, OKLAHOMA</div><div class="vision">“VISION SEES BEYOND WHERE YOU ARE TO WHERE YOU <b>CAN BE.</b>”</div>
+<div class="countwrap"><div id="count" class="count">10</div></div><div id="days" class="days">DAYS TO CHAMPIONSHIP</div><div id="phase" class="phase">BUILD</div></section>
+<div class="track"><div class="step" data-p="BUILD">DAYS 10–7<br>BUILD</div><div class="step" data-p="SHARPEN">DAYS 6–4<br>SHARPEN</div><div class="step" data-p="FOCUS">DAYS 3–2<br>FOCUS</div><div class="step" data-p="READY">DAY 1<br>READY</div><div class="step" data-p="OBTAIN">CHAMPIONSHIP<br>OBTAIN! 🏆</div></div>
+<section class="grid"><article class="card"><div class="label">TODAY'S FOCUS</div><div id="word" class="word">VISION 👁️</div><div id="thought" class="thought"></div><div id="scripture" class="scripture"></div></article>
+<aside class="card"><div class="label">COACH'S FOCUS</div><div id="coach" class="coach"></div><div class="standard">SEE THEM • DEVELOP THEM • PREPARE THEM • BELIEVE IN THEM • LEAD THEM<br><br><b>STAY CALM. STAY CLEAR. STAY CONSISTENT.</b></div></aside></section>
+<div class="core">YOU DON'T BECOME <span>PREPARED</span> AT THE STARTING LINE.<br>THE STARTING LINE REVEALS <span>HOW YOU PREPARED.</span></div>
+<div class="actions">👁 SEE IT. 〉 💬 SPEAK IT. 〉 🏋 PREPARE FOR IT. 〉 🏃 RUN IT. 〉 🔥 PRESS. 〉 🏆 <b>OBTAIN.</b></div>
+<footer class="footer">“Where there is no vision, the people perish.” — Proverbs 29:18 KJV &nbsp; • &nbsp; “So run, that ye may obtain.” — 1 Corinthians 9:24 KJV</footer>
+</main><script>
 const target=new Date('2026-10-13T00:00:00-05:00');
 const daily={
 10:['VISION 👁️','See beyond where you are to where you CAN BE. The destination becomes clearer when the vision stays in front of you.','“Where there is no vision, the people perish.” — Proverbs 29:18 KJV','See them beyond where they are. Lead them toward what they can become.'],

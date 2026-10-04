@@ -4,8 +4,8 @@
 <style>
 :root{--d1:#0C1262;--d2:#075ee8;--d3:#24E8FF;--gold:#f3bf42;--white:#f8fbff}
 *{box-sizing:border-box}body{margin:0;min-height:100svh;color:var(--white);font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at 50% 18%,#1688ff 0,#0b3da6 28%,var(--d1) 67%,#06113d 100%)}
-.entry{min-height:100svh;display:grid;place-items:center;padding:0;background:#000}.entry img{display:block;width:min(100vw,700px);max-height:100svh;object-fit:contain}
-.enter{position:absolute;left:50%;bottom:5.5%;transform:translateX(-50%);width:min(58vw,390px);height:8%;border:0;border-radius:999px;background:transparent;cursor:pointer}.enter:focus-visible{outline:4px solid var(--gold)}
+.entry{min-height:100svh;display:grid;place-items:center;padding:0;background:#000}.entry-art{position:relative;width:min(100vw,700px,calc(100svh * 2 / 3));aspect-ratio:2/3;line-height:0}.entry-art img{display:block;width:100%;height:100%;object-fit:contain}
+.enter{position:absolute;left:19%;top:84%;transform:none;width:62%;height:10%;border:0;border-radius:999px;background:transparent;cursor:pointer}.enter:focus-visible{outline:4px solid var(--gold)}
 .countdown{display:none;min-height:100svh;padding:clamp(18px,4vw,44px)}body.open .entry{display:none}body.open .countdown{display:block}
 .shell{max-width:900px;margin:auto;text-align:center}.eyebrow{letter-spacing:.28em;color:#d9eaff;font-weight:800;font-size:12px}.crest{width:min(92vw,600px);margin:10px auto 0;filter:drop-shadow(0 14px 30px #00184c)}
 .crest img{width:100%;display:block}.count{margin:-4px auto 8px;font:900 clamp(62px,17vw,150px)/.9 Georgia,serif;color:var(--gold);text-shadow:0 4px 16px #001}
@@ -14,7 +14,7 @@
 .back{position:fixed;top:max(12px,env(safe-area-inset-top));left:12px;border:1px solid #8edcff66;background:#081b61dd;color:#fff;border-radius:999px;padding:9px 13px;cursor:pointer}
 @media(max-width:700px){.cards{grid-template-columns:1fr}.countdown{padding:20px 14px}.card{padding:18px}}
 </style></head><body>
-<section class="entry" aria-label="Spartans1st Championship entry"><img src="assets/championship-entry.jpg" alt="Spartans1st — Let Them Have Dominion. Psalm 8:6. Fight. Press. Win."><button class="enter" id="enter" aria-label="Enter championship countdown"></button></section>
+<section class="entry" aria-label="Spartans1st Championship entry"><div class="entry-art"><img src="assets/championship-entry.jpg" alt="Spartans1st — Let Them Have Dominion. Psalm 8:6. Fight. Press. Win."><button class="enter" id="enter" aria-label="Enter championship countdown"></button></div></section>
 <main class="countdown"><button class="back" id="back">← ENTRY</button><div class="shell"><div class="eyebrow">SPARTANS1ST™ XC</div>
 <div class="crest"><img src="assets/championship-countdown.png" alt="Spartans1st XC Championship Countdown"></div>
 <div class="count" id="count">9</div><div class="unit" id="unit">DAYS</div><div class="date">CHAMPIONSHIP MEET • TUESDAY, OCTOBER 13</div>

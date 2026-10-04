@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Spartans1st™ Championship Countdown</title><meta name="theme-color" content="#0C1262">
+<style>
+:root{--d1:#0C1262;--d2:#075ee8;--d3:#24E8FF;--gold:#f3bf42;--white:#f8fbff}
+*{box-sizing:border-box}body{margin:0;min-height:100svh;color:var(--white);font-family:Inter,Arial,sans-serif;background:radial-gradient(circle at 50% 18%,#1688ff 0,#0b3da6 28%,var(--d1) 67%,#06113d 100%)}
+.entry{min-height:100svh;display:grid;place-items:center;padding:0;background:#000}.entry img{display:block;width:min(100vw,700px);max-height:100svh;object-fit:contain}
+.enter{position:absolute;left:50%;bottom:5.5%;transform:translateX(-50%);width:min(58vw,390px);height:8%;border:0;border-radius:999px;background:transparent;cursor:pointer}.enter:focus-visible{outline:4px solid var(--gold)}
+.countdown{display:none;min-height:100svh;padding:clamp(18px,4vw,44px)}body.open .entry{display:none}body.open .countdown{display:block}
+.shell{max-width:900px;margin:auto;text-align:center}.eyebrow{letter-spacing:.28em;color:#d9eaff;font-weight:800;font-size:12px}.crest{width:min(92vw,600px);margin:10px auto 0;filter:drop-shadow(0 14px 30px #00184c)}
+.crest img{width:100%;display:block}.count{margin:-4px auto 8px;font:900 clamp(62px,17vw,150px)/.9 Georgia,serif;color:var(--gold);text-shadow:0 4px 16px #001}
+.unit{font-weight:900;letter-spacing:.18em}.date{margin:12px 0 28px;font:700 clamp(18px,4vw,30px) Georgia,serif;color:#ffe29a}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:left}.card{padding:22px;border:1px solid #66c7ff66;border-radius:20px;background:linear-gradient(145deg,#0d2f82cc,#081b61dd);box-shadow:0 12px 34px #00143c88}.label{color:var(--gold);font-weight:900;letter-spacing:.16em;font-size:12px}.quote{font:italic 600 clamp(18px,3vw,25px)/1.45 Georgia,serif;margin:13px 0}.source{color:#d9eaff;font-weight:800}.footer{margin:28px 0 8px;font-weight:1000;letter-spacing:.12em}.footer b{color:var(--gold)}
+.back{position:fixed;top:max(12px,env(safe-area-inset-top));left:12px;border:1px solid #8edcff66;background:#081b61dd;color:#fff;border-radius:999px;padding:9px 13px;cursor:pointer}
+@media(max-width:700px){.cards{grid-template-columns:1fr}.countdown{padding:20px 14px}.card{padding:18px}}
+</style></head><body>
+<section class="entry" aria-label="Spartans1st Championship entry"><img src="assets/championship-entry.jpg" alt="Spartans1st — Let Them Have Dominion. Psalm 8:6. Fight. Press. Win."><button class="enter" id="enter" aria-label="Enter championship countdown"></button></section>
+<main class="countdown"><button class="back" id="back">← ENTRY</button><div class="shell"><div class="eyebrow">SPARTANS1ST™ XC</div>
+<div class="crest"><img src="assets/championship-countdown.png" alt="Spartans1st XC Championship Countdown"></div>
+<div class="count" id="count">9</div><div class="unit" id="unit">DAYS</div><div class="date">CHAMPIONSHIP MEET • TUESDAY, OCTOBER 13</div>
+<section class="cards"><article class="card"><div class="label">WORD FOR TODAY</div><div class="quote" id="scripture"></div><div class="source" id="scriptureRef"></div></article>
+<article class="card"><div class="label">CHAMPION'S MINDSET</div><div class="quote" id="champion"></div><div class="source" id="championSource"></div></article></section>
+<div class="footer">RUN ›› <b>PRESS</b> ›› OBTAIN</div></div></main>
+<script>
+const CHAMPIONSHIP='2026-10-13', TZ='America/Chicago';
+const daily=[
+['For whatsoever is born of God overcometh the world: and this is the victory that overcometh the world, even our faith.','1 John 5:4 (KJV)','The will to win means nothing without the will to prepare.','Juma Ikangaa'],
+['I press toward the mark for the prize of the high calling of God in Christ Jesus.','Philippians 3:14 (KJV)','To give anything less than your best is to sacrifice the gift.','Steve Prefontaine'],
+['Let us run with patience the race that is set before us.','Hebrews 12:1 (KJV)','Success is where preparation and opportunity meet.','Bobby Unser'],
+['I can do all things through Christ which strengtheneth me.','Philippians 4:13 (KJV)','The battles that count are not the ones for gold medals.','Jesse Owens'],
+['Through God we shall do valiantly: for he it is that shall tread down our enemies.','Psalm 60:12 (KJV)','Run when you can, walk if you have to, crawl if you must; just never give up.','Dean Karnazes'],
+['For by thee I have run through a troop; and by my God have I leaped over a wall.','Psalm 18:29 (KJV)','A lot of people run a race to see who is fastest. I run to see who has the most guts.','Steve Prefontaine'],
+['Be strong and of a good courage; be not afraid, neither be thou dismayed.','Joshua 1:9 (KJV)','You have to wonder at times what you’re doing out there. Over the years, I’ve given myself a thousand reasons to keep running.','Steve Prefontaine'],
+['Know ye not that they which run in a race run all, but one receiveth the prize? So run, that ye may obtain.','1 Corinthians 9:24 (KJV)','Champions keep playing until they get it right.','Billie Jean King'],
+['I have fought a good fight, I have finished my course, I have kept the faith.','2 Timothy 4:7 (KJV)','It is not the size of a man but the size of his heart that matters.','Evander Holyfield'],
+['Thou madest him to have dominion over the works of thy hands; thou hast put all things under his feet.','Psalm 8:6 (KJV)','Excellence is not a singular act, but a habit. You are what you do repeatedly.','Shaquille O’Neal']
+];
+function ymd(){const q=new URLSearchParams(location.search).get('today');if(/^\d{4}-\d{2}-\d{2}$/.test(q||''))return q;const p=new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const g=t=>p.find(x=>x.type===t).value;return g('year')+'-'+g('month')+'-'+g('day')}
+function dn(s){const [y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d)/86400000}
+function render(){const left=dn(CHAMPIONSHIP)-dn(ymd()), safe=Math.max(0,left);document.getElementById('count').textContent=left<=0?'GO':safe;document.getElementById('unit').textContent=left<=0?'CHAMPIONSHIP DAY':safe===1?'DAY':'DAYS';const i=Math.max(0,Math.min(daily.length-1,9-safe)),d=daily[i];scripture.textContent='“'+d[0]+'”';scriptureRef.textContent=d[1];champion.textContent='“'+d[2]+'”';championSource.textContent='— '+d[3]}
+enter.onclick=()=>document.body.classList.add('open');back.onclick=()=>document.body.classList.remove('open');render();
+</script></body></html>

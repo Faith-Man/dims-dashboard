@@ -1,1 +1,5 @@
-{\n  "name": "spartans1st-championship",\n  "compatibility_date": "2026-10-04",\n  "assets": { "directory": "." }\n}\n
+{
+  "name": "spartans1st-championship-git",
+  "compatibility_date": "2026-10-04",
+  "assets": { "directory": "." }
+}

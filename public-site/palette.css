@@ -1,22 +1,24 @@
 :root{
-  --blue:#0d1f78;
-  --blue2:#17399a;
-  --blue3:#eef3ff;
-  --dark:#06113f;
-  --gold:#d6b75d;
-  --line:#cbd8f5;
+  --blue:#0943d1;
+  --blue2:#0055dc;
+  --blue3:#eef4fe;
+  --dark:#010f5b;
+  --gold:#eec020;
+  --line:#d3e0fb;
 }
-.site-header{border-bottom-color:rgba(13,31,120,.14)}
-.brand-logo{filter:drop-shadow(0 6px 14px rgba(8,25,79,.22))}
-.hero{background:linear-gradient(135deg,#06113f 0%,#0d1f78 66%,#17399a 100%)}
-.hero-logo{filter:drop-shadow(0 28px 70px rgba(2,7,22,.45)) drop-shadow(0 0 32px rgba(44,116,255,.30))}
-.six-grid article{background:linear-gradient(180deg,#fff,#f5f8ff);box-shadow:0 12px 32px rgba(8,25,79,.07)}
-.section-blue{background:linear-gradient(140deg,#06113f 0%,#0d1f78 62%,#17399a 100%)}
-.dark-card{background:linear-gradient(145deg,#06113f 0%,#0d1f78 66%,#17399a 100%)}
-.section-dark{background:linear-gradient(145deg,#06113f 0%,#0d1f78 64%,#17399a 100%)}
-.connect-section{background:#f5f8ff}
-.connect-card{box-shadow:0 18px 48px rgba(8,25,79,.10)}
-.feature-card{box-shadow:0 24px 60px rgba(5,16,61,.28)}
-.status-pill{background:#eef3ff}
-footer{background:linear-gradient(135deg,#06113f 0%,#0d1f78 100%)}
-@media(max-width:800px){.site-nav{box-shadow:0 16px 40px rgba(8,25,79,.16)}}
+.site-header{border-bottom-color:rgba(9,67,209,.16)}
+.brand-logo{filter:drop-shadow(0 6px 14px rgba(1,15,91,.22))}
+.hero{background:linear-gradient(135deg,#000c56 0%,#0134b3 55%,#0055dc 100%);border-bottom:4px solid var(--gold)}
+.hero:before{background:radial-gradient(circle at 78% 35%,rgba(64,150,255,.35),transparent 38%),radial-gradient(circle at 12% 18%,rgba(255,255,255,.10),transparent 30%)}
+.hero-logo{filter:drop-shadow(0 28px 70px rgba(0,12,86,.45)) drop-shadow(0 0 36px rgba(80,160,255,.45))}
+.section-light .eyebrow,.connect-section .eyebrow{color:#b38600}
+.six-grid article{background:#eef4fe;border-color:#d3e0fb;box-shadow:0 10px 28px rgba(1,15,91,.07)}
+.section-blue{background:linear-gradient(140deg,#000c56 0%,#0134b3 58%,#0055dc 100%)}
+.dark-card{background:linear-gradient(145deg,#000c56 0%,#0134b3 62%,#0055dc 100%)}
+.section-dark{background:linear-gradient(145deg,#000c56 0%,#0134b3 60%,#0055dc 100%);border-top:4px solid var(--gold)}
+.connect-section{background:#eef4fe}
+.connect-card{box-shadow:0 18px 48px rgba(1,15,91,.10)}
+.feature-card{box-shadow:0 24px 60px rgba(0,12,86,.28)}
+.status-pill{background:#eef4fe}
+footer{background:linear-gradient(135deg,#000c56 0%,#0134b3 100%);border-top:4px solid var(--gold)}
+@media(max-width:800px){.site-nav{box-shadow:0 16px 40px rgba(1,15,91,.16)}}

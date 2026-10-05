@@ -12,8 +12,10 @@
 .unit{margin-top:8px;font-weight:900;font-size:clamp(11px,2.5vw,20px);letter-spacing:.14em;white-space:nowrap}.date{margin:12px 0 28px;font:700 clamp(18px,4vw,30px) Georgia,serif;color:#ffe29a}
 .cards{display:grid;grid-template-columns:minmax(0,680px);justify-content:center;gap:16px;text-align:left}.card{padding:22px;border:1px solid #66c7ff66;border-radius:20px;background:linear-gradient(145deg,#0d2f82cc,#081b61dd);box-shadow:0 12px 34px #00143c88}.label{color:var(--gold);font-weight:900;letter-spacing:.16em;font-size:12px}.quote{font:600 clamp(18px,3vw,25px)/1.45 Georgia,serif;margin:13px 0}#scripture,#champion,#declaration{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:500}.source{color:#d9eaff;font-weight:800}.footer{margin:40px 0 18px;color:#fff;font:italic 600 clamp(21px,4.3vw,33px)/1.2 Georgia,"Times New Roman",serif;letter-spacing:.04em;text-shadow:0 3px 14px #00143c}
 .back{position:fixed;top:max(12px,env(safe-area-inset-top));left:12px;border:1px solid #8edcff66;background:#081b61dd;color:#fff;border-radius:999px;padding:9px 13px;cursor:pointer}
+.music-toggle{position:fixed;z-index:20;top:max(12px,env(safe-area-inset-top));right:12px;min-height:44px;border:1px solid #8edcff88;border-radius:999px;background:#081b61e8;color:#fff;padding:9px 14px;font:800 12px Inter,Arial,sans-serif;letter-spacing:.06em;cursor:pointer;box-shadow:0 4px 16px #00143c88}.music-toggle:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 @media(max-width:700px){.cards{grid-template-columns:1fr}.countdown{padding:20px 14px}.card{padding:18px}}
 </style></head><body>
+<button class="music-toggle" id="musicToggle" type="button" aria-label="Turn music off" aria-pressed="true">🔊 MUSIC ON</button>
 <section class="entry" aria-label="Spartans1st Championship entry"><div class="entry-art"><img src="assets/championship-entry.jpg" alt="Spartans1st — Let Them Have Dominion. Psalm 8:6. Fight. Press. Win."><button class="enter" id="enter" aria-label="Enter championship countdown"></button></div></section>
 <main class="countdown"><button class="back" id="back">← ENTRY</button><div class="shell"><div class="eyebrow">SPARTANS1ST™ XC</div>
 <div class="crest"><img src="assets/championship-countdown.png" alt="Spartans1st XC Championship Countdown"><div class="medallion-count" aria-live="polite"><div class="count" id="count">9</div><div class="unit" id="unit">DAYS</div></div></div>
@@ -38,5 +40,34 @@ const daily=[
 function ymd(){const q=new URLSearchParams(location.search).get('today');if(/^\d{4}-\d{2}-\d{2}$/.test(q||''))return q;const p=new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const g=t=>p.find(x=>x.type===t).value;return g('year')+'-'+g('month')+'-'+g('day')}
 function dn(s){const [y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d)/86400000}
 function render(){const left=dn(CHAMPIONSHIP)-dn(ymd()),safe=Math.max(0,left),race=left===0,after=left<0;document.getElementById('count').textContent=after?'WELL DONE':race?'GO':safe;document.getElementById('unit').textContent=after?'':race?'CHAMPIONSHIP DAY':safe===1?'DAY':'DAYS';let d;if(after)d=['I have fought a good fight, I have finished my course, I have kept the faith.','2 Timothy 4:7 (KJV)',daily[8][2],daily[8][3]];else if(race)d=['Know ye not that they which run in a race run all, but one receiveth the prize? So run, that ye may obtain.','1 Corinthians 9:24 (KJV)',daily[7][2],daily[7][3]];else{const i=Math.max(0,Math.min(daily.length-1,9-safe));d=daily[i]}scripture.textContent='“'+d[0]+'”';scriptureRef.textContent=d[1];champion.textContent='“'+d[2]+'”';championSource.textContent='— '+d[3];const declarations=['I overcome by faith. I run with purpose, courage, and discipline. I am prepared, I am focused, and I will finish strong.','I press toward the mark. I will not quit, back down, or lose focus. God has strengthened me for the race before me. I run with purpose. I PRESS. I FINISH. I WIN!','I run with patience and discipline. I stay focused on the race before me, and I will finish what I started.','Christ strengthens me. I am equipped for every challenge before me. I run strong, focused, and confident.','Through God I shall do valiantly. I meet this challenge with courage, strength, and determination.','God strengthens my steps. I push beyond every obstacle. I keep moving, keep pressing, and keep believing.','I am strong and courageous. I refuse fear and discouragement. I run with confidence because God is with me.','I run to obtain. I have prepared for this moment. I compete with purpose, discipline, courage, and faith. Today I PRESS. Today I WIN!','I fought the good fight. I finished my course. I kept the faith. I gave my best, and I finish with gratitude and honor.','God has given me dominion. I lead myself with discipline, steward my gifts well, and pursue excellence with purpose.'];let di=after?8:race?7:Math.max(0,Math.min(declarations.length-1,9-safe));declaration.textContent='“'+declarations[di]+'”'}
-enter.onclick=()=>document.body.classList.add('open');back.onclick=()=>document.body.classList.remove('open');render();
+// One player serves both screens, so their tracks can never overlap.
+const music=new Audio();music.loop=true;music.preload='none';
+const tracks={entry:'assets/entry-music.mp3',countdown:'assets/countdown-music.mp3'};
+let musicOn=true;try{musicOn=sessionStorage.getItem('championshipMusic')!=='off'}catch(e){}
+let fadeTimer,playToken=0;
+function updateMusicControl(){musicToggle.textContent=musicOn?'🔊 MUSIC ON':'🔇 MUSIC OFF';musicToggle.setAttribute('aria-pressed',String(musicOn));musicToggle.setAttribute('aria-label',musicOn?'Turn music off':'Turn music on')}
+function stopFade(){if(fadeTimer)clearInterval(fadeTimer);fadeTimer=undefined}
+function playScreen(screen){
+  if(!musicOn)return;
+  const path=tracks[screen];
+  if(music.dataset.screen===screen&&!music.paused)return;
+  const token=++playToken;stopFade();
+  if(music.dataset.screen!==screen){music.pause();music.src=path;music.dataset.screen=screen}
+  music.volume=0;
+  // Call play directly inside the click/touch/key event for mobile Safari.
+  let attempt;try{attempt=music.play()}catch(e){return}
+  if(attempt&&typeof attempt.then==='function')attempt.then(()=>{
+    if(token!==playToken)return;
+    if(!musicOn){music.pause();return}
+    const target=.28;let step=0;
+    fadeTimer=setInterval(()=>{if(token!==playToken){stopFade();return}step++;music.volume=Math.min(target,target*step/8);if(step>=8)stopFade()},35)
+  }).catch(()=>{if(token===playToken)music.pause()});
+}
+function showScreen(screen){document.body.classList.toggle('open',screen==='countdown');playScreen(screen)}
+musicToggle.onclick=()=>{musicOn=!musicOn;try{sessionStorage.setItem('championshipMusic',musicOn?'on':'off')}catch(e){}updateMusicControl();if(musicOn)playScreen(document.body.classList.contains('open')?'countdown':'entry');else{++playToken;stopFade();music.pause()}};
+// A tap on the entry artwork is the first eligible gesture; ENTER uses its own
+// gesture to start the countdown track directly without first starting entry audio.
+document.querySelector('.entry').addEventListener('click',e=>{if(!e.target.closest('button'))playScreen('entry')});
+enter.onclick=()=>showScreen('countdown');back.onclick=()=>showScreen('entry');
+updateMusicControl();render();
 </script></body></html>

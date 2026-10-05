@@ -10,14 +10,14 @@
 .shell{max-width:900px;margin:auto;text-align:center}.eyebrow{letter-spacing:.28em;color:#d9eaff;font-weight:800;font-size:12px}.crest{width:min(92vw,600px);margin:10px auto 0;filter:drop-shadow(0 14px 30px #00184c)}
 .crest img{width:100%;display:block}.count{margin:-4px auto 8px;font:900 clamp(62px,17vw,150px)/.9 Georgia,serif;color:var(--gold);text-shadow:0 4px 16px #001}
 .unit{font-weight:900;letter-spacing:.18em}.date{margin:12px 0 28px;font:700 clamp(18px,4vw,30px) Georgia,serif;color:#ffe29a}
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:left}.card{padding:22px;border:1px solid #66c7ff66;border-radius:20px;background:linear-gradient(145deg,#0d2f82cc,#081b61dd);box-shadow:0 12px 34px #00143c88}.label{color:var(--gold);font-weight:900;letter-spacing:.16em;font-size:12px}.quote{font:italic 600 clamp(18px,3vw,25px)/1.45 Georgia,serif;margin:13px 0}.source{color:#d9eaff;font-weight:800}.footer{margin:28px 0 8px;font-weight:1000;letter-spacing:.12em}.footer b{color:var(--gold)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;text-align:left}.card{padding:22px;border:1px solid #66c7ff66;border-radius:20px;background:linear-gradient(145deg,#0d2f82cc,#081b61dd);box-shadow:0 12px 34px #00143c88}.label{color:var(--gold);font-weight:900;letter-spacing:.16em;font-size:12px}.quote{font:600 clamp(18px,3vw,25px)/1.45 Georgia,serif;margin:13px 0}#scripture{font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:500}.source{color:#d9eaff;font-weight:800}.footer{margin:28px 0 8px;font-weight:1000;letter-spacing:.12em}.footer b{color:var(--gold)}
 .back{position:fixed;top:max(12px,env(safe-area-inset-top));left:12px;border:1px solid #8edcff66;background:#081b61dd;color:#fff;border-radius:999px;padding:9px 13px;cursor:pointer}
 @media(max-width:700px){.cards{grid-template-columns:1fr}.countdown{padding:20px 14px}.card{padding:18px}}
 </style></head><body>
 <section class="entry" aria-label="Spartans1st Championship entry"><div class="entry-art"><img src="assets/championship-entry.jpg" alt="Spartans1st — Let Them Have Dominion. Psalm 8:6. Fight. Press. Win."><button class="enter" id="enter" aria-label="Enter championship countdown"></button></div></section>
 <main class="countdown"><button class="back" id="back">← ENTRY</button><div class="shell"><div class="eyebrow">SPARTANS1ST™ XC</div>
 <div class="crest"><img src="assets/championship-countdown.png" alt="Spartans1st XC Championship Countdown"></div>
-<div class="count" id="count">9</div><div class="unit" id="unit">DAYS</div><div class="date">CHAMPIONSHIP MEET • TUESDAY, OCTOBER 13</div>
+<div class="count" id="count">9</div><div class="unit" id="unit">DAYS</div>
 <section class="cards"><article class="card"><div class="label">WORD FOR TODAY</div><div class="quote" id="scripture"></div><div class="source" id="scriptureRef"></div></article>
 <article class="card"><div class="label">CHAMPION'S MINDSET</div><div class="quote" id="champion"></div><div class="source" id="championSource"></div></article></section>
 <div class="footer">RUN ›› <b>PRESS</b> ›› OBTAIN</div></div></main>
@@ -37,6 +37,6 @@ const daily=[
 ];
 function ymd(){const q=new URLSearchParams(location.search).get('today');if(/^\d{4}-\d{2}-\d{2}$/.test(q||''))return q;const p=new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const g=t=>p.find(x=>x.type===t).value;return g('year')+'-'+g('month')+'-'+g('day')}
 function dn(s){const [y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d)/86400000}
-function render(){const left=dn(CHAMPIONSHIP)-dn(ymd()), safe=Math.max(0,left);document.getElementById('count').textContent=left<=0?'GO':safe;document.getElementById('unit').textContent=left<=0?'CHAMPIONSHIP DAY':safe===1?'DAY':'DAYS';const i=Math.max(0,Math.min(daily.length-1,9-safe)),d=daily[i];scripture.textContent='“'+d[0]+'”';scriptureRef.textContent=d[1];champion.textContent='“'+d[2]+'”';championSource.textContent='— '+d[3]}
+function render(){const left=dn(CHAMPIONSHIP)-dn(ymd()),safe=Math.max(0,left),race=left===0,after=left<0;document.getElementById('count').textContent=after?'WELL DONE':race?'GO':safe;document.getElementById('unit').textContent=after?'':race?'CHAMPIONSHIP DAY':safe===1?'DAY':'DAYS';let d;if(after)d=['I have fought a good fight, I have finished my course, I have kept the faith.','2 Timothy 4:7 (KJV)',daily[8][2],daily[8][3]];else if(race)d=['Know ye not that they which run in a race run all, but one receiveth the prize? So run, that ye may obtain.','1 Corinthians 9:24 (KJV)',daily[7][2],daily[7][3]];else{const i=Math.max(0,Math.min(daily.length-1,9-safe));d=daily[i]}scripture.textContent='“'+d[0]+'”';scriptureRef.textContent=d[1];champion.textContent='“'+d[2]+'”';championSource.textContent='— '+d[3]}
 enter.onclick=()=>document.body.classList.add('open');back.onclick=()=>document.body.classList.remove('open');render();
 </script></body></html>

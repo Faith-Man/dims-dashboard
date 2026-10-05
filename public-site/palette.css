@@ -1,18 +1,22 @@
 :root{
-  --blue:#0040D0;
-  --blue2:#126FE8;
-  --blue3:#EAF4FF;
-  --dark:#0030D0;
+  --blue:#0d1f78;
+  --blue2:#17399a;
+  --blue3:#eef3ff;
+  --dark:#06113f;
+  --gold:#d6b75d;
+  --line:#cbd8f5;
 }
-.site-header{border-bottom-color:rgba(0,64,208,.12)}
-.brand-logo{filter:drop-shadow(0 6px 14px rgba(0,64,208,.18))}
-.hero{background:linear-gradient(135deg,#0040D0 0%,#126FE8 58%,#47A7FF 100%)}
-.hero-logo{filter:drop-shadow(0 28px 70px rgba(0,48,208,.28)) drop-shadow(0 0 30px rgba(71,167,255,.24))}
-.six-grid article{box-shadow:0 12px 32px rgba(0,64,208,.06)}
-.section-blue{background:linear-gradient(140deg,#0040D0 0%,#126FE8 62%,#47A7FF 100%)}
-.dark-card{background:linear-gradient(145deg,#0040D0 0%,#126FE8 66%,#47A7FF 100%)}
-.section-dark{background:linear-gradient(145deg,#0040D0 0%,#126FE8 64%,#47A7FF 100%)}
-.connect-section{background:#F2F7FF}
-.connect-card{box-shadow:0 18px 48px rgba(0,64,208,.08)}
-footer{background:linear-gradient(135deg,#0040D0 0%,#126FE8 100%)}
-@media(max-width:800px){.site-nav{box-shadow:0 16px 40px rgba(0,64,208,.14)}}
+.site-header{border-bottom-color:rgba(13,31,120,.14)}
+.brand-logo{filter:drop-shadow(0 6px 14px rgba(8,25,79,.22))}
+.hero{background:linear-gradient(135deg,#06113f 0%,#0d1f78 66%,#17399a 100%)}
+.hero-logo{filter:drop-shadow(0 28px 70px rgba(2,7,22,.45)) drop-shadow(0 0 32px rgba(44,116,255,.30))}
+.six-grid article{background:linear-gradient(180deg,#fff,#f5f8ff);box-shadow:0 12px 32px rgba(8,25,79,.07)}
+.section-blue{background:linear-gradient(140deg,#06113f 0%,#0d1f78 62%,#17399a 100%)}
+.dark-card{background:linear-gradient(145deg,#06113f 0%,#0d1f78 66%,#17399a 100%)}
+.section-dark{background:linear-gradient(145deg,#06113f 0%,#0d1f78 64%,#17399a 100%)}
+.connect-section{background:#f5f8ff}
+.connect-card{box-shadow:0 18px 48px rgba(8,25,79,.10)}
+.feature-card{box-shadow:0 24px 60px rgba(5,16,61,.28)}
+.status-pill{background:#eef3ff}
+footer{background:linear-gradient(135deg,#06113f 0%,#0d1f78 100%)}
+@media(max-width:800px){.site-nav{box-shadow:0 16px 40px rgba(8,25,79,.16)}}

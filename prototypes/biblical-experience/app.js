@@ -12,7 +12,7 @@ function render(subject){
  $('#declarationText').innerHTML=x.declaration.map((v,i)=>i===x.declaration.length-1?'<strong>'+v+'</strong>':v).join('<br>');
  $('#doitLead').textContent=x.doit.lead;$('#doitBody').textContent=x.doit.body;refresh();return true;
 }
-$('#generateBtn').onclick=()=>{if(render($('#subjectInput').value))show(1)};
+async function generateExperience(){const subject=$('#subjectInput').value.trim().toUpperCase();if(render(subject)){show(1);return}const btn=$('#generateBtn'),old=btn.textContent;btn.disabled=true;btn.textContent='GENERATING…';$('#subjectTitle').textContent=subject||'WORD';$('#subjectSub').textContent='Seeking a Scripture-centered experience…';try{const res=await fetch('/api/experience',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({subject,mode:mode.value,day:1,duration:+dur.value||1})});const out=await res.json();if(!res.ok||!out.experience)throw new Error(out.message||out.error||'Live generation is not connected yet.');window.D1_EXPERIENCES[subject]=out.experience;render(subject);show(1)}catch(err){$('#subjectSub').textContent=err.message+' Try VISION, FAITH, or DOMINION in this prototype.'}finally{btn.disabled=false;btn.textContent=old}}$('#generateBtn').onclick=generateExperience;
 $('#subjectInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('#generateBtn').click()});
 const mode=$('#mode'),dur=$('#duration'),date=$('#targetDate'),status=$('#journeyStatus');
 function modeUI(){const m=mode.value;$('#durationWrap').hidden=m!=='journey';$('#dateWrap').hidden=m!=='countdown';status.hidden=m==='theme';refresh();}

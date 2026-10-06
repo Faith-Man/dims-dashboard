@@ -6,10 +6,10 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body data-scene="vision">
-<div class="atmosphere" aria-hidden="true"><div class="light"></div><div class="stars"></div></div>
+<div class="atmosphere" aria-hidden="true"><div id="generatedScene" class="generated-scene"></div><div class="light"></div><div class="stars"></div><div class="scene-vignette"></div></div>
 <header class="topbar">
   <div class="brand"><span>DOMINION1ST</span><strong>DYNAMIC BIBLICAL EXPERIENCE</strong></div>
-  <button id="soundBtn" class="ghost" aria-pressed="false">SOUND: OFF</button>
+  <div class="top-actions"><span id="sceneState" class="scene-state">SCENE: ATMOSPHERIC</span><button id="soundBtn" class="ghost" aria-pressed="false">SOUND: OFF</button></div>
 </header>
 <main>
 <section class="hero">
@@ -56,7 +56,7 @@
 
 <section id="teleios" class="teleios" hidden>
   <p class="eyebrow">JOURNEY COMPLETED</p><h2>iTELEIOS™</h2><div class="seal">ΤΕΤΕΛΕΣΤΑΙ</div>
-  <p>You did not merely finish a sequence. You established a memorial of Word received, vision seen, confession spoken, and action taken.</p>
+  <p id="teleiosSubject">You did not merely finish a sequence. You established a memorial of Word received, vision seen, confession spoken, and action taken.</p><div class="teleios-meta"><span id="teleiosJourney">WORD • SEE • DECLARE • DOiT</span><span id="teleiosDate"></span></div>
   <strong>IT IS FINISHED. NOW WALK IN IT.</strong>
 </section>
 </main>

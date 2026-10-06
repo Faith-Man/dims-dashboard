@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dominion1st Dynamic Biblical Experience</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-scene="vision">
+<div class="atmosphere" aria-hidden="true"><div class="light"></div><div class="stars"></div></div>
+<header class="topbar">
+  <div class="brand"><span>DOMINION1ST</span><strong>DYNAMIC BIBLICAL EXPERIENCE</strong></div>
+  <button id="soundBtn" class="ghost" aria-pressed="false">SOUND: OFF</button>
+</header>
+<main>
+<section class="hero">
+  <p class="eyebrow">ENTER THE WORD • SEE THE WORD • LIVE THE WORD</p>
+  <h1 id="subjectTitle">VISION</h1>
+  <p id="subjectSub">What God reveals becomes the mark toward which you move.</p>
+  <div class="controls">
+    <label>Experience <select id="mode"><option value="theme">Theme</option><option value="journey">Journey</option><option value="countdown">Countdown</option></select></label>
+    <label id="durationWrap" hidden>Days <input id="duration" type="number" min="1" max="365" value="21"></label>
+    <label id="dateWrap" hidden>Target <input id="targetDate" type="date"></label>
+    <button id="beginBtn">BEGIN EXPERIENCE</button>
+  </div>
+  <div id="journeyStatus" class="journey-status" hidden></div>
+</section>
+
+<section class="experience" id="experience">
+  <article class="stage active" data-step="1">
+    <div class="number">01</div><p class="stage-label">FOUNDATION</p><h2>IT IS WRITTEN™</h2>
+    <blockquote>“Where there is no vision, the people perish: but he that keepeth the law, happy is he.”</blockquote>
+    <cite>Proverbs 29:18 KJV</cite>
+    <p>The experience begins with what God has said. Scripture is not decoration around the subject; it governs the subject.</p>
+  </article>
+  <article class="stage" data-step="2">
+    <div class="number">02</div><p class="stage-label">REVELATION</p><h2>SEE™</h2>
+    <p class="lead">Vision sees beyond present conditions to God-given possibility.</p>
+    <div class="vista"><span>LOOK BEYOND WHAT IS</span><strong>SEE WHAT CAN BE</strong></div>
+    <p>Before movement comes sight. See the destination clearly enough that present resistance cannot redefine it.</p>
+  </article>
+  <article class="stage" data-step="3">
+    <div class="number">03</div><p class="stage-label">RENEWAL</p><h2>DOMINION1st MINDSET™</h2>
+    <p class="lead">I will not allow present circumstances to become the boundary of my expectation.</p>
+    <p>I align my thinking with the Word. I see from God's promise toward the circumstance—not from the circumstance toward God's promise.</p>
+  </article>
+  <article class="stage" data-step="4">
+    <div class="number">04</div><p class="stage-label">CONFESSION</p><h2>DOMINION1st DECLARATION™</h2>
+    <div class="declaration">I SEE THE MARK.<br>I RECEIVE GOD'S WORD.<br>I MOVE WITH PURPOSE.<br>I WILL NOT CAST OFF RESTRAINT.<br><strong>I HAVE DOMINION.</strong></div>
+    <button id="declareBtn" class="declare">I DECLARE IT</button>
+  </article>
+  <article class="stage" data-step="5">
+    <div class="number">05</div><p class="stage-label">EXECUTION</p><h2>DOiT!™</h2>
+    <p class="lead">Revelation demands movement.</p>
+    <div class="action-grid"><label>What do you see?<textarea id="seeInput" placeholder="Write the vision clearly…"></textarea></label><label>What will you do now?<textarea id="doInput" placeholder="Name the next faithful action…"></textarea></label></div>
+    <button id="completeBtn">MARK TODAY COMPLETE</button>
+  </article>
+</section>
+
+<nav class="stepnav" aria-label="Experience stages">
+<button data-go="1" class="on">WORD</button><button data-go="2">SEE</button><button data-go="3">MINDSET</button><button data-go="4">DECLARE</button><button data-go="5">DOiT</button>
+</nav>
+
+<section id="teleios" class="teleios" hidden>
+  <p class="eyebrow">JOURNEY COMPLETED</p><h2>iTELEIOS™</h2><div class="seal">ΤΕΤΕΛΕΣΤΑΙ</div>
+  <p>You did not merely finish a sequence. You established a memorial of Word received, vision seen, confession spoken, and action taken.</p>
+  <strong>IT IS FINISHED. NOW WALK IN IT.</strong>
+</section>
+</main>
+<footer>JESUS CHRIST — THE FOUNDATION • 1 CORINTHIANS 3:11</footer>
+<script src="app.js"></script>
+</body></html>

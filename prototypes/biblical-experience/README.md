@@ -23,3 +23,9 @@ Defined journeys culminate in iTeleios™ — a distinctive completion memorial,
 Do not modify main, championship-microsite, prototypes/championship, Spartans1st/RAD/RAC, DMI, Dominion1st.org production, email configuration, DNS, or existing deployments.
 
 Preview/test only until explicit owner approval for public deployment.
+
+
+## Phase 3 — live generation boundary
+Unknown subjects now call `POST /api/experience`. The server adapter is provider-neutral and keeps credentials out of browser code. If no approved AI provider is connected, the interface fails visibly and safely rather than fabricating generated content.
+
+The generation contract requires KJV Scripture integrity and separates quoted Scripture from generated application. A `scenePrompt` field prepares the next phase: dynamically generated biblical scenery.

@@ -1,0 +1,33 @@
+:root{
+  --blue:#14268a;
+  --blue2:#1d3aa8;
+  --blue3:#eef4fe;
+  --dark:#0b0d51;
+  --gold:#eec020;
+  --line:#d3e0fb;
+}
+.site-header{border-bottom-color:rgba(17,30,113,.16)}
+.brand-logo{filter:drop-shadow(0 6px 14px rgba(1,15,91,.22))}
+.section-light .eyebrow,.connect-section .eyebrow{color:#b38600}
+.six-grid article{background:#eef4fe;border-color:#d3e0fb;box-shadow:0 10px 28px rgba(1,15,91,.07)}
+.section-blue{background:linear-gradient(120deg,rgba(80,170,255,.07) 0%,transparent 32%,rgba(60,140,255,.10) 68%,transparent 100%),linear-gradient(140deg,#0a0e4c 0%,#0e1862 40%,#13237a 75%,#0f1b68 100%)}
+.dark-card{background:linear-gradient(145deg,#0b0d51 0%,#111c6c 60%,#1a2f92 100%)}
+.section-dark{background:linear-gradient(120deg,rgba(80,170,255,.07) 0%,transparent 32%,rgba(60,140,255,.10) 68%,transparent 100%),linear-gradient(145deg,#0a0e4c 0%,#0e1862 40%,#13237a 75%,#0f1b68 100%);border-top:4px solid var(--gold)}
+.connect-section{background:#eef4fe}
+.connect-card{box-shadow:0 18px 48px rgba(1,15,91,.10)}
+.feature-card{box-shadow:0 24px 60px rgba(0,12,86,.28)}
+.status-pill{background:#eef4fe}
+footer{background:linear-gradient(135deg,#0a0e4c 0%,#111e71 100%);border-top:4px solid var(--gold)}
+@media(max-width:800px){.site-nav{box-shadow:0 16px 40px rgba(1,15,91,.16)}}
+
+/* Hero: deep-to-electric blue with diagonal light streaks */
+.hero{background:linear-gradient(120deg,rgba(80,170,255,.10) 0%,transparent 32%,rgba(60,140,255,.14) 68%,transparent 100%),radial-gradient(circle at 78% 40%,#2453c8 0%,#16309a 24%,transparent 52%),linear-gradient(135deg,#0a0e4c 0%,#0d1660 28%,#122077 58%,#14267f 78%,#0e1a66 100%);border-bottom:4px solid var(--gold)}
+.hero:before{background:linear-gradient(120deg,transparent 56%,rgba(90,180,255,.18) 58.5%,transparent 61%),linear-gradient(120deg,transparent 63%,rgba(150,210,255,.26) 64.2%,transparent 65.5%),linear-gradient(120deg,transparent 69%,rgba(80,160,255,.14) 73%,transparent 78%),linear-gradient(120deg,transparent 82%,rgba(120,200,255,.22) 83%,transparent 84.5%),radial-gradient(circle at 10% 15%,rgba(255,255,255,.08),transparent 30%)}
+/* Rays of light radiating from the crest */
+.hero-logo-wrap{position:relative;isolation:isolate}
+.hero-logo-wrap:before,.hero-logo-wrap:after{content:"";position:absolute;left:50%;top:50%;aspect-ratio:1;border-radius:50%;pointer-events:none;z-index:-1;transform:translate(-50%,-50%)}
+.hero-logo-wrap:before{width:175%;background:repeating-conic-gradient(from 0deg,rgba(190,240,255,.34) 0deg 3deg,transparent 3deg 11deg,rgba(0,200,255,.22) 11deg 13deg,transparent 13deg 22deg);-webkit-mask-image:radial-gradient(circle,#000 18%,rgba(0,0,0,.55) 38%,transparent 66%);mask-image:radial-gradient(circle,#000 18%,rgba(0,0,0,.55) 38%,transparent 66%);animation:crest-rays 120s linear infinite}
+.hero-logo-wrap:after{width:115%;background:radial-gradient(circle,rgba(190,225,255,.55) 0%,rgba(70,150,255,.40) 24%,rgba(30,80,220,.22) 46%,transparent 68%)}
+.hero-logo{position:relative;filter:drop-shadow(0 24px 60px rgba(0,12,86,.45)) drop-shadow(0 0 40px rgba(110,170,255,.55))}
+@keyframes crest-rays{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.hero-logo-wrap:before{animation:none}}

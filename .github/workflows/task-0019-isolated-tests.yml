@@ -15,4 +15,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test scripts/task-0019-sync-evidence.test.mjs scripts/task-0019-github-webhook.test.mjs scripts/task-0019-evidence-review-queue.test.mjs scripts/task-0019-durable-inbox.test.mjs scripts/task-0019-http-receiver.test.mjs scripts/task-0019-supabase-inbox.test.mjs scripts/task-0019-http-supabase.test.mjs
+      - run: node --test scripts/task-0019-sync-evidence.test.mjs scripts/task-0019-github-webhook.test.mjs scripts/task-0019-evidence-review-queue.test.mjs scripts/task-0019-durable-inbox.test.mjs scripts/task-0019-http-receiver.test.mjs scripts/task-0019-supabase-inbox.test.mjs scripts/task-0019-http-supabase.test.mjs scripts/task-0019-ddl-review.test.mjs

@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DurableEvidenceInbox } from './task-0019-durable-inbox.mjs';
 
-function signed(delivery='delivery-1') {
+function signed(delivery='deadbeef-1') {
  const secret='local-secret';
  const rawBody=Buffer.from(JSON.stringify({repository:{full_name:'Faith-Man/dims-dashboard'},commits:[{message:'TASK-0019 evidence'}]}));
  return {rawBody,secret,headers:{'x-hub-signature-256':'sha256='+createHmac('sha256',secret).update(rawBody).digest('hex'),'x-github-event':'push','x-github-delivery':delivery}};
@@ -29,7 +29,7 @@ test('invalid signature does not write evidence', async () => {
  const dir=await mkdtemp(join(tmpdir(),'task-0019-'));
  try {
   const inbox=new DurableEvidenceInbox(dir);
-  const bad=signed('delivery-2');
+  const bad=signed('deadbeef-2');
   bad.headers['x-hub-signature-256']='sha256='+'0'.repeat(64);
   await assert.rejects(inbox.receiveGithub(bad),/Signature verification failed/);
   assert.deepEqual(await inbox.list(),[]);

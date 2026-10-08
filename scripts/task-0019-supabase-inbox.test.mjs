@@ -10,7 +10,7 @@ function signed() {
 }
 test('signed event writes only review evidence, never tasks',async()=>{
  const calls=[];
- const client={from(table){calls.push(['from',table]);return {upsert(row,opts){calls.push(['upsert',row,opts]);return {select(){return {async maybeSingle(){return {data:{provider:'github',event_id:'abc-123'},error:null};}};}};}};}};
+ const client={from(table){calls.push(['from',table]);return {upsert(row,opts){calls.push(['upsert',row,opts]);return {select(){return {async maybeSingle(){return {data:{provider:'github',event_id:'abc-123',review_state:'unreviewed',verified_closed:false},error:null};}};}};}};}};
  const result=await new SupabaseEvidenceInbox(client).receiveGithub(signed());
  assert.equal(result.accepted,true);
  assert.deepEqual(calls.filter(c=>c[0]==='from').map(c=>c[1]),['sync_evidence_inbox']);
@@ -24,8 +24,19 @@ test('invalid signature does not touch database',async()=>{
  await assert.rejects(new SupabaseEvidenceInbox(client).receiveGithub(input),/Signature verification failed/);
  assert.equal(accessed,false);
 });
-test('duplicate upsert is acknowledged without mutation',async()=>{
- const client={from(){return {upsert(){return {select(){return {async maybeSingle(){return {data:null,error:null};}};}};}};}};
+test('duplicate requires verified database read-back',async()=>{
+ const stored={provider:'github',event_id:'abc-123',review_state:'unreviewed',verified_closed:false};
+ const client={from(){return {
+  upsert(){return {select(){return {async maybeSingle(){return {data:null,error:null};}};}};},
+  select(){return {eq(){return this;},async maybeSingle(){return {data:stored,error:null};}};}
+ };}};
  const result=await new SupabaseEvidenceInbox(client).receiveGithub(signed());
  assert.equal(result.duplicate,true);
+});
+test('invisible duplicate must not be acknowledged',async()=>{
+ const client={from(){return {
+  upsert(){return {select(){return {async maybeSingle(){return {data:null,error:null};}};}};},
+  select(){return {eq(){return this;},async maybeSingle(){return {data:null,error:null};}};}
+ };}};
+ await assert.rejects(new SupabaseEvidenceInbox(client).receiveGithub(signed()),/could not be verified/);
 });

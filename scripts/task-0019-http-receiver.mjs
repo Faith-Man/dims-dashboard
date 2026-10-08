@@ -4,9 +4,10 @@ import { createServer } from 'node:http';
 import { DurableEvidenceInbox } from './task-0019-durable-inbox.mjs';
 
 const MAX_BODY = 1024 * 1024;
-export function createEvidenceServer({ secret, directory }) {
+export function createEvidenceServer({ secret, directory, inbox: suppliedInbox }) {
   if (typeof secret !== 'string' || !secret) throw new Error('Webhook secret required');
-  const inbox = new DurableEvidenceInbox(directory);
+  const inbox = suppliedInbox || new DurableEvidenceInbox(directory);
+  if (typeof inbox.receiveGithub !== 'function') throw new TypeError('Evidence inbox required');
   return createServer(async (req, res) => {
     const respond = (status, message) => {
       res.writeHead(status, { 'content-type': 'application/json', 'cache-control': 'no-store' });

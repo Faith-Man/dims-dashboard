@@ -31,7 +31,15 @@ for (const file of [...new Set([...governedSurfaces, ...extraSurfaces.map(f=>pat
     : [...source.matchAll(/<nav\b[^>]*>[\s\S]*?<\/nav>/gi)].map(match => match[0]).join('\n');
   for (const legacy of forbidden) {
     const relativeLegacy = legacy.replace(/^\//,'');
-    if (navigation.includes(\`href=\"\${legacy}\"\`) || navigation.includes(\`href='\${legacy}'\`) || navigation.includes(\`href=\"\${relativeLegacy}\"\`) || navigation.includes(\`href='\${relativeLegacy}'\`)) failures.push(\`\${path.relative(root,file)} exposes legacy current-navigation route: \${legacy}\`);
+    const patterns = [
+      'href="' + legacy + '"',
+      "href='" + legacy + "'",
+      'href="' + relativeLegacy + '"',
+      "href='" + relativeLegacy + "'"
+    ];
+    if (patterns.some(pattern => navigation.includes(pattern))) {
+      failures.push(path.relative(root,file) + ' exposes legacy current-navigation route: ' + legacy);
+    }
   }
 }
 

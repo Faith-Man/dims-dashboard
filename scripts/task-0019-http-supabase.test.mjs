@@ -8,7 +8,7 @@ test('HTTP receiver writes verified evidence through injected Supabase adapter',
  const records = new Map();
  const client = { from(table) {
    assert.equal(table, 'sync_evidence_inbox');
-   return { upsert(row, options) {
+   return { select() { return { eq() { return this; }, async maybeSingle() { return {data:[...records.values()][0] || null,error:null}; } }; }, upsert(row, options) {
      assert.deepEqual(options, {onConflict:'provider,event_id',ignoreDuplicates:true});
      assert.equal(row.review_state,'unreviewed');
      assert.equal(row.verified_closed,false);

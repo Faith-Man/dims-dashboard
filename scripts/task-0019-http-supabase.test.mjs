@@ -34,3 +34,33 @@ test('HTTP receiver writes verified evidence through injected Supabase adapter',
   assert.equal(records.get('github:abc-123').verified_closed,false);
  } finally { await new Promise(resolve=>server.close(resolve)); }
 });
+
+test('HTTP receiver fails closed when database insert fails', async () => {
+ const secret='test-secret';
+ const client={from(table) {
+  assert.equal(table,'sync_evidence_inbox');
+  return {upsert(){return {select(){return {async maybeSingle(){return {data:null,error:{message:'storage unavailable'}};}};}};}};
+ }};
+ const server=createEvidenceServer({secret,inbox:new SupabaseEvidenceInbox(client)});
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ try {
+  const body=JSON.stringify({repository:{full_name:'Faith-Man/dims-dashboard'},commits:[{message:'TASK-0019'}]});
+  const headers={'x-github-event':'push','x-github-delivery':'abc-124','x-hub-signature-256':'sha256='+createHmac('sha256',secret).update(body).digest('hex')};
+  const response=await fetch('http://127.0.0.1:'+server.address().port+'/webhooks/github',{method:'POST',headers,body});
+  assert.equal(response.status,500);
+  assert.deepEqual(await response.json(),{message:'Internal error'});
+ } finally {await new Promise(resolve=>server.close(resolve));}
+});
+test('HTTP receiver rejects invalid signature before database access', async () => {
+ let databaseAccesses=0;
+ const client={from(){databaseAccesses++;throw new Error('unexpected access');}};
+ const server=createEvidenceServer({secret:'test-secret',inbox:new SupabaseEvidenceInbox(client)});
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ try {
+  const body=JSON.stringify({repository:{full_name:'Faith-Man/dims-dashboard'},commits:[{message:'TASK-0019'}]});
+  const headers={'x-github-event':'push','x-github-delivery':'abc-125','x-hub-signature-256':'sha256='+'0'.repeat(64)};
+  const response=await fetch('http://127.0.0.1:'+server.address().port+'/webhooks/github',{method:'POST',headers,body});
+  assert.equal(response.status,401);
+  assert.equal(databaseAccesses,0);
+ } finally {await new Promise(resolve=>server.close(resolve));}
+});

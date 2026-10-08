@@ -38,28 +38,85 @@ limit = (typeof limit === 'number' || typeof limit === 'string') ? Number(limit)
 if (!isFinite(limit) || limit < 1) limit = 10;
 limit = Math.floor(limit);
 
-var result = teachingSyncRequest_(
-  'sync_log',
-  'get',
-  null,
-  'sync_status=eq.queued&source=eq.TeachingArtifactSyncTrigger' +
-    '&order=created_at.asc&limit=' + limit +
-    '&select=id,asset_code,asset_name,sync_status,message,source,created_at'
-);
+// PROJ-0015: honour a quota pause and never overlap a previous run.
+var pausedUntil = teachingSyncQuotaPausedUntil_();
+if (pausedUntil) {
+  return { processed: 0, skipped: 'quota_paused', resume_after: new Date(pausedUntil).toISOString() };
+}
+var lease = teachingSyncAcquireLease_('QUEUE', 7 * 60 * 1000);
+if (!lease) return { processed: 0, skipped: 'previous_run_still_active' };
 
-teachingSyncRequireSuccess_(result, 'Load teaching synchronization queue');
-var jobs = result.body || [];
+try {
+  requeueInterruptedTeachingSyncJobs_();
 
-if (!jobs.length) {
-  return { processed: 0, message: 'No queued teaching synchronization jobs.' };
+  var result = teachingSyncRequest_(
+    'sync_log',
+    'get',
+    null,
+    'sync_status=eq.queued&source=eq.TeachingArtifactSyncTrigger' +
+      '&order=created_at.asc&limit=' + limit +
+      '&select=id,asset_code,asset_name,sync_status,message,source,created_at'
+  );
+
+  teachingSyncRequireSuccess_(result, 'Load teaching synchronization queue');
+  var jobs = result.body || [];
+
+  if (!jobs.length) {
+    return { processed: 0, message: 'No queued teaching synchronization jobs.' };
+  }
+
+  var results = [];
+  for (var i = 0; i < jobs.length; i++) {
+    var jobResult = processOneTeachingArtifactSync_(jobs[i]);
+    results.push(jobResult);
+    if (jobResult.status === 'interrupted_quota') {
+      // Remaining jobs are still 'queued' and are picked up after the pause.
+      break;
+    }
+  }
+
+  return { processed: results.length, remaining_queued: jobs.length - results.length, results: results };
+} catch (err) {
+  if (teachingSyncIsQuotaError_(err)) {
+    return { processed: 0, skipped: 'quota_exhausted', resume_after: new Date(teachingSyncPauseForQuota_(err)).toISOString() };
+  }
+  throw err;
+} finally {
+  teachingSyncReleaseLease_(lease);
+}
 }
 
-var results = [];
-jobs.forEach(function(job) {
-  results.push(processOneTeachingArtifactSync_(job));
-});
+/**
+* PROJ-0015: a job interrupted by quota exhaustion is left in 'processing'
+* because the failure write itself cannot reach Supabase. Its id is kept in
+* a Script Property and returned to the queue on the next run. Persisting
+* is idempotent (the registered Doc is reused), so a rerun is safe.
+*/
+function requeueInterruptedTeachingSyncJobs_() {
+var props = PropertiesService.getScriptProperties();
+var ids = JSON.parse(props.getProperty(TEACHING_SYNC_INTERRUPTED_JOBS_KEY) || '[]');
+if (!ids.length) return 0;
 
-return { processed: results.length, results: results };
+var result = teachingSyncRequest_(
+  'sync_log',
+  'patch',
+  {
+    sync_status: 'queued',
+    source: 'TeachingArtifactSyncTrigger',
+    message: 'Re-queued after URL Fetch quota interruption (PROJ-0015).'
+  },
+  'id=in.(' + ids.map(encodeURIComponent).join(',') + ')&sync_status=eq.processing'
+);
+teachingSyncRequireSuccess_(result, 'Re-queue interrupted teaching sync jobs');
+props.deleteProperty(TEACHING_SYNC_INTERRUPTED_JOBS_KEY);
+return ids.length;
+}
+
+function rememberInterruptedTeachingSyncJob_(jobId) {
+var props = PropertiesService.getScriptProperties();
+var ids = JSON.parse(props.getProperty(TEACHING_SYNC_INTERRUPTED_JOBS_KEY) || '[]');
+if (ids.indexOf(jobId) < 0) ids.push(jobId);
+props.setProperty(TEACHING_SYNC_INTERRUPTED_JOBS_KEY, JSON.stringify(ids));
 }
 
 function processOneTeachingArtifactSync_(job) {
@@ -108,6 +165,12 @@ try {
   markTeachingSyncJob_(job.id, 'verified', JSON.stringify(evidence));
   return { job_id: job.id, status: 'verified', evidence: evidence };
 } catch (err) {
+  if (teachingSyncIsQuotaError_(err)) {
+    rememberInterruptedTeachingSyncJob_(job.id);
+    teachingSyncPauseForQuota_(err);
+    return { job_id: job.id, status: 'interrupted_quota', error: String(err && err.message ? err.message : err) };
+  }
+
   var failure = {
     event: 'teaching_artifact_sync_failed',
     previous_attempt: job.sync_status === 'failed' ? job.message : null,
@@ -497,12 +560,89 @@ return {
 };
 }
 
-/** TASK-0076: reuse the shared transport with server-only worker credentials. */
+/**
+* TASK-0076: reuse the shared transport with server-only worker credentials.
+*
+* PROJ-0015: reads ('get') get a bounded retry on transient failures
+* (HTTP 429/5xx or a thrown network error). Writes are never retried here
+* because a POST that reached Supabase but lost its response would be
+* duplicated. A daily-quota exception is rethrown immediately: retrying it
+* only spends more of a quota that is already gone.
+*/
 function teachingSyncRequest_(table, method, payload, query) {
 var key = PropertiesService.getScriptProperties().getProperty('SUPABASE_SERVICE_ROLE_KEY');
 if (!key) throw new Error('Missing Script Property SUPABASE_SERVICE_ROLE_KEY for teaching queue worker.');
-return supabaseRequest_(table, method, payload, query, {
-  url: DIMS_CONFIG.supabase.projectUrl,
-  key: key
-});
+var cfg = { url: DIMS_CONFIG.supabase.projectUrl, key: key };
+
+var retryDelaysMs = String(method).toLowerCase() === 'get' ? [1000, 3000] : [];
+for (var attempt = 0; ; attempt++) {
+  var result;
+  try {
+    result = supabaseRequest_(table, method, payload, query, cfg);
+  } catch (err) {
+    if (teachingSyncIsQuotaError_(err) || attempt >= retryDelaysMs.length) throw err;
+    Utilities.sleep(retryDelaysMs[attempt]);
+    continue;
+  }
+
+  var code = Number(result && result.code);
+  var transient = code === 429 || code >= 500;
+  if (!transient || attempt >= retryDelaysMs.length) return result;
+  Utilities.sleep(retryDelaysMs[attempt]);
+}
+}
+
+/**
+* ==========================================================
+* PROJ-0015 — URL Fetch quota protection shared by the teaching workers.
+* ==========================================================
+*/
+var TEACHING_SYNC_QUOTA_PAUSE_KEY = 'TEACHING_SYNC_QUOTA_PAUSED_UNTIL';
+var TEACHING_SYNC_QUOTA_PAUSE_MS = 2 * 60 * 60 * 1000;
+var TEACHING_SYNC_INTERRUPTED_JOBS_KEY = 'TEACHING_SYNC_INTERRUPTED_JOB_IDS';
+
+function teachingSyncIsQuotaError_(err) {
+return /Service invoked too many times|Bandwidth quota exceeded|too many times for one day/i
+  .test(String(err && err.message ? err.message : err));
+}
+
+/** Returns the pause expiry (ms) while a quota pause is active, else 0. */
+function teachingSyncQuotaPausedUntil_() {
+var until = Number(PropertiesService.getScriptProperties().getProperty(TEACHING_SYNC_QUOTA_PAUSE_KEY) || 0);
+return until > Date.now() ? until : 0;
+}
+
+function teachingSyncPauseForQuota_(err) {
+var until = Date.now() + TEACHING_SYNC_QUOTA_PAUSE_MS;
+PropertiesService.getScriptProperties().setProperty(TEACHING_SYNC_QUOTA_PAUSE_KEY, String(until));
+console.warn('Teaching sync paused until ' + new Date(until).toISOString() + ' after quota error: ' + err);
+return until;
+}
+
+/**
+* Per-handler execution lease so a slow run is never overlapped by the next
+* trigger firing. The script lock is held only for the few milliseconds it
+* takes to read/write the lease, so other workers that use the script lock
+* (e.g. the RB-001 backup worker) are not blocked for the length of a run.
+*/
+function teachingSyncAcquireLease_(name, ttlMs) {
+var lock = LockService.getScriptLock();
+if (!lock.tryLock(5000)) return null;
+try {
+  var props = PropertiesService.getScriptProperties();
+  var key = 'TEACHING_SYNC_LEASE_' + name;
+  var now = Date.now();
+  if (Number(props.getProperty(key) || 0) > now) return null;
+  var token = String(now + ttlMs);
+  props.setProperty(key, token);
+  return { key: key, token: token };
+} finally {
+  lock.releaseLock();
+}
+}
+
+function teachingSyncReleaseLease_(lease) {
+if (!lease) return;
+var props = PropertiesService.getScriptProperties();
+if (props.getProperty(lease.key) === lease.token) props.deleteProperty(lease.key);
 }

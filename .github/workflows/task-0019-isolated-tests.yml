@@ -1,0 +1,18 @@
+name: TASK-0019 isolated webhook tests
+on:
+  push:
+    branches:
+      - task-0019-sync-write-certification
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  evidence-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test scripts/task-0019-sync-evidence.test.mjs scripts/task-0019-github-webhook.test.mjs

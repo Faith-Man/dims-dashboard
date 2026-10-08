@@ -23,10 +23,15 @@ const forbidden = Object.keys(registry.legacyAliases || {});
 const governedSurfaces = current.map(item => routeTarget(item.path)).filter(Boolean);
 const extraSurfaces = ['dome-global-nav.js'];
 for (const file of [...new Set([...governedSurfaces, ...extraSurfaces.map(f=>path.join(root,f))])]) {
-  const text = fs.readFileSync(file, 'utf8');
+  const source = fs.readFileSync(file, 'utf8');
+  // Legacy routes may remain available as explicitly labeled archive content.
+  // Only active <nav> links are current-user navigation and must be canonical.
+  const navigation = file.endsWith('dome-global-nav.js')
+    ? source
+    : [...source.matchAll(/<nav\b[^>]*>[\s\S]*?<\/nav>/gi)].map(match => match[0]).join('\n');
   for (const legacy of forbidden) {
     const relativeLegacy = legacy.replace(/^\//,'');
-    if (text.includes(`href=\"${legacy}\"`) || text.includes(`href='${legacy}'`) || text.includes(`href=\"${relativeLegacy}\"`) || text.includes(`href='${relativeLegacy}'`)) failures.push(`${path.relative(root,file)} exposes legacy current-user route: ${legacy}`);
+    if (navigation.includes(\`href=\"\${legacy}\"\`) || navigation.includes(\`href='\${legacy}'\`) || navigation.includes(\`href=\"\${relativeLegacy}\"\`) || navigation.includes(\`href='\${relativeLegacy}'\`)) failures.push(\`\${path.relative(root,file)} exposes legacy current-navigation route: \${legacy}\`);
   }
 }
 

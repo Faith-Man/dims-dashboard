@@ -26,6 +26,20 @@ export class SupabaseEvidenceInbox {
       .select('provider,event_id,review_state,verified_closed')
       .maybeSingle();
     if (error) throw new Error('Evidence persistence failed');
+    if (data && (data.provider !== evidence.provider || data.event_id !== evidence.eventId || data.review_state !== 'unreviewed' || data.verified_closed !== false)) {
+      throw new Error('Evidence persistence read-back mismatch');
+    }
+    // With ignoreDuplicates, a null return may mean a conflict OR missing
+    // SELECT visibility. Require an explicit read-back before acknowledging.
+    if (!data) {
+      const check = await this.client.from('sync_evidence_inbox')
+        .select('provider,event_id,review_state,verified_closed')
+        .eq('provider', evidence.provider).eq('event_id', evidence.eventId)
+        .maybeSingle();
+      if (check.error || !check.data || check.data.review_state !== 'unreviewed' || check.data.verified_closed !== false) {
+        throw new Error('Duplicate evidence could not be verified');
+      }
+    }
     return { accepted: Boolean(data), duplicate: !data, evidence };
   }
 }

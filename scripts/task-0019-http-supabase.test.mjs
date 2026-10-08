@@ -16,7 +16,7 @@ test('HTTP receiver writes verified evidence through injected Supabase adapter',
      const duplicate=records.has(key);
      if(!duplicate) records.set(key,row);
      return { select() { return { async maybeSingle() {
-       return { data: duplicate ? null : {provider:row.provider,event_id:row.event_id},error:null };
+       return { data: duplicate ? null : {provider:row.provider,event_id:row.event_id,review_state:row.review_state,verified_closed:row.verified_closed},error:null };
      }}; }};
    }};
  }};

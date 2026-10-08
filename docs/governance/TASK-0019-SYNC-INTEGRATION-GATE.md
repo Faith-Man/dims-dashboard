@@ -36,3 +36,14 @@ No DMI/Gmail adapter changes. No production, Main Test, or visual architecture c
 **Current evidence:** GitHub Actions test run 37721230841 passed. The Supabase evidence table migration was applied and checked for RLS, grants, and transactional insert/read-back/rollback. The Edge Function receiver source is committed but not deployed. Live signed webhook delivery remains unverified. The official PROJ-0015/TASK-0019 records were still deferred at last check; use the authenticated TETELESTAI control endpoint for any authorized status changes.
 
 **Next action:** Do not create further audit documents or expand testing without a specific failing acceptance criterion. Complete authorized status control and secure webhook deployment, then test one real signed delivery and read-back. Do not mark verified_closed automatically.
+
+
+## Live acceptance evidence — 2026-10-08
+
+GitHub signed push acceptance **passed** on the isolated branch. Commit [0f4c45ccbb0676c13c37525895c0aa2fa48ea281](https://github.com/Faith-Man/dims-dashboard/commit/0f4c45ccbb0676c13c37525895c0aa2fa48ea281) triggered the deployed `task-0019-github-evidence` Supabase Edge Function. Supabase function logs show HTTP 202 at 2026-10-08 05:09:38 UTC. Authoritative `public.sync_evidence_inbox` read-back returned provider `github`, delivery ID `7524226c-c2d6-11f1-8b95-feff570e95b5`, `task_numbers=['TASK-0019']`, `review_state='unreviewed'`, and `verified_closed=false`.
+
+**Scope of passed test:** Signed GitHub push → deployed Edge Function → durable Supabase evidence → database read-back. Cloudflare ingestion, operational dashboard visibility, and automatic TETELESTAI synchronization remain unverified. This is not certification of the full synchronization engine.
+
+**Authoritative status read-back:** `PROJ-0015` and `TASK-0019` both remain `deferred` as of this check. The existing `tetelestai-control` Edge Function is active (version 11) and requires an authenticated user JWT; no privileged status write or bypass was performed. Reactivate and record the milestone through that existing authenticated control with an audit reason, then verify the history and current-state read-back. Do not mark `verified_closed` until all agreed acceptance gates pass.
+
+**EBCY decision:** Extend the existing TETELESTAI control and evidence intake; do not introduce a new status API or duplicate governance protocol.

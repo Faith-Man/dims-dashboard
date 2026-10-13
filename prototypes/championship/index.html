@@ -29,7 +29,7 @@
 <button class="music-toggle" id="musicToggle" type="button" aria-label="Turn music off" aria-pressed="true">🔊 MUSIC ON</button>
 <section class="entry" aria-label="Spartans1st Championship entry"><div class="entry-art"><img src="assets/championship-entry.jpg" alt="Spartans1st — Let Them Have Dominion. Psalm 8:6. Fight. Press. Win."><button class="enter" id="enter" aria-label="Enter championship countdown"></button><label class="skip-entry"><input type="checkbox" id="skipEntry"> Don't show again</label></div></section>
 <main class="countdown"><button class="back" id="back">← ENTRY</button><div class="shell"><div class="eyebrow">SPARTANS1ST™ XC</div>
-<div class="crest"><img src="assets/championship-countdown.png" alt="Spartans1st XC Championship Countdown"><div class="medallion-count" aria-live="polite"><div class="count" id="count">9</div><div class="unit" id="unit">DAYS</div></div><div class="ribbon-update" id="ribbonUpdate" aria-live="polite"><span class="ribbon-name" id="ribbonName"></span><span class="ribbon-date" id="ribbonDate"></span></div></div><div class="meet-status" id="meetStatus" aria-live="polite"></div>
+<div class="crest"><img src="assets/championship-countdown.png" alt="Spartans1st XC Championship Countdown"><div class="medallion-count" aria-live="polite"><div class="count" id="count">9</div><div class="unit" id="unit">DAYS</div></div><div class="ribbon-update" id="ribbonUpdate" aria-live="polite"><span class="ribbon-name" id="ribbonName"></span><span class="ribbon-date" id="ribbonDate"></span></div></div>
 <section class="cards"><article class="card"><div class="label">WORD FOR TODAY</div><div class="quote" id="scripture"></div><div class="source" id="scriptureRef"></div></article>
 <article class="card"><div class="label">CHAMPION'S MINDSET</div><div class="quote" id="champion"></div><div class="source" id="championSource"></div></article>
 <article class="card"><div class="label">CHAMPION'S DECLARATION</div><div class="quote" id="declaration"></div></article></section>
@@ -70,14 +70,9 @@ function renderJourney(){const left=liveLeft(),available=Math.min(10,Math.max(0,
 function render(){const m=currentMeet(),left=liveLeft(),safe=Math.max(0,left),race=left===0,after=!m;
 document.getElementById('count').textContent=after?'WELL DONE':race?'GO':safe;
 document.getElementById('unit').textContent=after||race?'':safe===1?'DAY':'DAYS';
-const note=document.getElementById('meetStatus');
-note.innerHTML=after?'SEASON COMPLETE — WELL DONE!<small>2 Timothy 4:7 (KJV)</small>':
-'<span></span><small></small>';
 const ribbon=document.getElementById('ribbonUpdate');ribbon.classList.toggle('active',!m||m.date!==CHAMPIONSHIP);
 document.getElementById('ribbonName').textContent=!m?'WELL DONE!':m.name==='Class 6A Regional Championship'?'REGIONAL CHAMPIONSHIP':m.name==='Class 6A State Championship'?'STATE CHAMPIONSHIP':'CHAMPIONSHIP MEET';
 document.getElementById('ribbonDate').textContent=!m?'SEASON COMPLETE':meetLabel(m);
-if(m){note.querySelector('span').textContent=(race?'TODAY — ':'UP NEXT — ')+m.name+' • '+meetLabel(m);
-note.querySelector('small').textContent=m.status==='Championship Day'?'RUN • PRESS • WIN':m.status;}
 reviewDay=null;renderCards(left);renderJourney()}
 todayBtn.onclick=()=>{reviewDay=null;renderCards(liveLeft());renderJourney();if(journal.classList.contains('open'))loadJournal()};
 journeyToggle.onclick=()=>{const open=journey.classList.toggle('open');journeyToggle.setAttribute('aria-expanded',String(open))};

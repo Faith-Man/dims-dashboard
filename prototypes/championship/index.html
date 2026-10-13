@@ -112,6 +112,16 @@ musicToggle.onclick=()=>{musicOn=!musicOn;try{sessionStorage.setItem('championsh
 // A tap on the entry artwork is the first eligible gesture; ENTER uses its own
 // gesture to start the countdown track directly without first starting entry audio.
 document.querySelector('.entry').addEventListener('click',e=>{if(!e.target.closest('button'))playScreen('entry')});
+// Daily scenic artwork rotates at Oklahoma midnight when approved assets are installed.
+// Until then, retain the existing approved entry artwork without broken images.
+const SCENES=['assets/entry-autumn.jpg','assets/entry-mountain.jpg','assets/entry-storm.jpg','assets/entry-victory.jpg'];
+const entryImage=document.querySelector('.entry-art img');
+const originalEntryImage=entryImage.getAttribute('src');
+let installedScenes=[];
+function oklahomaDayIndex(){const p=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Chicago',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());return Math.floor(Date.parse(p+'T00:00:00Z')/86400000)}
+function refreshEntryScene(){if(!installedScenes.length)return;const selected=installedScenes[((oklahomaDayIndex()%installedScenes.length)+installedScenes.length)%installedScenes.length];if(entryImage.getAttribute('src')!==selected)entryImage.src=selected}
+Promise.all(SCENES.map(src=>new Promise(resolve=>{const im=new Image();im.onload=()=>resolve(src);im.onerror=()=>resolve(null);im.src=src}))).then(results=>{installedScenes=results.filter(Boolean);refreshEntryScene()});
+setInterval(refreshEntryScene,60000);
 const SKIP_KEY='spartans1stSkipEntryV1';
 try{skipEntry.checked=localStorage.getItem(SKIP_KEY)==='yes'}catch(e){}
 skipEntry.addEventListener('change',()=>{try{localStorage.setItem(SKIP_KEY,skipEntry.checked?'yes':'no')}catch(e){}});

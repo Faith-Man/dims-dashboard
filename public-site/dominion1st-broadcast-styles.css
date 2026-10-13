@@ -27,3 +27,5 @@
 .broadcast-feature__back:focus-visible,.portal-grid a:focus-visible,nav a:focus-visible{outline:2px solid #f0c44d;outline-offset:5px}
 @media(max-width:800px){.broadcast-feature__layout{grid-template-columns:1fr;gap:30px}.broadcast-feature__image{padding:7px;border-radius:18px}.broadcast-feature__image img{border-radius:12px}.broadcast-feature__copy h2{font-size:clamp(2.2rem,9vw,3.8rem)}.broadcast-feature__future{grid-template-columns:1fr 1fr}}
 @media(max-width:430px){.broadcast-feature__future{grid-template-columns:1fr}.broadcast-feature__details strong{font-size:.94rem}}
+/* Let the inner content grid use the full section width. */
+.broadcast-feature{display:block}

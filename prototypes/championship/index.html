@@ -8,8 +8,9 @@
 .enter{position:absolute;left:19%;top:84%;transform:none;width:62%;height:10%;border:0;border-radius:999px;background:transparent;cursor:pointer}.enter:focus-visible{outline:4px solid var(--gold)}
 .enter{animation:enterPulse 3.6s ease-in-out infinite;transform-origin:center}
 @keyframes enterPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.28)}}
-.skip-entry{position:absolute;left:5%;bottom:5%;display:flex;align-items:center;gap:6px;min-height:27px;padding:2px 5px;background:#000;color:#ddd;font:10px/1.2 Arial,sans-serif;cursor:pointer;z-index:3}
-.skip-entry input{width:17px;height:17px;accent-color:#f3bf42;margin:0}
+.skip-entry{position:absolute;left:5.3%;bottom:4.65%;width:28%;height:3.4%;display:block;background:#000;color:transparent;font:10px/1.2 Arial,sans-serif;cursor:pointer;z-index:3}
+.skip-entry::after{content:"Don't show again";position:absolute;left:25%;top:50%;transform:translateY(-50%);font:10px/1 Arial,sans-serif;color:#ddd;white-space:nowrap}
+.skip-entry input{position:absolute;left:0;top:50%;transform:translateY(-50%);width:17px;height:17px;accent-color:#f3bf42;margin:0}
 @media(prefers-reduced-motion:reduce){.enter{animation:none}}
 .countdown{display:none;min-height:100svh;padding:clamp(18px,4vw,44px)}body.open .entry{display:none}body.open .countdown{display:block;animation:pageFade .5s ease-out both}body:not(.open) .entry{animation:pageFade .5s ease-out both}@keyframes pageFade{from{opacity:0}to{opacity:1}}@media(prefers-reduced-motion:reduce){body.open .countdown,body:not(.open) .entry{animation:none}}
 .shell{max-width:900px;margin:auto;text-align:center}.eyebrow{letter-spacing:.28em;color:#d9eaff;font-weight:800;font-size:12px}.crest{position:relative;width:min(92vw,600px);margin:10px auto 0;filter:drop-shadow(0 14px 30px #00184c)}

@@ -85,7 +85,7 @@ window.addEventListener('resize',()=>{try{render()}catch(e){}});
 // Finished banner artwork per stage; the center count stays live text.
 const EMBLEMS={regional:{src:'assets/emblem-regional.jpg',top:'53.4%',w:'22%',alt:'Regional Championship, Saturday, October 24'},
  state:{src:'assets/emblem-state.jpg',top:'53.4%',w:'22%',alt:'State Championship, Saturday, October 31'},
- complete:{src:'assets/season-countdown-emblem.jpg',top:'54.6%',w:'21%',alt:'Season complete'}};
+ complete:{src:'assets/emblem-complete.jpg',top:'53.4%',w:'22%',alt:'Tetelestai, I have finished my course'}};
 function stageFor(m){return !m?'complete':/State/.test(m.name)?'state':'regional'}
 function setEmblem(m){const e=EMBLEMS[stageFor(m)],img=document.getElementById('emblem'),mc=document.querySelector('.medallion-count');if(img.getAttribute('src')!==e.src)img.src=e.src;img.alt='Spartans1st XC countdown: '+e.alt;mc.style.top=e.top;mc.style.width=e.w}
 function render(){const m=currentMeet(),left=liveLeft(),safe=Math.max(0,left),race=left===0,after=!m;document.getElementById('meetHeading').textContent=after?'SEASON COMPLETE':m.name+' • '+meetLabel(m);

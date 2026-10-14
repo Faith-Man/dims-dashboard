@@ -19,3 +19,8 @@
 .portal-grid a:hover::after{transform:rotate(35deg) scale(1.08);border-color:rgba(240,196,77,.52)}
 .portal-grid i{display:grid;place-items:center;width:42px;height:42px;border:1px solid rgba(240,196,77,.55);border-radius:50%;background:rgba(3,7,32,.18)}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.crest-stage::before,.crest-stage::after,.crest-stage .orbit.o1,.wheel::before{animation:none!important}.crest-stage img{animation:none!important}.portal-grid a,.portal-grid a::after{transition:none!important}}
+
+/* One-line headline: "YOU HAVE DOMINION" stays on a single line at every width. */
+.entry-copy{min-width:0}
+.entry h1{white-space:nowrap;line-height:.95;font-size:clamp(2.1rem,4.2vw,5.4rem)}
+@media(max-width:800px){.entry h1{font-size:min(calc((100vw - 48px) / 9.9),4.4rem)}}

@@ -110,12 +110,13 @@ async function generate(date, env) {
   try { recent = JSON.parse((await env.DAILY.get('recent-refs')) || '[]'); } catch (e) {}
   const choices = POOL.filter((p) => !recent.includes(p.ref)).map((p) => `${p.ref.replace(' (KJV)', '')} — ${p.theme}`).join('\n');
   const system = `You write the daily encouragement for Spartans1st XC, a Christian high-school cross country team (boys and girls) in Bixby, Oklahoma. Tone: bold, faithful, athletic, encouraging, never preachy or political. Audience: teenage runners and their families.
-Return ONLY a JSON object with these keys:
-"ref": exactly one reference copied from the CHOICES list (book chapter:verse as written there),
-"insight": one or two sentences (max 40 words) applying that verse to today's running,
-"mindset": one original motivational sentence (max 30 words) about discipline, effort, team or finishing. Do not quote or name any real person,
-"declaration": a first-person declaration of 2–3 short sentences (max 55 words) based on the chosen verse, spoken by the athlete,
-"phrase": a short motto (max 10 words).`;
+Return ONLY a JSON object (no markdown) with these keys. Every value must be written in complete, properly punctuated sentences:
+"ref": exactly one reference copied from the CHOICES list (book chapter:verse as written there), chosen to fit today's season status,
+"insight": two complete sentences (25 to 45 words total) explaining what the verse means for a runner today,
+"mindset": one complete, memorable sentence (12 to 25 words) about discipline, effort, team or finishing; original wording; do not quote or name any real person,
+"declaration": three complete first-person sentences (35 to 60 words total) that the athlete speaks aloud, drawn from the chosen verse, each beginning with "I",
+"phrase": a short motto of 3 to 8 words.
+Style example (do not copy): {"ref":"Isaiah 40:31","insight":"Strength for the final mile does not come from your legs alone. When you trust God, He renews you so you can keep running without fainting.","mindset":"The miles nobody sees in practice are the ones that carry you past the runner beside you.","declaration":"I wait upon the Lord and He renews my strength. I will run and not be weary. I will finish this race with everything I have.","phrase":"Renewed strength. Relentless finish."}`;
   const user = `Date: ${date}. Season status: ${stage.text}\nCHOICES:\n${choices}`;
   const out = await env.AI.run(MODEL, { messages: [{ role: 'system', content: system }, { role: 'user', content: user }], max_tokens: 500, temperature: 0.8 });
   const raw = typeof out === 'string' ? out : out.response;
@@ -126,13 +127,13 @@ Return ONLY a JSON object with these keys:
     insight: clean(obj.insight, 280), mindset: clean(obj.mindset, 220), source: 'Spartans1st',
     declaration: clean(obj.declaration, 400), phrase: clean(obj.phrase, 90), origin: 'ai',
   };
-  if (!entry.verse || !entry.mindset || !entry.declaration) throw new Error('invalid AI output');
+  if (!entry.verse || entry.mindset.length < 50 || entry.declaration.length < 100 || entry.insight.length < 60) throw new Error('invalid AI output');
   await env.DAILY.put('recent-refs', JSON.stringify([entry.ref, ...recent].slice(0, 30)));
   return entry;
 }
 
 async function getOrCreate(date, env) {
-  const key = 'daily:v1:' + date;
+  const key = 'daily:v2:' + date;
   const hit = await env.DAILY.get(key, 'json');
   if (hit) return hit;
   let entry;

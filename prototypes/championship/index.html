@@ -43,8 +43,15 @@
 .scene-phrase{max-width:520px;margin:18px auto 0;color:#ffe29a;font:italic 700 clamp(19px,4.6vw,26px)/1.3 Georgia,serif;text-align:center}
 .scene-cards{display:grid;gap:14px;width:min(100%,520px);margin:18px auto 0;text-align:left}
 .journey-home .home-actions{max-width:520px;margin:22px auto 0}
+.scene-review{width:min(100%,520px);margin:18px auto 0;border:1px solid #8edcff66;border-radius:18px;background:#081b61cc;color:#fff;padding:0 16px;text-align:center}
+.scene-review summary{min-height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;font:900 12px/1 Inter,Arial,sans-serif;letter-spacing:.16em;list-style:none}
+.scene-review summary::-webkit-details-marker{display:none}
+.scene-days{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:4px 0 14px}
+.scene-days button{min-width:56px;min-height:44px;border:1px solid #8edcff66;border-radius:999px;background:#0d2f82;color:#fff;font-weight:800;cursor:pointer}
+.scene-days button.active{border-color:var(--gold);color:var(--gold)}
+.scene-review .today-btn{margin:0 0 16px}
 @media(prefers-reduced-motion:reduce){.scene-frame img{transition:none}}
-</style></head><body>
+</style><script src="assets/scenes/schedule.js"></script></head><body>
 <button class="music-toggle" id="musicToggle" type="button" aria-label="Turn music off" aria-pressed="true">🔊 MUSIC ON</button>
 <section class="entry" aria-label="Spartans1st Championship entry"><div class="entry-art"><img src="assets/championship-entry.jpg" alt="Spartans1st — Let Them Have Dominion. Psalm 8:6. Fight. Press. Win."><button class="enter" id="enter" aria-label="Enter championship countdown"></button><label class="skip-entry"><input type="checkbox" id="skipEntry"> Don't show again</label></div></section>
 <section class="journey-home" aria-label="The Dominion Journey"><button id="homeEntry" class="back" type="button">← ENTRY</button>
@@ -53,6 +60,7 @@
 <p class="scene-phrase" id="scenePhrase" hidden></p>
 <div class="scene-cards"><article class="card" id="sceneVerseCard" hidden><div class="label">WORD FOR THE JOURNEY</div><div class="quote" id="sceneVerse"></div><div class="source" id="sceneVerseRef"></div></article>
 <article class="card" id="sceneMindsetCard" hidden><div class="label">CHAMPION'S MINDSET</div><div class="quote" id="sceneMindset"></div><div class="source" id="sceneMindsetSrc"></div></article></div>
+<details class="scene-review" id="sceneReview" hidden><summary>REVIEW PREVIOUS DAYS</summary><div class="scene-days" id="sceneDays"></div><button type="button" class="today-btn" id="sceneToday" hidden>BACK TO TODAY</button></details>
 <div class="home-actions"><button id="viewCountdown" type="button">VIEW SEASON COUNTDOWN →</button></div></section>
 <main class="countdown"><button class="back" id="back">← JOURNEY</button><div class="shell"><div class="eyebrow">SPARTANS1ST™ XC</div>
 <div class="meet-heading" id="meetHeading" aria-live="polite"></div><div class="crest"><img id="emblem" src="assets/emblem-regional.jpg" alt="Spartans1st XC Championship Countdown"><div class="medallion-count" aria-live="polite"><div class="count" id="count">9</div><div class="unit" id="unit">DAYS</div></div><div class="ribbon-update" id="ribbonUpdate" aria-live="polite"><span class="ribbon-name" id="ribbonName"></span><span class="ribbon-date" id="ribbonDate"></span></div></div>
@@ -146,31 +154,30 @@ musicToggle.onclick=()=>{musicOn=!musicOn;try{sessionStorage.setItem('championsh
 // gesture to start the countdown track directly without first starting entry audio.
 document.querySelector('.entry').addEventListener('click',e=>{if(!e.target.closest('button'))playScreen('entry')});
 // ---- Scenic page (The Dominion Journey) ----
-// Each date maps to one scene slot. Approved posters are dropped into
-// assets/scenes/<slot>.jpg; a slot listed in SCENE_DELIVERED shows its poster,
-// otherwise the page falls back to the approved entry poster.
-const SCENE_DIR='assets/scenes/';
-const SCENE_DELIVERED=['daily-01']; // add slot names here as approved posters are installed
-const SCENE_FALLBACK='assets/championship-entry.jpg';
-const SCENE_CONTENT={}; // slot -> {verse,ref,mindset,source,phrase}; filled from ChatGPT's content list
-const SCENE_SCHEDULE={'2026-10-15':'daily-01','2026-10-16':'daily-02','2026-10-17':'daily-03','2026-10-18':'daily-04',
- '2026-10-19':'daily-05','2026-10-20':'daily-06','2026-10-21':'daily-07','2026-10-22':'daily-08',
- '2026-10-23':'eve-regionals','2026-10-24':'race-regionals',
- '2026-10-25':'daily-09','2026-10-26':'daily-10','2026-10-27':'daily-11','2026-10-28':'daily-12','2026-10-29':'daily-13',
- '2026-10-30':'eve-state','2026-10-31':'race-state'};
-function oklahomaDayIndex(){const p=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Chicago',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());return Math.floor(Date.parse(p+'T00:00:00Z')/86400000)}
-function sceneSlotFor(day){if(SCENE_SCHEDULE[day])return SCENE_SCHEDULE[day];if(day>'2026-10-31')return oklahomaDayIndex()%2?'welldone-02':'welldone-01';return 'daily-01'}
+// Driven entirely by assets/scenes/schedule.js: one entry per date gives the
+// poster, Word, Champion's Mindset and phrase together. Changes at midnight Oklahoma time.
+const SCHED=window.SPARTANS1ST_SCHEDULE||{days:{},slots:{},afterSeason:[],fallbackImage:'assets/championship-entry.jpg'};
+const SCHED_DATES=Object.keys(SCHED.days).sort();
+const SCHED_LAST=SCHED_DATES[SCHED_DATES.length-1]||'';
+function sceneSlotFor(day){if(SCHED.days[day])return SCHED.days[day];if(day>SCHED_LAST&&SCHED.afterSeason.length){const n=dn(day)-dn(SCHED_LAST)-1;return SCHED.afterSeason[n%SCHED.afterSeason.length]}return SCHED.beforeSeason||SCHED_DATES.map(d=>SCHED.days[d])[0]}
 function sceneLabelFor(slot){return /^race-/.test(slot)?'RACE DAY':/^eve-/.test(slot)?'TOMORROW WE RUN':/^welldone/.test(slot)?'SEASON COMPLETE':'THE DOMINION JOURNEY'}
-let shownScene=null;
-function setText(id,txt){const el=document.getElementById(id);el.textContent=txt||''}
-function refreshEntryScene(){const day=ymd(),slot=sceneSlotFor(day),src=SCENE_DELIVERED.includes(slot)?SCENE_DIR+slot+'.jpg':SCENE_FALLBACK;
- document.getElementById('sceneLabel').textContent=sceneLabelFor(slot);
- const c=SCENE_CONTENT[slot]||{};const phrase=document.getElementById('scenePhrase');phrase.hidden=!c.phrase;phrase.textContent=c.phrase||'';
+function shortDate(d){return new Intl.DateTimeFormat('en-US',{timeZone:'UTC',month:'short',day:'numeric'}).format(new Date(d+'T12:00:00Z'))}
+let shownScene=null,reviewSceneDay=null;
+function setText(id,txt){document.getElementById(id).textContent=txt||''}
+function showSceneFor(day){const slot=sceneSlotFor(day),c=SCHED.slots[slot]||{},src=c.image||SCHED.fallbackImage;
+ document.getElementById('sceneLabel').textContent=reviewSceneDay?sceneLabelFor(slot)+' • '+shortDate(day).toUpperCase():sceneLabelFor(slot);
+ const phrase=document.getElementById('scenePhrase');phrase.hidden=!c.phrase;phrase.textContent=c.phrase||'';
  document.getElementById('sceneVerseCard').hidden=!c.verse;setText('sceneVerse',c.verse?'“'+c.verse+'”':'');setText('sceneVerseRef',c.ref);
  document.getElementById('sceneMindsetCard').hidden=!c.mindset;setText('sceneMindset',c.mindset?'“'+c.mindset+'”':'');setText('sceneMindsetSrc',c.source?'— '+c.source:'');
- if(shownScene===src)return;shownScene=src;const img=document.getElementById('sceneImg');img.classList.remove('ready');const frame=img.parentElement;
- const pre=new Image();pre.onload=()=>{frame.classList.toggle('fallback',src===SCENE_FALLBACK);img.src=src;img.alt=SCENE_DELIVERED.includes(slot)?'Spartans1st scene: '+sceneLabelFor(slot).toLowerCase():'Spartans1st — Let Them Have Dominion';img.classList.add('ready')};
- pre.onerror=()=>{frame.classList.add('fallback');img.src=SCENE_FALLBACK;img.classList.add('ready')};pre.src=src}
+ if(shownScene===src)return;shownScene=src;const img=document.getElementById('sceneImg'),frame=img.parentElement;img.classList.remove('ready');
+ const pre=new Image();pre.onload=()=>{frame.classList.toggle('fallback',src===SCHED.fallbackImage);img.src=src;img.alt=c.image?'Spartans1st scene: '+sceneLabelFor(slot).toLowerCase():'Spartans1st — Let Them Have Dominion';img.classList.add('ready')};
+ pre.onerror=()=>{frame.classList.add('fallback');img.src=SCHED.fallbackImage;img.classList.add('ready')};pre.src=src}
+function renderSceneReview(){const today=ymd(),past=SCHED_DATES.filter(d=>d<today&&d>=(SCHED.firstDate||'')),box=document.getElementById('sceneDays');
+ document.getElementById('sceneReview').hidden=!past.length;box.replaceChildren();
+ past.forEach(d=>{const b=document.createElement('button');b.type='button';b.textContent=shortDate(d);b.classList.toggle('active',reviewSceneDay===d);b.setAttribute('aria-label','Review '+shortDate(d));b.onclick=()=>{reviewSceneDay=d;showSceneFor(d);renderSceneReview();document.querySelector('.scene-frame').scrollIntoView({behavior:'smooth',block:'start'})};box.appendChild(b)});
+ document.getElementById('sceneToday').hidden=!reviewSceneDay}
+document.getElementById('sceneToday').onclick=()=>{reviewSceneDay=null;refreshEntryScene()};
+function refreshEntryScene(){if(!reviewSceneDay)showSceneFor(ymd());renderSceneReview()}
 refreshEntryScene();
 setInterval(refreshEntryScene,60000);
 const SKIP_KEY='spartans1stSkipEntryV1';

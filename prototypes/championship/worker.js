@@ -151,9 +151,10 @@ async function getOrCreate(date, env) {
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
-    if (url.pathname === '/api/daily') {
+    const pathDate = (url.pathname.match(/^\/api\/daily\/(\d{4}-\d{2}-\d{2})\/?$/) || [])[1];
+    if (url.pathname === '/api/daily' || pathDate) {
       const today = todayChicago();
-      const date = url.searchParams.get('date') || today;
+      const date = pathDate || url.searchParams.get('date') || today;
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return json({ error: 'bad date' }, 400);
       if (date > today) return json({ error: 'future dates are not available yet' }, 404);
       if (date < SEASON_START) return json({ error: 'before season' }, 404);

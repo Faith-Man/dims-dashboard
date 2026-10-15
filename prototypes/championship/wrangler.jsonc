@@ -1,5 +1,11 @@
 {
   "name": "spartans1st-countdown-test",
+  "main": "worker.js",
   "compatibility_date": "2026-10-04",
-  "assets": { "directory": "." }
+  "assets": { "directory": ".", "binding": "ASSETS" },
+  "ai": { "binding": "AI" },
+  "kv_namespaces": [{ "binding": "DAILY", "id": "57fe9d6e4a5547a3a895da7e9161e989" }],
+  // Pre-generate each day's message just after midnight Oklahoma time (CDT and CST).
+  "triggers": { "crons": ["5 5 * * *", "5 6 * * *"] },
+  "observability": { "enabled": true }
 }

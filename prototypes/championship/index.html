@@ -150,7 +150,7 @@ document.querySelector('.entry').addEventListener('click',e=>{if(!e.target.close
 // assets/scenes/<slot>.jpg; a slot listed in SCENE_DELIVERED shows its poster,
 // otherwise the page falls back to the approved entry poster.
 const SCENE_DIR='assets/scenes/';
-const SCENE_DELIVERED=[]; // add slot names here as approved posters are installed
+const SCENE_DELIVERED=['daily-01']; // add slot names here as approved posters are installed
 const SCENE_FALLBACK='assets/championship-entry.jpg';
 const SCENE_CONTENT={}; // slot -> {verse,ref,mindset,source,phrase}; filled from ChatGPT's content list
 const SCENE_SCHEDULE={'2026-10-15':'daily-01','2026-10-16':'daily-02','2026-10-17':'daily-03','2026-10-18':'daily-04',

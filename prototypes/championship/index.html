@@ -68,7 +68,7 @@
 /* ---- Page 2: The Dominion Journey (mockup layout) ---- */
 .journey-home{padding:14px 0 40px!important;background:radial-gradient(circle at 50% 0%,#0b3db8 0%,#071b60 45%,#020a29 100%)!important}
 .journey-home>*{max-width:560px;margin-left:auto!important;margin-right:auto!important}
-.jh-title{margin:12px auto 0!important;padding:0 120px;color:var(--gold);font:900 clamp(14px,4.1vw,22px)/1.3 Georgia,serif;letter-spacing:.14em;white-space:nowrap;text-align:center;min-height:44px;display:flex;align-items:center;justify-content:center}
+.jh-title{margin:12px auto 0!important;padding:0 120px;color:var(--gold);font:900 clamp(14px,4.1vw,22px)/1.3 Georgia,serif;letter-spacing:.12em;white-space:nowrap;overflow:hidden;text-align:center;display:block}
 @media(max-width:480px){.jh-title{padding:0 16px;margin-top:62px!important}}
 .journey-home #homeEntry{top:max(12px,env(safe-area-inset-top))!important;left:12px;border:2px solid var(--gold);font-weight:900;letter-spacing:.1em}
 .phase-track{list-style:none;display:grid;grid-template-columns:repeat(6,1fr);margin:14px auto 0!important;padding:0 8px;position:relative}
@@ -84,6 +84,7 @@
 .crown-rule{display:flex;align-items:center;gap:10px;padding:0 24px;margin-top:8px!important;color:var(--gold)}
 .crown-rule span{flex:1;height:1px;background:linear-gradient(90deg,transparent,#f3bf42aa)}.crown-rule span:last-child{background:linear-gradient(270deg,transparent,#f3bf42aa)}
 .crown-rule svg{width:44px;height:34px;filter:drop-shadow(0 0 8px #f3bf4288)}
+.journey-home .scene-frame.crop-mid{aspect-ratio:1024/760}.journey-home .scene-frame.crop-mid img{object-position:50% 60.6%}
 .journey-home .scene-frame{width:100%!important;max-width:560px;margin-top:6px!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 6%,#000 78%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0,#000 6%,#000 78%,transparent 100%)}
 .phrase-wrap{position:relative;margin-top:-52px!important;padding:0 64px 6px;text-align:center;z-index:2}
 .journey-home .scene-phrase{margin:0!important;color:var(--gold)!important;font:italic 800 clamp(20px,5.6vw,30px)/1.25 Georgia,serif!important;text-shadow:0 2px 10px #000c}
@@ -194,7 +195,9 @@ function setEmblem(m){const e=EMBLEMS[stageFor(m)],img=document.getElementById('
 function shortMeet(m){return /Regional/.test(m.name)?'REGIONALS':/State/.test(m.name)?'STATE':m.name.toUpperCase()}
 function phaseKey(day){const m=MEETS.find(x=>x.date>=day);if(!m)return 'SEASON COMPLETE';const left=dn(m.date)-dn(day);return left===0?'RACE DAY':left<=2?'READY':left<=4?'FOCUS':left<=6?'SHARPEN':'BUILD'}
 function phaseFor(day){const m=MEETS.find(x=>x.date>=day);if(!m)return 'SEASON COMPLETE';const left=dn(m.date)-dn(day);if(left===0)return 'RACE DAY \u2022 '+shortMeet(m);return phaseKey(day)+' \u2022 '+left+(left===1?' DAY':' DAYS')+' TO '+shortMeet(m)}
-function renderPhaseTrack(day){const k=phaseKey(day),items=[...document.querySelectorAll('#phaseTrack li')],ci=items.findIndex(li=>li.dataset.phase===k);items.forEach((li,n)=>{li.classList.toggle('current',n===ci);li.classList.toggle('past',n<ci);if(n===ci)li.setAttribute('aria-current','step');else li.removeAttribute('aria-current')})}
+function fitTitle(){const el=document.getElementById('sceneLabel');if(!el||!el.offsetWidth)return;el.style.fontSize='';let fs=parseFloat(getComputedStyle(el).fontSize);while(el.scrollWidth>el.clientWidth&&fs>10){fs-=0.5;el.style.fontSize=fs+'px'}}
+window.addEventListener('resize',fitTitle);
+function renderPhaseTrack(day){requestAnimationFrame(fitTitle);const k=phaseKey(day),items=[...document.querySelectorAll('#phaseTrack li')],ci=items.findIndex(li=>li.dataset.phase===k);items.forEach((li,n)=>{li.classList.toggle('current',n===ci);li.classList.toggle('past',n<ci);if(n===ci)li.setAttribute('aria-current','step');else li.removeAttribute('aria-current')})}
 function renderSchedule(){const today=ymd(),next=MEETS.find(x=>x.date>=today),ol=document.getElementById('scheduleList');if(!ol)return;ol.replaceChildren();MEETS.forEach(m=>{const li=document.createElement('li'),left=dn(m.date)-dn(today);li.className=m.date<today?'done':m===next?'next':'';const status=m.date<today?'COMPLETED':left===0?'TODAY':left+(left===1?' DAY':' DAYS');li.innerHTML='<span><span class="meet-name"></span><span class="meet-date"></span></span><span class="meet-state"></span>';li.querySelector('.meet-name').textContent=m.name;li.querySelector('.meet-date').textContent=new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'long',month:'long',day:'numeric'}).format(new Date(m.date+'T12:00:00Z'));li.querySelector('.meet-state').textContent=status;ol.appendChild(li)})}
 function render(){renderSchedule();const m=currentMeet(),left=liveLeft(),safe=Math.max(0,left),race=left===0,after=!m;document.getElementById('meetHeading').textContent=after?'SEASON COMPLETE':m.name+' • '+meetLabel(m);
 document.getElementById('count').textContent=after?'WELL DONE':race?'GO':safe;document.getElementById('count').classList.toggle('done',after);setEmblem(m);
@@ -255,7 +258,7 @@ function showSceneFor(day){const slot=sceneSlotFor(day),c=SCHED.slots[slot]||{},
  document.getElementById('sceneMindsetCard').hidden=!c.mindset;setText('sceneMindset',c.mindset?'“'+c.mindset+'”':'');setText('sceneMindsetSrc',c.source?'— '+c.source:'');showInsight('sceneInsight','');
  const stok=++sceneToken;fetchDaily(day).then(e=>{if(!e||stok!==sceneToken||!e.verse)return;phrase.hidden=!e.phrase;phrase.textContent=e.phrase||'';document.getElementById('sceneVerseCard').hidden=false;setText('sceneVerse','“'+e.verse+'”');setText('sceneVerseRef',e.ref);showInsight('sceneInsight',e.insight);document.getElementById('sceneMindsetCard').hidden=false;setText('sceneMindset','“'+e.mindset+'”');setText('sceneMindsetSrc','— '+e.source);if(e.declaration){document.getElementById('sceneDeclCard').hidden=false;setText('sceneDecl','“'+e.declaration+'”')}});
  if(shownScene===src)return;shownScene=src;const img=document.getElementById('sceneImg'),frame=img.parentElement;img.classList.remove('ready');
- const pre=new Image();pre.onload=()=>{frame.classList.toggle('fallback',/championship-entry\.jpg$/.test(src));img.src=src;img.alt=c.image?'Spartans1st scene: '+sceneLabelFor(slot).toLowerCase():'Spartans1st — Let Them Have Dominion';img.classList.add('ready')};
+ const pre=new Image();pre.onload=()=>{frame.classList.toggle('crop-mid',(c.image?c.crop:SCHED.fallbackCrop)==='middle');frame.classList.toggle('fallback',/championship-entry\.jpg$/.test(src));img.src=src;img.alt=c.image?'Spartans1st scene: '+sceneLabelFor(slot).toLowerCase():'Spartans1st — Let Them Have Dominion';img.classList.add('ready')};
  pre.onerror=()=>{frame.classList.add('fallback');img.src=SCHED.fallbackImage;img.classList.add('ready')};pre.src=src}
 function renderSceneReview(){const today=ymd(),past=SCHED_DATES.filter(d=>d<today&&d>=(SCHED.firstDate||'')),box=document.getElementById('sceneDays');
  document.getElementById('reviewEmpty').hidden=!!past.length;box.replaceChildren();

@@ -4,7 +4,7 @@
 // To add a scene: put the approved poster at assets/scenes/<slot>.jpg and fill in its entry below.
 // A slot with no "image" shows the approved entry poster; empty text fields hide their cards.
 window.SPARTANS1ST_SCHEDULE = {
-  fallbackImage: 'assets/scenes/daily-01.jpg', // most recent approved scene; Page 2 never repeats the Page 1 poster
+  fallbackImage: 'assets/scenes/daily-01.jpg', fallbackCrop: 'middle', // most recent approved scene; Page 2 never repeats the Page 1 poster
   firstDate: '2026-10-15',
   // date -> slot
   days: {
@@ -21,6 +21,7 @@ window.SPARTANS1ST_SCHEDULE = {
   slots: {
     'daily-01': {
       image: 'assets/scenes/daily-01.jpg',
+      crop: 'middle', // current Day 1 has poster branding painted on; show only the runner/mountain middle until the simplified scene arrives
       verse: 'I press toward the mark for the prize of the high calling of God in Christ Jesus.',
       ref: 'Philippians 3:14 (KJV)',
       mindset: 'Great things are done by a series of small things brought together.',

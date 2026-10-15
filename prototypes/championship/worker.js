@@ -114,7 +114,7 @@ Return ONLY a JSON object (no markdown) with these keys. Every value must be wri
 "ref": exactly one reference copied from the CHOICES list (book chapter:verse as written there), chosen to fit today's season status,
 "insight": two complete sentences (25 to 45 words total) explaining what the verse means for a runner today,
 "mindset": one complete, memorable sentence (12 to 25 words) about discipline, effort, team or finishing; original wording; do not quote or name any real person,
-"declaration": three complete first-person sentences (35 to 60 words total) that the athlete speaks aloud, drawn from the chosen verse, each beginning with "I",
+"declaration": three short, complete first-person sentences (25 to 40 words total) that the athlete speaks aloud, drawn from the chosen verse, each beginning with "I",
 "phrase": a short motto of 3 to 8 words.
 Style example (do not copy): {"ref":"Isaiah 40:31","insight":"Strength for the final mile does not come from your legs alone. When you trust God, He renews you so you can keep running without fainting.","mindset":"The miles nobody sees in practice are the ones that carry you past the runner beside you.","declaration":"I wait upon the Lord and He renews my strength. I will run and not be weary. I will finish this race with everything I have.","phrase":"Renewed strength. Relentless finish."}`;
   const user = `Date: ${date}. Season status: ${stage.text}\nCHOICES:\n${choices}`;
@@ -125,15 +125,15 @@ Style example (do not copy): {"ref":"Isaiah 40:31","insight":"Strength for the f
   const entry = {
     date, verse: p && p.text, ref: p && p.ref,
     insight: clean(obj.insight, 280), mindset: clean(obj.mindset, 220), source: 'Spartans1st',
-    declaration: clean(obj.declaration, 400), phrase: clean(obj.phrase, 90), origin: 'ai',
+    declaration: clean(obj.declaration, 280), phrase: clean(obj.phrase, 90), origin: 'ai',
   };
-  if (!entry.verse || entry.mindset.length < 50 || entry.declaration.length < 100 || entry.insight.length < 60) throw new Error('invalid AI output');
+  if (!entry.verse || entry.mindset.length < 50 || entry.declaration.length < 80 || entry.insight.length < 60) throw new Error('invalid AI output');
   await env.DAILY.put('recent-refs', JSON.stringify([entry.ref, ...recent].slice(0, 30)));
   return entry;
 }
 
 async function getOrCreate(date, env) {
-  const key = 'daily:v2:' + date;
+  const key = 'daily:v3:' + date;
   const hit = await env.DAILY.get(key, 'json');
   if (hit) return hit;
   let entry;

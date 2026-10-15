@@ -4,7 +4,7 @@
 // To add a scene: put the approved poster at assets/scenes/<slot>.jpg and fill in its entry below.
 // A slot with no "image" shows the approved entry poster; empty text fields hide their cards.
 window.SPARTANS1ST_SCHEDULE = {
-  fallbackImage: 'assets/championship-entry.jpg',
+  fallbackImage: 'assets/scenes/daily-01.jpg', // most recent approved scene; Page 2 never repeats the Page 1 poster
   firstDate: '2026-10-15',
   // date -> slot
   days: {

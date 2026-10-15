@@ -52,23 +52,39 @@
 .scene-days button.active{border-color:var(--gold);color:var(--gold)}
 .scene-review .today-btn{margin:0 0 16px}
 @media(prefers-reduced-motion:reduce){.scene-frame img{transition:none}}
+.countdown .cards,.countdown .journey{display:none!important}
+.countdown .shell{padding-top:58px}
+.back,.music-toggle,.journey-home #homeEntry{position:absolute!important}
+.scene-phase{margin:-4px auto 14px;color:var(--gold);font:900 13px/1.4 Inter,Arial,sans-serif;letter-spacing:.16em;text-align:center}
+.journey-home .journal{width:min(100%,520px);margin:18px auto 0}
+.season-schedule{width:min(100%,680px);margin:22px auto 0;padding:20px;border:1px solid #66c7ff66;border-radius:20px;background:linear-gradient(145deg,#0d2f82cc,#081b61dd);text-align:left}
+.season-schedule ol{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:10px}
+.season-schedule li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:#041344aa;border:1px solid #8edcff33}
+.season-schedule li.next{border-color:var(--gold);box-shadow:0 0 0 2px #f3bf4233}
+.season-schedule .meet-name{font:800 15px/1.3 Inter,Arial,sans-serif;color:#fff}.season-schedule .meet-date{display:block;margin-top:3px;color:#d9eaff;font:600 13px/1.3 Inter,Arial,sans-serif}
+.season-schedule .meet-state{flex:none;font:900 11px/1 Inter,Arial,sans-serif;letter-spacing:.12em;color:#d9eaff;text-align:right}
+.season-schedule li.next .meet-state{color:var(--gold)}.season-schedule li.done .meet-state{color:#8fd19e}
 </style><script src="assets/scenes/schedule.js"></script></head><body>
 <button class="music-toggle" id="musicToggle" type="button" aria-label="Turn music off" aria-pressed="true">🔊 MUSIC ON</button>
 <section class="entry" aria-label="Spartans1st Championship entry"><div class="entry-art"><img src="assets/championship-entry.jpg" alt="Spartans1st — Let Them Have Dominion. Psalm 8:6. Fight. Press. Win."><button class="enter" id="enter" aria-label="Enter championship countdown"></button><label class="skip-entry"><input type="checkbox" id="skipEntry"> Don't show again</label></div></section>
 <section class="journey-home" aria-label="The Dominion Journey"><button id="homeEntry" class="back" type="button">← ENTRY</button>
 <p class="scene-label" id="sceneLabel">THE DOMINION JOURNEY</p>
+<p class="scene-phase" id="scenePhase"></p>
 <figure class="scene-frame"><img id="sceneImg" src="assets/championship-entry.jpg" alt="Spartans1st — Let Them Have Dominion" decoding="async"></figure>
 <p class="scene-phrase" id="scenePhrase" hidden></p>
 <div class="scene-cards"><article class="card" id="sceneVerseCard" hidden><div class="label">WORD FOR THE JOURNEY</div><div class="quote" id="sceneVerse"></div><div class="source" id="sceneVerseRef"></div><p class="insight" id="sceneInsight" hidden></p></article>
-<article class="card" id="sceneMindsetCard" hidden><div class="label">CHAMPION'S MINDSET</div><div class="quote" id="sceneMindset"></div><div class="source" id="sceneMindsetSrc"></div></article></div>
-<details class="scene-review" id="sceneReview" hidden><summary>REVIEW PREVIOUS DAYS</summary><div class="scene-days" id="sceneDays"></div><button type="button" class="today-btn" id="sceneToday" hidden>BACK TO TODAY</button></details>
+<article class="card" id="sceneMindsetCard" hidden><div class="label">CHAMPION'S MINDSET</div><div class="quote" id="sceneMindset"></div><div class="source" id="sceneMindsetSrc"></div></article>
+<article class="card" id="sceneDeclCard" hidden><div class="label">CHAMPION'S DECLARATION</div><div class="quote" id="sceneDecl"></div></article></div>
+<section class="journal" id="journal" aria-label="Private Championship Journal"><button class="journal-toggle" id="journalToggle" type="button" aria-expanded="false" aria-controls="journalPanel"><span class="journal-copy"><span class="journal-title">📔 MY CHAMPIONSHIP JOURNAL</span><span class="journal-sub">Reflect • Write • Prepare</span></span><span class="journal-arrow" aria-hidden="true">›</span></button><div class="journal-panel" id="journalPanel"><p class="privacy">🔒 <strong>PRIVATE JOURNAL</strong><br>Your entries are stored only in this browser on this device. They are not sent to your coach, team, or Spartans1st™.</p><label class="prompt" for="jSpoke">What spoke to me today?</label><textarea id="jSpoke"></textarea><label class="prompt" for="jImprove">What do I need to improve before race day?</label><textarea id="jImprove"></textarea><label class="prompt" for="jAction">What is one thing I will do today?</label><textarea id="jAction"></textarea><label class="prompt" for="jDeclare">My personal declaration:</label><textarea id="jDeclare"></textarea><div class="journal-actions"><button class="journal-btn journal-save" id="journalSave" type="button">SAVE MY ENTRY</button><button class="journal-btn" id="journalExport" type="button">EXPORT MY JOURNAL</button></div><div class="journal-status" id="journalStatus" aria-live="polite"></div></div></section>
+<details class="scene-review" id="sceneReview" hidden><summary>REVIEW THE JOURNEY</summary><div class="scene-days" id="sceneDays"></div><button type="button" class="today-btn" id="sceneToday" hidden>BACK TO TODAY</button></details>
 <div class="home-actions"><button id="viewCountdown" type="button">VIEW SEASON COUNTDOWN →</button></div></section>
-<main class="countdown"><button class="back" id="back">← JOURNEY</button><div class="shell"><div class="eyebrow">SPARTANS1ST™ XC</div>
+<main class="countdown"><button class="back" id="back">← JOURNEY</button><div class="shell"><div class="eyebrow">SEASON COMMAND CENTER</div>
 <div class="meet-heading" id="meetHeading" aria-live="polite"></div><div class="crest"><img id="emblem" src="assets/emblem-regional.jpg" alt="Spartans1st XC Championship Countdown"><div class="medallion-count" aria-live="polite"><div class="count" id="count">9</div><div class="unit" id="unit">DAYS</div></div><div class="ribbon-update" id="ribbonUpdate" aria-live="polite"><span class="ribbon-name" id="ribbonName"></span><span class="ribbon-date" id="ribbonDate"></span></div></div>
+<section class="season-schedule" aria-label="Season schedule"><div class="label">SEASON SCHEDULE</div><ol id="scheduleList"></ol></section>
 <section class="cards"><article class="card"><div class="label">WORD FOR TODAY</div><div class="quote" id="scripture"></div><div class="source" id="scriptureRef"></div><p class="insight" id="scriptureInsight" hidden></p></article>
 <article class="card"><div class="label">CHAMPION'S MINDSET</div><div class="quote" id="champion"></div><div class="source" id="championSource"></div></article>
 <article class="card"><div class="label">CHAMPION'S DECLARATION</div><div class="quote" id="declaration"></div></article></section>
-<section class="journal" id="journal" aria-label="Private Championship Journal"><button class="journal-toggle" id="journalToggle" type="button" aria-expanded="false" aria-controls="journalPanel"><span class="journal-copy"><span class="journal-title">📔 MY CHAMPIONSHIP JOURNAL</span><span class="journal-sub">Reflect • Write • Prepare</span></span><span class="journal-arrow" aria-hidden="true">›</span></button><div class="journal-panel" id="journalPanel"><p class="privacy">🔒 <strong>PRIVATE JOURNAL</strong><br>Your entries are stored only in this browser on this device. They are not sent to your coach, team, or Spartans1st™.</p><label class="prompt" for="jSpoke">What spoke to me today?</label><textarea id="jSpoke"></textarea><label class="prompt" for="jImprove">What do I need to improve before Championship Day?</label><textarea id="jImprove"></textarea><label class="prompt" for="jAction">What is one thing I will do today?</label><textarea id="jAction"></textarea><label class="prompt" for="jDeclare">My personal declaration:</label><textarea id="jDeclare"></textarea><div class="journal-actions"><button class="journal-btn journal-save" id="journalSave" type="button">SAVE MY ENTRY</button><button class="journal-btn" id="journalExport" type="button">EXPORT MY JOURNAL</button></div><div class="journal-status" id="journalStatus" aria-live="polite"></div></div></section>
+
 <section class="journey" id="journey" aria-label="Championship Journey archive"><button class="journey-toggle" id="journeyToggle" type="button" aria-expanded="false" aria-controls="journeyPanel"><span class="journey-toggle-copy"><span class="journey-title">CHAMPIONSHIP JOURNEY</span><span class="journey-sub">Review Previous Days</span></span><span class="journey-arrow" aria-hidden="true">›</span></button><div class="journey-panel" id="journeyPanel"><div class="journey-head"><button class="today-btn" id="todayBtn" type="button">BACK TO TODAY</button></div><div class="journey-days" id="journeyDays"></div><div class="journey-status" id="journeyStatus" aria-live="polite"></div></div></section>
 <div class="footer">“You Have Dominion.”</div></div></main>
 <script>
@@ -120,14 +136,17 @@ const EMBLEMS={regional:{src:'assets/emblem-regional.jpg',top:'53.4%',w:'22%',al
  complete:{src:'assets/emblem-complete.jpg',top:'53.4%',w:'22%',alt:'Tetelestai, I have finished my course'}};
 function stageFor(m){return !m?'complete':/State/.test(m.name)?'state':'regional'}
 function setEmblem(m){const e=EMBLEMS[stageFor(m)],img=document.getElementById('emblem'),mc=document.querySelector('.medallion-count');if(img.getAttribute('src')!==e.src)img.src=e.src;img.alt='Spartans1st XC countdown: '+e.alt;mc.style.top=e.top;mc.style.width=e.w}
-function render(){const m=currentMeet(),left=liveLeft(),safe=Math.max(0,left),race=left===0,after=!m;document.getElementById('meetHeading').textContent=after?'SEASON COMPLETE':m.name+' • '+meetLabel(m);
+function shortMeet(m){return /Regional/.test(m.name)?'REGIONALS':/State/.test(m.name)?'STATE':m.name.toUpperCase()}
+function phaseFor(day){const m=MEETS.find(x=>x.date>=day);if(!m)return 'SEASON COMPLETE';const left=dn(m.date)-dn(day);if(left===0)return 'RACE DAY \u2022 '+shortMeet(m);const w=left===1?'READY':left<=5?'SHARPEN':left<=9?'FOCUS':'BUILD';return w+' \u2022 '+left+(left===1?' DAY':' DAYS')+' TO '+shortMeet(m)}
+function renderSchedule(){const today=ymd(),next=MEETS.find(x=>x.date>=today),ol=document.getElementById('scheduleList');if(!ol)return;ol.replaceChildren();MEETS.forEach(m=>{const li=document.createElement('li'),left=dn(m.date)-dn(today);li.className=m.date<today?'done':m===next?'next':'';const status=m.date<today?'COMPLETED':left===0?'TODAY':left+(left===1?' DAY':' DAYS');li.innerHTML='<span><span class="meet-name"></span><span class="meet-date"></span></span><span class="meet-state"></span>';li.querySelector('.meet-name').textContent=m.name;li.querySelector('.meet-date').textContent=new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'long',month:'long',day:'numeric'}).format(new Date(m.date+'T12:00:00Z'));li.querySelector('.meet-state').textContent=status;ol.appendChild(li)})}
+function render(){renderSchedule();const m=currentMeet(),left=liveLeft(),safe=Math.max(0,left),race=left===0,after=!m;document.getElementById('meetHeading').textContent=after?'SEASON COMPLETE':m.name+' • '+meetLabel(m);
 document.getElementById('count').textContent=after?'WELL DONE':race?'GO':safe;document.getElementById('count').classList.toggle('done',after);setEmblem(m);
 document.getElementById('unit').textContent=after||race?'':safe===1?'DAY':'DAYS';
 reviewDay=null;renderCards(left);renderJourney()}
 todayBtn.onclick=()=>{reviewDay=null;renderCards(liveLeft());renderJourney();if(journal.classList.contains('open'))loadJournal()};
 journeyToggle.onclick=()=>{const open=journey.classList.toggle('open');journeyToggle.setAttribute('aria-expanded',String(open))};
 const JOURNAL_KEY='spartans1stChampionshipJournalV1';
-function journalDay(){const left=reviewDay===null?liveLeft():reviewDay;const m=currentMeet();return left<0?'well-done':(m?m.date:'season')+'-'+(left===0?'go':'day-'+left)}
+function journalDay(){return reviewSceneDay||ymd()}
 function getJournal(){try{return JSON.parse(localStorage.getItem(JOURNAL_KEY)||'{}')}catch(e){return{}}}
 function loadJournal(){const all=getJournal(),e=all[journalDay()]||{};jSpoke.value=e.spoke||'';jImprove.value=e.improve||'';jAction.value=e.action||'';jDeclare.value=e.declare||'';journalStatus.textContent=e.saved?'Saved on this device.':'This day has no saved entry yet.'}
 function saveJournal(){const all=getJournal();all[journalDay()]={spoke:jSpoke.value,improve:jImprove.value,action:jAction.value,declare:jDeclare.value,saved:new Date().toISOString()};try{localStorage.setItem(JOURNAL_KEY,JSON.stringify(all));journalStatus.textContent='Saved privately on this device.'}catch(e){journalStatus.textContent='This browser could not save the entry.'}}
@@ -173,13 +192,13 @@ function shortDate(d){return new Intl.DateTimeFormat('en-US',{timeZone:'UTC',mon
 let shownScene=null,reviewSceneDay=null,sceneToken=0;
 function setText(id,txt){document.getElementById(id).textContent=txt||''}
 function showSceneFor(day){const slot=sceneSlotFor(day),c=SCHED.slots[slot]||{},src=c.image||SCHED.fallbackImage;
- document.getElementById('sceneLabel').textContent=reviewSceneDay?sceneLabelFor(slot)+' • '+shortDate(day).toUpperCase():sceneLabelFor(slot);
+ document.getElementById('sceneLabel').textContent='THE DOMINION JOURNEY';document.getElementById('scenePhase').textContent=phaseFor(day)+(reviewSceneDay?' • '+shortDate(day).toUpperCase():'');document.getElementById('sceneDeclCard').hidden=true;if(document.getElementById('journal').classList.contains('open'))loadJournal();
  const phrase=document.getElementById('scenePhrase');phrase.hidden=!c.phrase;phrase.textContent=c.phrase||'';
  document.getElementById('sceneVerseCard').hidden=!c.verse;setText('sceneVerse',c.verse?'“'+c.verse+'”':'');setText('sceneVerseRef',c.ref);
  document.getElementById('sceneMindsetCard').hidden=!c.mindset;setText('sceneMindset',c.mindset?'“'+c.mindset+'”':'');setText('sceneMindsetSrc',c.source?'— '+c.source:'');showInsight('sceneInsight','');
- const stok=++sceneToken;fetchDaily(day).then(e=>{if(!e||stok!==sceneToken||!e.verse)return;phrase.hidden=!e.phrase;phrase.textContent=e.phrase||'';document.getElementById('sceneVerseCard').hidden=false;setText('sceneVerse','“'+e.verse+'”');setText('sceneVerseRef',e.ref);showInsight('sceneInsight',e.insight);document.getElementById('sceneMindsetCard').hidden=false;setText('sceneMindset','“'+e.mindset+'”');setText('sceneMindsetSrc','— '+e.source)});
+ const stok=++sceneToken;fetchDaily(day).then(e=>{if(!e||stok!==sceneToken||!e.verse)return;phrase.hidden=!e.phrase;phrase.textContent=e.phrase||'';document.getElementById('sceneVerseCard').hidden=false;setText('sceneVerse','“'+e.verse+'”');setText('sceneVerseRef',e.ref);showInsight('sceneInsight',e.insight);document.getElementById('sceneMindsetCard').hidden=false;setText('sceneMindset','“'+e.mindset+'”');setText('sceneMindsetSrc','— '+e.source);if(e.declaration){document.getElementById('sceneDeclCard').hidden=false;setText('sceneDecl','“'+e.declaration+'”')}});
  if(shownScene===src)return;shownScene=src;const img=document.getElementById('sceneImg'),frame=img.parentElement;img.classList.remove('ready');
- const pre=new Image();pre.onload=()=>{frame.classList.toggle('fallback',src===SCHED.fallbackImage);img.src=src;img.alt=c.image?'Spartans1st scene: '+sceneLabelFor(slot).toLowerCase():'Spartans1st — Let Them Have Dominion';img.classList.add('ready')};
+ const pre=new Image();pre.onload=()=>{frame.classList.toggle('fallback',/championship-entry\.jpg$/.test(src));img.src=src;img.alt=c.image?'Spartans1st scene: '+sceneLabelFor(slot).toLowerCase():'Spartans1st — Let Them Have Dominion';img.classList.add('ready')};
  pre.onerror=()=>{frame.classList.add('fallback');img.src=SCHED.fallbackImage;img.classList.add('ready')};pre.src=src}
 function renderSceneReview(){const today=ymd(),past=SCHED_DATES.filter(d=>d<today&&d>=(SCHED.firstDate||'')),box=document.getElementById('sceneDays');
  document.getElementById('sceneReview').hidden=!past.length;box.replaceChildren();

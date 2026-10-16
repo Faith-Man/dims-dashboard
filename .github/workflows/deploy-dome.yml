@@ -79,5 +79,8 @@ jobs:
             sleep 15
           done
 
+          echo "Last /api/dome/deploy response (full):"
+          printf '%s\n' "$deploy"
+          echo "Failed MED runtime checks: $(printf '%s' "$deploy" | grep -o '"med_runtime_failed_checks":\[[^]]*\]' || echo 'not reported')"
           echo "::error::Cloudflare production failed MED canonical-image verification. The deployment cannot be treated as successful until the secure MED page uses the canonical JPG and the fallback badge is absent."
           exit 1

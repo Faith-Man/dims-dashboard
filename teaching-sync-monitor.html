@@ -1,0 +1,489 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Teaching Sync Orbit — DOME™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050a1a;--bg2:#0a1430;--panel:rgba(14,26,58,.72);--panel-solid:#0e1a3a;--line:rgba(140,170,255,.18);--line2:rgba(140,170,255,.32);
+  --ink:#eef3ff;--muted:#9fb0d6;--accent:#9db9ff;--gold:#e9c46a;
+  --synced:#3ee08f;--twoway:#2fd3e0;--recovered:#b08cff;--retry:#60a5fa;--stalled:#fbbf24;--conflict:#fb923c;--failed:#f87171;
+  --clear:#3ee08f;--watch:#fbbf24;--alert:#f87171;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:
+  radial-gradient(1200px 700px at 50% -10%,#16245a 0%,transparent 60%),
+  radial-gradient(900px 600px at 100% 100%,#1a1040 0%,transparent 55%),
+  var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.55;background-image:
+  radial-gradient(1px 1px at 12% 18%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 72% 12%,#cfe0ff 50%,transparent 51%),
+  radial-gradient(1.5px 1.5px at 38% 64%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 86% 58%,#fff 50%,transparent 51%),
+  radial-gradient(1px 1px at 22% 86%,#bcd0ff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 58% 32%,#fff 50%,transparent 51%),
+  radial-gradient(1px 1px at 92% 88%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 6% 52%,#fff 50%,transparent 51%);
+  background-size:620px 620px}
+a{color:var(--accent)}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.title{font-family:'Cinzel',serif;font-weight:900;letter-spacing:3px;font-size:clamp(18px,4vw,28px);color:var(--ink)}
+.title span{color:var(--gold)}
+.sub{font-size:.78rem;color:var(--muted);letter-spacing:1px;margin-top:3px}
+.home{color:var(--accent);font-size:.8rem;border:1px solid var(--line2);padding:6px 12px;border-radius:9px;text-decoration:none;white-space:nowrap}
+.nav{display:flex;flex-wrap:wrap;gap:6px;padding:10px 20px;border-bottom:1px solid var(--line)}
+.nav a{font-size:.75rem;color:var(--accent);border:1px solid var(--line2);padding:5px 12px;border-radius:9px;text-decoration:none;letter-spacing:1px}
+.nav a.active,.nav a:hover{background:rgba(157,185,255,.16);color:#fff}
+.wrap{max-width:1200px;margin:0 auto;padding:16px 20px 28px}
+
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:999px;overflow:hidden}
+.seg button{background:transparent;color:var(--muted);border:0;padding:6px 14px;font:600 .75rem 'Inter';letter-spacing:1px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:rgba(157,185,255,.2);color:#fff}
+.stamp{font-size:.75rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+.icon-btn{background:transparent;border:1px solid var(--line2);color:var(--accent);border-radius:999px;padding:5px 12px;font:600 .72rem 'Inter';letter-spacing:1px;cursor:pointer}
+.icon-btn:hover{background:rgba(157,185,255,.14)}
+.icon-btn:disabled{opacity:.5;cursor:default}
+
+/* ---------- 3-D orbit ---------- */
+.stage{position:relative;height:600px;perspective:1100px;margin:4px auto 10px;max-width:980px;user-select:none;overflow:hidden}
+/* Size and tilt of the plane are set from JS so the rings always match the planets' path. */
+.plane{position:absolute;left:50%;top:50%;width:760px;height:760px;margin:-380px 0 0 -380px;transform-style:preserve-3d;transform:rotateX(61deg)}
+.ring{position:absolute;inset:0;border-radius:50%;border:1px solid var(--line2)}
+.ring.r1{inset:0;border:2px solid rgba(157,185,255,.28);box-shadow:0 0 40px rgba(90,130,255,.18) inset,0 0 30px rgba(90,130,255,.12)}
+.ring.r2{inset:9%;border:1px dashed rgba(157,185,255,.35);animation:spin 70s linear infinite}
+.ring.r3{inset:20%;border:1px solid rgba(233,196,106,.28);animation:spin 110s linear infinite reverse}
+.ring.r4{inset:30%;background:radial-gradient(circle,rgba(70,110,255,.22),transparent 70%);border:0}
+.ticks{position:absolute;inset:-14px;animation:spin 160s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.core{position:absolute;left:50%;top:50%;width:250px;height:250px;margin:-125px 0 0 -125px;z-index:50;pointer-events:none}
+.core svg{width:100%;height:100%;overflow:visible}
+.core-orb{position:absolute;inset:38px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.28),rgba(255,255,255,0) 38%),radial-gradient(circle at 50% 55%,var(--core-glow,#1b3a8a),#081230 72%);
+  box-shadow:0 0 50px var(--core-shadow,rgba(62,224,143,.35)),0 18px 40px rgba(0,0,0,.55),inset 0 -14px 30px rgba(0,0,0,.45);transition:box-shadow .6s}
+.core-state{font-family:'Cinzel',serif;font-weight:900;font-size:1.02rem;letter-spacing:2px;color:var(--core-ink,#fff)}
+.core-big{font-size:2.1rem;font-weight:700;line-height:1;margin-top:6px}
+.core-small{font-size:.68rem;color:#d5def7;letter-spacing:1px;margin-top:4px;text-transform:uppercase}
+.pulse{position:absolute;inset:30px;border-radius:50%;border:2px solid var(--core-ink,#3ee08f);opacity:0;animation:pulse 3.2s ease-out infinite}
+@keyframes pulse{0%{transform:scale(.92);opacity:.55}100%{transform:scale(1.35);opacity:0}}
+
+.node{position:absolute;left:0;top:0;width:118px;height:118px;margin:-59px 0 0 -59px;border:0;background:transparent;cursor:pointer;color:var(--ink);
+  font-family:'Inter';will-change:transform,opacity;padding:0}
+.node .orb{position:relative;width:86px;height:86px;margin:0 auto;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.75),rgba(255,255,255,0) 30%),radial-gradient(circle at 50% 60%,var(--c),color-mix(in srgb,var(--c) 25%,#040818) 78%);
+  box-shadow:0 0 26px color-mix(in srgb,var(--c) 55%,transparent),0 14px 22px rgba(0,0,0,.55),inset 0 -10px 18px rgba(0,0,0,.35);transition:box-shadow .3s}
+.node .count{font-size:1.65rem;font-weight:700;color:#06101f;text-shadow:0 1px 0 rgba(255,255,255,.35)}
+.node.zero .orb{filter:saturate(.35) brightness(.7)}
+.node .lbl{display:block;margin-top:6px;font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-shadow:0 2px 8px #000}
+.node .unread{position:absolute;top:2px;right:2px;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#fff;color:#0a1430;font-size:.68rem;font-weight:800;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #0a1430}
+.node[aria-pressed="true"] .orb{box-shadow:0 0 0 3px #fff,0 0 34px var(--c),0 14px 22px rgba(0,0,0,.55)}
+.node:focus-visible{outline:none}.node:focus-visible .orb{box-shadow:0 0 0 3px var(--gold),0 0 30px var(--c)}
+.hint{text-align:center;font-size:.72rem;color:var(--muted);letter-spacing:1px;margin-top:-6px}
+
+/* ---------- panels ---------- */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:16px;margin-top:18px}
+.panel{background:var(--panel);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.panel h2{font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--line)}
+.panel h2 small{font-family:'Inter';font-size:.72rem;color:var(--muted);letter-spacing:.5px;text-transform:none}
+.qstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.qstat{border:1px solid var(--line);border-radius:12px;padding:8px;text-align:center;background:rgba(5,10,26,.4)}
+.qstat b{display:block;font-size:1.3rem}
+.qstat span{font-size:.66rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.bar{width:4px;border-radius:4px;flex:none;background:var(--c)}
+.item-body{flex:1;min-width:0}
+.item-title{font-weight:600;font-size:.88rem;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.item-title .dot{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 8px #fff;flex:none}
+.item-msg{font-size:.8rem;color:#c7d3f0;margin-top:3px;overflow-wrap:anywhere}
+.item-meta{font-size:.72rem;color:var(--muted);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tag{display:inline-block;font-size:.66rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:999px;
+  color:var(--c);border:1px solid color-mix(in srgb,var(--c) 55%,transparent);background:color-mix(in srgb,var(--c) 14%,transparent)}
+.actions{display:flex;gap:6px;flex:none;align-items:flex-start}
+.mini{background:transparent;border:1px solid var(--line2);color:var(--accent);border-radius:8px;padding:3px 8px;font:600 .68rem 'Inter';cursor:pointer}
+.mini:hover{background:rgba(157,185,255,.14)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{background:transparent;border:1px solid var(--line2);color:var(--muted);border-radius:999px;padding:4px 10px;font:600 .7rem 'Inter';cursor:pointer}
+.chip[aria-pressed="true"]{color:#fff;background:rgba(157,185,255,.18);border-color:var(--accent)}
+.empty{color:var(--muted);font-style:italic;font-size:.85rem;padding:10px 0}
+.err{color:var(--failed);font-size:.85rem}
+.gate{max-width:520px;margin:60px auto;text-align:center}
+.gate p{color:var(--muted);margin:10px 0 18px;line-height:1.5}
+.btn{display:inline-block;background:linear-gradient(180deg,#5c7cff,#3449c9);color:#fff;border:0;border-radius:10px;padding:10px 20px;font:700 .8rem 'Inter';letter-spacing:1px;text-decoration:none;text-transform:uppercase}
+.foot{text-align:center;padding:14px 16px;font-style:italic;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+@media (max-width:640px){
+  .wrap{padding:12px 16px 24px}.header,.nav{padding-left:16px;padding-right:16px}
+  .stage{height:390px}
+  .core{width:136px;height:136px;margin:-68px 0 0 -68px}.core-orb{inset:18px}.pulse{inset:14px}
+  .core-big{font-size:1.3rem;margin-top:3px}.core-state{font-size:.66rem;letter-spacing:1px}.core-small{font-size:.5rem;letter-spacing:.5px}
+  .node{width:72px;height:84px;margin:-42px 0 0 -36px}.node .orb{width:52px;height:52px}.node .count{font-size:1.05rem}
+  .node .lbl{font-size:.55rem;letter-spacing:.8px}.node .unread{min-width:18px;height:18px;font-size:.6rem;top:-2px;right:-4px}
+}
+@media (prefers-reduced-motion:reduce){.ring,.ticks,.pulse{animation:none}}
+</style>
+</head><body>
+<div class="header">
+  <div><div class="title">TEACHING SYNC <span>ORBIT</span></div><div class="sub">Live notices from the Supabase sync watcher · Google Docs ⇄ Supabase</div></div>
+  <a class="home" href="index.html">← Home</a>
+</div>
+<nav class="nav">
+  <a href="mission-control.html">🎯 Mission Control</a>
+  <a href="command-alerts.html">🚨 Alerts</a>
+  <a class="active" href="teaching-sync-monitor.html" aria-current="page">🛰 Teaching Sync</a>
+  <a href="yaratheke.html">📚 YARATHĒKĒ</a>
+  <a href="dashboard-v3.html">⚙ System</a>
+</nav>
+
+<main class="wrap" id="app">
+  <div class="empty" id="boot">Connecting to DOME…</div>
+</main>
+
+<template id="gateTpl">
+  <div class="panel gate">
+    <h2 style="justify-content:center">🔒 Sign-in required</h2>
+    <p>Teaching sync notices are only visible to signed-in DOME users. Sign in, then come back to this page.</p>
+    <a class="btn" href="admin.html">Sign in to DOME</a>
+  </div>
+</template>
+
+<template id="dashTpl">
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="Time window">
+      <button type="button" data-win="24">24 h</button><button type="button" data-win="168">7 days</button><button type="button" data-win="720">30 days</button>
+    </div>
+    <div class="stamp"><span id="stamp">—</span><button type="button" class="icon-btn" id="refreshBtn">↻ Refresh</button></div>
+  </div>
+
+  <section class="stage" id="stage" aria-label="Sync activity orbit">
+    <div class="plane">
+      <svg class="ticks" viewBox="0 0 100 100" aria-hidden="true" id="ticks"></svg>
+      <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div><div class="ring r4"></div>
+    </div>
+    <div class="core" aria-live="polite">
+      <svg viewBox="0 0 250 250" id="gauge" aria-hidden="true"></svg>
+      <div class="pulse"></div>
+      <div class="core-orb">
+        <div class="core-state" id="coreState">—</div>
+        <div class="core-big" id="coreBig">0</div>
+        <div class="core-small" id="coreSmall">notices</div>
+      </div>
+    </div>
+    <div id="nodes"></div>
+  </section>
+  <div class="hint">Tap a planet to filter the notice feed · the orbit pauses while you hover</div>
+
+  <div class="grid">
+    <section class="panel">
+      <h2>🛰 Live Queue <small id="qNote">last 3 days</small></h2>
+      <div class="qstats">
+        <div class="qstat"><b id="qQueued">0</b><span>Queued</span></div>
+        <div class="qstat"><b id="qProc">0</b><span>Processing</span></div>
+        <div class="qstat"><b id="qHeld">0</b><span>Held / Failed</span></div>
+      </div>
+      <div id="queueList"><div class="empty">Loading…</div></div>
+    </section>
+    <section class="panel">
+      <h2>📡 Notice Feed <span style="display:flex;gap:6px"><button type="button" class="mini" id="allReadBtn">Mark all read</button></span></h2>
+      <div class="chips" id="chips"></div>
+      <div id="feed"><div class="empty">Loading…</div></div>
+    </section>
+  </div>
+</template>
+
+<div class="foot">"Watchman, what of the night?" <strong>— Isaiah 21:11</strong></div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co', 'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How');
+
+// Notice categories written by dims_internal.di_watch_teaching_sync (DI Watcher v1).
+const CATS = [
+  { key: 'synced',    label: 'Synced',    color: 'var(--synced)' },
+  { key: 'twoway',    label: 'Two-way',   color: 'var(--twoway)' },
+  { key: 'recovered', label: 'Recovered', color: 'var(--recovered)' },
+  { key: 'retry',     label: 'Retrying',  color: 'var(--retry)' },
+  { key: 'stalled',   label: 'Stalled',   color: 'var(--stalled)' },
+  { key: 'conflict',  label: 'Conflict',  color: 'var(--conflict)' },
+  { key: 'failed',    label: 'Failed',    color: 'var(--failed)' }
+];
+const CAT = Object.fromEntries(CATS.map(c => [c.key, c]));
+const QUEUE_COLOR = { queued: 'var(--retry)', processing: 'var(--twoway)', conflict: 'var(--conflict)', deferred: 'var(--stalled)', failed: 'var(--failed)' };
+const REFRESH_MS = 60000;
+
+const state = { hours: 24, filter: null, notices: [], queue: [], loading: false, timer: null };
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function when(d) {
+  if (!d) return '—';
+  const t = new Date(d), mins = Math.round((Date.now() - t) / 60000);
+  const rel = mins < 1 ? 'just now' : mins < 60 ? `${mins} min ago` : mins < 1440 ? `${Math.round(mins / 60)} h ago` : `${Math.round(mins / 1440)} d ago`;
+  return `${t.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} · ${rel}`;
+}
+function categoryOf(n) {
+  switch (n.event_type) {
+    case 'teaching_sync_verified': return n.metadata?.writer === 'two_way_watcher' ? 'twoway' : 'synced';
+    case 'teaching_sync_recovered': return 'recovered';
+    case 'teaching_sync_retry': return 'retry';
+    case 'teaching_sync_stalled': return 'stalled';
+    case 'teaching_sync_conflict': return 'conflict';
+    case 'teaching_sync_failed': return 'failed';
+    default: return null;
+  }
+}
+function isAuthError(error) { return error && (error.status === 401 || /jwt|auth|permission/i.test(error.message || '')); }
+
+/* ---------- data ---------- */
+async function load() {
+  if (state.loading) return;
+  state.loading = true;
+  const btn = document.getElementById('refreshBtn');
+  if (btn) btn.disabled = true;
+  try {
+    const since = new Date(Date.now() - state.hours * 3600e3).toISOString();
+    const queueSince = new Date(Date.now() - 72 * 3600e3).toISOString();
+    const [notices, queue] = await Promise.all([
+      sb.from('notifications')
+        .select('id,event_type,title,message,severity,status,metadata,created_at')
+        .like('event_type', 'teaching_sync_%').gte('created_at', since)
+        .order('created_at', { ascending: false }).limit(300),
+      sb.from('sync_log')
+        .select('id,asset_code,asset_name,sync_status,source,created_at')
+        .like('source', 'TeachingArtifactSync%')
+        .in('sync_status', ['queued', 'processing', 'conflict', 'deferred', 'failed'])
+        .gte('created_at', queueSince)
+        .order('created_at', { ascending: false }).limit(50)
+    ]);
+    const error = notices.error || queue.error;
+    if (error) {
+      if (isAuthError(error)) return showGate();
+      throw error;
+    }
+    state.notices = (notices.data || []).map(n => ({ ...n, cat: categoryOf(n) })).filter(n => n.cat);
+    state.queue = queue.data || [];
+    render();
+    document.getElementById('stamp').textContent = 'Updated ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+  } catch (err) {
+    const feed = document.getElementById('feed');
+    if (feed) feed.innerHTML = `<div class="err">Could not load notices: ${esc(err.message || err)}</div>`;
+  } finally {
+    state.loading = false;
+    if (btn) btn.disabled = false;
+  }
+}
+
+async function setStatus(ids, status) {
+  if (!ids.length) return;
+  const now = new Date().toISOString();
+  const patch = status === 'read' ? { status, read_at: now } : { status, dismissed_at: now };
+  const { error } = await sb.from('notifications').update(patch).in('id', ids);
+  if (error) { alert('Update failed: ' + error.message); return; }
+  for (const n of state.notices) if (ids.includes(n.id)) n.status = status;
+  render();
+}
+
+/* ---------- rendering ---------- */
+function counts() {
+  const c = Object.fromEntries(CATS.map(k => [k.key, { total: 0, unread: 0 }]));
+  for (const n of state.notices) { c[n.cat].total++; if (n.status === 'unread') c[n.cat].unread++; }
+  return c;
+}
+
+function health() {
+  const unread = state.notices.filter(n => n.status === 'unread');
+  if (unread.some(n => n.severity === 'critical') || state.queue.some(q => q.sync_status === 'failed'))
+    return { label: 'ATTENTION', color: 'var(--alert)', glow: '#5a1420', shadow: 'rgba(248,113,113,.5)' };
+  if (unread.some(n => n.severity === 'warning') || state.queue.some(q => q.sync_status === 'conflict' || q.sync_status === 'deferred'))
+    return { label: 'WATCH', color: 'var(--watch)', glow: '#5a4210', shadow: 'rgba(251,191,36,.45)' };
+  return { label: 'ALL CLEAR', color: 'var(--clear)', glow: '#0f4a35', shadow: 'rgba(62,224,143,.4)' };
+}
+
+function renderCore(c) {
+  const h = health(), core = document.querySelector('.core');
+  core.style.setProperty('--core-ink', h.color);
+  core.style.setProperty('--core-glow', h.glow);
+  core.style.setProperty('--core-shadow', h.shadow);
+  document.getElementById('coreState').textContent = h.label;
+  const pending = state.queue.filter(q => q.sync_status === 'queued' || q.sync_status === 'processing').length;
+  document.getElementById('coreBig').textContent = state.notices.length;
+  document.getElementById('coreSmall').textContent = `notices · ${pending} in queue`;
+
+  // Donut gauge: share of each category in the selected window.
+  const total = state.notices.length, R = 112, C = 2 * Math.PI * R, gap = total ? 3 : 0;
+  let offset = 0, arcs = `<circle cx="125" cy="125" r="${R}" fill="none" stroke="rgba(140,170,255,.14)" stroke-width="10"/>`;
+  if (total) for (const k of CATS) {
+    const len = (c[k.key].total / total) * C;
+    if (!len) continue;
+    arcs += `<circle cx="125" cy="125" r="${R}" fill="none" stroke="${k.color}" stroke-width="10" stroke-linecap="round"
+      stroke-dasharray="${Math.max(len - gap, 0.1)} ${C}" stroke-dashoffset="${-offset}" transform="rotate(-90 125 125)"
+      style="filter:drop-shadow(0 0 6px ${k.color})"/>`;
+    offset += len;
+  }
+  document.getElementById('gauge').innerHTML = arcs;
+}
+
+function renderNodes(c) {
+  const host = document.getElementById('nodes');
+  if (!host.children.length) {
+    host.innerHTML = CATS.map(k => `
+      <button type="button" class="node" data-cat="${k.key}" style="--c:${k.color}" aria-pressed="false">
+        <span class="orb"><span class="count">0</span></span><span class="lbl">${k.label}</span>
+      </button>`).join('');
+    host.querySelectorAll('.node').forEach(b => b.addEventListener('click', () => {
+      state.filter = state.filter === b.dataset.cat ? null : b.dataset.cat;
+      render();
+    }));
+  }
+  host.querySelectorAll('.node').forEach(b => {
+    const k = b.dataset.cat, v = c[k];
+    b.querySelector('.count').textContent = v.total;
+    b.classList.toggle('zero', !v.total);
+    b.setAttribute('aria-pressed', String(state.filter === k));
+    b.setAttribute('aria-label', `${CAT[k].label}: ${v.total} notices, ${v.unread} unread`);
+    let badge = b.querySelector('.unread');
+    if (v.unread) {
+      if (!badge) { badge = document.createElement('span'); badge.className = 'unread'; b.querySelector('.orb').appendChild(badge); }
+      badge.textContent = v.unread;
+    } else if (badge) badge.remove();
+  });
+}
+
+function renderQueue() {
+  const q = state.queue;
+  document.getElementById('qQueued').textContent = q.filter(x => x.sync_status === 'queued').length;
+  document.getElementById('qProc').textContent = q.filter(x => x.sync_status === 'processing').length;
+  document.getElementById('qHeld').textContent = q.filter(x => ['conflict', 'deferred', 'failed'].includes(x.sync_status)).length;
+  const el = document.getElementById('queueList');
+  el.innerHTML = q.length ? q.map(x => `
+    <div class="item"><div class="bar" style="--c:${QUEUE_COLOR[x.sync_status] || 'var(--muted)'}"></div>
+      <div class="item-body">
+        <div class="item-title">${esc(x.asset_name || x.asset_code)}</div>
+        <div class="item-meta"><span class="tag" style="--c:${QUEUE_COLOR[x.sync_status] || 'var(--muted)'}">${esc(x.sync_status)}</span>
+          <span>${esc(x.asset_code)}</span><span>${when(x.created_at)}</span></div>
+      </div></div>`).join('')
+    : '<div class="empty">Nothing waiting. The queue is empty.</div>';
+}
+
+function renderChips(c) {
+  const chips = [{ key: null, label: 'All', n: state.notices.length }, ...CATS.filter(k => c[k.key].total).map(k => ({ key: k.key, label: k.label, n: c[k.key].total }))];
+  const el = document.getElementById('chips');
+  el.innerHTML = chips.map(ch => `<button type="button" class="chip" data-cat="${ch.key ?? ''}" aria-pressed="${state.filter === ch.key}">${ch.label} · ${ch.n}</button>`).join('');
+  el.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => { state.filter = b.dataset.cat || null; render(); }));
+}
+
+function renderFeed() {
+  const list = state.notices.filter(n => n.status !== 'dismissed' && (!state.filter || n.cat === state.filter));
+  const el = document.getElementById('feed');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty">${state.filter ? 'No ' + CAT[state.filter].label.toLowerCase() + ' notices' : 'No notices'} in this window.</div>`;
+  } else {
+    el.innerHTML = list.map(n => {
+      const k = CAT[n.cat];
+      return `<div class="item"><div class="bar" style="--c:${k.color}"></div>
+        <div class="item-body">
+          <div class="item-title">${n.status === 'unread' ? '<span class="dot" title="Unread"></span>' : ''}${esc(n.title)}</div>
+          <div class="item-msg">${esc(n.message)}</div>
+          <div class="item-meta"><span class="tag" style="--c:${k.color}">${k.label}</span>${n.severity === 'critical' ? '<span class="tag" style="--c:var(--failed)">Needs attention</span>' : ''}<span>${when(n.created_at)}</span></div>
+        </div>
+        <div class="actions">
+          ${n.status === 'unread' ? `<button type="button" class="mini" data-act="read" data-id="${n.id}">Read</button>` : ''}
+          <button type="button" class="mini" data-act="dismissed" data-id="${n.id}" aria-label="Dismiss notice">✕</button>
+        </div></div>`;
+    }).join('');
+    el.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => setStatus([b.dataset.id], b.dataset.act)));
+  }
+  const unread = state.notices.filter(n => n.status === 'unread' && (!state.filter || n.cat === state.filter));
+  const all = document.getElementById('allReadBtn');
+  all.disabled = !unread.length;
+  all.onclick = () => setStatus(unread.map(n => n.id), 'read');
+}
+
+function render() {
+  const c = counts();
+  renderCore(c); renderNodes(c); renderQueue(); renderChips(c); renderFeed();
+  document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.win) === state.hours)));
+}
+
+/* ---------- 3-D orbit motion ---------- */
+function buildTicks() {
+  let t = '';
+  for (let i = 0; i < 72; i++) {
+    const a = (i / 72) * Math.PI * 2, r1 = 49.5, r2 = i % 6 ? 48.4 : 47;
+    t += `<line x1="${50 + r1 * Math.cos(a)}" y1="${50 + r1 * Math.sin(a)}" x2="${50 + r2 * Math.cos(a)}" y2="${50 + r2 * Math.sin(a)}" stroke="rgba(157,185,255,${i % 6 ? .35 : .7})" stroke-width="${i % 6 ? .25 : .45}"/>`;
+  }
+  document.getElementById('ticks').innerHTML = t;
+}
+
+function startOrbit() {
+  const stage = document.getElementById('stage');
+  let angle = -Math.PI / 2, last = performance.now(), paused = false;
+  stage.addEventListener('pointerenter', () => { paused = true; });
+  stage.addEventListener('pointerleave', () => { paused = false; });
+  stage.addEventListener('focusin', () => { paused = true; });
+  stage.addEventListener('focusout', () => { paused = false; });
+  const SPEED = (Math.PI * 2) / 120000; // one revolution every 2 minutes
+  const plane = stage.querySelector('.plane');
+  let R = 0, TILT = 0.485, w = 0, h = 0;
+  // Orbit radius and tilt per screen size. TILT is the vertical squash of the ellipse; it is
+  // chosen so planets on the far side clear the core, and the ring plane uses the same angle.
+  function layout() {
+    w = stage.clientWidth; h = stage.clientHeight;
+    const small = w < 640;
+    R = small ? Math.max((w - 80) / 2, 100) : Math.min(w * 0.4, 360);
+    TILT = small ? 0.7 : 0.485;
+    const size = 2 * R + 40;
+    Object.assign(plane.style, { width: size + 'px', height: size + 'px', margin: `${-size / 2}px 0 0 ${-size / 2}px`,
+      transform: `rotateX(${Math.acos(TILT)}rad)` });
+  }
+  layout();
+  window.addEventListener('resize', layout);
+  function frame(now) {
+    const dt = now - last; last = now;
+    if (!paused && !reduceMotion) angle += dt * SPEED;
+    const nodes = stage.querySelectorAll('.node');
+    nodes.forEach((n, i) => {
+      const a = angle + (i / nodes.length) * Math.PI * 2;
+      const depth = Math.sin(a);                 // -1 = far side, +1 = near side
+      const x = w / 2 + R * Math.cos(a);
+      const y = h / 2 + R * TILT * depth;
+      const scale = 0.72 + 0.34 * (depth + 1) / 2;
+      n.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+      n.style.zIndex = depth > 0 ? 60 + Math.round(depth * 20) : 40 + Math.round(depth * 20);
+      n.style.opacity = (0.55 + 0.45 * (depth + 1) / 2).toFixed(2);
+    });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ---------- boot ---------- */
+function showGate() {
+  clearInterval(state.timer);
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  app.appendChild(document.getElementById('gateTpl').content.cloneNode(true));
+}
+
+async function boot() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return showGate();
+  const app = document.getElementById('app');
+  app.innerHTML = '';
+  app.appendChild(document.getElementById('dashTpl').content.cloneNode(true));
+  document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => { state.hours = Number(b.dataset.win); load(); }));
+  document.getElementById('refreshBtn').addEventListener('click', load);
+  buildTicks();
+  render();
+  startOrbit();
+  await load();
+  state.timer = setInterval(() => { if (!document.hidden) load(); }, REFRESH_MS);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) load(); });
+}
+
+boot().catch(err => {
+  document.getElementById('app').innerHTML = `<div class="panel gate"><div class="err">DOME could not start this page: ${esc(err.message || err)}</div></div>`;
+});
+</script>
+</body></html>

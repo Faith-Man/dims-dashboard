@@ -260,7 +260,9 @@ function showSceneFor(day){const slot=sceneSlotFor(day),c=SCHED.slots[slot]||{},
  if(shownScene===src)return;shownScene=src;const img=document.getElementById('sceneImg'),frame=img.parentElement;img.classList.remove('ready');
  const pre=new Image();pre.onload=()=>{frame.classList.toggle('crop-mid',(c.image?c.crop:SCHED.fallbackCrop)==='middle');frame.classList.toggle('fallback',/championship-entry\.jpg$/.test(src));img.src=src;img.alt=c.image?'Spartans1st scene: '+sceneLabelFor(slot).toLowerCase():'Spartans1st — Let Them Have Dominion';img.classList.add('ready')};
  pre.onerror=()=>{frame.classList.add('fallback');img.src=SCHED.fallbackImage;img.classList.add('ready')};pre.src=src}
-function renderSceneReview(){const today=ymd(),past=SCHED_DATES.filter(d=>d<today&&d>=(SCHED.firstDate||'')),box=document.getElementById('sceneDays');
+function renderSceneReview(){const today=ymd(),first=SCHED.firstDate||SCHED_DATES[0]||today,box=document.getElementById('sceneDays');
+ // every day from the first journey day through yesterday, including after-season days
+ const past=[];for(let n=dn(first);n<dn(today);n++)past.push(isoFromDn(n));
  document.getElementById('reviewEmpty').hidden=!!past.length;box.replaceChildren();
  past.forEach(d=>{const b=document.createElement('button');b.type='button';b.textContent=shortDate(d);b.classList.toggle('active',reviewSceneDay===d);b.setAttribute('aria-label','Review '+shortDate(d));b.onclick=()=>{reviewSceneDay=d;showSceneFor(d);renderSceneReview();document.querySelector('.scene-frame').scrollIntoView({behavior:'smooth',block:'start'})};box.appendChild(b)});
  document.getElementById('sceneToday').hidden=!reviewSceneDay}

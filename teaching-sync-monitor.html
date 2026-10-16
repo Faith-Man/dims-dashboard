@@ -92,6 +92,7 @@ a{color:var(--royal)}
 .qstat span{font-size:.66rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
 .item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
 .item:last-child{border-bottom:0}
+.item.resolved{opacity:.62}
 .bar{width:4px;border-radius:4px;flex:none;background:var(--c)}
 .item-body{flex:1;min-width:0}
 .item-title{font-weight:600;font-size:.88rem;display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--ink)}
@@ -217,6 +218,8 @@ const QUEUE_COLOR = { queued: 'var(--retry)', processing: 'var(--twoway)', confl
 const REFRESH_MS = 60000;
 
 const state = { hours: 24, filter: null, notices: [], queue: [], loading: false, timer: null };
+// Problem notices clear themselves once the underlying problem is fixed (see resolveProblems).
+const PROBLEM_CATS = new Set(['retry', 'stalled', 'conflict', 'failed']);
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -265,8 +268,11 @@ async function load() {
       if (isAuthError(error)) return showGate();
       throw error;
     }
-    state.notices = (notices.data || []).map(n => ({ ...n, cat: categoryOf(n) })).filter(n => n.cat);
-    state.queue = queue.data || [];
+    const list = (notices.data || []).map(n => ({ ...n, cat: categoryOf(n) })).filter(n => n.cat);
+    const resolved = await resolveProblems(list, queue.data || [], since < queueSince ? since : queueSince);
+    for (const n of list) n.resolved = resolved.notice(n);
+    state.notices = list;
+    state.queue = (queue.data || []).filter(q => !resolved.job(q));
     render();
     document.getElementById('stamp').textContent = 'Updated ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
   } catch (err) {
@@ -276,6 +282,49 @@ async function load() {
     state.loading = false;
     if (btn) btn.disabled = false;
   }
+}
+
+// Decide, from current state, whether each problem notice / held job is already fixed:
+//  - conflict: the conflict row is 'resolved' (or, for held jobs, the teaching's registry shows no conflict)
+//  - failed / retry / stalled / deferred: the job later verified, or the teaching synced successfully afterwards
+async function resolveProblems(notices, queue, earliest) {
+  const problems = notices.filter(n => PROBLEM_CATS.has(n.cat));
+  const held = queue.filter(q => ['conflict', 'deferred', 'failed'].includes(q.sync_status));
+  const assets = [...new Set([...problems.map(n => n.metadata?.asset_code), ...held.map(q => q.asset_code)].filter(Boolean))];
+  const conflictIds = [...new Set(problems.map(n => n.metadata?.conflict_id).filter(Boolean))];
+  const jobIds = [...new Set(problems.map(n => n.metadata?.job_id).filter(Boolean))];
+  const none = Promise.resolve({ data: [] });
+  const [conflicts, registry, verified, jobs] = await Promise.all([
+    conflictIds.length ? sb.from('teaching_sync_conflicts').select('id,status').in('id', conflictIds) : none,
+    assets.length ? sb.from('asset_registry').select('asset_code,conflict_status,last_verified_sync_at').in('asset_code', assets) : none,
+    assets.length ? sb.from('sync_log').select('asset_code,created_at').eq('sync_status', 'verified').in('asset_code', assets).gte('created_at', earliest) : none,
+    jobIds.length ? sb.from('sync_log').select('id,sync_status').in('id', jobIds) : none
+  ]);
+  for (const r of [conflicts, registry, verified, jobs]) if (r.error) throw r.error;
+  const conflictStatus = new Map((conflicts.data || []).map(r => [r.id, r.status]));
+  const reg = new Map((registry.data || []).map(r => [r.asset_code, r]));
+  const jobStatus = new Map((jobs.data || []).map(r => [r.id, r.sync_status]));
+  const syncedAfter = (asset, t) => {
+    const at = new Date(t).getTime();
+    const r = reg.get(asset);
+    if (r?.last_verified_sync_at && new Date(r.last_verified_sync_at).getTime() > at) return true;
+    return (verified.data || []).some(v => v.asset_code === asset && new Date(v.created_at).getTime() > at);
+  };
+  const noConflict = asset => { const r = reg.get(asset); return !!r && (!r.conflict_status || r.conflict_status === 'none'); };
+  return {
+    notice(n) {
+      if (!PROBLEM_CATS.has(n.cat)) return false;
+      const m = n.metadata || {}, asset = m.asset_code;
+      if (n.cat === 'conflict') return m.conflict_id ? conflictStatus.get(m.conflict_id) === 'resolved' : !!asset && noConflict(asset);
+      if (m.job_id && jobStatus.get(m.job_id) === 'verified') return true;
+      return !!asset && syncedAfter(asset, n.created_at);
+    },
+    job(q) {
+      if (q.sync_status === 'conflict') return noConflict(q.asset_code);
+      if (q.sync_status === 'failed' || q.sync_status === 'deferred') return syncedAfter(q.asset_code, q.created_at);
+      return false;
+    }
+  };
 }
 
 async function setStatus(ids, status) {
@@ -291,15 +340,20 @@ async function setStatus(ids, status) {
 /* ---------- rendering ---------- */
 function counts() {
   const c = Object.fromEntries(CATS.map(k => [k.key, { total: 0, unread: 0 }]));
-  for (const n of state.notices) { c[n.cat].total++; if (n.status === 'unread') c[n.cat].unread++; }
+  for (const n of state.notices) {
+    // Problem planets show only open problems: resolved or dismissed ones drop to zero on their own.
+    if (PROBLEM_CATS.has(n.cat) && (n.resolved || n.status === 'dismissed')) continue;
+    c[n.cat].total++;
+    if (n.status === 'unread') c[n.cat].unread++;
+  }
   return c;
 }
 
 function health() {
-  const unread = state.notices.filter(n => n.status === 'unread');
-  if (unread.some(n => n.severity === 'critical') || state.queue.some(q => q.sync_status === 'failed'))
+  const open = state.notices.filter(n => PROBLEM_CATS.has(n.cat) && !n.resolved && n.status !== 'dismissed');
+  if (open.some(n => n.severity === 'critical') || state.queue.some(q => q.sync_status === 'failed'))
     return { label: 'ATTENTION', color: 'var(--alert)', glow: '#6b1630', shadow: 'rgba(239,68,68,.5)' };
-  if (unread.some(n => n.severity === 'warning') || state.queue.some(q => q.sync_status === 'conflict' || q.sync_status === 'deferred'))
+  if (open.some(n => n.severity === 'warning') || state.queue.some(q => q.sync_status === 'conflict' || q.sync_status === 'deferred'))
     return { label: 'WATCH', color: 'var(--watch)', glow: '#6b5212', shadow: 'rgba(245,184,61,.5)' };
   return { label: 'ALL CLEAR', color: 'var(--clear)', glow: '#0f5a3a', shadow: 'rgba(34,197,94,.45)' };
 }
@@ -385,11 +439,11 @@ function renderFeed() {
   } else {
     el.innerHTML = list.map(n => {
       const k = CAT[n.cat];
-      return `<div class="item"><div class="bar" style="--c:${k.color}"></div>
+      return `<div class="item${n.resolved ? ' resolved' : ''}"><div class="bar" style="--c:${k.color}"></div>
         <div class="item-body">
           <div class="item-title">${n.status === 'unread' ? '<span class="dot" title="Unread"></span>' : ''}${esc(n.title)}</div>
           <div class="item-msg">${esc(n.message)}</div>
-          <div class="item-meta"><span class="tag" style="--c:${k.color}">${k.label}</span>${n.severity === 'critical' ? '<span class="tag" style="--c:var(--failed)">Needs attention</span>' : ''}<span>${when(n.created_at)}</span></div>
+          <div class="item-meta"><span class="tag" style="--c:${k.color}">${k.label}</span>${n.resolved ? '<span class="tag" style="--c:var(--synced)">✓ Resolved</span>' : ''}${n.severity === 'critical' && !n.resolved ? '<span class="tag" style="--c:var(--failed)">Needs attention</span>' : ''}<span>${when(n.created_at)}</span></div>
         </div>
         <div class="actions">
           ${n.status === 'unread' ? `<button type="button" class="mini" data-act="read" data-id="${n.id}">Read</button>` : ''}

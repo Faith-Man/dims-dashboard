@@ -4,8 +4,10 @@
   "compatibility_date": "2026-10-04",
   "assets": { "directory": ".", "binding": "ASSETS" },
   "ai": { "binding": "AI" },
-  "kv_namespaces": [{ "binding": "DAILY", "id": "57fe9d6e4a5547a3a895da7e9161e989" }],
-  // Pre-generate each day's message just after midnight Oklahoma time (CDT and CST).
-  "triggers": { "crons": ["5 5 * * *", "5 6 * * *"] },
+  // Test-only KV (spartans1st-test-daily). The live Worker uses its own namespace
+  // (spartans1st-live-daily), so nothing done on the test site can change live content.
+  "kv_namespaces": [{ "binding": "DAILY", "id": "c64d9a0e380d4b75b05b3cde674ae8df" }],
+  // No cron on the test Worker: messages are created on demand when the test site is opened.
+  // The midnight schedule belongs to the live Worker.
   "observability": { "enabled": true }
 }

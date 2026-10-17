@@ -128,7 +128,7 @@ Style example (do not copy): {"ref":"Isaiah 40:31","insight":"Strength for the f
     declaration: clean(obj.declaration, 280), phrase: clean(obj.phrase, 90), origin: 'ai',
   };
   if (!entry.verse || entry.mindset.length < 50 || entry.declaration.length < 80 || entry.insight.length < 60) throw new Error('invalid AI output');
-  if (!preview) await env.DAILY.put('recent-refs', JSON.stringify([entry.ref, ...recent].slice(0, 30)));
+  await env.DAILY.put('recent-refs', JSON.stringify([entry.ref, ...recent].slice(0, 30)));
   return entry;
 }
 
@@ -262,6 +262,21 @@ export default {
       if (date < SEASON_START) return json({ error: 'before season' }, 404);
       try { return json(await getOrCreate(date, env, preview)); }
       catch (e) { return json(libraryEntry(date)); }
+    }
+    if (url.pathname === '/api/scene-status') {
+      const date = url.searchParams.get('date') || todayChicago();
+      const info = { date, aiScenes: env.AI_SCENES || null, previewFuture: env.PREVIEW_FUTURE || null, hasAI: !!env.AI, hasKV: !!env.DAILY };
+      try {
+        const hit = await env.DAILY.getWithMetadata('scene:v1:' + date, 'arrayBuffer');
+        info.cached = !!(hit && hit.value); info.bytes = hit && hit.value ? hit.value.byteLength : 0;
+        info.prompt = (hit && hit.metadata && hit.metadata.prompt) || '';
+        info.lastError = await env.DAILY.get('scene-err:' + date);
+        if (!info.cached && url.searchParams.get('start') === '1') {
+          ctx.waitUntil(sceneResponse(date, env, true).catch((e) => env.DAILY.put('scene-err:' + date, String(e && e.stack || e).slice(0, 900), { expirationTtl: 86400 })));
+          info.started = true;
+        }
+      } catch (e) { info.statusError = String(e && e.stack || e); }
+      return json(info);
     }
     if (url.pathname === '/api/scene') {
       if (env.AI_SCENES !== '1') return json({ error: 'not enabled' }, 404);

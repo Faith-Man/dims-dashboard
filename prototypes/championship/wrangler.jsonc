@@ -4,9 +4,10 @@
   "compatibility_date": "2026-10-04",
   "assets": { "directory": ".", "binding": "ASSETS" },
   "ai": { "binding": "AI" },
-  // Same KV namespace as the test Worker, so live and test show the same daily message.
+  // Live-only KV (spartans1st-live-daily); holds every daily message shown on the live site.
+  // The test Worker uses its own namespace and cannot change live content.
   "kv_namespaces": [{ "binding": "DAILY", "id": "57fe9d6e4a5547a3a895da7e9161e989" }],
-  // No schedule here: the test Worker's midnight cron pre-generates each day's message
-  // into this shared KV, and any first visit generates it on demand if needed.
+  // Pre-generate each day's message just after midnight Oklahoma time (CDT and CST).
+  "triggers": { "crons": ["5 5 * * *", "5 6 * * *"] },
   "observability": { "enabled": true }
 }

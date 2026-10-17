@@ -233,7 +233,7 @@ async function paint(prompt, env) {
 }
 
 async function sceneResponse(date, env, fresh) {
-  const key = 'scene:v1:' + date;
+  const key = 'scene:v2:' + date;
   if (!fresh) {
     const hit = await env.DAILY.getWithMetadata(key, 'arrayBuffer');
     if (hit && hit.value) {
@@ -267,7 +267,7 @@ export default {
       const date = url.searchParams.get('date') || todayChicago();
       const info = { date, aiScenes: env.AI_SCENES || null, previewFuture: env.PREVIEW_FUTURE || null, hasAI: !!env.AI, hasKV: !!env.DAILY };
       try {
-        const hit = await env.DAILY.getWithMetadata('scene:v1:' + date, 'arrayBuffer');
+        const hit = await env.DAILY.getWithMetadata('scene:v2:' + date, 'arrayBuffer');
         info.cached = !!(hit && hit.value); info.bytes = hit && hit.value ? hit.value.byteLength : 0;
         info.prompt = (hit && hit.metadata && hit.metadata.prompt) || '';
         info.lastError = await env.DAILY.get('scene-err:' + date);
@@ -286,7 +286,7 @@ export default {
       if (date > today && env.PREVIEW_FUTURE !== '1') return json({ error: 'future dates are not available yet' }, 404);
       if (url.searchParams.get('format') === 'json') {
         // Readable check: report what is cached; start painting in the background if nothing is.
-        const hit = await env.DAILY.getWithMetadata('scene:v1:' + date, 'arrayBuffer');
+        const hit = await env.DAILY.getWithMetadata('scene:v2:' + date, 'arrayBuffer');
         const err = await env.DAILY.get('scene-err:' + date);
         if (hit && hit.value) return json({ ok: true, date, cached: true, bytes: hit.value.byteLength, prompt: (hit.metadata && hit.metadata.prompt) || '' });
         ctx.waitUntil(sceneResponse(date, env, true).catch((e) => env.DAILY.put('scene-err:' + date, String(e && e.stack || e).slice(0, 900), { expirationTtl: 86400 })));

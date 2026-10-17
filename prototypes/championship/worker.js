@@ -263,8 +263,10 @@ export default {
       try { return json(await getOrCreate(date, env, preview)); }
       catch (e) { return json(libraryEntry(date)); }
     }
-    if (url.pathname === '/api/scene-status') {
-      const date = url.searchParams.get('date') || todayChicago();
+    const statusDate = (url.pathname.match(/^\/api\/scene-status(?:\/(\d{4}-\d{2}-\d{2})(\/start)?)?\/?$/) || []);
+    if (statusDate[0]) {
+      const date = statusDate[1] || url.searchParams.get('date') || todayChicago();
+      if (statusDate[2]) url.searchParams.set('start', '1');
       const info = { date, aiScenes: env.AI_SCENES || null, previewFuture: env.PREVIEW_FUTURE || null, hasAI: !!env.AI, hasKV: !!env.DAILY };
       try {
         const hit = await env.DAILY.getWithMetadata('scene:v2:' + date, 'arrayBuffer');

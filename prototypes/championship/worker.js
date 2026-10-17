@@ -269,7 +269,12 @@ export default {
       const date = url.searchParams.get('date') || today;
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date < SEASON_START) return json({ error: 'bad date' }, 400);
       if (date > today && env.PREVIEW_FUTURE !== '1') return json({ error: 'future dates are not available yet' }, 404);
-      try { return await sceneResponse(date, env, url.searchParams.get('fresh') === '1'); }
+      try {
+        const r = await sceneResponse(date, env, url.searchParams.get('fresh') === '1');
+        if (url.searchParams.get('format') !== 'json') return r;
+        const n = (await r.arrayBuffer()).byteLength;
+        return json({ ok: true, date, type: r.headers.get('content-type'), bytes: n, prompt: decodeURIComponent(r.headers.get('x-scene-prompt') || '') });
+      }
       catch (e) { return json({ error: 'scene unavailable', detail: String(e && e.message || e) }, 502); }
     }
     return env.ASSETS.fetch(req);

@@ -35,3 +35,43 @@ window.SPARTANS1ST_SCHEDULE = {
     'welldone-01': {}, 'welldone-02': {}
   }
 };
+
+// Visual refinement for the Living Journey cards. Keep Scripture primary, while
+// distinguishing the application/commentary as a separate illuminated inset.
+(() => {
+  const style = document.createElement('style');
+  style.textContent = `
+    .journey-home .scene-cards .card,
+    .journey-home .rv-cards .card {
+      background: linear-gradient(145deg, rgba(18,63,162,.94), rgba(8,31,102,.96));
+      border-color: rgba(126,199,255,.48);
+      box-shadow: 0 12px 30px rgba(0,20,60,.42), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .journey-home .insight,
+    .journey-home #rvInsight {
+      position: relative;
+      margin-top: 14px !important;
+      padding: 13px 14px 13px 18px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(20,85,190,.34), rgba(13,49,126,.46));
+      border: 1px solid rgba(91,178,255,.25);
+      color: #e5f1ff !important;
+      font-style: normal !important;
+      line-height: 1.55 !important;
+      box-shadow: inset 0 1px 12px rgba(69,153,255,.08);
+    }
+    .journey-home .insight::before,
+    .journey-home #rvInsight::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      bottom: 10px;
+      width: 3px;
+      border-radius: 3px;
+      background: linear-gradient(#ffe6a0, #f3bf42, #b8780a);
+      box-shadow: 0 0 8px rgba(243,191,66,.35);
+    }
+  `;
+  document.head.appendChild(style);
+})();

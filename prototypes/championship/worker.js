@@ -275,7 +275,7 @@ export default {
         const n = (await r.arrayBuffer()).byteLength;
         return json({ ok: true, date, type: r.headers.get('content-type'), bytes: n, prompt: decodeURIComponent(r.headers.get('x-scene-prompt') || '') });
       }
-      catch (e) { return json({ error: 'scene unavailable', detail: String(e && e.message || e) }, 502); }
+      catch (e) { return json({ ok: false, error: 'scene unavailable', detail: String(e && e.message || e) }, url.searchParams.get('format') === 'json' ? 200 : 502); }
     }
     return env.ASSETS.fetch(req);
   },

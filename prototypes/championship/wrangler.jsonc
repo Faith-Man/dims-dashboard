@@ -1,5 +1,13 @@
 {
   "name": "spartans1st-championship-git",
+  "main": "worker.js",
   "compatibility_date": "2026-10-04",
-  "assets": { "directory": "." }
+  "assets": { "directory": ".", "binding": "ASSETS" },
+  "ai": { "binding": "AI" },
+  // Same KV namespace as the test Worker, so live and test show the same daily message.
+  "kv_namespaces": [{ "binding": "DAILY", "id": "57fe9d6e4a5547a3a895da7e9161e989" }],
+  // Pre-generate each day's message just after midnight Oklahoma time (CDT and CST).
+  // The live Worker owns this schedule; the test Worker reads the same KV.
+  "triggers": { "crons": ["5 5 * * *", "5 6 * * *"] },
+  "observability": { "enabled": true }
 }

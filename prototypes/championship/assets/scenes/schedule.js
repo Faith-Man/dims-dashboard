@@ -72,6 +72,43 @@ window.SPARTANS1ST_SCHEDULE = {
       background: linear-gradient(#ffe6a0, #f3bf42, #b8780a);
       box-shadow: 0 0 8px rgba(243,191,66,.35);
     }
+    .journey-home .ic.medallion-photo {
+      padding: 0 !important;
+      overflow: hidden;
+      background: #071a5c !important;
+    }
+    .journey-home .ic.medallion-photo img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
   `;
   document.head.appendChild(style);
+
+  const iconMap = [
+    ['#sceneVerseCard .ic, #rvVerseCard .ic', 'assets/ui/bible-medallion.webp', 'Open Bible medallion'],
+    ['#sceneMindsetCard .ic, #rvMindsetCard .ic', 'assets/ui/helmet-medallion.webp', 'Spartan helmet medallion'],
+    ['#sceneDeclCard .ic, #rvDeclCard .ic', 'assets/ui/trumpet-medallion.webp', 'Herald trumpet medallion']
+  ];
+  const applyMedallions = () => {
+    for (const [selector, src, alt] of iconMap) {
+      document.querySelectorAll(selector).forEach((holder) => {
+        if (holder.dataset.medallion === src) return;
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = '';
+        img.setAttribute('aria-hidden', 'true');
+        holder.replaceChildren(img);
+        holder.classList.add('medallion-photo');
+        holder.dataset.medallion = src;
+        holder.title = alt;
+      });
+    }
+  };
+  document.addEventListener('DOMContentLoaded', () => {
+    applyMedallions();
+    new MutationObserver(applyMedallions).observe(document.body, { childList: true, subtree: true });
+  });
 })();

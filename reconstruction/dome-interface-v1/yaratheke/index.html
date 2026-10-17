@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>YARATHĒKĒ™ — Dominion1st Knowledge Library</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./portability.css" />
+  <style>
+    .topbar-actions{display:flex;align-items:center;gap:8px}
+    .topbar{position:relative;top:auto;z-index:20;align-items:center;padding-top:22px;padding-bottom:22px}
+    .topbar h1{font-size:clamp(2rem,4vw,3.4rem);color:#fff}
+    .module-identity{background:linear-gradient(110deg,#1262c6,#1680df 62%,#26a0ee);color:#fff;border-bottom:4px solid var(--gold);padding:20px clamp(18px,4vw,42px)}
+    .module-identity-inner{max-width:1180px;margin:auto;border-left:4px solid var(--gold);padding-left:20px;display:grid;grid-template-columns:180px 1fr;gap:8px 18px}
+    .module-identity .label{font-weight:900;color:#fff}
+    .module-identity .value{color:#fff;line-height:1.55;font-size:.98rem}
+    .nav{top:0}
+    @media(max-width:620px){.topbar-actions{align-self:flex-start}.topbar{padding:18px 18px 20px}.topbar h1{font-size:2rem}.module-identity{padding:18px}.module-identity-inner{grid-template-columns:1fr;gap:3px;padding-left:16px}.module-identity .label{font-size:.88rem;margin-top:5px}.module-identity .value{font-size:.96rem;line-height:1.55;margin-bottom:9px}.nav{top:0}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">DOME™ · WELLS OF KNOWLEDGE / LIBRARY &amp; READER</div>
+      <h1>YARATHĒKĒ™</h1>
+    </div>
+    <div class="topbar-actions"><button class="icon-btn" id="menuBtn" aria-label="Open YARATHĒKĒ reader navigation">☰</button></div>
+  </header>
+
+  <section class="module-identity">
+    <div class="module-identity-inner">
+      <div class="label">Identity:</div><div class="value">Dominion1st coined name for the governed Knowledge Library. The Wells metaphor is established separately; the full name is not presented as a single biblical Hebrew or Greek word.</div>
+      <div class="label">Why This Name:</div><div class="value">YARATHĒKĒ was chosen to identify the place where established Dominion1st knowledge is preserved, organized, retrieved, studied, and drawn upon. Its Wells of Knowledge imagery emphasizes returning to a governed source rather than recreating knowledge every time it is needed.</div>
+      <div class="label">Isaiah 12:3 (KJV):</div><div class="value">“Therefore with joy shall ye draw water out of the wells of salvation.”</div>
+      <div class="label">Function:</div><div class="value">Preserves and presents established Dominion1st knowledge for discovery, reading, study, organization, retrieval, teaching-series access, and governed knowledge use.</div>
+    </div>
+  </section>
+
+  <nav class="nav" id="nav" aria-label="YARATHĒKĒ reader navigation">
+    <button data-view="library" class="active">Library</button>
+    <button data-view="series">KEEP THE GARDEN</button>
+    <button data-view="garden">Lesson One</button>
+    <button data-view="shamar">SHAMAR</button>
+    <button data-view="formats">Content Types</button>
+  </nav>
+
+  <main id="app" class="app" tabindex="-1"></main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="./app.js"></script>
+  <script type="module" src="./live-library.js"></script>
+  <script src="./reader-routing.js"></script>
+  <script src="./portability.js"></script>
+  <script src="../dome-global-nav.js" defer></script>
+</body>
+</html>

@@ -73,16 +73,39 @@ window.SPARTANS1ST_SCHEDULE = {
       box-shadow: 0 0 8px rgba(243,191,66,.35);
     }
     .journey-home .ic.medallion-photo {
+      width: 64px !important;
+      height: 64px !important;
+      min-width: 64px !important;
       padding: 0 !important;
       overflow: hidden;
+      border-width: 2px !important;
       background: #071a5c !important;
+      box-shadow: 0 5px 14px rgba(0,0,0,.72), 0 0 0 1px rgba(255,215,105,.38), inset 0 0 10px rgba(255,215,105,.12) !important;
     }
     .journey-home .ic.medallion-photo img {
       display: block;
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center;
       border-radius: 50%;
+      transform: scale(1.22);
+      filter: contrast(1.18) brightness(1.08) saturate(1.08);
+    }
+    .journey-home .icard {
+      grid-template-columns: 64px 1fr !important;
+      column-gap: 14px !important;
+      align-items: start !important;
+    }
+    @media (max-width: 390px) {
+      .journey-home .ic.medallion-photo {
+        width: 60px !important;
+        height: 60px !important;
+        min-width: 60px !important;
+      }
+      .journey-home .icard {
+        grid-template-columns: 60px 1fr !important;
+      }
     }
   `;
   document.head.appendChild(style);

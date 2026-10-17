@@ -213,33 +213,48 @@ function saveJournal(){const all=getJournal();all[journalDay()]={spoke:jSpoke.va
 journalToggle.onclick=()=>{const open=journal.classList.toggle('open');journalToggle.setAttribute('aria-expanded',String(open));if(open)loadJournal()};journalSave.onclick=saveJournal;
 journalExport.onclick=()=>{const all=getJournal(),keys=Object.keys(all);if(!keys.length){journalStatus.textContent='Save at least one journal entry before exporting.';return}let out='SPARTANS1ST™ CHAMPIONSHIP JOURNAL\\n\\n';keys.sort().forEach(k=>{const e=all[k];out+=k.toUpperCase()+'\\nWhat spoke to me today?\\n'+(e.spoke||'')+'\\n\\nWhat do I need to improve before Championship Day?\\n'+(e.improve||'')+'\\n\\nWhat is one thing I will do today?\\n'+(e.action||'')+'\\n\\nMy personal declaration:\\n'+(e.declare||'')+'\\n\\n--------------------\\n\\n'});const blob=new Blob([out],{type:'text/plain'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Spartans1st-Championship-Journal.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
 // One player serves both screens, so their tracks can never overlap.
-const music=new Audio();music.loop=true;music.preload='none';
-const tracks={entry:'assets/entry-music.mp3',countdown:'assets/countdown-music.mp3'};
+// ---- Music: one track per page, crossfaded ----
+// Each page has its own looping track. Switching pages crossfades (old fades out while the
+// new one fades in) through Web Audio gain nodes, because iPhone Safari ignores
+// HTMLMediaElement.volume. play() and AudioContext.resume() are always called inside the
+// tap that changes the page, as mobile Safari requires. MUSIC ON/OFF is remembered for the
+// visit in sessionStorage, as before.
+const tracks={entry:'assets/entry-music.mp3',journey:'assets/journey-music.mp3',countdown:'assets/countdown-music.mp3'};
+const MUSIC_LEVEL=.28,FADE_IN=1.2,FADE_OUT=.9;
 let musicOn=true;try{musicOn=sessionStorage.getItem('championshipMusic')!=='off'}catch(e){}
-let fadeTimer,playToken=0;
+let audioCtx=null,currentScreen=null;const players={};
 function updateMusicControl(){musicToggle.textContent=musicOn?'🔊 MUSIC ON':'🔇 MUSIC OFF';musicToggle.setAttribute('aria-pressed',String(musicOn));musicToggle.setAttribute('aria-label',musicOn?'Turn music off':'Turn music on')}
-function stopFade(){if(fadeTimer)clearInterval(fadeTimer);fadeTimer=undefined}
+function ensureAudio(){if(audioCtx===null){try{const AC=window.AudioContext||window.webkitAudioContext;audioCtx=AC?new AC():false}catch(e){audioCtx=false}}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});return audioCtx}
+function player(screen){if(players[screen])return players[screen];
+ const el=new Audio(tracks[screen]);el.loop=true;el.preload='none';const p={el,gain:null,timer:0,stopAt:0};
+ const ctx=ensureAudio();if(ctx){try{const src=ctx.createMediaElementSource(el);p.gain=ctx.createGain();p.gain.gain.value=0;src.connect(p.gain).connect(ctx.destination)}catch(e){p.gain=null}}
+ if(!p.gain)el.volume=0;return players[screen]=p}
+// Ramp a player's level to `to` over `secs`; pause it when it reaches silence.
+function ramp(p,to,secs){clearInterval(p.timer);clearTimeout(p.stopAt);
+ if(p.gain&&audioCtx){const g=p.gain.gain,now=audioCtx.currentTime;g.cancelScheduledValues(now);g.setValueAtTime(g.value,now);g.linearRampToValueAtTime(to,now+secs)}
+ else{const from=p.el.volume,steps=Math.max(1,Math.round(secs*25));let i=0;p.timer=setInterval(()=>{i++;p.el.volume=Math.max(0,Math.min(1,from+(to-from)*i/steps));if(i>=steps)clearInterval(p.timer)},secs*1000/steps)}
+ if(to===0)p.stopAt=setTimeout(()=>p.el.pause(),secs*1000+60)}
 function playScreen(screen){
-  if(!musicOn)return;
-  const path=tracks[screen];
-  if(music.dataset.screen===screen&&!music.paused)return;
-  const token=++playToken;stopFade();
-  if(music.dataset.screen!==screen){music.pause();music.src=path;music.dataset.screen=screen}
-  music.volume=0;
+  if(!musicOn||!tracks[screen])return;
+  const next=player(screen);
+  if(currentScreen===screen&&!next.el.paused){ramp(next,MUSIC_LEVEL,FADE_IN);return}
+  Object.keys(players).forEach(k=>{if(k!==screen&&!players[k].el.paused)ramp(players[k],0,FADE_OUT)});
+  currentScreen=screen;clearTimeout(next.stopAt);
   // Call play directly inside the click/touch/key event for mobile Safari.
-  let attempt;try{attempt=music.play()}catch(e){return}
-  if(attempt&&typeof attempt.then==='function')attempt.then(()=>{
-    if(token!==playToken)return;
-    if(!musicOn){music.pause();return}
-    const target=.28;let step=0;
-    fadeTimer=setInterval(()=>{if(token!==playToken){stopFade();return}step++;music.volume=Math.min(target,target*step/8);if(step>=8)stopFade()},35)
-  }).catch(()=>{if(token===playToken)music.pause()});
+  let attempt;try{attempt=next.el.play()}catch(e){return}
+  const go=()=>{if(currentScreen===screen&&musicOn)ramp(next,MUSIC_LEVEL,FADE_IN)};
+  if(attempt&&typeof attempt.then==='function')attempt.then(go).catch(()=>{});else go();
 }
-function showScreen(screen){const inner=screen!=='entry';document.body.classList.toggle('open',inner);document.body.classList.toggle('season-open',screen==='countdown');playScreen(inner?'countdown':'entry');if(screen==='journey')refreshEntryScene();window.scrollTo(0,0)}
-musicToggle.onclick=()=>{musicOn=!musicOn;try{sessionStorage.setItem('championshipMusic',musicOn?'on':'off')}catch(e){}updateMusicControl();if(musicOn)playScreen(document.body.classList.contains('open')?'countdown':'entry');else{++playToken;stopFade();music.pause()}};
+function stopMusic(){Object.values(players).forEach(p=>{if(!p.el.paused)ramp(p,0,.4)})}
+function screenNow(){return !document.body.classList.contains('open')?'entry':document.body.classList.contains('season-open')?'countdown':'journey'}
+function showScreen(screen){const inner=screen!=='entry';document.body.classList.toggle('open',inner);document.body.classList.toggle('season-open',screen==='countdown');playScreen(screen);if(screen==='journey')refreshEntryScene();window.scrollTo(0,0)}
+musicToggle.onclick=()=>{musicOn=!musicOn;try{sessionStorage.setItem('championshipMusic',musicOn?'on':'off')}catch(e){}updateMusicControl();if(musicOn)playScreen(screenNow());else stopMusic()};
 // A tap on the entry artwork is the first eligible gesture; ENTER uses its own
 // gesture to start the countdown track directly without first starting entry audio.
 document.querySelector('.entry').addEventListener('click',e=>{if(!e.target.closest('button'))playScreen('entry')});
+// If the visit opened straight onto an inner page ("Don't show again"), the browser blocked
+// autoplay; start that page's track on the first tap anywhere (not on the music toggle itself).
+document.addEventListener('pointerdown',e=>{if(!musicOn||e.target.closest('#musicToggle'))return;const sc=screenNow(),pl=players[sc];if(!pl||pl.el.paused)playScreen(sc)},true);
 // ---- Scenic page (The Dominion Journey) ----
 // Driven entirely by assets/scenes/schedule.js: one entry per date gives the
 // poster, Word, Champion's Mindset and phrase together. Changes at midnight Oklahoma time.

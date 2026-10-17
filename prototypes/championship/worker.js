@@ -250,7 +250,7 @@ async function sceneResponse(date, env, fresh) {
 }
 
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const url = new URL(req.url);
     const pathDate = (url.pathname.match(/^\/api\/daily\/(\d{4}-\d{2}-\d{2})\/?$/) || [])[1];
     if (url.pathname === '/api/daily' || pathDate) {
@@ -269,13 +269,16 @@ export default {
       const date = url.searchParams.get('date') || today;
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date < SEASON_START) return json({ error: 'bad date' }, 400);
       if (date > today && env.PREVIEW_FUTURE !== '1') return json({ error: 'future dates are not available yet' }, 404);
-      try {
-        const r = await sceneResponse(date, env, url.searchParams.get('fresh') === '1');
-        if (url.searchParams.get('format') !== 'json') return r;
-        const n = (await r.arrayBuffer()).byteLength;
-        return json({ ok: true, date, type: r.headers.get('content-type'), bytes: n, prompt: decodeURIComponent(r.headers.get('x-scene-prompt') || '') });
+      if (url.searchParams.get('format') === 'json') {
+        // Readable check: report what is cached; start painting in the background if nothing is.
+        const hit = await env.DAILY.getWithMetadata('scene:v1:' + date, 'arrayBuffer');
+        const err = await env.DAILY.get('scene-err:' + date);
+        if (hit && hit.value) return json({ ok: true, date, cached: true, bytes: hit.value.byteLength, prompt: (hit.metadata && hit.metadata.prompt) || '' });
+        ctx.waitUntil(sceneResponse(date, env, true).catch((e) => env.DAILY.put('scene-err:' + date, String(e && e.stack || e).slice(0, 900), { expirationTtl: 86400 })));
+        return json({ ok: true, date, cached: false, painting: true, lastError: err || null });
       }
-      catch (e) { return json({ ok: false, error: 'scene unavailable', detail: String(e && e.message || e) }, url.searchParams.get('format') === 'json' ? 200 : 502); }
+      try { return await sceneResponse(date, env, url.searchParams.get('fresh') === '1'); }
+      catch (e) { await env.DAILY.put('scene-err:' + date, String(e && e.stack || e).slice(0, 900), { expirationTtl: 86400 }); return json({ ok: false, error: 'scene unavailable', detail: String(e && e.message || e) }, 502); }
     }
     return env.ASSETS.fetch(req);
   },

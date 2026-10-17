@@ -104,7 +104,7 @@ function clean(s, max) {
   return s.length > max ? '' : s;
 }
 
-async function generate(date, env) {
+async function generate(date, env, preview = false) {
   const stage = stageFor(date);
   let recent = [];
   try { recent = JSON.parse((await env.DAILY.get('recent-refs')) || '[]'); } catch (e) {}
@@ -128,24 +128,125 @@ Style example (do not copy): {"ref":"Isaiah 40:31","insight":"Strength for the f
     declaration: clean(obj.declaration, 280), phrase: clean(obj.phrase, 90), origin: 'ai',
   };
   if (!entry.verse || entry.mindset.length < 50 || entry.declaration.length < 80 || entry.insight.length < 60) throw new Error('invalid AI output');
-  await env.DAILY.put('recent-refs', JSON.stringify([entry.ref, ...recent].slice(0, 30)));
+  if (!preview) await env.DAILY.put('recent-refs', JSON.stringify([entry.ref, ...recent].slice(0, 30)));
   return entry;
 }
 
-async function getOrCreate(date, env) {
-  const key = 'daily:v3:' + date;
+async function getOrCreate(date, env, preview = false) {
+  const key = (preview ? 'preview:v1:' : 'daily:v3:') + date;
   const hit = await env.DAILY.get(key, 'json');
   if (hit) return hit;
   let entry;
   if (MODE === 'library') entry = libraryEntry(date);
   else {
-    try { entry = await generate(date, env); }
-    catch (e) { try { entry = await generate(date, env); } catch (e2) { entry = libraryEntry(date); entry.note = 'AI unavailable; approved list used'; } }
+    try { entry = await generate(date, env, preview); }
+    catch (e) { try { entry = await generate(date, env, preview); } catch (e2) { entry = libraryEntry(date); entry.note = 'AI unavailable; approved list used'; } }
   }
   entry.stage = stageFor(date).kind;
   if (entry.origin === 'ai') await env.DAILY.put(key, JSON.stringify(entry));
   else await env.DAILY.put(key, JSON.stringify(entry), { expirationTtl: 3600 }); // retry AI within the hour
   return entry;
+}
+
+// ---------------------------------------------------------------------------
+// AI scene for Page 2 (test Worker only; enabled by AI_SCENES = "1").
+// The picture is drawn from the same day's verse and Champion's Mindset, so the
+// scene, the Word and the Mindset carry one message. Cached per date in this
+// Worker's own KV; "fresh=1" paints a new one.
+const IMAGE_MODEL = '@cf/black-forest-labs/flux-2-klein-9b';
+const IMAGE_FALLBACK = '@cf/black-forest-labs/flux-1-schnell';
+const LIGHTS = [
+  'cool blue dawn before sunrise, soft blue and silver tones',
+  'crisp frosty morning, pale blue sky, white frost on the grass',
+  'misty gray morning with soft diffused light',
+  'clear bright midday with a deep blue sky and white clouds',
+  'dramatic storm clouds breaking apart with shafts of light',
+  'rain falling, wet ground and reflections, moody blue-gray light',
+  'clear night under a starry sky with a faint glow on the horizon',
+  'fresh green spring-like hills under a bright blue sky',
+  'early evening blue hour, deep navy sky and city or stadium lights',
+  'warm golden sunrise (use sparingly)',
+];
+const STYLE = 'Photorealistic cinematic photograph, vivid natural color, sharp detail, portrait orientation. ' +
+  'Any athlete wears a navy blue sleeveless team singlet with a small white Spartan helmet emblem and navy shorts; ' +
+  'athletes are seen from behind or from the side, faces not the focus. ' +
+  'Absolutely no text, no letters, no words, no numbers, no logos, no watermark, no signage. ' +
+  'Keep the main subject in the middle of the frame; keep the top and bottom of the frame simple and uncluttered.';
+
+function dayHash(date) { let h = 0; for (const c of date) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; }
+
+async function scenePrompt(date, entry) {
+  const stage = stageFor(date);
+  const light = stage.kind === 'race-day' || stage.kind === 'season-complete'
+    ? 'bright, triumphant light (golden light allowed)'
+    : LIGHTS[dayHash(date) % (LIGHTS.length - 1)];
+  return { stage, light };
+}
+
+async function writeScene(date, entry, env) {
+  const { stage, light } = await scenePrompt(date, entry);
+  const system = `You design one photograph for a Christian high-school cross country team's daily devotional page. The photo must visually express the day's Bible verse and Champion's Mindset so a runner looking at it feels the same message.
+Rules: describe ONE concrete, physical scene in 45 to 80 words. It may show a cross country runner or team, OR another sport (track, basketball, football, swimming, wrestling, tennis, cycling, rowing, climbing) when that expresses the message better, OR a meaningful scene with no person (a course, a mountain summit, an eagle, a river cutting rock, a seed sprouting, a storm breaking, shoes at a start line, hands joined in a huddle). Use this lighting and mood: ${light}. Never include any text, words, signs, scoreboards with writing, or real people. Return ONLY JSON: {"scene":"..."}`;
+  const user = `Season status: ${stage.text}\nVerse (${entry.ref}): ${entry.verse}\nChampion's Mindset: ${entry.mindset}\nMotto: ${entry.phrase || ''}`;
+  const out = await env.AI.run(MODEL, { messages: [{ role: 'system', content: system }, { role: 'user', content: user }], max_tokens: 300, temperature: 0.9 });
+  const raw = typeof out === 'string' ? out : out.response;
+  let scene = '';
+  try {
+    const obj = typeof raw === 'object' ? raw : JSON.parse(String(raw).slice(String(raw).indexOf('{'), String(raw).lastIndexOf('}') + 1));
+    scene = String(obj.scene || '').trim();
+  } catch (e) {}
+  if (scene.length < 40) scene = `A cross country runner in a navy Spartan singlet running a hillside trail, ${light}.`;
+  return `${scene} Lighting and mood: ${light}. ${STYLE}`;
+}
+
+function b64ToBytes(b64) { const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+
+async function toBytes(out) {
+  if (!out) throw new Error('empty image result');
+  if (out instanceof ReadableStream) return new Uint8Array(await new Response(out).arrayBuffer());
+  if (out instanceof ArrayBuffer) return new Uint8Array(out);
+  if (out instanceof Uint8Array) return out;
+  const img = out.image || (out.result && out.result.image);
+  if (typeof img === 'string') return b64ToBytes(img.replace(/^data:[^,]+,/, ''));
+  throw new Error('unrecognized image result');
+}
+
+function imageType(b) {
+  if (b[0] === 0x89 && b[1] === 0x50) return 'image/png';
+  if (b[0] === 0x52 && b[1] === 0x49) return 'image/webp';
+  return 'image/jpeg';
+}
+
+async function paint(prompt, env) {
+  try {
+    const form = new FormData();
+    form.append('prompt', prompt);
+    form.append('width', '768');
+    form.append('height', '1152');
+    const body = new Response(form);
+    const out = await env.AI.run(IMAGE_MODEL, { multipart: { body: body.body, contentType: body.headers.get('content-type') } });
+    return await toBytes(out);
+  } catch (e) {
+    const out = await env.AI.run(IMAGE_FALLBACK, { prompt, steps: 8 });
+    return await toBytes(out);
+  }
+}
+
+async function sceneResponse(date, env, fresh) {
+  const key = 'scene:v1:' + date;
+  if (!fresh) {
+    const hit = await env.DAILY.getWithMetadata(key, 'arrayBuffer');
+    if (hit && hit.value) {
+      const b = new Uint8Array(hit.value);
+      return new Response(b, { headers: { 'content-type': imageType(b), 'cache-control': 'no-store', 'x-scene-prompt': encodeURIComponent((hit.metadata && hit.metadata.prompt) || '').slice(0, 1800) } });
+    }
+  }
+  const entry = await getOrCreate(date, env, date > todayChicago());
+  if (!entry || !entry.verse) throw new Error('no daily message for this date');
+  const prompt = await writeScene(date, entry, env);
+  const bytes = await paint(prompt, env);
+  await env.DAILY.put(key, bytes, { metadata: { prompt: prompt.slice(0, 700) } });
+  return new Response(bytes, { headers: { 'content-type': imageType(bytes), 'cache-control': 'no-store', 'x-scene-prompt': encodeURIComponent(prompt).slice(0, 1800) } });
 }
 
 export default {
@@ -156,10 +257,20 @@ export default {
       const today = todayChicago();
       const date = pathDate || url.searchParams.get('date') || today;
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return json({ error: 'bad date' }, 400);
-      if (date > today) return json({ error: 'future dates are not available yet' }, 404);
+      const preview = date > today;
+      if (preview && env.PREVIEW_FUTURE !== '1') return json({ error: 'future dates are not available yet' }, 404);
       if (date < SEASON_START) return json({ error: 'before season' }, 404);
-      try { return json(await getOrCreate(date, env)); }
+      try { return json(await getOrCreate(date, env, preview)); }
       catch (e) { return json(libraryEntry(date)); }
+    }
+    if (url.pathname === '/api/scene') {
+      if (env.AI_SCENES !== '1') return json({ error: 'not enabled' }, 404);
+      const today = todayChicago();
+      const date = url.searchParams.get('date') || today;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date < SEASON_START) return json({ error: 'bad date' }, 400);
+      if (date > today && env.PREVIEW_FUTURE !== '1') return json({ error: 'future dates are not available yet' }, 404);
+      try { return await sceneResponse(date, env, url.searchParams.get('fresh') === '1'); }
+      catch (e) { return json({ error: 'scene unavailable', detail: String(e && e.message || e) }, 502); }
     }
     return env.ASSETS.fetch(req);
   },

@@ -117,10 +117,12 @@
 .icard .ic{border:3px solid transparent!important;background:radial-gradient(circle at 35% 30%,#123a9a 0%,#071a5c 70%) padding-box,conic-gradient(from 200deg,#8d5a05,#fff1b0,#d29a1e,#7a4b03,#ffe083,#b9780b,#8d5a05) border-box!important;box-shadow:0 5px 12px #000b,inset 0 3px 8px #0009,inset 0 -2px 4px #ffffff1a!important}
 .icard .ic svg{width:38px!important;height:38px!important;filter:drop-shadow(0 2px 2px #000b)}
 .icard .ic-img{width:42px;height:auto;filter:drop-shadow(0 2px 3px #000b)}
+.test-bar{max-width:560px;margin:0 auto 14px;padding:10px 12px;border:1px dashed #8edcff;border-radius:14px;background:#081b61e6;color:#d9eaff;font:800 11px/1.4 Inter,Arial,sans-serif;letter-spacing:.12em;text-align:center}.test-bar b{color:var(--gold)}.test-bar .tb-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:8px}.test-bar button{min-height:40px;padding:0 14px;border:1px solid #8edcff88;border-radius:999px;background:#0d2f82;color:#fff;font:800 11px/1 Inter,Arial,sans-serif;letter-spacing:.08em;cursor:pointer}.test-bar small{display:block;margin-top:6px;font:italic 500 12px/1.4 Georgia,serif;letter-spacing:0;color:#bcd3f7}
+.scene-frame.painting::after{content:"Painting today's scene\2026";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#ffe29a;font:italic 700 18px Georgia,serif;text-shadow:0 2px 10px #000}
 </style><script src="assets/scenes/schedule.js"></script><script src="assets/scenes/archive.js"></script></head><body>
 <button class="music-toggle" id="musicToggle" type="button" aria-label="Turn music off" aria-pressed="true">🔊 MUSIC ON</button>
 <section class="entry" aria-label="Spartans1st Championship entry"><div class="entry-art"><img src="assets/championship-entry.jpg" alt="Spartans1st — Let Them Have Dominion. Psalm 8:6. Fight. Press. Win."><button class="enter" id="enter" aria-label="Enter championship countdown"></button><label class="skip-entry"><input type="checkbox" id="skipEntry"> Don't show again</label></div></section>
-<section class="journey-home" aria-label="The Dominion Journey"><button id="homeEntry" class="back" type="button">← BACK</button>
+<section class="journey-home" aria-label="The Dominion Journey"><button id="homeEntry" class="back" type="button">← BACK</button><div class="test-bar" id="testBar">TEST PREVIEW &middot; <b id="tbDate"></b><div class="tb-row"><button type="button" id="tbPrev">&#8249; DAY</button><button type="button" id="tbToday">TODAY</button><button type="button" id="tbNext">DAY &#8250;</button><button type="button" id="tbFresh">NEW SCENE</button></div><small>Test site only. Word, Mindset, Declaration and scene are written by AI for the day shown.</small></div>
 <h1 class="jh-title" id="sceneLabel">THE DOMINION JOURNEY</h1>
 <ol class="phase-track" id="phaseTrack" aria-label="Season phase"><li data-phase="BUILD"><span class="dot"></span><b>BUILD</b><small>7+ DAYS</small></li><li data-phase="SHARPEN"><span class="dot"></span><b>SHARPEN</b><small>6–5 DAYS</small></li><li data-phase="FOCUS"><span class="dot"></span><b>FOCUS</b><small>4–3 DAYS</small></li><li data-phase="READY"><span class="dot"></span><b>READY</b><small>2–1 DAYS</small></li><li data-phase="RACE DAY"><span class="dot"></span><b>RACE DAY</b><small>0 DAYS</small></li><li data-phase="SEASON COMPLETE"><span class="dot"></span><b>SEASON</b><small>COMPLETE</small></li></ol>
 <p class="scene-phase" id="scenePhase"></p>
@@ -266,15 +268,16 @@ function sceneLabelFor(slot){return /^race-/.test(slot)?'RACE DAY':/^eve-/.test(
 function shortDate(d){return new Intl.DateTimeFormat('en-US',{timeZone:'UTC',month:'short',day:'numeric'}).format(new Date(d+'T12:00:00Z'))}
 let shownScene=null,reviewSceneDay=null,sceneToken=0;
 function setText(id,txt){document.getElementById(id).textContent=txt||''}
-function showSceneFor(day){const slot=sceneSlotFor(day),c=SCHED.slots[slot]||{},src=c.image||SCHED.fallbackImage;
+const AI_SCENE=true;let sceneFresh=0;
+function showSceneFor(day){const slot=sceneSlotFor(day),c=SCHED.slots[slot]||{},src=AI_SCENE?'/api/scene?date='+day+(sceneFresh?'&fresh=1&t='+sceneFresh:''):(c.image||SCHED.fallbackImage);
  document.getElementById('sceneLabel').textContent='THE DOMINION JOURNEY';renderPhaseTrack(day);document.getElementById('scenePhase').textContent=phaseFor(day)+(reviewSceneDay?' • '+shortDate(day).toUpperCase():'');document.getElementById('sceneDeclCard').hidden=true;if(document.getElementById('journal').classList.contains('open'))loadJournal();
  const phrase=document.getElementById('scenePhrase');phrase.hidden=!c.phrase;phrase.textContent=c.phrase||'';
  document.getElementById('sceneVerseCard').hidden=!c.verse;setText('sceneVerse',c.verse?'“'+c.verse+'”':'');setText('sceneVerseRef',c.ref);
  document.getElementById('sceneMindsetCard').hidden=!c.mindset;setText('sceneMindset',c.mindset?'“'+c.mindset+'”':'');setText('sceneMindsetSrc',c.source?'— '+c.source:'');showInsight('sceneInsight','');
  const stok=++sceneToken;fetchDaily(day).then(e=>{if(!e||stok!==sceneToken||!e.verse)return;phrase.hidden=!e.phrase;phrase.textContent=e.phrase||'';document.getElementById('sceneVerseCard').hidden=false;setText('sceneVerse','“'+e.verse+'”');setText('sceneVerseRef',e.ref);showInsight('sceneInsight',e.insight);document.getElementById('sceneMindsetCard').hidden=false;setText('sceneMindset','“'+e.mindset+'”');setText('sceneMindsetSrc','— '+e.source);if(e.declaration){document.getElementById('sceneDeclCard').hidden=false;setText('sceneDecl','“'+e.declaration+'”')}});
- if(shownScene===src)return;shownScene=src;const img=document.getElementById('sceneImg'),frame=img.parentElement;img.classList.remove('ready');
- const pre=new Image();pre.onload=()=>{frame.classList.toggle('crop-mid',(c.image?c.crop:SCHED.fallbackCrop)==='middle');frame.classList.toggle('fallback',/championship-entry\.jpg$/.test(src));img.src=src;img.alt=c.image?'Spartans1st scene: '+sceneLabelFor(slot).toLowerCase():'Spartans1st — Let Them Have Dominion';img.classList.add('ready')};
- pre.onerror=()=>{frame.classList.add('fallback');img.src=SCHED.fallbackImage;img.classList.add('ready')};pre.src=src}
+ if(shownScene===src)return;shownScene=src;const img=document.getElementById('sceneImg'),frame=img.parentElement;img.classList.remove('ready');if(AI_SCENE)frame.classList.add('painting');
+ const pre=new Image();pre.onload=()=>{frame.classList.remove('painting');frame.classList.toggle('crop-mid',!AI_SCENE&&(c.image?c.crop:SCHED.fallbackCrop)==='middle');frame.classList.toggle('fallback',/championship-entry\.jpg$/.test(src));img.src=src;img.alt=c.image?'Spartans1st scene: '+sceneLabelFor(slot).toLowerCase():'Spartans1st — Let Them Have Dominion';img.classList.add('ready')};
+ pre.onerror=()=>{frame.classList.remove('painting');const fb=c.image||SCHED.fallbackImage;frame.classList.toggle('crop-mid',(c.image?c.crop:SCHED.fallbackCrop)==='middle');img.src=fb;img.classList.add('ready')};pre.src=src}
 // Review the Journey: pick a previous day and see that day's Word, Mindset and Declaration in the
 // same cards as today. Today's scene and the journal are not changed by reviewing.
 let rvDay=null,rvToken=0;
@@ -310,6 +313,13 @@ try{skipEntry.checked=localStorage.getItem(SKIP_KEY)==='yes'}catch(e){}
 skipEntry.addEventListener('change',()=>{try{localStorage.setItem(SKIP_KEY,skipEntry.checked?'yes':'no')}catch(e){}});
 enter.onclick=()=>showScreen('journey');back.onclick=()=>showScreen('journey');document.getElementById('viewCountdown').onclick=()=>showScreen('countdown');document.getElementById('homeEntry').onclick=()=>showScreen('entry');
 try{if(localStorage.getItem(SKIP_KEY)==='yes')showScreen('journey')}catch(e){}
+(function(){const qs=new URLSearchParams(location.search),d=ymd();
+ const shift=n=>{const t=new Date(d+'T12:00:00Z');t.setUTCDate(t.getUTCDate()+n);return t.toISOString().slice(0,10)};
+ const go=day=>{const q=new URLSearchParams();if(day)q.set('today',day);q.set('page','2');location.search=q.toString()};
+ document.getElementById('tbDate').textContent=new Date(d+'T12:00:00Z').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',timeZone:'UTC'}).toUpperCase();
+ document.getElementById('tbPrev').onclick=()=>go(shift(-1));document.getElementById('tbNext').onclick=()=>go(shift(1));document.getElementById('tbToday').onclick=()=>go('');
+ document.getElementById('tbFresh').onclick=()=>{sceneFresh=Date.now();shownScene=null;reviewSceneDay=null;showSceneFor(d)};
+ if(qs.get('page')==='2')showScreen('journey');})();
 updateMusicControl();render();
 // Refresh automatically at midnight in Oklahoma without a page reload.
 setInterval(()=>{if(!document.hidden)render()},60000);

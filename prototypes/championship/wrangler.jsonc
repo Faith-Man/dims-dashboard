@@ -9,5 +9,8 @@
   "kv_namespaces": [{ "binding": "DAILY", "id": "c64d9a0e380d4b75b05b3cde674ae8df" }],
   // No cron on the test Worker: messages are created on demand when the test site is opened.
   // The midnight schedule belongs to the live Worker.
+  // Test-only switches: let the test site preview future days and paint an AI scene for Page 2.
+  // Never add these to the live Worker's config without Michael's approval.
+  "vars": { "PREVIEW_FUTURE": "1", "AI_SCENES": "1" },
   "observability": { "enabled": true }
 }

@@ -117,7 +117,7 @@
 .icard .ic{border:3px solid transparent!important;background:radial-gradient(circle at 35% 30%,#123a9a 0%,#071a5c 70%) padding-box,conic-gradient(from 200deg,#8d5a05,#fff1b0,#d29a1e,#7a4b03,#ffe083,#b9780b,#8d5a05) border-box!important;box-shadow:0 5px 12px #000b,inset 0 3px 8px #0009,inset 0 -2px 4px #ffffff1a!important}
 .icard .ic svg{width:38px!important;height:38px!important;filter:drop-shadow(0 2px 2px #000b)}
 .icard .ic-img{width:42px;height:auto;filter:drop-shadow(0 2px 3px #000b)}
-</style><script src="assets/scenes/schedule.js"></script></head><body>
+</style><script src="assets/scenes/schedule.js"></script><script src="assets/scenes/archive.js"></script></head><body>
 <button class="music-toggle" id="musicToggle" type="button" aria-label="Turn music off" aria-pressed="true">🔊 MUSIC ON</button>
 <section class="entry" aria-label="Spartans1st Championship entry"><div class="entry-art"><img src="assets/championship-entry.jpg" alt="Spartans1st — Let Them Have Dominion. Psalm 8:6. Fight. Press. Win."><button class="enter" id="enter" aria-label="Enter championship countdown"></button><label class="skip-entry"><input type="checkbox" id="skipEntry"> Don't show again</label></div></section>
 <section class="journey-home" aria-label="The Dominion Journey"><button id="homeEntry" class="back" type="button">← BACK</button>
@@ -263,7 +263,9 @@ function showSceneFor(day){const slot=sceneSlotFor(day),c=SCHED.slots[slot]||{},
 // Review the Journey: pick a previous day and see that day's Word, Mindset and Declaration in the
 // same cards as today. Today's scene and the journal are not changed by reviewing.
 let rvDay=null,rvToken=0;
-function reviewDays(){const today=ymd(),first=SCHED.firstDate||SCHED_DATES[0]||today,past=[];for(let n=dn(first);n<dn(today);n++)past.push(isoFromDn(n));return past}
+const ARCHIVE=window.SPARTANS1ST_ARCHIVE||{};
+// Review starts at the first archived countdown day (live site, Oct 4) and runs through yesterday.
+function reviewDays(){const today=ymd(),first=Object.keys(ARCHIVE).sort()[0]||SCHED.firstDate||SCHED_DATES[0]||today,past=[];for(let n=dn(first);n<dn(today);n++)past.push(isoFromDn(n));return past}
 function renderSceneReview(){const past=reviewDays(),box=document.getElementById('sceneDays');
  if(!past.includes(rvDay))rvDay=past[past.length-1]||null;
  document.getElementById('reviewEmpty').hidden=!!past.length;document.getElementById('rvCards').hidden=!past.length;box.replaceChildren();
@@ -272,11 +274,12 @@ function buildReviewCards(){const box=document.getElementById('rvCards');if(box.
  ['sceneVerseCard','sceneMindsetCard','sceneDeclCard'].forEach(id=>{const c=document.getElementById(id).cloneNode(true);c.id='rv'+id.slice(5);c.querySelectorAll('[id]').forEach(e=>{e.id='rv'+e.id.slice(5)});box.appendChild(c)});
  const lbl=box.querySelector('#rvVerseCard .label');if(lbl)lbl.textContent='WORD FOR TODAY'}
 function showReviewDay(d){if(!d)return;buildReviewCards();
- document.getElementById('rvDate').textContent=new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'long',month:'short',day:'numeric'}).format(new Date(d+'T12:00:00Z'))+' • '+phaseFor(d);
+ document.getElementById('rvDate').textContent=new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'long',month:'short',day:'numeric'}).format(new Date(d+'T12:00:00Z'))+' • '+((ARCHIVE[d]&&ARCHIVE[d].phase)||phaseFor(d));
  const c=SCHED.slots[sceneSlotFor(d)]||{},fill=e=>{
   document.getElementById('rvVerseCard').hidden=!e.verse;setText('rvVerse',e.verse?'“'+e.verse+'”':'');setText('rvVerseRef',e.ref);showInsight('rvInsight',e.insight);
   document.getElementById('rvMindsetCard').hidden=!e.mindset;setText('rvMindset',e.mindset?'“'+e.mindset+'”':'');setText('rvMindsetSrc',e.source?'— '+e.source:'');
   document.getElementById('rvDeclCard').hidden=!e.declaration;setText('rvDecl',e.declaration?'“'+e.declaration+'”':'')};
+ if(ARCHIVE[d]){rvToken++;fill(ARCHIVE[d]);return} // archived days keep exactly what the live site showed
  fill({verse:c.verse,ref:c.ref,mindset:c.mindset,source:c.source,declaration:''});
  const tok=++rvToken;fetchDaily(d).then(e=>{if(e&&e.verse&&tok===rvToken)fill(e)})}
 document.getElementById('tileJournal').onclick=()=>{const j=document.getElementById('journal'),open=j.classList.toggle('open');if(open){loadJournal();j.scrollIntoView({behavior:'smooth',block:'start'})}};

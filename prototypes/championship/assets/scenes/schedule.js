@@ -35,3 +35,103 @@ window.SPARTANS1ST_SCHEDULE = {
     'welldone-01': {}, 'welldone-02': {}
   }
 };
+
+// Visual refinement for the Living Journey cards. Keep Scripture primary, while
+// distinguishing the application/commentary as a separate illuminated inset.
+(() => {
+  const style = document.createElement('style');
+  style.textContent = `
+    .journey-home .scene-cards .card,
+    .journey-home .rv-cards .card {
+      background: linear-gradient(145deg, rgba(18,63,162,.94), rgba(8,31,102,.96));
+      border-color: rgba(126,199,255,.48);
+      box-shadow: 0 12px 30px rgba(0,20,60,.42), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .journey-home .insight,
+    .journey-home #rvInsight {
+      position: relative;
+      margin-top: 14px !important;
+      padding: 13px 14px 13px 18px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(20,85,190,.34), rgba(13,49,126,.46));
+      border: 1px solid rgba(91,178,255,.25);
+      color: #e5f1ff !important;
+      font-style: normal !important;
+      line-height: 1.55 !important;
+      box-shadow: inset 0 1px 12px rgba(69,153,255,.08);
+    }
+    .journey-home .insight::before,
+    .journey-home #rvInsight::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      bottom: 10px;
+      width: 3px;
+      border-radius: 3px;
+      background: linear-gradient(#ffe6a0, #f3bf42, #b8780a);
+      box-shadow: 0 0 8px rgba(243,191,66,.35);
+    }
+    .journey-home .ic.medallion-photo {
+      width: 64px !important;
+      height: 64px !important;
+      min-width: 64px !important;
+      padding: 0 !important;
+      overflow: hidden;
+      border-width: 2px !important;
+      background: #071a5c !important;
+      box-shadow: 0 5px 14px rgba(0,0,0,.72), 0 0 0 1px rgba(255,215,105,.38), inset 0 0 10px rgba(255,215,105,.12) !important;
+    }
+    .journey-home .ic.medallion-photo img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      border-radius: 50%;
+      transform: scale(1.22);
+      filter: contrast(1.18) brightness(1.08) saturate(1.08);
+    }
+    .journey-home .icard {
+      grid-template-columns: 64px 1fr !important;
+      column-gap: 14px !important;
+      align-items: start !important;
+    }
+    @media (max-width: 390px) {
+      .journey-home .ic.medallion-photo {
+        width: 60px !important;
+        height: 60px !important;
+        min-width: 60px !important;
+      }
+      .journey-home .icard {
+        grid-template-columns: 60px 1fr !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  const iconMap = [
+    ['#sceneVerseCard .ic, #rvVerseCard .ic', 'assets/ui/bible-medallion.webp', 'Open Bible medallion'],
+    ['#sceneMindsetCard .ic, #rvMindsetCard .ic', 'assets/ui/helmet-medallion.webp', 'Spartan helmet medallion'],
+    ['#sceneDeclCard .ic, #rvDeclCard .ic', 'assets/ui/trumpet-medallion.webp', 'Herald trumpet medallion']
+  ];
+  const applyMedallions = () => {
+    for (const [selector, src, alt] of iconMap) {
+      document.querySelectorAll(selector).forEach((holder) => {
+        if (holder.dataset.medallion === src) return;
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = '';
+        img.setAttribute('aria-hidden', 'true');
+        holder.replaceChildren(img);
+        holder.classList.add('medallion-photo');
+        holder.dataset.medallion = src;
+        holder.title = alt;
+      });
+    }
+  };
+  document.addEventListener('DOMContentLoaded', () => {
+    applyMedallions();
+    new MutationObserver(applyMedallions).observe(document.body, { childList: true, subtree: true });
+  });
+})();

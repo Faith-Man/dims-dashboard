@@ -133,7 +133,7 @@ Style example (do not copy): {"ref":"Isaiah 40:31","insight":"Strength for the f
 }
 
 async function getOrCreate(date, env, preview = false) {
-  const key = (preview ? 'preview:v1:' : 'daily:v3:') + date;
+  const key = (preview ? 'preview:v2:' : 'daily:v3:') + date;
   const hit = await env.DAILY.get(key, 'json');
   if (hit) return hit;
   let entry;

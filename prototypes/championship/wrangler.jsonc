@@ -11,6 +11,6 @@
   // The midnight schedule belongs to the live Worker.
   // Test-only switches: let the test site preview future days and paint an AI scene for Page 2.
   // Never add these to the live Worker's config without Michael's approval.
-  "vars": { "PREVIEW_FUTURE": "1", "AI_SCENES": "1" },
+  "vars": { "PREVIEW_FUTURE": "1", "AI_SCENES": "0" },
   "observability": { "enabled": true }
 }

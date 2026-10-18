@@ -354,7 +354,7 @@ try{if(localStorage.getItem(SKIP_KEY)==='yes')showScreen('journey')}catch(e){}
  if(document.getElementById('tbFresh'))document.getElementById('tbFresh').onclick=()=>{sceneFresh=Date.now();shownScene=null;reviewSceneDay=null;showSceneFor(d)};
  if(qs.get('page')==='2')showScreen('journey');})();
 // Title font previews (test only).
-(function(){const t=new URLSearchParams(location.search).get('title');if(!/^[abc]$/.test(t||''))return;document.body.classList.add('title-'+t);window.JH_TITLE=t==='a'?'The Dominion Journey':'The Dominion Journey';const el=document.getElementById('sceneLabel');el.textContent=window.JH_TITLE;if(document.fonts)document.fonts.ready.then(()=>{try{fitTitle()}catch(e){}});})();
+(function(){const t=new URLSearchParams(location.search).get('title')||'a';if(!/^[abc]$/.test(t))return;document.body.classList.add('title-'+t);window.JH_TITLE=t==='a'?'The Dominion Journey':'The Dominion Journey';const el=document.getElementById('sceneLabel');el.textContent=window.JH_TITLE;if(document.fonts)document.fonts.ready.then(()=>{try{fitTitle()}catch(e){}});})();
 // Header previews (test only).
 (function(){const top=new URLSearchParams(location.search).get('top');if(top!=='cine'&&top!=='refined')return;document.body.classList.add('top-'+top);const tbar=document.getElementById('testBar'),home=document.querySelector('.journey-home');if(tbar&&home){home.appendChild(tbar);tbar.style.margin='24px 14px 0'}
  const phaseEl=document.getElementById('scenePhase'),track=document.getElementById('phaseTrack'),frame=document.querySelector('.journey-home .scene-frame');

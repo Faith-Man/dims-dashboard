@@ -120,6 +120,27 @@
 .test-bar{max-width:560px;margin:0 auto 14px;padding:10px 12px;border:1px dashed #8edcff;border-radius:14px;background:#081b61e6;color:#d9eaff;font:800 11px/1.4 Inter,Arial,sans-serif;letter-spacing:.12em;text-align:center}.test-bar b{color:var(--gold)}.test-bar .tb-row{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:8px}.test-bar button{min-height:40px;padding:0 14px;border:1px solid #8edcff88;border-radius:999px;background:#0d2f82;color:#fff;font:800 11px/1 Inter,Arial,sans-serif;letter-spacing:.08em;cursor:pointer}.test-bar small{display:block;margin-top:6px;font:italic 500 12px/1.4 Georgia,serif;letter-spacing:0;color:#bcd3f7}
 .scene-frame.painting::after{content:"Painting today's scene\2026";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#ffe29a;font:italic 700 18px Georgia,serif;text-shadow:0 2px 10px #000}
 .tile-countdown{background:linear-gradient(145deg,#7a5208,#3d2702)!important;border:1px solid #f3bf42aa!important}.tile-countdown .tile-ic{color:#ffe29a}.home-actions.cta-moved{margin:18px 14px 4px!important}
+
+/* ---- Header previews (test only): ?top=cine | ?top=refined ---- */
+body.top-cine .journey-home{padding-top:0!important;background:#020a29!important}
+body.top-cine .journey-home .jh-title,body.top-cine #scenePhase,body.top-cine .journey-home .crown-rule{display:none!important}
+body.top-cine .hero{position:relative;max-width:560px;margin:0 auto}
+body.top-cine .hero .scene-frame{margin-top:0!important;-webkit-mask-image:linear-gradient(180deg,#000 0,#000 80%,transparent 100%)!important;mask-image:linear-gradient(180deg,#000 0,#000 80%,transparent 100%)!important}
+body.top-cine .hero::before{content:"";position:absolute;z-index:1;left:0;right:0;top:0;height:46%;background:linear-gradient(180deg,#020a29f2 0%,#020a29b3 38%,#020a2900 100%);pointer-events:none}
+body.top-cine .hero-text{position:absolute;z-index:2;left:0;right:0;top:calc(env(safe-area-inset-top) + 66px);text-align:center;color:#fff;text-shadow:0 2px 14px #000c;padding:0 16px}
+body.top-cine .hero-eyebrow{font:800 12px/1.3 Georgia,serif;letter-spacing:.32em;color:var(--gold)}
+body.top-cine .hero-num{font:900 clamp(60px,18vw,96px)/0.95 Georgia,serif;color:#fff;margin-top:6px}
+body.top-cine .hero-unit{font:900 clamp(14px,4.2vw,20px)/1.2 Inter,Arial,sans-serif;letter-spacing:.2em;color:#ffe29a;margin-top:4px}
+body.top-cine .hero-phase{display:none;margin-top:10px;padding:5px 12px;border:1px solid #f3bf4288;border-radius:999px;font:800 11px/1 Inter,Arial,sans-serif;letter-spacing:.18em;color:#ffe29a;background:#020a2966}
+body.top-cine .phase-track,body.top-refined .phase-track{max-width:420px}
+body.top-cine .phase-track{margin:-6px auto 6px!important}
+body.top-cine .phase-track li:not(.current) b,body.top-cine .phase-track li small,body.top-refined .phase-track li:not(.current) b,body.top-refined .phase-track li small{display:none}
+body.top-cine .phase-track li.current b,body.top-refined .phase-track li.current b{font-size:11px;white-space:nowrap}
+body.top-refined .journey-home{background:linear-gradient(180deg,#061552 0%,#041040 40%,#020a29 100%)!important}
+body.top-refined .journey-home .jh-title{font-size:clamp(13px,3.6vw,18px)!important;letter-spacing:.28em!important;margin-top:64px!important;color:#f3d27a!important}
+body.top-refined .journey-home .crown-rule{display:none!important}
+body.top-refined #scenePhase{margin:12px auto 0!important;color:#fff!important;font:900 clamp(18px,5.4vw,24px)/1.25 Georgia,serif!important;letter-spacing:.06em!important}
+body.top-refined .journey-home .scene-frame{margin-top:4px!important;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 12%,#000 78%,transparent 100%)!important;mask-image:linear-gradient(180deg,transparent 0,#000 12%,#000 78%,transparent 100%)!important}
 </style><script src="assets/scenes/schedule.js"></script><script src="assets/scenes/archive.js"></script></head><body>
 <button class="music-toggle" id="musicToggle" type="button" aria-label="Turn music off" aria-pressed="true">🔊 MUSIC ON</button>
 <section class="entry" aria-label="Spartans1st Championship entry"><div class="entry-art"><img src="assets/championship-entry.jpg" alt="Spartans1st — Let Them Have Dominion. Psalm 8:6. Fight. Press. Win."><button class="enter" id="enter" aria-label="Enter championship countdown"></button><label class="skip-entry"><input type="checkbox" id="skipEntry"> Don't show again</label></div></section>
@@ -326,6 +347,16 @@ try{if(localStorage.getItem(SKIP_KEY)==='yes')showScreen('journey')}catch(e){}
  document.getElementById('tbPrev').onclick=()=>go(shift(-1));document.getElementById('tbNext').onclick=()=>go(shift(1));document.getElementById('tbToday').onclick=()=>go('');
  if(document.getElementById('tbFresh'))document.getElementById('tbFresh').onclick=()=>{sceneFresh=Date.now();shownScene=null;reviewSceneDay=null;showSceneFor(d)};
  if(qs.get('page')==='2')showScreen('journey');})();
+// Header previews (test only).
+(function(){const top=new URLSearchParams(location.search).get('top');if(top!=='cine'&&top!=='refined')return;document.body.classList.add('top-'+top);const tbar=document.getElementById('testBar'),home=document.querySelector('.journey-home');if(tbar&&home){home.appendChild(tbar);tbar.style.margin='24px 14px 0'}
+ const phaseEl=document.getElementById('scenePhase'),track=document.getElementById('phaseTrack'),frame=document.querySelector('.journey-home .scene-frame');
+ if(top==='refined'){const fix=()=>{const t=phaseEl.textContent||'';if(!t.includes('•'))return;const m=t.match(/(\d+) DAYS? TO (.+?)(?: •|$)/i);if(m)phaseEl.textContent=m[1]+(m[1]==='1'?' DAY':' DAYS')+' TO '+m[2]};new MutationObserver(fix).observe(phaseEl,{childList:true,characterData:true,subtree:true});fix();return}
+ const hero=document.createElement('div');hero.className='hero';frame.before(hero);hero.appendChild(frame);
+ const txt=document.createElement('div');txt.className='hero-text';txt.innerHTML='<div class="hero-eyebrow">THE DOMINION JOURNEY</div><div class="hero-num" id="heroNum"></div><div class="hero-unit" id="heroUnit"></div><div class="hero-phase" id="heroPhase"></div>';hero.appendChild(txt);
+ hero.after(track);
+ const sync=()=>{const t=phaseEl.textContent||'',m=t.match(/^(.*?)\s*•\s*(\d+) DAYS? TO (.+?)(?: •|$)/i);const n=document.getElementById('heroNum'),u=document.getElementById('heroUnit'),ph=document.getElementById('heroPhase');
+  if(m){n.textContent=m[2];u.textContent=(m[2]==='1'?'DAY':'DAYS')+' TO '+m[3].toUpperCase();ph.textContent=m[1].toUpperCase();ph.hidden=false}else{n.textContent='';u.textContent=t.toUpperCase();ph.hidden=true}};
+ new MutationObserver(sync).observe(phaseEl,{childList:true,characterData:true,subtree:true});sync();})();
 // Preview of the Season Countdown button placement (test only): default = moved under the daily cards,
 // ?cta=tile = a third tile with Journal and Review, ?cta=old = where it is on live today.
 (function(){const mode=new URLSearchParams(location.search).get('cta'),cta=document.querySelector('.journey-home .home-actions'),cards=document.querySelector('.journey-home .scene-cards:not(.rv-cards)'),tiles=document.querySelector('.journey-home .jh-tiles');if(!cta||mode==='old')return;

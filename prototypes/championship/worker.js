@@ -5,6 +5,7 @@
 import POOL from './kjv-pool.json';
 
 const TZ = 'America/Chicago';
+const COACH_DAD = "Coach Daniels’ Dad";
 const MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
 const MODE = 'auto'; // 'auto' = publish immediately. Switch to 'library' to use only the approved list.
 const SEASON_START = '2026-10-01';
@@ -127,7 +128,7 @@ Style example (do not copy): {"ref":"Isaiah 40:31","insight":"Strength for the f
   const p = poolByRef.get(String(obj.ref || '').replace(/\s*\(KJV\)$/, '').trim());
   const entry = {
     date, verse: p && p.text, ref: p && p.ref,
-    insight: clean(obj.insight, 280), mindset: clean(obj.mindset, 220), source: 'Spartans1st',
+    insight: clean(obj.insight, 280), mindset: clean(obj.mindset, 220), source: COACH_DAD, // AI-written Mindsets are credited to Coach Daniels’ Dad, never Spartans1st
     declaration: clean(obj.declaration, 280), phrase: clean(obj.phrase, 90), origin: 'ai',
   };
   if (!entry.verse || entry.mindset.length < 50 || entry.declaration.length < 80 || entry.insight.length < 60) throw new Error('invalid AI output');
@@ -141,7 +142,6 @@ Style example (do not copy): {"ref":"Isaiah 40:31","insight":"Strength for the f
 // from ALL approved quotes (athletes + Coach Daniels' Dad) with equal odds per quote.
 // No sequence, no reserved days. The choice is stored with that date, so it stays
 // the same all day and past days are never rewritten.
-const COACH_DAD = "Coach Daniels’ Dad";
 const COACH_DAD_QUOTES = [
   "Every championship starts as a hunger. Feed it daily, and it will carry you farther than talent ever could.",
   "Decide before the hill shows up that you are not stopping on it.",

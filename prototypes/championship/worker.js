@@ -117,7 +117,10 @@ Return ONLY a JSON object (no markdown) with these keys. Every value must be wri
 "declaration": three short, complete first-person sentences (25 to 40 words total) that the athlete speaks aloud, drawn from the chosen verse, each beginning with "I",
 "phrase": a short motto of 3 to 8 words.
 Style example (do not copy): {"ref":"Isaiah 40:31","insight":"Strength for the final mile does not come from your legs alone. When you trust God, He renews you so you can keep running without fainting.","mindset":"The miles nobody sees in practice are the ones that carry you past the runner beside you.","declaration":"I wait upon the Lord and He renews my strength. I will run and not be weary. I will finish this race with everything I have.","phrase":"Renewed strength. Relentless finish."}`;
-  const user = `Date: ${date}. Season status: ${stage.text}\nCHOICES:\n${choices}`;
+  let recentMindsets = [];
+  try { recentMindsets = JSON.parse((await env.DAILY.get('recent-mindsets')) || '[]'); } catch (e) {}
+  const avoid = ['Discipline fuels the fire...', ...recentMindsets].map((m) => '- ' + m).join('\n');
+  const user = `Date: ${date}. Season status: ${stage.text}\nFor "mindset", write something fresh; do not reuse or closely paraphrase any of these:\n${avoid}\nCHOICES:\n${choices}`;
   const out = await env.AI.run(MODEL, { messages: [{ role: 'system', content: system }, { role: 'user', content: user }], max_tokens: 500, temperature: 0.8 });
   const raw = typeof out === 'string' ? out : out.response;
   const obj = typeof raw === 'object' ? raw : JSON.parse(String(raw).slice(String(raw).indexOf('{'), String(raw).lastIndexOf('}') + 1));
@@ -178,11 +181,23 @@ function quotePool() {
   ];
 }
 
+// Lines Michael has rejected; an AI Mindset containing one of these is never used.
+const REJECTED_MINDSETS = ['discipline fuels the fire', 'discipline fuels the final push'];
+const words = (t) => String(t).toLowerCase().replace(/[^a-z' ]/g, ' ').split(/\s+/).filter((w) => w.length > 3);
+function tooSimilar(a, b) {
+  const A = new Set(words(a)), B = new Set(words(b));
+  if (!A.size || !B.size) return false;
+  let same = 0; for (const w of A) if (B.has(w)) same++;
+  return same / Math.min(A.size, B.size) >= 0.6;
+}
+
 async function chooseMindset(entry, env, rand = Math.random) {
   let recent = [];
   try { recent = JSON.parse((await env.DAILY.get('recent-mindsets')) || '[]'); } catch (e) {}
+  const lower = String(entry.mindset).toLowerCase();
+  const aiUsable = !REJECTED_MINDSETS.some((r) => lower.includes(r)) && !recent.some((r) => tooSimilar(r, entry.mindset));
   let pick = null;
-  if (rand() >= AI_MINDSET_SHARE) {
+  if (!aiUsable || rand() >= AI_MINDSET_SHARE) {
     const open = quotePool().filter((q) => !recent.includes(q.mindset));
     if (open.length) pick = open[Math.floor(rand() * open.length)];
   }
@@ -193,7 +208,7 @@ async function chooseMindset(entry, env, rand = Math.random) {
 }
 
 async function getOrCreate(date, env, preview = false) {
-  const key = (preview ? 'preview:v3:' : 'daily:v3:') + date;
+  const key = (preview ? 'preview:v4:' : 'daily:v3:') + date;
   const hit = await env.DAILY.get(key, 'json');
   if (hit) return hit;
   let entry;

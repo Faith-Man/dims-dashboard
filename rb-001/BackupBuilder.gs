@@ -8,7 +8,7 @@ const RB001 = {
   WORKER_FUNCTION: 'resumeRB001BackupJob',
   MAX_BATCH_ITEMS: 75,
   SAFE_RUNTIME_MS: 240000,
-  STALE_HOURS: 26
+  STALE_HOURS: 30
 };
 
 function startOrResumeRB001BackupJob() {
@@ -186,6 +186,19 @@ function checkRB001BackupStaleness() {
   const backupsRoot = getOrCreateSubfolder_(root, 'Backups');
   const job = readRB001Job_(backupsRoot);
   if (!job) return {status:'UNKNOWN', stale:true};
-  const ageHours = (Date.now() - new Date(job.updatedAt).getTime()) / 3600000;
-  return {status:job.status, verificationStatus:job.verificationStatus, stale:ageHours > RB001.STALE_HOURS, ageHours:ageHours};
+  // Health reflects the most recently completed full backup, not a worker heartbeat.
+  const indexFiles = backupsRoot.getFilesByName(RB001.INDEX_FILE);
+  let latestCompletedAt = null;
+  if (indexFiles.hasNext()) {
+    try {
+      const index = JSON.parse(indexFiles.next().getBlob().getDataAsString());
+      latestCompletedAt = index.latestBackup && index.latestBackup.completedAt;
+    } catch (ignored) {}
+  }
+  if (!latestCompletedAt) latestCompletedAt = job.completedAt;
+  const completedMs = latestCompletedAt ? Date.parse(latestCompletedAt) : NaN;
+  const ageHours = Number.isFinite(completedMs) ? (Date.now() - completedMs) / 3600000 : null;
+  return {status:job.status, verificationStatus:job.verificationStatus,
+    stale:ageHours === null || ageHours > RB001.STALE_HOURS,
+    ageHours:ageHours, latestCompletedAt:latestCompletedAt || null};
 }

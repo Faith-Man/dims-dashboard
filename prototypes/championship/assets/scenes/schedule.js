@@ -4,7 +4,7 @@
 // To add a scene: put the approved poster at assets/scenes/<slot>.jpg and fill in its entry below.
 // A slot with no "image" shows the approved entry poster; empty text fields hide their cards.
 window.SPARTANS1ST_SCHEDULE = {
-  fallbackImage: 'assets/scenes/daily-01.jpg', fallbackCrop: 'middle', // most recent approved scene; Page 2 never repeats the Page 1 poster
+  fallbackImage: 'assets/scenes/daily-01.jpg', fallbackCrop: 'middle', // shown only if a scheduled scene fails to load
   firstDate: '2026-10-15',
   // date -> slot
   days: {
@@ -28,11 +28,25 @@ window.SPARTANS1ST_SCHEDULE = {
       source: 'Vincent van Gogh',
       phrase: 'Every step has a purpose. Keep pressing toward the mark.'
     },
-    'daily-02': {}, 'daily-03': {}, 'daily-04': {}, 'daily-05': {}, 'daily-06': {}, 'daily-07': {},
-    'daily-08': {}, 'daily-09': {}, 'daily-10': {}, 'daily-11': {}, 'daily-12': {}, 'daily-13': {},
-    'daily-14': {},
-    'eve-regionals': {}, 'race-regionals': {}, 'eve-state': {}, 'race-state': {},
-    'welldone-01': {}, 'welldone-02': {}
+    'daily-02': { image: 'assets/scenes/daily-02.jpg' },
+    'daily-03': { image: 'assets/scenes/daily-03.jpg' },
+    'daily-04': { image: 'assets/scenes/daily-04.jpg' },
+    'daily-05': { image: 'assets/scenes/daily-05.jpg' },
+    'daily-06': { image: 'assets/scenes/daily-06.jpg' },
+    'daily-07': { image: 'assets/scenes/daily-07.jpg' },
+    'daily-08': { image: 'assets/scenes/daily-08.jpg' },
+    'daily-09': { image: 'assets/scenes/daily-09.jpg' },
+    'daily-10': { image: 'assets/scenes/daily-10.jpg' },
+    'daily-11': { image: 'assets/scenes/daily-11.jpg' },
+    'daily-12': { image: 'assets/scenes/daily-12.jpg' },
+    'daily-13': { image: 'assets/scenes/daily-13.jpg' },
+    'daily-14': { image: 'assets/scenes/daily-14.jpg' },
+    'eve-regionals': { image: 'assets/scenes/eve-regionals.jpg' },
+    'race-regionals': { image: 'assets/scenes/race-regionals.jpg' },
+    'eve-state': { image: 'assets/scenes/eve-state.jpg' },
+    'race-state': { image: 'assets/scenes/race-state.jpg' },
+    'welldone-01': { image: 'assets/scenes/welldone-01.jpg' },
+    'welldone-02': { image: 'assets/scenes/welldone-02.jpg' }
   }
 };
 

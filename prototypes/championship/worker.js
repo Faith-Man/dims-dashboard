@@ -132,8 +132,68 @@ Style example (do not copy): {"ref":"Isaiah 40:31","insight":"Strength for the f
   return entry;
 }
 
+// ---------------------------------------------------------------------------
+// Champion's Mindset: one combined, random pool (approved by Michael, Oct 17 2026).
+// Each new day's Mindset is either the AI-written line or a quote drawn at random
+// from ALL approved quotes (athletes + Coach Daniels' Dad) with equal odds per quote.
+// No sequence, no reserved days. The choice is stored with that date, so it stays
+// the same all day and past days are never rewritten.
+const COACH_DAD = "Coach Daniels’ Dad";
+const COACH_DAD_QUOTES = [
+  "Every championship starts as a hunger. Feed it daily, and it will carry you farther than talent ever could.",
+  "Decide before the hill shows up that you are not stopping on it.",
+  "Dedication is giving your whole heart to the work when no one is watching and nothing is on the line yet.",
+  "Diligence is the mile nobody counts. Run it right anyway, because that's the one that shows up on race day.",
+  "Discipline is order on the inside showing up as strength on the outside.",
+  "You can be making progress and still be headed the wrong way. Settle your direction before you measure your speed.",
+  "You must see it before you get it. Run the finish in your mind before you run the start.",
+  "Integrity asks 'Was it right?' before the watch asks 'Was it fast?'",
+  "Knowing the race plan isn't enough. Own it, then run it.",
+  "Race day doesn't create who you are. It reveals what you've already built.",
+  "Desire got you started. Determination kept you going. Dedication, diligence, and discipline brought you here. Now go run what you've built.",
+  "The best finish isn't only the one you cross. It's the one you help a teammate reach next season.",
+  "Desire says 'I want it.' Determination says 'I'm not stopping until I have it.'",
+  "Want it enough to train for it, not just talk about it.",
+  "Resistance isn't a sign to stop. It's proof you're climbing.",
+  "Commit to the work before you ever see the reward.",
+  "Consistency beats intensity that only shows up sometimes.",
+  "Small things done right every day become big things on race day.",
+  "Discipline today is freedom on race day.",
+  "What's planted in practice is what shows up in the race.",
+  "Lay aside every weight. Run light, run focused, run forward.",
+  "Forget what's behind you. Reach for what's in front of you.",
+  "Effective plus efficient, under integrity, equals excellence.",
+  "Don't just run the race. Run it to win the prize.",
+  "A Quality Decision Determines the Direction You Want To Go.",
+  "Discipline Develops Consistency, and Consistency Keeps You Headed in the Right Direction.",
+];
+// Chance that a new day keeps the AI-written Mindset instead of drawing an approved quote.
+const AI_MINDSET_SHARE = 0.5;
+const RECENT_MINDSETS = 10; // a quote is not reused within this many days
+
+function quotePool() {
+  return [
+    ...LIBRARY.map(([, mindset, source]) => ({ mindset, source })),
+    ...COACH_DAD_QUOTES.map((mindset) => ({ mindset, source: COACH_DAD })),
+  ];
+}
+
+async function chooseMindset(entry, env, rand = Math.random) {
+  let recent = [];
+  try { recent = JSON.parse((await env.DAILY.get('recent-mindsets')) || '[]'); } catch (e) {}
+  let pick = null;
+  if (rand() >= AI_MINDSET_SHARE) {
+    const open = quotePool().filter((q) => !recent.includes(q.mindset));
+    if (open.length) pick = open[Math.floor(rand() * open.length)];
+  }
+  if (pick) { entry.mindset = pick.mindset; entry.source = pick.source; entry.mindsetOrigin = 'quote'; }
+  else entry.mindsetOrigin = 'ai';
+  await env.DAILY.put('recent-mindsets', JSON.stringify([entry.mindset, ...recent].slice(0, RECENT_MINDSETS)));
+  return entry;
+}
+
 async function getOrCreate(date, env, preview = false) {
-  const key = (preview ? 'preview:v2:' : 'daily:v3:') + date;
+  const key = (preview ? 'preview:v3:' : 'daily:v3:') + date;
   const hit = await env.DAILY.get(key, 'json');
   if (hit) return hit;
   let entry;
@@ -142,6 +202,7 @@ async function getOrCreate(date, env, preview = false) {
     try { entry = await generate(date, env, preview); }
     catch (e) { try { entry = await generate(date, env, preview); } catch (e2) { entry = libraryEntry(date); entry.note = 'AI unavailable; approved list used'; } }
   }
+  if (entry.origin === 'ai') await chooseMindset(entry, env);
   entry.stage = stageFor(date).kind;
   if (entry.origin === 'ai') await env.DAILY.put(key, JSON.stringify(entry));
   else await env.DAILY.put(key, JSON.stringify(entry), { expirationTtl: 3600 }); // retry AI within the hour

@@ -182,7 +182,7 @@ const MINDSET_CORRECTIONS={
  '2026-10-15':{mindset:'A Quality Decision Determines the Direction You Want To Go.',source:'Coach Daniels’ Dad'},
  '2026-10-16':{mindset:'Discipline Develops Consistency, and Consistency Keeps You Headed in the Right Direction.',source:'Coach Daniels’ Dad'}
 };
-function fetchDaily(date){if(!dailyCache[date])dailyCache[date]=fetch('/api/daily?date='+date,{cache:'no-store'}).then(r=>{return r.ok?r.json():null}).then(e=>{const fix=MINDSET_CORRECTIONS[date];return e&&fix?{...e,...fix}:e}).catch(()=>null);return dailyCache[date]}
+function fetchDaily(date){if(!dailyCache[date])dailyCache[date]=fetch('/api/daily?date='+date,{cache:'no-store'}).then(r=>{return r.ok?r.json():null}).then(e=>{const fix=MINDSET_CORRECTIONS[date];if(!e)return e;if(fix)return {...e,...fix};if(String(e.mindset||'').toLowerCase().includes('discipline fuels the fire'))return {...e,mindset:'Discipline Develops Consistency, and Consistency Keeps You Headed in the Right Direction.',source:'Coach Daniels’ Dad'};if(String(e.source||'').toUpperCase()==='SPARTANS1ST')return {...e,source:'Coach Daniels’ Dad'};return e}).catch(()=>null);return dailyCache[date]}
 function dateForLeft(left){const m=currentMeet();if(!m||left<0)return ymd();return isoFromDn(dn(m.date)-left)}
 function showInsight(id,txt){const el=document.getElementById(id);el.hidden=!txt;el.textContent=txt||''}
 let cardsToken=0;

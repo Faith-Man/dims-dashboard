@@ -141,7 +141,13 @@ body.top-refined .journey-home .jh-title{font-size:clamp(13px,3.6vw,18px)!import
 body.top-refined .journey-home .crown-rule{display:none!important}
 body.top-refined #scenePhase{margin:12px auto 0!important;color:#fff!important;font:900 clamp(18px,5.4vw,24px)/1.25 Georgia,serif!important;letter-spacing:.06em!important}
 body.top-refined .journey-home .scene-frame{margin-top:4px!important;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 12%,#000 78%,transparent 100%)!important;mask-image:linear-gradient(180deg,transparent 0,#000 12%,#000 78%,transparent 100%)!important}
-</style><script src="assets/scenes/schedule.js"></script><script src="assets/scenes/archive.js"></script></head><body>
+
+/* ---- Title font previews (test only): ?title=a|b|c ---- */
+body.title-a .journey-home .jh-title,body.title-b .journey-home .jh-title,body.title-c .journey-home .jh-title{color:#fff!important;letter-spacing:.02em!important;text-shadow:0 2px 12px #0009,0 0 22px #ffffff33;overflow:visible!important}
+body.title-a .journey-home .jh-title{font:900 clamp(20px,6vw,30px)/1.25 'Cinzel Decorative',Georgia,serif!important;letter-spacing:.04em!important}
+body.title-b .journey-home .jh-title{font:400 clamp(34px,10vw,50px)/1.15 'Great Vibes',cursive!important}
+body.title-c .journey-home .jh-title{font:italic 700 clamp(28px,8.4vw,40px)/1.2 'Playfair Display',Georgia,serif!important}
+</style><script src="assets/scenes/schedule.js"></script><script src="assets/scenes/archive.js"></script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Great+Vibes&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet"></head><body>
 <button class="music-toggle" id="musicToggle" type="button" aria-label="Turn music off" aria-pressed="true">🔊 MUSIC ON</button>
 <section class="entry" aria-label="Spartans1st Championship entry"><div class="entry-art"><img src="assets/championship-entry.jpg" alt="Spartans1st — Let Them Have Dominion. Psalm 8:6. Fight. Press. Win."><button class="enter" id="enter" aria-label="Enter championship countdown"></button><label class="skip-entry"><input type="checkbox" id="skipEntry"> Don't show again</label></div></section>
 <section class="journey-home" aria-label="The Dominion Journey"><button id="homeEntry" class="back" type="button">← BACK</button><div class="test-bar" id="testBar">TEST PREVIEW &middot; <b id="tbDate"></b><div class="tb-row"><button type="button" id="tbPrev">&#8249; DAY</button><button type="button" id="tbToday">TODAY</button><button type="button" id="tbNext">DAY &#8250;</button></div><small>Test site only. Step through any day to see its scene and its AI-written Word, Mindset and Declaration.</small></div>
@@ -297,7 +303,7 @@ let shownScene=null,reviewSceneDay=null,sceneToken=0;
 function setText(id,txt){document.getElementById(id).textContent=txt||''}
 const AI_SCENE=false;let sceneFresh=0;
 function showSceneFor(day){const slot=sceneSlotFor(day),c=SCHED.slots[slot]||{},src=AI_SCENE?'/api/scene?date='+day+(sceneFresh?'&fresh=1&t='+sceneFresh:''):(c.image||SCHED.fallbackImage);
- document.getElementById('sceneLabel').textContent='THE DOMINION JOURNEY';renderPhaseTrack(day);document.getElementById('scenePhase').textContent=phaseFor(day)+(reviewSceneDay?' • '+shortDate(day).toUpperCase():'');document.getElementById('sceneDeclCard').hidden=true;if(document.getElementById('journal').classList.contains('open'))loadJournal();
+ document.getElementById('sceneLabel').textContent=window.JH_TITLE||'THE DOMINION JOURNEY';renderPhaseTrack(day);document.getElementById('scenePhase').textContent=phaseFor(day)+(reviewSceneDay?' • '+shortDate(day).toUpperCase():'');document.getElementById('sceneDeclCard').hidden=true;if(document.getElementById('journal').classList.contains('open'))loadJournal();
  const phrase=document.getElementById('scenePhrase');phrase.hidden=!c.phrase;phrase.textContent=c.phrase||'';
  document.getElementById('sceneVerseCard').hidden=!c.verse;setText('sceneVerse',c.verse?'“'+c.verse+'”':'');setText('sceneVerseRef',c.ref);
  document.getElementById('sceneMindsetCard').hidden=!c.mindset;setText('sceneMindset',c.mindset?'“'+c.mindset+'”':'');setText('sceneMindsetSrc',c.source?'— '+c.source:'');showInsight('sceneInsight','');
@@ -347,6 +353,8 @@ try{if(localStorage.getItem(SKIP_KEY)==='yes')showScreen('journey')}catch(e){}
  document.getElementById('tbPrev').onclick=()=>go(shift(-1));document.getElementById('tbNext').onclick=()=>go(shift(1));document.getElementById('tbToday').onclick=()=>go('');
  if(document.getElementById('tbFresh'))document.getElementById('tbFresh').onclick=()=>{sceneFresh=Date.now();shownScene=null;reviewSceneDay=null;showSceneFor(d)};
  if(qs.get('page')==='2')showScreen('journey');})();
+// Title font previews (test only).
+(function(){const t=new URLSearchParams(location.search).get('title');if(!/^[abc]$/.test(t||''))return;document.body.classList.add('title-'+t);window.JH_TITLE=t==='a'?'The Dominion Journey':'The Dominion Journey';const el=document.getElementById('sceneLabel');el.textContent=window.JH_TITLE;if(document.fonts)document.fonts.ready.then(()=>{try{fitTitle()}catch(e){}});})();
 // Header previews (test only).
 (function(){const top=new URLSearchParams(location.search).get('top');if(top!=='cine'&&top!=='refined')return;document.body.classList.add('top-'+top);const tbar=document.getElementById('testBar'),home=document.querySelector('.journey-home');if(tbar&&home){home.appendChild(tbar);tbar.style.margin='24px 14px 0'}
  const phaseEl=document.getElementById('scenePhase'),track=document.getElementById('phaseTrack'),frame=document.querySelector('.journey-home .scene-frame');

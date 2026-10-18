@@ -72,8 +72,8 @@ const LIBRARY = [
  ],
  [
   "Psalm 8:6 (KJV)",
-  "Excellence is not a singular act, but a habit. You are what you do repeatedly.",
-  "Shaquille O’Neal",
+  "No human is limited.",
+  "Eliud Kipchoge",
   "God has given me dominion. I lead myself with discipline, steward my gifts well, and pursue excellence with purpose."
  ]
 ];
@@ -184,7 +184,33 @@ function tooSimilar(a, b) {
   let same = 0; for (const w of A) if (B.has(w)) same++;
   return same / Math.min(A.size, B.size) >= 0.6;
 }
-const ATHLETE_QUOTES = () => LIBRARY.map(([, mindset, source]) => ({ mindset, source }));
+// Additional athlete quotes approved by Michael (Oct 17 2026). The Shaquille O'Neal line was removed:
+// "Excellence is not a singular act, but a habit" is Will Durant's summary of Aristotle, not O'Neal.
+const MORE_ATHLETE_QUOTES = [
+  ["Only the disciplined ones in life are free. If you are undisciplined, you are a slave to your moods and your passions.", "Eliud Kipchoge"],
+  ["I hated every minute of training, but I said, 'Don't quit. Suffer now and live the rest of your life as a champion.'", "Muhammad Ali"],
+  ["Champions are made from something they have deep inside them — a desire, a dream, a vision.", "Muhammad Ali"],
+  ["The man who can drive himself further once the effort gets painful is the man who will win.", "Roger Bannister"],
+  ["Never underestimate the power of dreams and the influence of the human spirit.", "Wilma Rudolph"],
+  ["It is better to look ahead and prepare than to look back and regret.", "Jackie Joyner-Kersee"],
+  ["We all have dreams. But in order to make dreams come into reality, it takes an awful lot of determination, dedication, self-discipline, and effort.", "Jesse Owens"],
+  ["In the dust of defeat as well as the laurels of victory there is a glory to be found if one has done his best.", "Eric Liddell"],
+  ["Somewhere in the world someone is training when you are not. When you race him, he will win.", "Tom Fleming"],
+  ["The miracle isn't that I finished. The miracle is that I had the courage to start.", "John Bingham"],
+  ["A champion is someone who gets up when he can't.", "Jack Dempsey"],
+  ["I've failed over and over and over again in my life. And that is why I succeed.", "Michael Jordan"],
+  ["Talent wins games, but teamwork and intelligence win championships.", "Michael Jordan"],
+  ["You miss 100% of the shots you don't take.", "Wayne Gretzky"],
+  ["There may be people that have more talent than you, but there's no excuse for anyone to work harder than you do.", "Derek Jeter"],
+  ["I really think a champion is defined not by their wins but by how they can recover when they fall.", "Serena Williams"],
+  ["Everything negative — pressure, challenges — is all an opportunity for me to rise.", "Kobe Bryant"],
+  ["Don't let what you cannot do interfere with what you can do.", "John Wooden"],
+  ["The difference between the impossible and the possible lies in a person's determination.", "Tommy Lasorda"],
+];
+const ATHLETE_QUOTES = () => {
+  const all = [...LIBRARY.map(([, mindset, source]) => ({ mindset, source })), ...MORE_ATHLETE_QUOTES.map(([mindset, source]) => ({ mindset, source }))];
+  return all.filter((q, i) => all.findIndex((x) => x.mindset === q.mindset) === i);
+};
 const COACH_QUOTES = () => COACH_DAD_QUOTES.map((mindset) => ({ mindset, source: COACH_DAD }));
 
 async function chooseMindset(entry, env, rand = Math.random) {

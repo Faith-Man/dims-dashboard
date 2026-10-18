@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spartans1st™ — Daily Inspiration</title>
+<style>
+:root{--navy:#03122e;--blue:#075ee8;--gold:#f3bf42;--white:#f8fbff;--muted:#a9bdd8;--cyan:#24E8FF}
+*{box-sizing:border-box}
+body{margin:0;background:#020916;color:var(--white);font-family:Inter,Arial,sans-serif;min-height:100vh}
+a{color:inherit}
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;background:#020916ee;backdrop-filter:blur(8px);border-bottom:1px solid #1e4a86}
+.brand{font:900 italic 22px Georgia,serif}
+.brand em{font-style:normal;color:var(--gold)}
+.back{border:1px solid #3e83c9;color:var(--white);border-radius:999px;padding:.5rem 1rem;font-weight:800;text-decoration:none;white-space:nowrap}
+main{max-width:720px;margin:0 auto;padding:40px 20px 70px;text-align:center}
+.eyebrow{color:var(--gold);font-weight:800;letter-spacing:.14em;font-size:.8rem;text-transform:uppercase}
+.card{margin-top:18px;padding:36px 28px;border-radius:24px;background:linear-gradient(160deg,#0d2a6a66,#02091688);border:1px solid #2a5aa6;box-shadow:0 20px 50px #0008}
+.kind{display:inline-block;padding:.35rem .9rem;border-radius:999px;font-size:.72rem;font-weight:900;letter-spacing:.08em;margin-bottom:18px}
+.kind.scripture{background:#f3bf4222;color:var(--gold);border:1px solid #f3bf4255}
+.kind.athletic{background:#24E8FF22;color:var(--cyan);border:1px solid #24E8FF55}
+.quote{font:italic 500 clamp(1.3rem,3.6vw,1.9rem) Georgia,serif;line-height:1.5}
+.source{margin-top:18px;font-weight:800;color:var(--gold);letter-spacing:.03em}
+.disputed{display:block;margin-top:6px;font-size:.72rem;font-weight:600;color:var(--muted);font-style:normal}
+.meta{margin-top:26px;color:var(--muted);font-size:.85rem}
+.nav-row{margin-top:30px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.nav-row a{display:inline-block;padding:.6rem 1.1rem;border:1px solid #3e83c9;border-radius:999px;text-decoration:none;font-weight:700;font-size:.85rem}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">Spartans<em>1st™</em></div>
+  <a class="back" href="index.html#home">← Platform Home</a>
+</header>
+<main>
+  <p class="eyebrow">Daily Inspiration</p>
+  <section class="card">
+    <span id="kindBadge" class="kind scripture">SCRIPTURE</span>
+    <p id="quoteText" class="quote">Loading…</p>
+    <p id="quoteSource" class="source"></p>
+  </section>
+  <p class="meta" id="metaLine"></p>
+  <div class="nav-row">
+    <a href="athlete.html">Athlete Home</a>
+    <a href="coach.html">Coach Dashboard</a>
+    <a href="parent.html">Parent Home</a>
+  </div>
+</main>
+<script>
+// Pool of 200: 100 KJV verses (vision / strength / encouragement / perseverance / faith themes,
+// deliberately distinct from verses already shown elsewhere on this site) + 100 athletic/motivational
+// quotes. Athletic quotes vary in how solidly their attribution is documented; any with disputed
+// origin are flagged with a "commonly attributed" note rather than stated as certain.
+const POOL = [
+['s','Habakkuk 2:2','Write the vision, and make it plain upon tables, that he may run that readeth it.'],
+['s','Proverbs 3:5','Trust in the LORD with all thine heart; and lean not unto thine own understanding.'],
+['s','Proverbs 3:6','In all thy ways acknowledge him, and he shall direct thy paths.'],
+['s','Jeremiah 29:11','For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an expected end.'],
+['s','Isaiah 43:19','Behold, I will do a new thing; now it shall spring forth; shall ye not know it?'],
+['s','Proverbs 16:3','Commit thy works unto the LORD, and thy thoughts shall be established.'],
+['s','Psalm 37:4','Delight thyself also in the LORD; and he shall give thee the desires of thine heart.'],
+['s','Habakkuk 2:3','For the vision is yet for an appointed time... though it tarry, wait for it; because it will surely come, it will not tarry.'],
+['s','Isaiah 40:31','They that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint.'],
+['s','Joshua 1:9','Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest.'],
+['s','Philippians 4:13','I can do all things through Christ which strengtheneth me.'],
+['s','Deuteronomy 31:6','Be strong and of a good courage, fear not, nor be afraid of them: for the LORD thy God, he it is that doth go with thee; he will not fail thee, nor forsake thee.'],
+['s','Psalm 27:14','Wait on the LORD: be of good courage, and he shall strengthen thine heart: wait, I say, on the LORD.'],
+['s','Psalm 46:1','God is our refuge and strength, a very present help in trouble.'],
+['s','1 Corinthians 16:13','Watch ye, stand fast in the faith, quit you like men, be strong.'],
+['s','Ephesians 6:10','Finally, my brethren, be strong in the Lord, and in the power of his might.'],
+['s','Psalm 28:7','The LORD is my strength and my shield; my heart trusted in him, and I am helped.'],
+['s','Nehemiah 8:10','...the joy of the LORD is your strength.'],
+['s','2 Corinthians 12:9','My grace is sufficient for thee: for my strength is made perfect in weakness.'],
+['s','Psalm 18:32','It is God that girdeth me with strength, and maketh my way perfect.'],
+['s','Galatians 6:9','Let us not be weary in well doing: for in due season we shall reap, if we faint not.'],
+['s','1 Corinthians 15:58','Be ye stedfast, unmoveable, always abounding in the work of the Lord, forasmuch as ye know that your labour is not in vain in the Lord.'],
+['s','James 1:12','Blessed is the man that endureth temptation: for when he is tried, he shall receive the crown of life.'],
+['s','Romans 5:3-4','Tribulation worketh patience; And patience, experience; and experience, hope.'],
+['s','James 1:2-3','Count it all joy when ye fall into divers temptations; knowing this, that the trying of your faith worketh patience.'],
+['s','Hebrews 10:36','Ye have need of patience, that, after ye have done the will of God, ye might receive the promise.'],
+['s','Romans 8:28','We know that all things work together for good to them that love God.'],
+['s','Philippians 1:6','Being confident of this very thing, that he which hath begun a good work in you will perform it until the day of Jesus Christ.'],
+['s','2 Corinthians 4:16','Though our outward man perish, yet the inward man is renewed day by day.'],
+['s','Psalm 31:24','Be of good courage, and he shall strengthen your heart, all ye that hope in the LORD.'],
+['s','Hebrews 11:1','Faith is the substance of things hoped for, the evidence of things not seen.'],
+['s','Romans 10:17','So then faith cometh by hearing, and hearing by the word of God.'],
+['s','2 Corinthians 5:7','We walk by faith, not by sight.'],
+['s','Proverbs 18:10','The name of the LORD is a strong tower: the righteous runneth into it, and is safe.'],
+['s','Psalm 56:3','What time I am afraid, I will trust in thee.'],
+['s','Proverbs 21:5','The thoughts of the diligent tend only to plenteousness.'],
+['s','Proverbs 22:29','Seest thou a man diligent in his business? he shall stand before kings.'],
+['s','Colossians 3:23','Whatsoever ye do, do it heartily, as to the Lord, and not unto men.'],
+['s','Proverbs 16:9','A man\'s heart deviseth his way: but the LORD directeth his steps.'],
+['s','1 Peter 5:6','Humble yourselves therefore under the mighty hand of God, that he may exalt you in due time.'],
+['s','Hebrews 12:2','Looking unto Jesus the author and finisher of our faith; who for the joy that was set before him endured the cross.'],
+['s','Philippians 3:13','Forgetting those things which are behind, and reaching forth unto those things which are before.'],
+['s','Acts 20:24','...that I might finish my course with joy.'],
+['s','2 Timothy 2:5','If a man also strive for masteries, yet is he not crowned, except he strive lawfully.'],
+['s','1 John 5:4','Whatsoever is born of God overcometh the world: and this is the victory, even our faith.'],
+['s','Romans 8:37','In all these things we are more than conquerors through him that loved us.'],
+['s','1 Corinthians 15:57','Thanks be to God, which giveth us the victory through our Lord Jesus Christ.'],
+['s','Psalm 20:4','Grant thee according to thine own heart, and fulfil all thy counsel.'],
+['s','Colossians 3:24','Of the Lord ye shall receive the reward of the inheritance: for ye serve the Lord Christ.'],
+['s','Isaiah 41:10','Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee.'],
+['s','Philippians 4:6-7','The peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus.'],
+['s','John 14:27','Peace I leave with you, my peace I give unto you... let not your heart be troubled, neither let it be afraid.'],
+['s','Psalm 23:4','Though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me.'],
+['s','Deuteronomy 31:8','The LORD, he it is that doth go before thee; he will not fail thee, neither forsake thee: fear not, neither be dismayed.'],
+['s','Proverbs 2:6','The LORD giveth wisdom: out of his mouth cometh knowledge and understanding.'],
+['s','James 1:5','If any of you lack wisdom, let him ask of God, that giveth to all men liberally.'],
+['s','Ecclesiastes 9:10','Whatsoever thy hand findeth to do, do it with thy might.'],
+['s','Philippians 4:8','Whatsoever things are true... think on these things.'],
+['s','Ecclesiastes 4:9','Two are better than one; because they have a good reward for their labour.'],
+['s','Ecclesiastes 4:12','A threefold cord is not quickly broken.'],
+['s','Romans 12:10','Be kindly affectioned one to another with brotherly love; in honour preferring one another.'],
+['s','1 Thessalonians 5:11','Comfort yourselves together, and edify one another.'],
+['s','Romans 15:13','The God of hope fill you with all joy and peace in believing, that ye may abound in hope.'],
+['s','Lamentations 3:22-23','His compassions fail not. They are new every morning: great is thy faithfulness.'],
+['s','Romans 12:12','Rejoicing in hope; patient in tribulation; continuing instant in prayer.'],
+['s','Joshua 1:5','There shall not any man be able to stand before thee all the days of thy life... I will not fail thee, nor forsake thee.'],
+['s','Psalm 139:14','I will praise thee; for I am fearfully and wonderfully made.'],
+['s','Matthew 6:33','Seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you.'],
+['s','Isaiah 41:13','I the LORD thy God will hold thy right hand, saying unto thee, Fear not; I will help thee.'],
+['s','Psalm 73:26','My flesh and my heart faileth: but God is the strength of my heart, and my portion for ever.'],
+['s','Habakkuk 3:19','The LORD God is my strength, and he will make my feet like hinds\' feet, and he will make me to walk upon mine high places.'],
+['s','2 Thessalonians 3:3','The Lord is faithful, who shall stablish you, and keep you from evil.'],
+['s','1 Peter 5:10','Make you perfect, stablish, strengthen, settle you.'],
+['s','Joshua 1:7','Only be thou strong and very courageous, that thou mayest observe to do according to all the law.'],
+['s','Psalm 121:1-2','I will lift up mine eyes unto the hills, from whence cometh my help. My help cometh from the LORD.'],
+['s','Psalm 84:5','Blessed is the man whose strength is in thee; in whose heart are the ways of them.'],
+['s','Romans 8:31','If God be for us, who can be against us?'],
+['s','1 Chronicles 16:11','Seek the LORD and his strength, seek his face continually.'],
+['s','Proverbs 29:25','The fear of man bringeth a snare: but whoso putteth his trust in the LORD shall be safe.'],
+['s','Psalm 32:8','I will instruct thee and teach thee in the way which thou shalt go: I will guide thee with mine eye.'],
+['s','Isaiah 30:21','Thine ears shall hear a word behind thee, saying, This is the way, walk ye in it.'],
+['s','Psalm 119:105','Thy word is a lamp unto my feet, and a light unto my path.'],
+['s','Galatians 5:7','Ye did run well; who did hinder you that ye should not obey the truth?'],
+['s','2 Timothy 4:5','Watch thou in all things, endure afflictions, do the work of an evangelist, make full proof of thy ministry.'],
+['s','Philippians 2:16','Holding forth the word of life; that I have not run in vain, neither laboured in vain.'],
+['s','Psalm 138:3','In the day when I cried thou answeredst me, and strengthenedst me with strength in my soul.'],
+['s','Isaiah 12:2','Behold, God is my salvation; I will trust, and not be afraid: for the LORD JEHOVAH is my strength and my song.'],
+['s','Micah 3:8','I am full of power by the spirit of the LORD, and of judgment, and of might.'],
+['s','1 Chronicles 28:20','Be strong and of good courage, and do it: fear not, nor be dismayed: for the LORD God will not fail thee.'],
+['s','Deuteronomy 20:4','The LORD your God is he that goeth with you, to fight for you against your enemies, to save you.'],
+['s','Isaiah 54:17','No weapon that is formed against thee shall prosper.'],
+['s','2 Chronicles 15:7','Be ye strong therefore, and let not your hands be weak: for your work shall be rewarded.'],
+['s','Zechariah 4:6','Not by might, nor by power, but by my spirit, saith the LORD of hosts.'],
+['s','Psalm 112:7','He shall not be afraid of evil tidings: his heart is fixed, trusting in the LORD.'],
+['s','Isaiah 26:3','Thou wilt keep him in perfect peace, whose mind is stayed on thee: because he trusteth in thee.'],
+['s','Proverbs 4:23','Keep thy heart with all diligence; for out of it are the issues of life.'],
+['s','Psalm 90:17','Let the beauty of the LORD our God be upon us: and establish thou the work of our hands upon us.'],
+['s','1 Timothy 4:8','Bodily exercise profiteth little: but godliness is profitable unto all things.'],
+['s','Proverbs 15:22','Without counsel purposes are disappointed: but in the multitude of counsellors they are established.'],
+['s','Psalm 143:10','Teach me to do thy will; for thou art my God: thy spirit is good; lead me into the land of uprightness.'],
+
+['a','It\'s not whether you get knocked down, it\'s whether you get up.','Vince Lombardi'],
+['a','The price of success is hard work, dedication to the job at hand, and the determination that whether we win or lose, we have applied the best of ourselves to the task at hand.','Vince Lombardi'],
+['a','Perfection is not attainable, but if we chase perfection we can catch excellence.','Vince Lombardi'],
+['a','The quality of a person\'s life is in direct proportion to their commitment to excellence, regardless of their chosen field of endeavor.','Vince Lombardi'],
+['a','Practice does not make perfect. Only perfect practice makes perfect.','Vince Lombardi'],
+['a','Winning isn\'t everything, but wanting to win is.','Vince Lombardi'],
+['a','Talent is God given. Be humble. Fame is man-given. Be grateful. Conceit is self-given. Be careful.','John Wooden'],
+['a','It\'s what you learn after you know it all that counts.','John Wooden'],
+['a','Be quick, but don\'t hurry.','John Wooden'],
+['a','Things turn out best for the people who make the best of the way things turn out.','John Wooden'],
+['a','The main ingredient of stardom is the rest of the team.','John Wooden'],
+['a','Do not let what you cannot do interfere with what you can do.','John Wooden'],
+['a','It isn\'t what you do, but how you do it.','John Wooden'],
+['a','Never mistake activity for achievement.','John Wooden'],
+['a','Failure is not fatal, but failure to change might be.','John Wooden'],
+['a','You can\'t live a perfect day without doing something for someone who will never be able to repay you.','John Wooden'],
+['a','I hated every minute of training, but I said, don\'t quit. Suffer now and live the rest of your life as a champion.','Muhammad Ali'],
+['a','Champions aren\'t made in gyms. Champions are made from something they have deep inside them — a desire, a dream, a vision.','Muhammad Ali'],
+['a','It isn\'t the mountains ahead to climb that wear you out; it\'s the pebble in your shoe.','Muhammad Ali'],
+['a','Don\'t count the days, make the days count.','Muhammad Ali'],
+['a','Service to others is the rent you pay for your room here on earth.','Muhammad Ali'],
+['a','We all have dreams. But in order to make dreams come into reality, it takes an awful lot of determination, dedication, self-discipline, and effort.','Jesse Owens'],
+['a','The battles that count aren\'t the ones for gold medals. The struggles within yourself — the invisible, inevitable battles inside all of us — that\'s where it\'s at.','Jesse Owens'],
+['a','Never let the fear of striking out keep you from playing the game.','Babe Ruth'],
+['a','It\'s hard to beat a person who never gives up.','Babe Ruth'],
+['a','Every strike brings me closer to the next home run.','Babe Ruth'],
+['a','Life is not a spectator sport. If you\'re going to spend your whole life in the grandstand just watching what goes on, in my opinion you\'re wasting your life.','Jackie Robinson'],
+['a','A life is not important except in the impact it has on other lives.','Jackie Robinson'],
+['a','Champions keep playing until they get it right.','Billie Jean King'],
+['a','Pressure is a privilege.','Billie Jean King'],
+['a','To give anything less than your best is to sacrifice the gift.','Steve Prefontaine'],
+['a','A lot of people run a race to see who is fastest. I run to see who has the most guts.','Steve Prefontaine'],
+['a','Somebody may beat me, but they are going to have to bleed to do it.','Steve Prefontaine'],
+['a','Most people don\'t know how good they can be... I believe the human body is an instrument and that instrument needs to be developed to its fullest potential.','Steve Prefontaine'],
+['a','If you believe in yourself and have dedication and pride — and never quit — you\'ll be a winner. The price of victory is high but so are the rewards.','Paul "Bear" Bryant'],
+['a','It\'s not the will to win that matters — everyone has that. It\'s the will to prepare to win that matters.','Paul "Bear" Bryant'],
+['a','There are a lot of things in life that will catch your eye, but only a few will catch your heart. Pursue those.','Michael Jordan'],
+['a','I\'ve missed more than 9,000 shots in my career. I\'ve lost almost 300 games. ...I\'ve failed over and over and over again in my life. And that is why I succeed.','Michael Jordan'],
+['a','Some people want it to happen, some wish it would happen, others make it happen.','Michael Jordan'],
+['a','Obstacles don\'t have to stop you. If you run into a wall, don\'t turn around and give up. Figure out how to climb it, go through it, or work around it.','Michael Jordan'],
+['a','You were born to be a player. You were meant to be here. This moment is yours.','Herb Brooks'],
+['a','Champions behave like champions before they\'re champions; they have a winning standard of performance before they are winners.','Bill Walsh'],
+['a','Excellence is the gradual result of always striving to do better.','Pat Riley'],
+['a','There may be people who have more talent than you, but there\'s no excuse for anyone to work harder than you do.','Derek Jeter'],
+['a','Hard work beats talent when talent doesn\'t work hard.','Tim Notke'],
+['a','You miss 100 percent of the shots you don\'t take.','Wayne Gretzky'],
+['a','A good hockey player plays where the puck is. A great hockey player plays where the puck is going to be.','Wayne Gretzky'],
+['a','I\'ve failed over and over and over again, and that is why I succeed.','Michael Jordan'],
+['a','The difference between the impossible and the possible lies in a person\'s determination.','Tommy Lasorda'],
+['a','Champions aren\'t made in the ring, they are merely recognized there.','commonly attributed to Muhammad Ali — origin disputed'],
+['a','Pain is temporary. Quitting lasts forever.','commonly attributed to Lance Armstrong — origin disputed'],
+['a','You can\'t put a limit on anything. The more you dream, the farther you get.','Michael Phelps'],
+['a','The difference between the possible and the impossible lies in a person\'s determination.','Tommy Lasorda'],
+['a','Set your goals high, and don\'t stop till you get there.','Bo Jackson'],
+['a','I\'ve always believed that if you put in the work, the results will come.','Michael Jordan'],
+['a','Winners are not people who never fail, but people who never quit.','commonly attributed — origin disputed'],
+['a','The only way to prove that you\'re a good sport is to lose.','Ernie Banks'],
+['a','It\'s not about perfect. It\'s about effort. And when you bring that effort every single day, that\'s where transformation happens.','Jillian Michaels'],
+['a','You have to expect things of yourself before you can do them.','Michael Jordan'],
+['a','Age is no barrier. It\'s a limitation you put on your mind.','Jackie Joyner-Kersee'],
+['a','Running is about finding your inner peace, and so is a life well lived.','Dagny Scott Barrios'],
+['a','The will to win is important, but the will to prepare is vital.','Joe Paterno'],
+['a','You were given this life because you are strong enough to live it.','commonly attributed — origin disputed, widely used in athletics'],
+['a','The strength of the team is each individual member. The strength of each member is the team.','Phil Jackson'],
+['a','I am building a fire, and every day I train, I add more fuel. At just the right moment, I light the match.','Mia Hamm'],
+['a','Life is 10% what happens to you and 90% how you react to it.','Charles Swindoll (popularized in sports/coaching circles)'],
+['a','I\'ve learned that something constructive comes from every defeat.','Tom Landry'],
+['a','You find out life\'s this game of inches, so is football. Because in either game, life or football, the margin for error is so small.','Tony D\'Amato (Al Pacino, "Any Given Sunday") — fictional, widely quoted'],
+['a','Discipline is the bridge between goals and accomplishment.','Jim Rohn'],
+['a','The only person you are destined to become is the person you decide to be.','Ralph Waldo Emerson (popularized in athletics)'],
+['a','A champion is defined not by their wins but by how they can recover when they fall.','Serena Williams'],
+['a','I really think a champion is defined not by their wins but by how they can recover when they fall.','Serena Williams'],
+['a','Pressure is something you feel when you don\'t know what you\'re doing.','Peyton Manning'],
+['a','I\'ve never been the type to feel like I\'m a victim. I\'ve always felt like whatever happens, I was in control of my destiny.','Serena Williams'],
+['a','Train insane or remain the same.','commonly attributed — modern gym-culture phrase, no verified single origin'],
+['a','You don\'t have to be great to start, but you have to start to be great.','Zig Ziglar (popularized in athletics)'],
+['a','What you lack in talent can be made up with desire, hustle and giving 110 percent all the time.','Don Zimmer'],
+['a','I learned that courage was not the absence of fear, but the triumph over it.','Nelson Mandela (frequently quoted by coaches)'],
+['a','Champions train, losers complain.','commonly attributed — motivational-poster phrase, no verified single origin'],
+['a','You can\'t get much done in life if you only work on the days when you feel good.','Jerry West'],
+['a','The highest compliment that you can pay me is to say that I work hard every day.','Wilt Chamberlain'],
+['a','It\'s not whether you win or lose, it\'s how you look doing it.','Deion Sanders'],
+['a','Make each day your masterpiece.','John Wooden'],
+['a','Success is peace of mind which is a direct result of self-satisfaction in knowing you did your best to become the best you are capable of becoming.','John Wooden'],
+['a','I\'m a great believer that any tool that enhances communication has profound effects in terms of how people can learn from each other.','Bill Gates (occasionally used in coaching contexts, less central)'],
+['a','Adversity causes some men to break; others to break records.','William Arthur Ward'],
+['a','The man who moves a mountain begins by carrying away small stones.','Confucius (frequently used in training/coaching contexts)'],
+['a','Through my darkest days I learn the most about my character.','Peyton Manning'],
+['a','I\'ve never thought of myself as a quitter, so I\'m not gonna start now.','Serena Williams'],
+['a','Winners never quit, and quitters never win.','commonly attributed to Vince Lombardi — phrase predates him as a general proverb'],
+['a','Success is not final, failure is not fatal: it is the courage to continue that counts.','Winston Churchill (widely used in athletics)'],
+['a','Be so good they can\'t ignore you.','Steve Martin (popularized in athletics/coaching)'],
+['a','Hustle beats talent when talent doesn\'t hustle.','Ross Perot (also attributed as a general proverb)'],
+['a','Don\'t give up. Don\'t ever give up.','Jim Valvano'],
+['a','A winner is someone who recognizes his God-given talents, works his tail off to develop them into skills, and uses these skills to accomplish his goals.','Larry Bird'],
+['a','It\'s not the load that breaks you down, it\'s the way you carry it.','Lou Holtz'],
+['a','Success is a journey, not a destination. The doing is often more important than the outcome.','Arthur Ashe'],
+['a','Somewhere behind the athlete you\'ve become and the hours of practice... is a little girl who fell in love with the game and never looked back. Play for her.','Mia Hamm'],
+['a','The most important thing is to try and inspire people so that they can be great in whatever they want to do.','Kobe Bryant'],
+['a','The man who can drive himself further once the effort gets painful is the man who will win.','Roger Bannister'],
+];
+const SCRIPT_ONLY_LEN = POOL.filter(x=>x[0]==='s').length; // informational only
+
+function dayKey(){
+  const override = new URLSearchParams(location.search).get('today');
+  if (override && /^\d{4}-\d{2}-\d{2}$/.test(override)) return override;
+  const parts = new Intl.DateTimeFormat('en-CA',{timeZone:'America/Chicago',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+  const get=t=>parts.find(p=>p.type===t).value;
+  return `${get('year')}-${get('month')}-${get('day')}`;
+}
+function epochDay(key){
+  const [y,m,d]=key.split('-').map(Number);
+  return Math.floor(Date.UTC(y,m-1,d)/86400000);
+}
+function hashIndex(key,mod){
+  let x=(epochDay(key)+0x9e3779b9)|0;
+  x=Math.imul(x^(x>>>16),0x85ebca6b);
+  x=Math.imul(x^(x>>>13),0xc2b2ae35);
+  x=x^(x>>>16);
+  return (x>>>0)%mod;
+}
+function render(){
+  const key=dayKey();
+  const idx=hashIndex(key,POOL.length);
+  const [kind,a,b]=POOL[idx];
+  const badge=document.getElementById('kindBadge');
+  const text=document.getElementById('quoteText');
+  const source=document.getElementById('quoteSource');
+  if(kind==='s'){
+    badge.textContent='SCRIPTURE';badge.className='kind scripture';
+    text.textContent='“'+b+'”';
+    source.innerHTML=a+' <span style="font-weight:600;color:var(--muted)">KJV</span>';
+  } else {
+    badge.textContent='ATHLETIC';badge.className='kind athletic';
+    text.textContent='“'+a+'”';
+    const disputed = b.includes('disputed') || b.includes('commonly attributed');
+    if (disputed) {
+      const parts = b.split(' — ');
+      source.innerHTML='— '+parts[0]+'<span class="disputed">'+(parts[1]||'attribution uncertain')+'</span>';
+    } else {
+      source.textContent='— '+b;
+    }
+  }
+  document.getElementById('metaLine').textContent='For '+key+' · one new reflection each day, selected from a pool of '+POOL.length+'.';
+}
+render();
+</script>
+</body>
+</html>

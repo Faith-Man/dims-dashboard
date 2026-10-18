@@ -1,0 +1,36 @@
+name: OBTAIN Isolated Preview Artifact
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'prototypes/obtain/**'
+      - '.github/workflows/obtain-preview-artifact.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  package-preview:
+    name: Package isolated OBTAIN preview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout review branch
+        uses: actions/checkout@v4
+
+      - name: Verify isolated prototype files
+        run: |
+          test -f prototypes/obtain/index.html
+          test -f prototypes/obtain/athlete.html
+          test -f prototypes/obtain/coach.html
+          test -f prototypes/obtain/parent.html
+
+      - name: Package OBTAIN preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: obtain-isolated-preview
+          path: prototypes/obtain/
+          if-no-files-found: error
+          retention-days: 7

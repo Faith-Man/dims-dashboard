@@ -170,17 +170,11 @@ const COACH_DAD_QUOTES = [
   "A Quality Decision Determines the Direction You Want To Go.",
   "Discipline Develops Consistency, and Consistency Keeps You Headed in the Right Direction.",
 ];
-// Chance that a new day keeps the AI-written Mindset instead of drawing an approved quote.
-const AI_MINDSET_SHARE = 0.5;
+// Daily odds (set by Michael, Oct 17 2026): 60% an athlete quote, 40% Coach Daniels’ Dad.
+// The Coach Daniels’ Dad share is split evenly between his approved quotes and the AI-written line.
+const ATHLETE_SHARE = 0.6;
+const AI_WITHIN_COACH_DAD = 0.5;
 const RECENT_MINDSETS = 10; // a quote is not reused within this many days
-
-function quotePool() {
-  return [
-    ...LIBRARY.map(([, mindset, source]) => ({ mindset, source })),
-    ...COACH_DAD_QUOTES.map((mindset) => ({ mindset, source: COACH_DAD })),
-  ];
-}
-
 // Lines Michael has rejected; an AI Mindset containing one of these is never used.
 const REJECTED_MINDSETS = ['discipline fuels the fire', 'discipline fuels the final push'];
 const words = (t) => String(t).toLowerCase().replace(/[^a-z' ]/g, ' ').split(/\s+/).filter((w) => w.length > 3);
@@ -190,25 +184,31 @@ function tooSimilar(a, b) {
   let same = 0; for (const w of A) if (B.has(w)) same++;
   return same / Math.min(A.size, B.size) >= 0.6;
 }
+const ATHLETE_QUOTES = () => LIBRARY.map(([, mindset, source]) => ({ mindset, source }));
+const COACH_QUOTES = () => COACH_DAD_QUOTES.map((mindset) => ({ mindset, source: COACH_DAD }));
 
 async function chooseMindset(entry, env, rand = Math.random) {
   let recent = [];
   try { recent = JSON.parse((await env.DAILY.get('recent-mindsets')) || '[]'); } catch (e) {}
+  const open = (list) => list.filter((q) => !recent.includes(q.mindset));
+  const any = (list) => list[Math.floor(rand() * list.length)];
   const lower = String(entry.mindset).toLowerCase();
-  const aiUsable = !REJECTED_MINDSETS.some((r) => lower.includes(r)) && !recent.some((r) => tooSimilar(r, entry.mindset));
-  let pick = null;
-  if (!aiUsable || rand() >= AI_MINDSET_SHARE) {
-    const open = quotePool().filter((q) => !recent.includes(q.mindset));
-    if (open.length) pick = open[Math.floor(rand() * open.length)];
-  }
-  if (pick) { entry.mindset = pick.mindset; entry.source = pick.source; entry.mindsetOrigin = 'quote'; }
-  else entry.mindsetOrigin = 'ai';
+  const aiUsable = !!entry.mindset && !REJECTED_MINDSETS.some((r) => lower.includes(r)) && !recent.some((r) => tooSimilar(r, entry.mindset));
+  let pick = null, origin = 'quote';
+  if (rand() < ATHLETE_SHARE && open(ATHLETE_QUOTES()).length) pick = any(open(ATHLETE_QUOTES()));
+  else if (rand() < AI_WITHIN_COACH_DAD && aiUsable) origin = 'ai';
+  else if (open(COACH_QUOTES()).length) pick = any(open(COACH_QUOTES()));
+  else if (open(ATHLETE_QUOTES()).length) pick = any(open(ATHLETE_QUOTES()));
+  else origin = 'ai';
+  if (pick) { entry.mindset = pick.mindset; entry.source = pick.source; }
+  else entry.source = COACH_DAD;
+  entry.mindsetOrigin = origin;
   await env.DAILY.put('recent-mindsets', JSON.stringify([entry.mindset, ...recent].slice(0, RECENT_MINDSETS)));
   return entry;
 }
 
 async function getOrCreate(date, env, preview = false) {
-  const key = (preview ? 'preview:v4:' : 'daily:v3:') + date;
+  const key = (preview ? 'preview:v5:' : 'daily:v3:') + date;
   const hit = await env.DAILY.get(key, 'json');
   if (hit) return hit;
   let entry;

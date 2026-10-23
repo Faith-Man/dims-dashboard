@@ -135,9 +135,35 @@ function verifyRB001Backup_(backupsRoot, job, destination) {
   if (readback.jobId !== job.jobId || Number(readback.filesCopied) !== Number(job.filesCopied)) {
     throw new Error('RB-001 verification failed: manifest read-back mismatch');
   }
+  // Commit the verified state to the manifest before publishing VERIFIED in the
+  // job-state and storage index. Read back the final manifest as an EBYC gate.
+  const verifiedAt = new Date().toISOString();
+  const verifiedManifest = Object.assign({}, job, {
+    status: 'VERIFIED', verificationStatus: 'VERIFIED', verifiedAt: verifiedAt
+  });
+  delete verifiedManifest.queue;
+  writeJsonFile_(destination, RB001.MANIFEST_FILE, verifiedManifest);
+
+  const finalManifests = destination.getFilesByName(RB001.MANIFEST_FILE);
+  let finalManifestVerified = false;
+  while (finalManifests.hasNext()) {
+    try {
+      const finalReadback = JSON.parse(finalManifests.next().getBlob().getDataAsString());
+      if (finalReadback.jobId === job.jobId &&
+          finalReadback.status === 'VERIFIED' &&
+          finalReadback.verificationStatus === 'VERIFIED' &&
+          finalReadback.verifiedAt === verifiedAt &&
+          Number(finalReadback.filesCopied) === Number(job.filesCopied)) {
+        finalManifestVerified = true;
+        break;
+      }
+    } catch (ignored) {}
+  }
+  if (!finalManifestVerified) throw new Error('RB-001 verification failed: final verified manifest read-back mismatch');
+
   job.status = 'VERIFIED';
   job.verificationStatus = 'VERIFIED';
-  job.verifiedAt = new Date().toISOString();
+  job.verifiedAt = verifiedAt;
   persistRB001Job_(backupsRoot, job);
   updateRB001Index_(backupsRoot, job);
 }

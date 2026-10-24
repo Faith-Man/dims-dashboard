@@ -221,11 +221,11 @@ async function handleDi(request, env) {
 
   // Repository-first discovery supplements, but does not replace, the existing
   // TETELESTAI execution queue and AI-grounded response path.
-  const executionQuestion = /what requires my attention|what can di|awaiting verification|\\b(overdue|follow.?up|blocked|priority|ready|my action|execution queue|recently updated)\\b/i.test(question);
+  const executionQuestion = /what requires my attention|what can di|awaiting verification|\b(overdue|follow.?up|blocked|priority|ready|my action|execution queue|recently updated)\b/i.test(question);
   if (!executionQuestion && env.SUPABASE_URL && env.SUPABASE_PUBLISHABLE_KEY) {
     const bearer = request.headers.get('authorization') || '';
     try {
-      const rpc = await fetch(env.SUPABASE_URL.replace(/\\/$/, '') + '/rest/v1/rpc/di_repository_search', {
+      const rpc = await fetch(env.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/rpc/di_repository_search', {
         method: 'POST',
         headers: { apikey: env.SUPABASE_PUBLISHABLE_KEY, authorization: bearer, 'content-type': 'application/json' },
         body: JSON.stringify({ p_query: question, p_limit: 8 })
@@ -237,13 +237,13 @@ async function handleDi(request, env) {
             number: index + 1, source: String(item.source || ''),
             ref: String(item.ref || ''), title: String(item.title || ''),
             status: String(item.status || ''),
-            url: typeof item.link === 'string' && /^https:\\/\\//.test(item.link) ? item.link : null
+            url: typeof item.link === 'string' && /^https:\/\//.test(item.link) ? item.link : null
           }));
-          const answer = 'Governed repository records found:\\n' + matches.map((item, index) =>
+          const answer = 'Governed repository records found:\n' + matches.map((item, index) =>
             (index + 1) + '. ' + String(item.ref || '') + ' — ' + String(item.title || '') +
             ' (' + String(item.status || 'status unknown') + ')' +
             (item.snippet ? ': ' + String(item.snippet).slice(0, 220) : '')
-          ).join('\\n');
+          ).join('\n');
           return json({ answer, citations, mode: 'governed-repository-read-only' });
         }
       }

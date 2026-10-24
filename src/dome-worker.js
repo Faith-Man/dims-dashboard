@@ -252,13 +252,13 @@ async function handleDiRepositoryQuery(request, env) {
   const json = (data, status = 200) => Response.json(data, { status, headers: { 'Cache-Control': 'no-store' } });
   if (request.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);
   const bearer = request.headers.get('authorization') || '';
-  if (!/^Bearer\\s+\\S+$/i.test(bearer)) return json({ error: 'Authentication required.' }, 401);
+  if (!/^Bearer\s+\S+$/i.test(bearer)) return json({ error: 'Authentication required.' }, 401);
   if (!env.SUPABASE_URL || !env.SUPABASE_PUBLISHABLE_KEY) return json({ error: 'Repository search is not configured.' }, 503);
   let payload;
   try { payload = await request.json(); } catch { return json({ error: 'Invalid JSON request.' }, 400); }
   const question = typeof payload?.question === 'string' ? payload.question.trim() : '';
   if (!question || question.length > 1200) return json({ error: 'Question must be between 1 and 1200 characters.' }, 400);
-  const base = env.SUPABASE_URL.replace(/\\/$/, '');
+  const base = env.SUPABASE_URL.replace(/\/$/, '');
   try {
     const userRes = await fetch(base + '/auth/v1/user', {
       headers: { apikey: env.SUPABASE_PUBLISHABLE_KEY, authorization: bearer }
@@ -276,14 +276,14 @@ async function handleDiRepositoryQuery(request, env) {
       number: index + 1, source: String(row.source || ''),
       ref: String(row.ref || ''), title: String(row.title || ''),
       status: String(row.status || ''),
-      url: typeof row.link === 'string' && /^https:\\/\\//.test(row.link) ? row.link : null
+      url: typeof row.link === 'string' && /^https:\/\//.test(row.link) ? row.link : null
     }));
     const answer = rows.length
-      ? 'Governed records found:\\n' + rows.map((row, i) =>
+      ? 'Governed records found:\n' + rows.map((row, i) =>
           (i + 1) + '. ' + String(row.ref || '') + ' — ' + String(row.title || '') +
           ' (' + String(row.status || 'status unknown') + ')' +
           (row.snippet ? ': ' + String(row.snippet).slice(0, 220) : '')
-        ).join('\\n')
+        ).join('\n')
       : 'No matching governed records were found. This does not prove that the work does not exist.';
     return json({ answer, citations });
   } catch {

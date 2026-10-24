@@ -132,7 +132,7 @@
 <article class="card icard" id="sceneDeclCard" hidden><span class="ic"><img class="ic-img" src="assets/ui/crown.png" alt=""></span><div class="ib"><div class="label">CHAMPION'S DECLARATION</div><div class="quote decl" id="sceneDecl"></div></div></article></div>
 <div class="jh-tiles"><button type="button" class="tile tile-journal" id="tileJournal" aria-controls="journal"><span class="tile-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="7" width="24" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15 15h12M15 21h12M15 27h7M6 12h6M6 20h6M6 28h6M6 36h6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M41 15l-12 16-4 2 1-4 12-16z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></span><span class="tile-tx"><b>MY CHAMPIONSHIP JOURNAL</b><small>Record today's thoughts, prayers and progress.</small></span><span class="tile-ar" aria-hidden="true">→</span></button><button type="button" class="tile tile-review" id="tileReview" aria-controls="sceneReview"><span class="tile-ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 24a15 15 0 103-9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M8 9v7h7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 15v10l7 4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></span><span class="tile-tx"><b>REVIEW THE JOURNEY</b><small>Choose a past day to see its Word, Mindset and Declaration.</small></span><span class="tile-ar" aria-hidden="true">→</span></button></div>
 <section class="journal" id="journal" aria-label="Private Championship Journal"><button class="journal-toggle" id="journalToggle" type="button" aria-expanded="false" aria-controls="journalPanel"><span class="journal-copy"><span class="journal-title">📔 MY CHAMPIONSHIP JOURNAL</span><span class="journal-sub">Reflect • Write • Prepare</span></span><span class="journal-arrow" aria-hidden="true">›</span></button><div class="journal-panel" id="journalPanel"><p class="privacy">🔒 <strong>PRIVATE JOURNAL</strong><br>Your entries are stored only in this browser on this device. They are not sent to your coach, team, or Spartans1st™.</p><label class="prompt" for="jSpoke">What spoke to me today?</label><textarea id="jSpoke"></textarea><label class="prompt" for="jImprove">What do I need to improve before race day?</label><textarea id="jImprove"></textarea><label class="prompt" for="jAction">What is one thing I will do today?</label><textarea id="jAction"></textarea><label class="prompt" for="jDeclare">My personal declaration:</label><textarea id="jDeclare"></textarea><div class="journal-actions"><button class="journal-btn journal-save" id="journalSave" type="button">SAVE MY ENTRY</button><button class="journal-btn" id="journalExport" type="button">EXPORT MY JOURNAL</button></div><div class="journal-status" id="journalStatus" aria-live="polite"></div></div></section>
-<section class="scene-review" id="sceneReview" aria-label="Review the Journey" hidden><div class="rv-head">REVIEW THE JOURNEY</div><p class="rv-sub">Step back through the journey one day at a time</p><p class="review-empty" id="reviewEmpty">Previous days appear here starting tomorrow.</p><div class="rv-nav" id="sceneDays"><button type="button" class="rv-step" id="rvPrev" aria-label="Previous day">&#8249; PREVIOUS DAY</button><button type="button" class="rv-step" id="rvNext" aria-label="Next day">NEXT DAY &#8250;</button></div><p class="rv-date" id="rvDate"></p><div class="scene-cards rv-cards" id="rvCards"></div></section>
+<section class="scene-review" id="sceneReview" aria-label="Review the Journey" hidden><div class="rv-head">REVIEW THE JOURNEY</div><p class="rv-sub">Step back through the journey one day at a time</p><p class="review-empty" id="reviewEmpty">Previous days appear here starting tomorrow.</p><div class="rv-nav" id="sceneDays"><button type="button" class="rv-step" id="rvPrev" aria-label="Previous day">&#8249; PREVIOUS DAY</button><button type="button" class="rv-step" id="rvNext" aria-label="Next day">NEXT DAY &#8250;</button></div><p class="rv-date" id="rvDate"></p><figure class="scene-frame" id="rvSceneFrame" hidden><img id="rvSceneImg" alt="Scene for this day" decoding="async"></figure><div class="scene-cards rv-cards" id="rvCards"></div></section>
 <div class="home-actions"><button id="viewCountdown" class="gold-cta" type="button">VIEW SEASON COUNTDOWN →</button></div></section>
 <main class="countdown"><button class="back" id="back">← JOURNEY</button><div class="shell"><div class="eyebrow">SEASON COMMAND CENTER</div>
 <div class="meet-heading" id="meetHeading" aria-live="polite"></div><div class="crest"><img id="emblem" src="assets/emblem-regional.jpg" alt="Spartans1st XC Championship Countdown"><div class="medallion-count" aria-live="polite"><div class="count" id="count">9</div><div class="unit" id="unit">DAYS</div></div><div class="ribbon-update" id="ribbonUpdate" aria-live="polite"><span class="ribbon-name" id="ribbonName"></span><span class="ribbon-date" id="ribbonDate"></span></div></div>
@@ -290,7 +290,35 @@ document.getElementById('rvPrev').onclick=()=>stepReview(-1);document.getElement
 function buildReviewCards(){const box=document.getElementById('rvCards');if(box.children.length)return;
  ['sceneVerseCard','sceneMindsetCard','sceneDeclCard'].forEach(id=>{const c=document.getElementById(id).cloneNode(true);c.id='rv'+id.slice(5);c.querySelectorAll('[id]').forEach(e=>{e.id='rv'+e.id.slice(5)});box.appendChild(c)});
  const lbl=box.querySelector('#rvVerseCard .label');if(lbl)lbl.textContent='WORD FOR TODAY'}
-function showReviewDay(d){if(!d)return;buildReviewCards();
+// AI scene for a reviewed day (test Worker only, AI_SCENES="1"). Token guard matches
+// the sceneToken/rvToken pattern above: a fast Previous/Next click can't let a slower,
+// older response land after a newer one.
+let rvSceneToken=0;
+async function updateJourneyScene(date,sceneImgId){
+ const imgEl=document.getElementById(sceneImgId);if(!imgEl)return;
+ const frame=imgEl.closest('figure'),tok=++rvSceneToken;
+ imgEl.classList.remove('ready');frame&&(frame.hidden=true);
+ try{
+  const statusRes=await fetch(`/api/scene?date=${date}&format=json`,{cache:'no-store'});
+  if(!statusRes.ok){console.warn('Scene not available for',date,statusRes.status);return}
+  const status=await statusRes.json();if(tok!==rvSceneToken)return;
+  if(status.cached)showJourneyScene(date,imgEl,frame,tok);
+  else if(status.painting)await pollUntilSceneReady(date,imgEl,frame,tok)
+ }catch(err){console.warn('Scene failed to load for',date,err)}
+}
+function showJourneyScene(date,imgEl,frame,tok){
+ imgEl.onload=()=>{if(tok===rvSceneToken){frame&&(frame.hidden=false);imgEl.classList.add('ready')}};
+ imgEl.src=`/api/scene?date=${date}&t=${Date.now()}`
+}
+async function pollUntilSceneReady(date,imgEl,frame,tok,attempts=10,delayMs=1500){
+ for(let i=0;i<attempts;i++){
+  await new Promise(r=>setTimeout(r,delayMs));if(tok!==rvSceneToken)return;
+  const res=await fetch(`/api/scene?date=${date}&format=json`,{cache:'no-store'});if(!res.ok)return;
+  const status=await res.json();if(tok!==rvSceneToken)return;
+  if(status.cached){showJourneyScene(date,imgEl,frame,tok);return}
+ }
+}
+function showReviewDay(d){if(!d)return;buildReviewCards();updateJourneyScene(d,'rvSceneImg');
  // Past-tense label so a reviewed day's count (e.g. 9 days on Oct 15) is not mistaken for today's countdown.
  const rd=document.getElementById('rvDate');rd.replaceChildren();const l1=document.createElement('span');l1.className='rv-when';l1.textContent='LOOKING BACK • '+new Intl.DateTimeFormat('en-US',{timeZone:'UTC',weekday:'long',month:'short',day:'numeric'}).format(new Date(d+'T12:00:00Z'));const l2=document.createElement('span');l2.className='rv-then';l2.textContent='That day: '+((ARCHIVE[d]&&ARCHIVE[d].phase)||phaseFor(d)).toLowerCase().replace(/\b[a-z]/g,c=>c.toUpperCase()).replace(/ (Day|Days) To /,m=>m.toLowerCase());rd.append(l1,l2);
  const c=SCHED.slots[sceneSlotFor(d)]||{},fill=e=>{

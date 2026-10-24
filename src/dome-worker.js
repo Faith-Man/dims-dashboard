@@ -247,10 +247,55 @@ async function verifyMedProduction(request) {
   return { ok: failed.length === 0, checks, failed: failed.map(check => check.name) };
 }
 
+
+async function handleDiRepositoryQuery(request, env) {
+  const json = (data, status = 200) => Response.json(data, { status, headers: { 'Cache-Control': 'no-store' } });
+  if (request.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);
+  const bearer = request.headers.get('authorization') || '';
+  if (!/^Bearer\\s+\\S+$/i.test(bearer)) return json({ error: 'Authentication required.' }, 401);
+  if (!env.SUPABASE_URL || !env.SUPABASE_PUBLISHABLE_KEY) return json({ error: 'Repository search is not configured.' }, 503);
+  let payload;
+  try { payload = await request.json(); } catch { return json({ error: 'Invalid JSON request.' }, 400); }
+  const question = typeof payload?.question === 'string' ? payload.question.trim() : '';
+  if (!question || question.length > 1200) return json({ error: 'Question must be between 1 and 1200 characters.' }, 400);
+  const base = env.SUPABASE_URL.replace(/\\/$/, '');
+  try {
+    const userRes = await fetch(base + '/auth/v1/user', {
+      headers: { apikey: env.SUPABASE_PUBLISHABLE_KEY, authorization: bearer }
+    });
+    if (!userRes.ok) return json({ error: 'Invalid or expired session.' }, 401);
+    const rpcRes = await fetch(base + '/rest/v1/rpc/di_repository_search', {
+      method: 'POST',
+      headers: { apikey: env.SUPABASE_PUBLISHABLE_KEY, authorization: bearer, 'content-type': 'application/json' },
+      body: JSON.stringify({ p_query: question, p_limit: 8 })
+    });
+    if (!rpcRes.ok) return json({ error: 'Governed repository retrieval failed.' }, 502);
+    const rows = await rpcRes.json();
+    if (!Array.isArray(rows)) return json({ error: 'Unexpected repository response.' }, 502);
+    const citations = rows.map((row, index) => ({
+      number: index + 1, source: String(row.source || ''),
+      ref: String(row.ref || ''), title: String(row.title || ''),
+      status: String(row.status || ''),
+      url: typeof row.link === 'string' && /^https:\\/\\//.test(row.link) ? row.link : null
+    }));
+    const answer = rows.length
+      ? 'Governed records found:\\n' + rows.map((row, i) =>
+          (i + 1) + '. ' + String(row.ref || '') + ' — ' + String(row.title || '') +
+          ' (' + String(row.status || 'status unknown') + ')' +
+          (row.snippet ? ': ' + String(row.snippet).slice(0, 220) : '')
+        ).join('\\n')
+      : 'No matching governed records were found. This does not prove that the work does not exist.';
+    return json({ answer, citations });
+  } catch {
+    return json({ error: 'Repository service temporarily unavailable.' }, 502);
+  }
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
+    if (url.pathname === '/api/di/query') return handleDiRepositoryQuery(request, env);
     if (url.pathname === '/api/med/admin') return handleMedAdmin(request, env);
 
     if (url.pathname === '/api/dome/deploy') {

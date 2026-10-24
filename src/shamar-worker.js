@@ -218,6 +218,40 @@ async function handleDi(request, env) {
   try { body=await request.json(); } catch (_) { return json({ error:'Invalid request body' },400); }
   const question=String(body?.question||'').trim();
   if (!question || question.length>DI_MAX_QUESTION) return json({ error:'Question must be between 1 and 1200 characters' },400);
+
+  // Repository-first discovery supplements, but does not replace, the existing
+  // TETELESTAI execution queue and AI-grounded response path.
+  const executionQuestion = /what requires my attention|what can di|awaiting verification|\b(overdue|follow.?up|blocked|priority|ready|my action|execution queue|recently updated)\b/i.test(question);
+  if (!executionQuestion && env.SUPABASE_URL && env.SUPABASE_PUBLISHABLE_KEY) {
+    const bearer = request.headers.get('authorization') || '';
+    try {
+      const rpc = await fetch(env.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/rpc/di_repository_search', {
+        method: 'POST',
+        headers: { apikey: env.SUPABASE_PUBLISHABLE_KEY, authorization: bearer, 'content-type': 'application/json' },
+        body: JSON.stringify({ p_query: question, p_limit: 8 })
+      });
+      if (rpc.ok) {
+        const matches = await rpc.json();
+        if (Array.isArray(matches) && matches.length) {
+          const citations = matches.map((item, index) => ({
+            number: index + 1, source: String(item.source || ''),
+            ref: String(item.ref || ''), title: String(item.title || ''),
+            status: String(item.status || ''),
+            url: typeof item.link === 'string' && /^https:\/\//.test(item.link) ? item.link : null
+          }));
+          const answer = 'Governed repository records found:\n' + matches.map((item, index) =>
+            (index + 1) + '. ' + String(item.ref || '') + ' — ' + String(item.title || '') +
+            ' (' + String(item.status || 'status unknown') + ')' +
+            (item.snippet ? ': ' + String(item.snippet).slice(0, 220) : '')
+          ).join('\n');
+          return json({ answer, citations, mode: 'governed-repository-read-only' });
+        }
+      }
+    } catch (_) {
+      // Retain the existing certified TETELESTAI adapter if search is unavailable.
+    }
+  }
+
   const fields='id,title,status,priority,queue_position,action_owner,next_action,readiness,risk_level,next_follow_up_date,target_date,percent_complete,verification_status,updated_at';
   const [projects,tasks]=await Promise.all([
     diTable(request,env,'projects',`project_number,${fields}`),

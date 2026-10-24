@@ -1,0 +1,28 @@
+name: TASK-0077 DI Worker Build (test only)
+on:
+  pull_request:
+    paths:
+      - 'src/dome-worker.js'
+      - 'src/shamar-worker.js'
+      - 'di-companion.js'
+      - 'wrangler.jsonc'
+      - '.github/workflows/task-0077-di-build.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  syntax-and-worker-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax validation
+        run: |
+          node --check src/dome-worker.js
+          node --check src/shamar-worker.js
+          node --check di-companion.js
+      - name: Cloudflare Worker dry-run build (no deployment)
+        run: npx --yes wrangler@4 deploy --dry-run --outdir /tmp/task-0077-worker-build

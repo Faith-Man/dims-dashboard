@@ -315,7 +315,7 @@ function showReviewDay(d){if(!d)return;buildReviewCards();
   document.getElementById('rvDeclCard').hidden=!e.declaration;setText('rvDecl',e.declaration?'“'+e.declaration+'”':'')};
  if(ARCHIVE[d]){rvToken++;fill(ARCHIVE[d]);return} // archived days keep exactly what the live site showed
  fill({verse:c.verse,ref:c.ref,mindset:c.mindset,source:c.source,declaration:''});
- const tok=++rvToken;fetchDaily(d).then(e=>{if(e&&e.verse&&tok===rvToken)fill(e)})}
+ const tok=++rvToken;fetchDaily(d).then(e=>{if(tok!==rvToken)return;if(e&&e.verse){fill(e);return}const msg='Original daily teaching unavailable in this preview. The approved Word, Mindset, and Declaration must be restored from the live archive.';['rvVerseCard','rvMindsetCard','rvDeclCard'].forEach(id=>document.getElementById(id).hidden=false);setText('rvVerse',msg);setText('rvVerseRef','');setText('rvMindset',msg);setText('rvMindsetSrc','');setText('rvDecl',msg)})}
 document.getElementById('tileJournal').onclick=()=>{const j=document.getElementById('journal'),open=j.classList.toggle('open');if(open){loadJournal();j.scrollIntoView({behavior:'smooth',block:'start'})}};
 document.getElementById('tileReview').onclick=()=>{const r=document.getElementById('sceneReview');r.hidden=!r.hidden;if(!r.hidden){renderSceneReview();showReviewDay(rvDay);r.scrollIntoView({behavior:'smooth',block:'start'})}};
 function refreshEntryScene(){if(!reviewSceneDay)showSceneFor(ymd());renderSceneReview()}

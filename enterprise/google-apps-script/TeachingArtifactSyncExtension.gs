@@ -211,40 +211,165 @@ return [
 ].filter(Boolean).join('  •  ');
 }
 
-function appendTeachingMarkdown_(body, markdown, royal, gold, dark) {
-String(markdown || '').split(/\r?\n/).forEach(function(raw) {
-  var line = raw.trim();
-  if (!line) {
-    body.appendParagraph('');
-    return;
+function teachingParseInlineBold_(value) {
+  var source = String(value == null ? '' : value);
+  var text = '';
+  var boldRanges = [];
+  var openStart = -1;
+
+  for (var i = 0; i < source.length;) {
+    // A backslash escapes a literal Markdown delimiter.
+    if (source.substr(i, 3) === '\\**') {
+      text += '**';
+      i += 3;
+      continue;
+    }
+
+    if (source.substr(i, 2) === '**') {
+      if (source.substr(i, 3) === '***') {
+        throw new Error('Combined or nested triple-asterisk emphasis is not supported.');
+      }
+      if (openStart < 0) {
+        openStart = text.length;
+      } else {
+        if (text.length === openStart) {
+          throw new Error('Empty inline bold spans are not supported.');
+        }
+        boldRanges.push({ start: openStart, end: text.length - 1 });
+        openStart = -1;
+      }
+      i += 2;
+      continue;
+    }
+
+    text += source.charAt(i);
+    i++;
   }
 
-  var p;
-  if (/^###\s+/.test(line)) {
-    p = body.appendParagraph(line.replace(/^###\s+/, '').replace(/\*\*/g, ''));
-    p.setHeading(DocumentApp.ParagraphHeading.HEADING3);
-    p.editAsText().setForegroundColor(royal).setBold(true);
-  } else if (/^##\s+/.test(line)) {
-    p = body.appendParagraph(line.replace(/^##\s+/, '').replace(/\*\*/g, ''));
-    p.setHeading(DocumentApp.ParagraphHeading.HEADING2);
-    p.editAsText().setForegroundColor(royal).setBold(true);
-  } else if (/^#\s+/.test(line)) {
-    p = body.appendParagraph(line.replace(/^#\s+/, '').replace(/\*\*/g, ''));
-    p.setHeading(DocumentApp.ParagraphHeading.HEADING1);
-    p.editAsText().setForegroundColor(royal).setBold(true);
-  } else if (/^[-*]\s+/.test(line)) {
-    p = body.appendListItem(line.replace(/^[-*]\s+/, '').replace(/\*\*/g, ''));
-    p.editAsText().setForegroundColor(dark);
-  } else if (/^>\s*/.test(line)) {
-    p = body.appendParagraph(line.replace(/^>\s*/, '').replace(/\*\*/g, ''));
-    p.editAsText().setForegroundColor(gold).setItalic(true);
-  } else {
-    p = body.appendParagraph(line.replace(/\*\*/g, ''));
-    p.editAsText().setForegroundColor(dark);
+  if (openStart >= 0) {
+    throw new Error('Unclosed inline bold delimiter (**).');
   }
-});
+
+  return { text: text, bold_ranges: boldRanges };
 }
 
+function teachingApplyInlineBold_(textElement, boldRanges) {
+  (boldRanges || []).forEach(function(range) {
+    if (range.end >= range.start) {
+      textElement.setBold(range.start, range.end, true);
+    }
+  });
+}
+
+function teachingEscapeLiteralBoldMarkers_(value) {
+  var source = String(value || '');
+  var escaped = '';
+  for (var i = 0; i < source.length;) {
+    if (source.substr(i, 2) === '**') {
+      escaped += '\\**';
+      i += 2;
+    } else {
+      escaped += source.charAt(i);
+      i++;
+    }
+  }
+  return escaped;
+}
+
+function teachingWrapInlineBoldRanges_(value, boldRanges) {
+  var source = String(value || '');
+  var ranges = (boldRanges || []).slice().sort(function(a, b) {
+    return a.start - b.start;
+  });
+  var output = '';
+  var cursor = 0;
+
+  ranges.forEach(function(range) {
+    var start = Math.max(cursor, Number(range.start));
+    var end = Math.min(source.length - 1, Number(range.end));
+    if (start > end || start >= source.length) return;
+    output += teachingEscapeLiteralBoldMarkers_(source.substring(cursor, start));
+    output += '**' + teachingEscapeLiteralBoldMarkers_(source.substring(start, end + 1)) + '**';
+    cursor = end + 1;
+  });
+
+  output += teachingEscapeLiteralBoldMarkers_(source.substring(cursor));
+  return output;
+}
+
+function teachingSerializeInlineBold_(textElement) {
+  var source = String(textElement.getText() || '');
+  if (!source) return '';
+
+  var starts = textElement.getTextAttributeIndices() || [];
+  starts = starts.map(function(index) { return Number(index); })
+    .filter(function(index) { return isFinite(index) && index >= 0 && index < source.length; })
+    .sort(function(a, b) { return a - b; })
+    .filter(function(index, i, list) { return i === 0 || index !== list[i - 1]; });
+  if (!starts.length || starts[0] !== 0) starts.unshift(0);
+
+  var boldRanges = [];
+  for (var i = 0; i < starts.length; i++) {
+    var start = starts[i];
+    var end = (i + 1 < starts.length ? starts[i + 1] : source.length) - 1;
+    if (end < start || textElement.isBold(start) !== true) continue;
+
+    var previous = boldRanges.length ? boldRanges[boldRanges.length - 1] : null;
+    if (previous && previous.end + 1 === start) {
+      previous.end = end;
+    } else {
+      boldRanges.push({ start: start, end: end });
+    }
+  }
+
+  return teachingWrapInlineBoldRanges_(source, boldRanges);
+}
+
+function appendTeachingMarkdown_(body, markdown, royal, gold, dark) {
+  String(markdown || '').split(/\r?\n/).forEach(function(raw) {
+    var line = raw.trim();
+    if (!line) {
+      body.appendParagraph('');
+      return;
+    }
+
+    var p;
+    var headingMatch = line.match(/^(#{1,3})\s+(.*)$/);
+    if (headingMatch) {
+      var headingText = teachingParseInlineBold_(headingMatch[2]).text;
+      p = body.appendParagraph(headingText);
+      if (headingMatch[1] === '###') p.setHeading(DocumentApp.ParagraphHeading.HEADING3);
+      else if (headingMatch[1] === '##') p.setHeading(DocumentApp.ParagraphHeading.HEADING2);
+      else p.setHeading(DocumentApp.ParagraphHeading.HEADING1);
+      p.editAsText().setForegroundColor(royal).setBold(true);
+      return;
+    }
+
+    if (/^[-*]\s+/.test(line)) {
+      var item = teachingParseInlineBold_(line.replace(/^[-*]\s+/, ''));
+      p = body.appendListItem(item.text);
+      var itemText = p.editAsText();
+      itemText.setForegroundColor(dark).setBold(false);
+      teachingApplyInlineBold_(itemText, item.bold_ranges);
+      return;
+    }
+
+    if (/^>\s*/.test(line)) {
+      var quote = teachingParseInlineBold_(line.replace(/^>\s*/, ''));
+      p = body.appendParagraph(quote.text);
+      var quoteText = p.editAsText();
+      quoteText.setForegroundColor(gold).setItalic(true).setBold(false);
+      teachingApplyInlineBold_(quoteText, quote.bold_ranges);
+      return;
+    }
+
+    var paragraph = teachingParseInlineBold_(line);
+    p = body.appendParagraph(paragraph.text);
+    var paragraphText = p.editAsText();
+    paragraphText.setForegroundColor(dark).setBold(false);
+    teachingApplyInlineBold_(paragraphText, paragraph.bold_ranges);
+  });
+}
 function reconcileTeachingAssetRegistry_(teaching, driveResult, registry) {
 var payload = {
   asset_code: teaching.id,
@@ -399,34 +524,31 @@ throw new Error(
 }
 
 function teachingSyncExpectedDocumentText_(teaching) {
-var lines = [
-  teaching.title || 'Dominion1st Teaching',
-  teachingSyncMetaText_(teaching)
-];
+  var lines = [
+    teaching.title || 'Dominion1st Teaching',
+    teachingSyncMetaText_(teaching)
+  ];
 
-if (teaching.summary) lines.push(teaching.summary);
+  if (teaching.summary) lines.push(teaching.summary);
 
-String(teaching.content_md || '').split(/\r?\n/).forEach(function(raw) {
-  var line = raw.trim();
-  if (!line) {
-    lines.push('');
-    return;
-  }
+  String(teaching.content_md || '').split(/\r?\n/).forEach(function(raw) {
+    var line = raw.trim();
+    if (!line) {
+      lines.push('');
+      return;
+    }
 
-  line = line
-    .replace(/^###\s+/, '')
-    .replace(/^##\s+/, '')
-    .replace(/^#\s+/, '')
-    .replace(/^[-*]\s+/, '')
-    .replace(/^>\s*/, '')
-    .replace(/\*\*/g, '');
+    line = line
+      .replace(/^###\s+/, '')
+      .replace(/^##\s+/, '')
+      .replace(/^#\s+/, '')
+      .replace(/^[-*]\s+/, '')
+      .replace(/^>\s*/, '');
+    lines.push(teachingParseInlineBold_(line).text);
+  });
 
-  lines.push(line);
-});
-
-return lines.join('\n');
+  return lines.join('\n');
 }
-
 function teachingSyncNormalizeText_(value) {
 return String(value || '')
   .replace(/\r\n/g, '\n')

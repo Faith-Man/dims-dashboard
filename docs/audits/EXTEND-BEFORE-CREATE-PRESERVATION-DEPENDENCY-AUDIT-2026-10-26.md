@@ -24,3 +24,24 @@ Principle: EXTEND BEFORE CREATE.
 - Institutional Queue snapshot correction: proposed, not committed.
 - Preservation connector: architecture documented; live write/read-back not verified.
 - Production: unchanged.
+
+## Navigation and governance overlap — source audit
+- `index.html` is an approximately 749 KB image-hotspot DOME Home with direct routes to Mission Control, Blueprint (labeled KUBERNĒSIS), Institutional Queue, Projects & Tasks, Executive Dashboard, and Command Alerts. Mission Control and KUBERNĒSIS have repeated hotspots on the same page.
+- `dashboard-v3.html` is separately titled KUBERNĒSIS Mission Control, repeats a Mission Control section, and contains phase/status prose and quick links to Blueprint and VAULT. Historical phase text must not be treated as live status.
+- `dims-blueprint.html` is architecture reference documentation, but also describes KUBERNĒSIS as Mission Control and links back to `dashboard-v3.html`. It should remain a reference view, not a competing command center.
+- No `kubernesis.html` exists in the checked repository branch. The screenshots show a deployed Workers navigation gateway, whose deployed source/version has not been matched to this repository; do not assume equivalence.
+- `DIMS-STD-0006` v1.1 is already the institutional shared interface standard. Reuse its shell and navigation standards.
+
+### Proposed ownership (not yet implemented)
+1. DOME Home: one primary eight-module orbital navigation entry.
+2. KUBERNĒSIS: governance/steering shell and grouped links, not a duplicate module directory.
+3. Mission Control: live execution oversight; distinguish historical prose from live data.
+4. DSCC: dedicated system health/diagnostics.
+5. Blueprint: read-only institutional architecture reference, reachable under governance.
+6. TETELESTAI: authoritative task/project execution; Institutional Queue retains ADR/lexicon and verified preservation workflow.
+
+### Validation gates
+- Identify deployed Workers route and commit behind the screenshots before modifying its navigation.
+- Inventory every repeated route/hotspot and its actual destination; confirm no user workflow is lost.
+- Test mobile, keyboard navigation, link targets, and circular layout in TEST.
+- Do not merge or deploy without explicit sign-off.

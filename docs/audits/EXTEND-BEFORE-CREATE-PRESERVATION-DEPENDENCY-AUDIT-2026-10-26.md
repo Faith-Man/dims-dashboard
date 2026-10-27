@@ -52,3 +52,12 @@ Principle: EXTEND BEFORE CREATE.
 - Neither checked branch's `dashboard-v3.html` contains the screenshot phrase `Current DOME Module Access` or the shared `Navigate` control; deployed Workers source remains unverified.
 - `DIMS-REF-0001` v1.3 establishes DIMS as the sophisticated back-end and DOME as user experience, with explicit convergence-without-erasure requirements.
 - Do not modify Workers routes or merge a historical dashboard into the current shell until the deployment's commit/asset mapping is established.
+
+## Screenshot source match — 2026-10-27
+**Correction to previous uncertainty:** The first mobile screenshot is matched by `task-0102-final-dome-home/dashboard-v3-current.html`, which contains the exact heading `Current DOME Module Access`, the governance/steering subtitle, and OrEl/YARATHĒKĒ cards. This page loads `dome-global-nav.js` and links to the eight-module preview home. It is a duplicate module-navigation gateway and should be refactored to governance-only links in TEST after route compatibility is checked.
+
+The matched branch contains `prototypes/dome-eight-module-home/index.html` with eight module links and additional links to Mission Control, `dashboard-v3-current.html`, DSCC, Blueprint, Institutional Queue, and glossary. `dashboard-v3.html` is explicitly retained as the legacy administrative dashboard from `dashboard-v3-current.html`.
+
+The screenshot's exact deployed Workers commit is still not verified by deployment metadata; source-text match does not prove deployment SHA. Do not edit the production Worker or merge this branch on that basis alone.
+
+**Next test change proposal:** In `dashboard-v3-current.html`, replace the redundant OrEl/YARATHĒKĒ/TETELESTAI/GRĒGOREŌ module directory with grouped governance links (Mission Control, DSCC, Blueprint, Institutional Queue); keep one DOME Home link and retain the legacy dashboard access under Administration. Preserve `dome-global-nav.js`, DI² orb, and all eight canonical module routes on DOME Home.

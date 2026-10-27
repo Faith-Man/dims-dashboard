@@ -45,3 +45,10 @@ Principle: EXTEND BEFORE CREATE.
 - Inventory every repeated route/hotspot and its actual destination; confirm no user workflow is lost.
 - Test mobile, keyboard navigation, link targets, and circular layout in TEST.
 - Do not merge or deploy without explicit sign-off.
+
+## Source-branch reconciliation — 2026-10-27
+- `task-0102-final-dome-home` contains `prototypes/dome-eight-module-home/index.html` (eight-module preview). `feature/dome-eight-module-home-preview` also contains an earlier version of that route.
+- `task-0102-final-dome-home/dims-blueprint.html` is titled `DIMS/DOME Current Architecture`, whereas default-branch `dims-blueprint.html` is titled `DIMS-v3 Blueprint`. This is source evidence of competing generations, not proof of deployed Workers commit.
+- Neither checked branch's `dashboard-v3.html` contains the screenshot phrase `Current DOME Module Access` or the shared `Navigate` control; deployed Workers source remains unverified.
+- `DIMS-REF-0001` v1.3 establishes DIMS as the sophisticated back-end and DOME as user experience, with explicit convergence-without-erasure requirements.
+- Do not modify Workers routes or merge a historical dashboard into the current shell until the deployment's commit/asset mapping is established.

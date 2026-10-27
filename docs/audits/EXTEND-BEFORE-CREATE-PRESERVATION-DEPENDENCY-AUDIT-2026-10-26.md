@@ -61,3 +61,12 @@ The matched branch contains `prototypes/dome-eight-module-home/index.html` with 
 The screenshot's exact deployed Workers commit is still not verified by deployment metadata; source-text match does not prove deployment SHA. Do not edit the production Worker or merge this branch on that basis alone.
 
 **Next test change proposal:** In `dashboard-v3-current.html`, replace the redundant OrEl/YARATHĒKĒ/TETELESTAI/GRĒGOREŌ module directory with grouped governance links (Mission Control, DSCC, Blueprint, Institutional Queue); keep one DOME Home link and retain the legacy dashboard access under Administration. Preserve `dome-global-nav.js`, DI² orb, and all eight canonical module routes on DOME Home.
+
+## Interim 3D DOME Home selection — 2026-10-27
+User authorized selection of an existing 3D DOME dashboard for an interim operational home via a separate preview link, with production unchanged pending approval.
+
+**Verified design inventory evidence:** `docs/audits/historical-lineage/design-lineage-evidence.md` identifies five recovered circular Earth/orbital images (v01-v05), three regular-grid images, two approximately 510 KB HTML prototypes in Drive's `Design/Dashboard Prototypes/`, and two `kubernesis-dashboard.html` copies. These are candidate design sources, **not yet verified interactive working dashboards**.
+
+**Repository preview checks:** `task-0102-final-dome-home/prototypes/dome-eight-module-home/index.html` exposes eight module routes, but is a conventional HTML/CSS module page (no detected WebGL/canvas/3D transform in inspected HTML); do not label it the selected 3D design. `feature/dome-eight-module-home-preview` has an earlier HTML version. `index.html` is a large image-hotspot navigation page, not verified live 3D. The old modernization plan describes seven modules and is historical, not current module authority.
+
+**Selection gate:** Inspect actual Drive HTML prototypes and the five circular/orbital visuals, validate navigation and mobile interaction, check DI² and security, choose an existing working candidate, and publish only to isolated preview. No automatic production switch. No selection can be justified from filenames alone.

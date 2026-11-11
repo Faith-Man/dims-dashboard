@@ -50,7 +50,7 @@ function openGoverned(id){
   const t=governed.find(x=>String(x.id)===String(id));
   if(!t)return;
   app.innerHTML=`<div class="reader-shell"><article class="reader" data-title="${esc(t.title||'Teaching')}"><div class="series-mark">${esc(t.series||'Dominion1st™')}</div><h2>${esc(t.title||'Teaching')}</h2><div class="subtitle">${esc(t.summary||'')}</div><div class="scripture">${esc((t.tags||[]).join(' · '))}</div><div class="reader-content" style="white-space:pre-wrap">${esc(t.content_md||'')}</div></article><aside class="side"><div class="card"><span class="badge">Governed Reader</span><h3>Artifact details</h3><div class="meta-row"><span>Format</span><b>${esc(t.content_type||'Teaching')}</b></div><div class="meta-row"><span>Status</span><b>${esc(t.status||'draft')}</b></div><div class="meta-row"><span>Updated</span><b>${esc(dateOf(t))}</b></div><button id="backGoverned" class="btn ghost" style="margin-top:12px">Back to library</button></div></aside></div>`;
-  document.getElementById('backGoverned').onclick=renderGovernedLibrary;
+  document.getElementById('backGoverned').onclick=()=>renderGovernedLibrary();
   app.focus();
 }
 

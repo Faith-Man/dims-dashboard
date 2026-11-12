@@ -109,7 +109,7 @@ style.textContent=`
   .lib-pane{position:sticky;top:96px;max-height:calc(100vh - 116px);display:flex;flex-direction:column}
   .lib-list{overflow:auto;flex:1}
   .lib-sum{display:none}
-  .back-only{display:none}
+  .read-pane .reader-toolbar .back-only{display:none}
   .read-pane .reader-toolbar{top:96px}
 }
 /* Reader layout: full-width article, toolbar, details line, bottom player bar */

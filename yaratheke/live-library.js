@@ -85,6 +85,33 @@ style.textContent=`
 .special-application{background:#effaf2;border-left:6px solid #2f7d46}
 .special-warning{background:#fff2f0;border-left:6px solid #a64235}
 .special-principle{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+/* Split view */
+.lib-split{display:grid;grid-template-columns:1fr;gap:20px}
+.lib-pane{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 8px 24px rgba(18,36,85,.05)}
+.lib-head{background:linear-gradient(135deg,#06113f,#0d1f78 66%,#17399a);color:#fff;padding:18px}
+.lib-head .kicker{color:#d6b75d}
+.lib-head h2{font:900 1.45rem Cinzel,serif;color:#fff;margin:.2rem 0 .7rem}
+.lib-head .lib-controls{margin-top:10px}
+.lib-head .lib-series{margin-top:10px;width:100%}
+.lib-count{color:#dbe6ff!important;font:600 .8rem Inter,sans-serif;margin:10px 0 0!important}
+.lib-list{display:flex;flex-direction:column}
+.lib-entry{display:block;width:100%;text-align:left;background:#fff;border:0;border-bottom:1px solid var(--line);padding:13px 16px;cursor:pointer;font:inherit;color:inherit;border-left:4px solid transparent}
+.lib-entry:hover{background:#f4f8ff}
+.lib-entry.active{background:#eef4ff;border-left-color:#c5a23b}
+.lib-entry strong{display:block;font:700 .95rem Cinzel,serif;color:var(--blue);overflow-wrap:anywhere}
+.lib-sum{display:block;color:var(--muted);font-size:.84rem;line-height:1.45;margin-top:4px}
+.lib-meta{display:block;color:#7a86a3;font-size:.74rem;margin-top:5px}
+.lib-empty{padding:16px;color:var(--muted)}
+.read-pane:empty{display:none}
+@media(max-width:899px){.lib-split.reading .lib-pane{display:none}.lib-split:not(.reading) .read-pane{display:none}}
+@media(min-width:900px){
+  .lib-split{grid-template-columns:340px minmax(0,1fr);align-items:start}
+  .lib-pane{position:sticky;top:96px;max-height:calc(100vh - 116px);display:flex;flex-direction:column}
+  .lib-list{overflow:auto;flex:1}
+  .lib-sum{display:none}
+  .back-only{display:none}
+  .read-pane .reader-toolbar{top:96px}
+}
 /* Reader layout: full-width article, toolbar, details line, bottom player bar */
 .reader-solo{max-width:820px;margin:0 auto}
 .reader-toolbar{position:sticky;top:96px;z-index:15;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:14px;padding:8px 10px;margin-bottom:14px;box-shadow:0 6px 18px rgba(12,32,117,.06)}
@@ -173,37 +200,70 @@ function visibleItems(){
     &&(!q||[t.title,t.summary,t.series,t.category,t.content_type,...(Array.isArray(t.tags)?t.tags:[])].some(v=>String(v||'').toLowerCase().includes(q))));
 }
 
+const isWide=()=>matchMedia('(min-width:900px)').matches;
+let currentId=null;
+
 function cardHtml(t){
-  const meta=[t.series&&String(t.series).toLowerCase()!=='standalone'?t.series:'',dateOf(t)].filter(Boolean).join(' · ');
-  return `<button class="card lib-card" style="text-align:left;cursor:pointer" data-governed-id="${esc(t.id)}"><span class="badge">${esc(t.content_type||'Teaching')}</span><h3>${esc(t.title||'Untitled')}</h3><p>${esc(t.summary||'')}</p>${meta?`<p class="meta">${esc(meta)}</p>`:''}</button>`;
+  const meta=[t.content_type||'Teaching',t.series&&String(t.series).toLowerCase()!=='standalone'?t.series:'',dateOf(t)].filter(Boolean).join(' · ');
+  return `<button class="lib-entry${String(t.id)===String(currentId)?' active':''}" type="button" data-governed-id="${esc(t.id)}"><strong>${esc(t.title||'Untitled')}</strong>${t.summary?`<span class="lib-sum">${esc(t.summary)}</span>`:''}<span class="lib-meta">${esc(meta)}</span></button>`;
 }
 
 function renderResults(){
   const items=visibleItems();
-  document.getElementById('teachingCount').textContent=`${items.length} of ${governed.length} teachings, messages and perspectives`;
+  document.getElementById('teachingCount').textContent=`${items.length} of ${governed.length}`;
   const results=document.getElementById('teachingResults');
-  results.innerHTML=items.length?items.map(cardHtml).join(''):'<div class="card"><h3>No matching teachings</h3><p>Try another search or filter.</p></div>';
+  results.innerHTML=items.length?items.map(cardHtml).join(''):'<p class="lib-empty">No matching teachings. Try another search or filter.</p>';
   results.querySelectorAll('[data-governed-id]').forEach(el=>el.onclick=()=>openGoverned(el.dataset.governedId));
 }
 
+// Split view (owner request 2026-11-11, matches live reader): list on the left, teaching on the
+// right on desktop; one screen at a time with ← Library on phones. The list is never rebuilt
+// when a teaching opens, so search, filters and scroll position are kept.
 function renderGovernedLibrary(){
   const chips=FILTERS.map(f=>`<button class="chip" type="button" data-filter="${f.key}" aria-pressed="${state.filter===f.key}">${f.label}</button>`).join('');
   const series=seriesList().map(([s,n])=>`<option value="${esc(s)}"${state.series===s?' selected':''}>${esc(s)} (${n})</option>`).join('');
-  app.innerHTML=`<section class="lib-hero"><div class="kicker">Wells of Knowledge</div><h2>YARATHĒKĒ™ Library</h2><p>${governed.length} teachings, messages and perspectives.</p><label for="teachingSearch">Search</label><input id="teachingSearch" class="lib-search" type="search" placeholder="Search title, series, topic…" value="${esc(state.query)}"/><div class="lib-controls" role="group" aria-label="Filter by type">${chips}<select id="seriesFilter" class="lib-series" aria-label="Filter by series"><option value="">All series</option>${series}</select></div><p id="teachingCount" class="lib-count" aria-live="polite"></p></section><div class="grid" id="teachingResults"></div>`;
+  app.innerHTML=`<div class="lib-split" id="libSplit">
+<aside class="lib-pane" aria-label="Library">
+  <div class="lib-head"><div class="kicker">Wells of Knowledge</div><h2>YARATHĒKĒ™ Library</h2>
+  <input id="teachingSearch" class="lib-search" type="search" aria-label="Search teachings" placeholder="Search title, series, topic…" value="${esc(state.query)}"/>
+  <div class="lib-controls" role="group" aria-label="Filter by type">${chips}</div>
+  <select id="seriesFilter" class="lib-series" aria-label="Filter by series"><option value="">All series</option>${series}</select>
+  <p class="lib-count"><span id="teachingCount"></span> teachings, messages and perspectives</p></div>
+  <div class="lib-list" id="teachingResults"></div>
+</aside>
+<section class="read-pane" id="readPane" aria-live="polite"></section>
+</div>
+<div class="player-bar" id="playerBar" hidden role="region" aria-label="Listen">
+  <button id="ttsPlay" aria-label="Play from start">▶</button><button id="ttsPause" aria-label="Pause">⏸</button><button id="ttsStop" aria-label="Stop">⏹</button>
+  <select id="ttsVoice" aria-label="Voice"></select>
+  <select id="ttsRate" aria-label="Speed"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select>
+  <span class="p-status" id="ttsStatus" aria-live="polite">Ready</span><button id="ttsClose" aria-label="Close player">✕</button>
+</div>`;
   document.getElementById('teachingSearch').addEventListener('input',e=>{state.query=e.target.value;renderResults();});
   app.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{state.filter=b.dataset.filter;app.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));renderResults();});
   document.getElementById('seriesFilter').onchange=e=>{state.series=e.target.value;renderResults();};
+  bindPlayer();
   renderResults();
+  const first=visibleItems()[0];
+  if(isWide()&&first)openGoverned(first.id,{quiet:true});
+  else document.getElementById('readPane').innerHTML='';
 }
 
-function openGoverned(id){
+function closeReader(){
+  stopSpeech();document.getElementById('playerBar').hidden=true;
+  document.getElementById('libSplit').classList.remove('reading');
+}
+
+function openGoverned(id,opts={}){
   const t=governed.find(x=>String(x.id)===String(id));
   if(!t)return;
   stopSpeech();
+  currentId=t.id;
+  document.querySelectorAll('.lib-entry').forEach(e=>e.classList.toggle('active',e.dataset.governedId===String(t.id)));
   const meta=[t.content_type||'Teaching',t.series&&String(t.series).toLowerCase()!=='standalone'?t.series:'',dateOf(t)?'Updated '+dateOf(t):''].filter(Boolean).join(' · ');
-  app.innerHTML=`<div class="reader-solo">
-<div class="reader-toolbar" role="toolbar" aria-label="Teaching tools">
-  <button class="tb-btn" id="backGoverned">← <span class="lbl">Library</span></button>
+  const pane=document.getElementById('readPane');
+  pane.innerHTML=`<div class="reader-toolbar" role="toolbar" aria-label="Teaching tools">
+  <button class="tb-btn back-only" id="backGoverned">← <span class="lbl">Library</span></button>
   <span class="spacer"></span>
   <span class="tool-toast" id="docStatus" aria-live="polite"></span>
   <button class="tb-btn primary" id="ttsOpen">🔊 <span class="lbl">Listen</span></button>
@@ -212,18 +272,16 @@ function openGoverned(id){
     <button id="docPdf">⬇️ Save as PDF</button><button id="docWord">⬇️ Download Word</button><button id="docPrint">🖨️ Print</button>
     <a id="docOrel" href="../orel-studio.html?id=${encodeURIComponent(t.id)}">✍️ Open in OrEl™</a></div></details>
 </div>
-<article class="reader" data-title="${esc(t.title||'Teaching')}"><div class="series-mark">${esc(t.series||'Dominion1st™')}</div><h2>${esc(t.title||'Teaching')}</h2><p class="reader-meta">${esc(meta)}</p><div class="subtitle">${esc(t.summary||'')}</div><div class="scripture">${esc((t.tags||[]).join(' · '))}</div><div class="reader-content governed-content">${renderContent(t)}</div></article>
-</div>
-<div class="player-bar" id="playerBar" hidden role="region" aria-label="Listen">
-  <button id="ttsPlay" aria-label="Play from start">▶</button><button id="ttsPause" aria-label="Pause">⏸</button><button id="ttsStop" aria-label="Stop">⏹</button>
-  <select id="ttsVoice" aria-label="Voice"></select>
-  <select id="ttsRate" aria-label="Speed"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select>
-  <span class="p-status" id="ttsStatus" aria-live="polite">Ready</span><button id="ttsClose" aria-label="Close player">✕</button>
-</div>`;
-  document.getElementById('backGoverned').onclick=()=>{stopSpeech();renderGovernedLibrary();scrollTo({top:0});};
+<article class="reader" data-title="${esc(t.title||'Teaching')}"><div class="series-mark">${esc(t.series||'Dominion1st™')}</div><h2>${esc(t.title||'Teaching')}</h2><p class="reader-meta">${esc(meta)}</p><div class="subtitle">${esc(t.summary||'')}</div><div class="scripture">${esc((t.tags||[]).join(' · '))}</div><div class="reader-content governed-content">${renderContent(t)}</div></article>`;
+  document.getElementById('backGoverned').onclick=closeReader;
   bindTools(t);
-  scrollTo({top:0});
-  app.focus({preventScroll:true});
+  pane.scrollTop=0;
+  if(isWide()){
+    if(!opts.quiet){const top=document.getElementById('libSplit').getBoundingClientRect().top+scrollY-110;if(scrollY>top)scrollTo({top});}
+  }else{
+    document.getElementById('libSplit').classList.add('reading');
+    scrollTo({top:0});
+  }
 }
 
 // ---- Document and Listen tools (ported from the live reader) ----
@@ -268,31 +326,38 @@ function bindTools(t){
   };
   const menu=document.querySelector('.tb-menu');
   menu.querySelectorAll('button,a').forEach(el=>el.addEventListener('click',()=>menu.open=false));
-  const bar=document.getElementById('playerBar');
-  const tts=m=>{document.getElementById('ttsStatus').textContent=m;};
-  const pauseBtn=document.getElementById('ttsPause');
-  const play=()=>{
-    speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(speechText(t));
-    u.rate=Number(document.getElementById('ttsRate').value)||1;
-    const name=document.getElementById('ttsVoice').value;
-    const v=speechSynthesis.getVoices().find(x=>x.name===name);if(v)u.voice=v;
-    u.onstart=()=>{tts('Playing');pauseBtn.textContent='⏸';};u.onend=()=>tts('Finished');u.onerror=()=>tts('Stopped');
-    speechSynthesis.speak(u);
-  };
   document.getElementById('ttsOpen').onclick=()=>{
     if(!speechOK){status('Listening is not supported in this browser.');return;}
-    bar.hidden=false;fillVoices();play();
+    document.getElementById('playerBar').hidden=false;fillVoices();playCurrent();
   };
-  document.getElementById('ttsPlay').onclick=play;
+}
+
+function playCurrent(){
+  const t=governed.find(x=>String(x.id)===String(currentId));if(!t||!speechOK)return;
+  const tts=m=>{document.getElementById('ttsStatus').textContent=m;};
+  const pauseBtn=document.getElementById('ttsPause');
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(speechText(t));
+  u.rate=Number(document.getElementById('ttsRate').value)||1;
+  const name=document.getElementById('ttsVoice').value;
+  const v=speechSynthesis.getVoices().find(x=>x.name===name);if(v)u.voice=v;
+  u.onstart=()=>{tts('Playing');pauseBtn.textContent='⏸';};u.onend=()=>tts('Finished');u.onerror=()=>tts('Stopped');
+  speechSynthesis.speak(u);
+}
+
+function bindPlayer(){
+  if(!speechOK)return;
+  const tts=m=>{document.getElementById('ttsStatus').textContent=m;};
+  const pauseBtn=document.getElementById('ttsPause');
+  document.getElementById('ttsPlay').onclick=playCurrent;
   pauseBtn.onclick=()=>{
     if(speechSynthesis.paused){speechSynthesis.resume();pauseBtn.textContent='⏸';tts('Playing');}
     else{speechSynthesis.pause();pauseBtn.textContent='⏵';tts('Paused');}
   };
   document.getElementById('ttsStop').onclick=()=>{speechSynthesis.cancel();pauseBtn.textContent='⏸';tts('Stopped');};
-  document.getElementById('ttsClose').onclick=()=>{speechSynthesis.cancel();bar.hidden=true;};
-  document.getElementById('ttsRate').onchange=()=>{if(speechSynthesis.speaking)play();};
-  document.getElementById('ttsVoice').onchange=()=>{if(speechSynthesis.speaking)play();};
+  document.getElementById('ttsClose').onclick=()=>{speechSynthesis.cancel();document.getElementById('playerBar').hidden=true;};
+  document.getElementById('ttsRate').onchange=()=>{if(speechSynthesis.speaking)playCurrent();};
+  document.getElementById('ttsVoice').onchange=()=>{if(speechSynthesis.speaking)playCurrent();};
 }
 
 // Single library view (owner-approved 2026-11-11): the old curated buttons

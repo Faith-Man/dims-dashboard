@@ -92,7 +92,7 @@ style.textContent=`
 .tb-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;color:var(--blue);border-radius:999px;padding:7px 12px;font:800 .78rem Inter,sans-serif;cursor:pointer;text-decoration:none;white-space:nowrap}
 .tb-btn:hover,.tb-btn:focus-visible{border-color:var(--blue);outline:none}
 .tb-btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
-.tb-menu{position:relative}
+.tb-menu{position:relative;border:0!important;padding:0!important;margin:0!important;background:none!important;box-shadow:none!important}
 .tb-menu>summary{list-style:none}.tb-menu>summary::-webkit-details-marker{display:none}
 .tb-menu-panel{position:absolute;right:0;top:calc(100% + 6px);min-width:200px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 14px 34px rgba(5,11,61,.18);z-index:30}
 .tb-menu-panel button,.tb-menu-panel a{display:flex;gap:8px;width:100%;border:0;background:none;text-align:left;padding:10px 11px;border-radius:9px;font:700 .84rem Inter,sans-serif;color:var(--blue);cursor:pointer;text-decoration:none}

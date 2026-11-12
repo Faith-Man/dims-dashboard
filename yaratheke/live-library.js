@@ -85,19 +85,27 @@ style.textContent=`
 .special-application{background:#effaf2;border-left:6px solid #2f7d46}
 .special-warning{background:#fff2f0;border-left:6px solid #a64235}
 .special-principle{print-color-adjust:exact;-webkit-print-color-adjust:exact}
-/* Document and Listen panels (ported from the live reader) */
-.tool-card{margin-top:14px}
-.tool-card h4{margin:0 0 10px;font:800 .74rem Inter,sans-serif;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
-.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.tool-grid .btn,.tool-row .btn{width:100%;padding:9px 8px;font-size:.8rem}
-.tool-grid .wide{grid-column:1/-1}
-.tool-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px}
-.tool-row .btn{font-size:1rem}
-.tool-select{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;font-size:.85rem;color:var(--muted)}
-.tool-select select{flex:1;max-width:190px;padding:7px 8px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font:inherit}
-.tool-status{margin:10px 0 0;font-size:.82rem;color:var(--muted)}
-@media(max-width:820px){.side{order:-1}.reader-shell{display:flex;flex-direction:column}}
-@media print{.about-yaratheke,.dome-module-identity,#dome-global-nav,.dome-global-drawer,[class*="di-companion"],.side{display:none!important}.governed-content blockquote,.special{break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+/* Reader layout: full-width article, toolbar, details line, bottom player bar */
+.reader-solo{max-width:820px;margin:0 auto}
+.reader-toolbar{position:sticky;top:96px;z-index:15;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:14px;padding:8px 10px;margin-bottom:14px;box-shadow:0 6px 18px rgba(12,32,117,.06)}
+.reader-toolbar .spacer{flex:1}
+.tb-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;color:var(--blue);border-radius:999px;padding:7px 12px;font:800 .78rem Inter,sans-serif;cursor:pointer;text-decoration:none;white-space:nowrap}
+.tb-btn:hover,.tb-btn:focus-visible{border-color:var(--blue);outline:none}
+.tb-btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.tb-menu{position:relative}
+.tb-menu>summary{list-style:none}.tb-menu>summary::-webkit-details-marker{display:none}
+.tb-menu-panel{position:absolute;right:0;top:calc(100% + 6px);min-width:200px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 14px 34px rgba(5,11,61,.18);z-index:30}
+.tb-menu-panel button,.tb-menu-panel a{display:flex;gap:8px;width:100%;border:0;background:none;text-align:left;padding:10px 11px;border-radius:9px;font:700 .84rem Inter,sans-serif;color:var(--blue);cursor:pointer;text-decoration:none}
+.tb-menu-panel button:hover,.tb-menu-panel a:hover{background:#eef5ff}
+.reader-meta{font:600 .84rem Inter,sans-serif;color:var(--muted);margin:.2rem 0 .8rem}
+.tool-toast{font:600 .8rem Inter,sans-serif;color:var(--muted);margin:0 2px}
+.player-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:40;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 24px);background:#0c1475;color:#fff;border:1px solid #d6b75d;border-radius:16px;padding:8px 12px;box-shadow:0 14px 34px rgba(5,11,61,.35)}
+.player-bar[hidden]{display:none}
+.player-bar button{border:1px solid rgba(255,255,255,.6);background:transparent;color:#fff;border-radius:999px;width:36px;height:36px;font-size:.95rem;cursor:pointer}
+.player-bar select{background:#13258f;color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:9px;padding:6px 8px;font:600 .78rem Inter,sans-serif;max-width:150px}
+.player-bar .p-status{font:700 .78rem Inter,sans-serif;min-width:64px}
+@media(max-width:620px){.reader-toolbar{top:88px}.tb-btn .lbl{display:none}.tb-btn.primary .lbl{display:inline}.player-bar{bottom:10px}.player-bar select{max-width:120px}}
+@media print{.about-yaratheke,.dome-module-identity,#dome-global-nav,.dome-global-drawer,[class*="di-companion"],.side,.reader-toolbar,.player-bar{display:none!important}.governed-content blockquote,.special{break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 `;
 document.head.appendChild(style);
 
@@ -191,11 +199,29 @@ function renderGovernedLibrary(){
 function openGoverned(id){
   const t=governed.find(x=>String(x.id)===String(id));
   if(!t)return;
-  app.innerHTML=`<div class="reader-shell"><article class="reader" data-title="${esc(t.title||'Teaching')}"><div class="series-mark">${esc(t.series||'Dominion1st™')}</div><h2>${esc(t.title||'Teaching')}</h2><div class="subtitle">${esc(t.summary||'')}</div><div class="scripture">${esc((t.tags||[]).join(' · '))}</div><div class="reader-content governed-content">${renderContent(t)}</div></article><aside class="side"><div class="card"><span class="badge">YARATHĒKĒ™ Reader</span><h3>Details</h3><div class="meta-row"><span>Format</span><b>${esc(t.content_type||'Teaching')}</b></div><div class="meta-row"><span>Series</span><b>${esc(t.series||'—')}</b></div><div class="meta-row"><span>Updated</span><b>${esc(dateOf(t))}</b></div><button id="backGoverned" class="btn ghost" style="margin-top:12px;width:100%">← Back to library</button></div>
-<div class="card tool-card"><h4>Document</h4><div class="tool-grid"><button class="btn secondary" id="docCopy">📋 Copy all</button><button class="btn secondary" id="docPrint">🖨️ Print</button><button class="btn secondary" id="docPdf">⬇️ PDF</button><button class="btn secondary" id="docWord">⬇️ Word</button><a class="btn ghost wide" id="docOrel" style="text-align:center;text-decoration:none" href="../orel-studio.html?id=${encodeURIComponent(t.id)}">✍️ Open in OrEl™</a></div><p class="tool-status" id="docStatus" aria-live="polite">Ready.</p></div>
-<div class="card tool-card"><h4>Listen</h4><div class="tool-row"><button class="btn" id="ttsPlay">▶ Listen</button><button class="btn secondary" id="ttsPause" aria-label="Pause">⏸</button><button class="btn secondary" id="ttsResume" aria-label="Resume">⏵</button><button class="btn secondary" id="ttsStop" aria-label="Stop">⏹</button></div><label class="tool-select">Voice<select id="ttsVoice"></select></label><label class="tool-select">Speed<select id="ttsRate"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select></label><p class="tool-status" id="ttsStatus" aria-live="polite">Ready.</p></div></aside></div>`;
-  bindTools(t);
+  stopSpeech();
+  const meta=[t.content_type||'Teaching',t.series&&String(t.series).toLowerCase()!=='standalone'?t.series:'',dateOf(t)?'Updated '+dateOf(t):''].filter(Boolean).join(' · ');
+  app.innerHTML=`<div class="reader-solo">
+<div class="reader-toolbar" role="toolbar" aria-label="Teaching tools">
+  <button class="tb-btn" id="backGoverned">← <span class="lbl">Library</span></button>
+  <span class="spacer"></span>
+  <span class="tool-toast" id="docStatus" aria-live="polite"></span>
+  <button class="tb-btn primary" id="ttsOpen">🔊 <span class="lbl">Listen</span></button>
+  <button class="tb-btn" id="docCopy" title="Copy all">📋 <span class="lbl">Copy</span></button>
+  <details class="tb-menu"><summary class="tb-btn" title="Save, print or edit">⬇️ <span class="lbl">Save</span> ▾</summary><div class="tb-menu-panel">
+    <button id="docPdf">⬇️ Save as PDF</button><button id="docWord">⬇️ Download Word</button><button id="docPrint">🖨️ Print</button>
+    <a id="docOrel" href="../orel-studio.html?id=${encodeURIComponent(t.id)}">✍️ Open in OrEl™</a></div></details>
+</div>
+<article class="reader" data-title="${esc(t.title||'Teaching')}"><div class="series-mark">${esc(t.series||'Dominion1st™')}</div><h2>${esc(t.title||'Teaching')}</h2><p class="reader-meta">${esc(meta)}</p><div class="subtitle">${esc(t.summary||'')}</div><div class="scripture">${esc((t.tags||[]).join(' · '))}</div><div class="reader-content governed-content">${renderContent(t)}</div></article>
+</div>
+<div class="player-bar" id="playerBar" hidden role="region" aria-label="Listen">
+  <button id="ttsPlay" aria-label="Play from start">▶</button><button id="ttsPause" aria-label="Pause">⏸</button><button id="ttsStop" aria-label="Stop">⏹</button>
+  <select id="ttsVoice" aria-label="Voice"></select>
+  <select id="ttsRate" aria-label="Speed"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select>
+  <span class="p-status" id="ttsStatus" aria-live="polite">Ready</span><button id="ttsClose" aria-label="Close player">✕</button>
+</div>`;
   document.getElementById('backGoverned').onclick=()=>{stopSpeech();renderGovernedLibrary();scrollTo({top:0});};
+  bindTools(t);
   scrollTo({top:0});
   app.focus({preventScroll:true});
 }
@@ -226,12 +252,12 @@ body{font-family:Georgia,serif;max-width:720px;margin:40px auto;color:#0b1733}h1
 .governed-content{font-size:12pt}.special,.governed-content blockquote{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body><h1 class="title">${esc(t.title)}</h1>${t.summary?`<p class="summary">${esc(t.summary)}</p>`:''}<div class="governed-content">${body}</div></body></html>`;
 }
 function bindTools(t){
-  const status=m=>{document.getElementById('docStatus').textContent=m;};
+  const status=m=>{const el=document.getElementById('docStatus');el.textContent=m;clearTimeout(status.t);status.t=setTimeout(()=>el.textContent='',4000);};
   document.getElementById('docCopy').onclick=async()=>{
     try{await navigator.clipboard.writeText(document.querySelector('.governed-content').innerText.trim()?[t.title,document.querySelector('.governed-content').innerText].join('\n\n'):t.title);status('Copied to clipboard.');}
     catch{status('Copy was blocked by the browser.');}
   };
-  document.getElementById('docPrint').onclick=()=>{status('Opening print…');print();};
+  document.getElementById('docPrint').onclick=()=>{status('');print();};
   document.getElementById('docPdf').onclick=()=>{status('Choose "Save as PDF" in the print dialog.');print();};
   document.getElementById('docWord').onclick=()=>{
     const blob=new Blob(['\ufeff'+exportHtml(t)],{type:'application/msword'});
@@ -240,21 +266,33 @@ function bindTools(t){
     document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
     status('Word file downloaded in reader format.');
   };
+  const menu=document.querySelector('.tb-menu');
+  menu.querySelectorAll('button,a').forEach(el=>el.addEventListener('click',()=>menu.open=false));
+  const bar=document.getElementById('playerBar');
   const tts=m=>{document.getElementById('ttsStatus').textContent=m;};
-  if(!speechOK){['ttsPlay','ttsPause','ttsResume','ttsStop'].forEach(id=>document.getElementById(id).disabled=true);tts('Listening is not supported in this browser.');return;}
-  fillVoices();
-  document.getElementById('ttsPlay').onclick=()=>{
+  const pauseBtn=document.getElementById('ttsPause');
+  const play=()=>{
     speechSynthesis.cancel();
     const u=new SpeechSynthesisUtterance(speechText(t));
     u.rate=Number(document.getElementById('ttsRate').value)||1;
     const name=document.getElementById('ttsVoice').value;
     const v=speechSynthesis.getVoices().find(x=>x.name===name);if(v)u.voice=v;
-    u.onstart=()=>tts('Playing…');u.onend=()=>tts('Finished.');u.onerror=()=>tts('Stopped.');
+    u.onstart=()=>{tts('Playing');pauseBtn.textContent='⏸';};u.onend=()=>tts('Finished');u.onerror=()=>tts('Stopped');
     speechSynthesis.speak(u);
   };
-  document.getElementById('ttsPause').onclick=()=>{speechSynthesis.pause();tts('Paused.');};
-  document.getElementById('ttsResume').onclick=()=>{speechSynthesis.resume();tts('Playing…');};
-  document.getElementById('ttsStop').onclick=()=>{speechSynthesis.cancel();tts('Stopped.');};
+  document.getElementById('ttsOpen').onclick=()=>{
+    if(!speechOK){status('Listening is not supported in this browser.');return;}
+    bar.hidden=false;fillVoices();play();
+  };
+  document.getElementById('ttsPlay').onclick=play;
+  pauseBtn.onclick=()=>{
+    if(speechSynthesis.paused){speechSynthesis.resume();pauseBtn.textContent='⏸';tts('Playing');}
+    else{speechSynthesis.pause();pauseBtn.textContent='⏵';tts('Paused');}
+  };
+  document.getElementById('ttsStop').onclick=()=>{speechSynthesis.cancel();pauseBtn.textContent='⏸';tts('Stopped');};
+  document.getElementById('ttsClose').onclick=()=>{speechSynthesis.cancel();bar.hidden=true;};
+  document.getElementById('ttsRate').onchange=()=>{if(speechSynthesis.speaking)play();};
+  document.getElementById('ttsVoice').onchange=()=>{if(speechSynthesis.speaking)play();};
 }
 
 // Single library view (owner-approved 2026-11-11): the old curated buttons

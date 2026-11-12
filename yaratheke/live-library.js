@@ -78,7 +78,7 @@ style.textContent=`
 .special{border:1px solid #d8e1f2;border-radius:16px;padding:20px 22px;margin:24px 0;background:#f7faff;box-shadow:0 8px 22px rgba(12,32,117,.06)}
 .special>strong{display:block;font-family:'Cinzel',serif;color:#0c2075;margin-bottom:9px;font-size:.82rem;letter-spacing:.09em}
 .special p{margin:0}
-.special-scripture{background:#eef6ff;border-left:6px solid #2b65b0}
+.special-scripture{background:#fffaf0;border-left:6px solid #c5a23b}
 .special-wordstudy{background:#f6f1ff;border-left:6px solid #7355a6}
 .special-principle{background:linear-gradient(135deg,#08155f,#102a86);color:#fff;border-left:6px solid #d3ad3d}
 .special-principle>strong,.special-principle p,.special-principle li{color:#fff}

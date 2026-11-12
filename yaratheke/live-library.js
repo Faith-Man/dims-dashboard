@@ -78,6 +78,8 @@ style.textContent=`
 .special{border:1px solid #d8e1f2;border-radius:16px;padding:20px 22px;margin:24px 0;background:#f7faff;box-shadow:0 8px 22px rgba(12,32,117,.06)}
 .special>strong{display:block;font-family:'Cinzel',serif;color:#0c2075;margin-bottom:9px;font-size:.82rem;letter-spacing:.09em}
 .special p{margin:0}
+.special ol,.special ul{margin:.2rem 0 0;padding-left:1.4rem}
+.special li{margin:.45rem 0}
 .special-scripture{background:#fffaf0;border-left:6px solid #c5a23b}
 .special-wordstudy{background:#f6f1ff;border-left:6px solid #7355a6}
 .special-principle{background:linear-gradient(135deg,#08155f,#102a86);color:#fff;border-left:6px solid #d3ad3d}
@@ -167,11 +169,19 @@ function renderContent(t){
   let md=String(t.content_md||'');
   const first=md.match(/^\s*#\s+(.+)\n/);
   if(first&&first[1].trim().toLowerCase()===String(t.title||'').trim().toLowerCase())md=md.slice(first[0].length);
-  md=md.split('\n').map(line=>{
-    const m=line.trim().match(CALLOUT_TAGS);
-    if(!m)return line;
-    return `\n<section class="special ${calloutClass(m[1])}"><strong>${esc(m[1].toUpperCase())}</strong><p>${marked.parseInline(m[2]||'')}</p></section>\n`;
-  }).join('\n');
+  // A tagged callout is the [TAG] line plus any lines directly under it (until a blank line),
+  // so a box can hold a short list such as reflection questions.
+  const lines=md.split('\n'),out=[];
+  for(let i=0;i<lines.length;i++){
+    const m=lines[i].trim().match(CALLOUT_TAGS);
+    if(!m){out.push(lines[i]);continue;}
+    const body=[m[2]||''];
+    while(i+1<lines.length&&lines[i+1].trim()!==''&&!CALLOUT_TAGS.test(lines[i+1].trim()))body.push(lines[++i]);
+    const inner=body.join('\n').trim();
+    const html=body.length>1?marked.parse(inner,{gfm:true}):`<p>${marked.parseInline(inner)}</p>`;
+    out.push(`\n<section class="special ${calloutClass(m[1])}"><strong>${esc(m[1].toUpperCase())}</strong>${html}</section>\n`);
+  }
+  md=out.join('\n');
   return DOMPurify.sanitize(marked.parse(md,{gfm:true,breaks:false}));
 }
 

@@ -27,18 +27,16 @@ const type=t=>String(t.content_type||'').trim().toLowerCase();
 // Callout types and colors copied from the live YARATHĒKĒ reader (dims-dashboard Worker).
 // Writers mark a callout by starting a line with a tag, e.g. "[SCRIPTURE] ..." or "[DOMINION PRINCIPLE] ...".
 const CALLOUT_TAGS=/^\[(SCRIPTURE|FOUNDATION SCRIPTURES?|DOMINION PRINCIPLE|KEY REVELATION|WORD STUDY|KINGDOM APPLICATION|APPLICATION|REFLECTION|WARNING|DECLARATION|PRAYER|KINGDOM ASSIGNMENT)\]\s*(.*)$/i;
+// Five callout colors (owner-approved 2026-11-11). Every tag still shows its own label;
+// related tags share a color: Revelation → Principle; Reflection, Declaration, Prayer,
+// Assignment → Application; Foundation Scriptures → Scripture.
 function calloutClass(tag){
   const x=tag.toLowerCase();
   if(/scripture/.test(x))return'special-scripture';
-  if(/principle/.test(x))return'special-principle';
-  if(/revelation/.test(x))return'special-revelation';
   if(/word study/.test(x))return'special-wordstudy';
-  if(/application|assignment/.test(x))return'special-application';
-  if(/reflection/.test(x))return'special-reflection';
+  if(/principle|revelation/.test(x))return'special-principle';
   if(/warning/.test(x))return'special-warning';
-  if(/declaration/.test(x))return'special-declaration';
-  if(/prayer/.test(x))return'special-prayer';
-  return'';
+  return'special-application';
 }
 
 const style=document.createElement('style');
@@ -81,15 +79,25 @@ style.textContent=`
 .special>strong{display:block;font-family:'Cinzel',serif;color:#0c2075;margin-bottom:9px;font-size:.82rem;letter-spacing:.09em}
 .special p{margin:0}
 .special-scripture{background:#eef6ff;border-left:6px solid #2b65b0}
+.special-wordstudy{background:#f6f1ff;border-left:6px solid #7355a6}
 .special-principle{background:linear-gradient(135deg,#08155f,#102a86);color:#fff;border-left:6px solid #d3ad3d}
 .special-principle>strong,.special-principle p,.special-principle li{color:#fff}
-.special-revelation{background:#fff7dc;border-left:6px solid #c5a23b}
-.special-wordstudy{background:#f1f7ff;border-left:6px solid #526fa5}
 .special-application{background:#effaf2;border-left:6px solid #2f7d46}
-.special-reflection{background:#f6f1ff;border-left:6px solid #7355a6}
 .special-warning{background:#fff2f0;border-left:6px solid #a64235}
-.special-declaration,.special-prayer{background:#f5f8ff;border-left:6px solid #0c2075}
-.special-principle{print-color-adjust:exact}
+.special-principle{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+/* Document and Listen panels (ported from the live reader) */
+.tool-card{margin-top:14px}
+.tool-card h4{margin:0 0 10px;font:800 .74rem Inter,sans-serif;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tool-grid .btn,.tool-row .btn{width:100%;padding:9px 8px;font-size:.8rem}
+.tool-grid .wide{grid-column:1/-1}
+.tool-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:8px}
+.tool-row .btn{font-size:1rem}
+.tool-select{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;font-size:.85rem;color:var(--muted)}
+.tool-select select{flex:1;max-width:190px;padding:7px 8px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font:inherit}
+.tool-status{margin:10px 0 0;font-size:.82rem;color:var(--muted)}
+@media(max-width:820px){.side{order:-1}.reader-shell{display:flex;flex-direction:column}}
+@media print{.about-yaratheke,.dome-module-identity,#dome-global-nav,.dome-global-drawer,[class*="di-companion"],.side{display:none!important}.governed-content blockquote,.special{break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 `;
 document.head.appendChild(style);
 
@@ -183,10 +191,70 @@ function renderGovernedLibrary(){
 function openGoverned(id){
   const t=governed.find(x=>String(x.id)===String(id));
   if(!t)return;
-  app.innerHTML=`<div class="reader-shell"><article class="reader" data-title="${esc(t.title||'Teaching')}"><div class="series-mark">${esc(t.series||'Dominion1st™')}</div><h2>${esc(t.title||'Teaching')}</h2><div class="subtitle">${esc(t.summary||'')}</div><div class="scripture">${esc((t.tags||[]).join(' · '))}</div><div class="reader-content governed-content">${renderContent(t)}</div></article><aside class="side"><div class="card"><span class="badge">YARATHĒKĒ™ Reader</span><h3>Details</h3><div class="meta-row"><span>Format</span><b>${esc(t.content_type||'Teaching')}</b></div><div class="meta-row"><span>Series</span><b>${esc(t.series||'—')}</b></div><div class="meta-row"><span>Updated</span><b>${esc(dateOf(t))}</b></div><button id="backGoverned" class="btn ghost" style="margin-top:12px">Back to library</button></div></aside></div>`;
-  document.getElementById('backGoverned').onclick=()=>{renderGovernedLibrary();scrollTo({top:0});};
+  app.innerHTML=`<div class="reader-shell"><article class="reader" data-title="${esc(t.title||'Teaching')}"><div class="series-mark">${esc(t.series||'Dominion1st™')}</div><h2>${esc(t.title||'Teaching')}</h2><div class="subtitle">${esc(t.summary||'')}</div><div class="scripture">${esc((t.tags||[]).join(' · '))}</div><div class="reader-content governed-content">${renderContent(t)}</div></article><aside class="side"><div class="card"><span class="badge">YARATHĒKĒ™ Reader</span><h3>Details</h3><div class="meta-row"><span>Format</span><b>${esc(t.content_type||'Teaching')}</b></div><div class="meta-row"><span>Series</span><b>${esc(t.series||'—')}</b></div><div class="meta-row"><span>Updated</span><b>${esc(dateOf(t))}</b></div><button id="backGoverned" class="btn ghost" style="margin-top:12px;width:100%">← Back to library</button></div>
+<div class="card tool-card"><h4>Document</h4><div class="tool-grid"><button class="btn secondary" id="docCopy">📋 Copy all</button><button class="btn secondary" id="docPrint">🖨️ Print</button><button class="btn secondary" id="docPdf">⬇️ PDF</button><button class="btn secondary" id="docWord">⬇️ Word</button><a class="btn ghost wide" id="docOrel" style="text-align:center;text-decoration:none" href="../orel-studio.html?id=${encodeURIComponent(t.id)}">✍️ Open in OrEl™</a></div><p class="tool-status" id="docStatus" aria-live="polite">Ready.</p></div>
+<div class="card tool-card"><h4>Listen</h4><div class="tool-row"><button class="btn" id="ttsPlay">▶ Listen</button><button class="btn secondary" id="ttsPause" aria-label="Pause">⏸</button><button class="btn secondary" id="ttsResume" aria-label="Resume">⏵</button><button class="btn secondary" id="ttsStop" aria-label="Stop">⏹</button></div><label class="tool-select">Voice<select id="ttsVoice"></select></label><label class="tool-select">Speed<select id="ttsRate"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option></select></label><p class="tool-status" id="ttsStatus" aria-live="polite">Ready.</p></div></aside></div>`;
+  bindTools(t);
+  document.getElementById('backGoverned').onclick=()=>{stopSpeech();renderGovernedLibrary();scrollTo({top:0});};
   scrollTo({top:0});
   app.focus({preventScroll:true});
+}
+
+// ---- Document and Listen tools (ported from the live reader) ----
+const speechOK='speechSynthesis' in window;
+function stopSpeech(){if(speechOK)speechSynthesis.cancel();}
+function speechText(t){
+  return [t.title,String(t.content_md||'')].filter(Boolean).join('\n\n')
+    .replace(/https?:\/\/\S+/g,' ').replace(/[`*_#>~|]/g,' ')
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,' ')
+    .replace(/\[(.*?)\]/g,'$1.').replace(/-{3,}/g,' ').replace(/[ \t]{2,}/g,' ').trim();
+}
+function fillVoices(){
+  const sel=document.getElementById('ttsVoice');if(!sel)return;
+  const voices=speechOK?speechSynthesis.getVoices():[];
+  const en=voices.filter(v=>/^en/i.test(v.lang));
+  const keep=sel.value;
+  sel.innerHTML='<option value="">Device default</option>'+en.map(v=>`<option value="${esc(v.name)}">${esc(v.name)}${/samantha/i.test(v.name)?' · US':''}</option>`).join('');
+  const sam=en.find(v=>/samantha/i.test(v.name));
+  sel.value=keep||(sam?sam.name:'');
+}
+if(speechOK)speechSynthesis.onvoiceschanged=fillVoices;
+function exportHtml(t){
+  const body=document.querySelector('.governed-content')?.innerHTML||'';
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(t.title)}</title><style>${style.textContent.split('/* Reader formatting')[1]?'/* Reader formatting'+style.textContent.split('/* Reader formatting')[1].split('/* Document and Listen')[0]:''}
+body{font-family:Georgia,serif;max-width:720px;margin:40px auto;color:#0b1733}h1.title{font-family:Cinzel,Georgia,serif;color:#0c2075}.summary{color:#4b5878}
+.governed-content{font-size:12pt}.special,.governed-content blockquote{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body><h1 class="title">${esc(t.title)}</h1>${t.summary?`<p class="summary">${esc(t.summary)}</p>`:''}<div class="governed-content">${body}</div></body></html>`;
+}
+function bindTools(t){
+  const status=m=>{document.getElementById('docStatus').textContent=m;};
+  document.getElementById('docCopy').onclick=async()=>{
+    try{await navigator.clipboard.writeText(document.querySelector('.governed-content').innerText.trim()?[t.title,document.querySelector('.governed-content').innerText].join('\n\n'):t.title);status('Copied to clipboard.');}
+    catch{status('Copy was blocked by the browser.');}
+  };
+  document.getElementById('docPrint').onclick=()=>{status('Opening print…');print();};
+  document.getElementById('docPdf').onclick=()=>{status('Choose "Save as PDF" in the print dialog.');print();};
+  document.getElementById('docWord').onclick=()=>{
+    const blob=new Blob(['\ufeff'+exportHtml(t)],{type:'application/msword'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=(t.slug||String(t.title||'teaching').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'teaching')+'.doc';
+    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+    status('Word file downloaded in reader format.');
+  };
+  const tts=m=>{document.getElementById('ttsStatus').textContent=m;};
+  if(!speechOK){['ttsPlay','ttsPause','ttsResume','ttsStop'].forEach(id=>document.getElementById(id).disabled=true);tts('Listening is not supported in this browser.');return;}
+  fillVoices();
+  document.getElementById('ttsPlay').onclick=()=>{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(speechText(t));
+    u.rate=Number(document.getElementById('ttsRate').value)||1;
+    const name=document.getElementById('ttsVoice').value;
+    const v=speechSynthesis.getVoices().find(x=>x.name===name);if(v)u.voice=v;
+    u.onstart=()=>tts('Playing…');u.onend=()=>tts('Finished.');u.onerror=()=>tts('Stopped.');
+    speechSynthesis.speak(u);
+  };
+  document.getElementById('ttsPause').onclick=()=>{speechSynthesis.pause();tts('Paused.');};
+  document.getElementById('ttsResume').onclick=()=>{speechSynthesis.resume();tts('Playing…');};
+  document.getElementById('ttsStop').onclick=()=>{speechSynthesis.cancel();tts('Stopped.');};
 }
 
 // Single library view (owner-approved 2026-11-11): the old curated buttons

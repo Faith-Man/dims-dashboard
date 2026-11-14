@@ -30,7 +30,7 @@ const CORS = { "access-control-allow-origin": "*", "access-control-allow-headers
 
 const service = () => createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 function page(m: string, s = 200) {
-  return new Response(`<!doctype html><meta name="viewport" content="width=device-width"><body style="font-family:system-ui;background:#071426;color:white;padding:32px;max-width:760px;margin:auto"><h1>DI² — Google Drive &amp; Docs</h1><p>${m}</p></body>`, { status: s, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
+  return new Response(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><body style="font-family:system-ui;background:#071426;color:white;padding:32px;max-width:760px;margin:auto"><h1>DI² — Google Drive &amp; Docs</h1><p>${m}</p></body>`, { status: s, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
 }
 function json(d: unknown, s = 200) { return new Response(JSON.stringify(d), { status: s, headers: { ...CORS, "content-type": "application/json", "cache-control": "no-store" } }); }
 

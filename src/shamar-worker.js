@@ -401,14 +401,19 @@ const DI_GTYPE = { 'application/vnd.google-apps.document':'Google Doc', 'applica
 async function diDriveLive(request, env, question) {
   const words=diKeywords(question,'drive');
   const quoted=(question.match(/["“]([^"”]{2,120})["”]/)||[])[1];
-  const byName=/\b(named|called|titled)\b/i.test(question)||Boolean(quoted);
+  const byName=/\b(named|called|titled)\b/i.test(question)||(Boolean(quoted)&&!/\b(containing|contains|mention\w*|about|inside|with the words?)\b/i.test(question));
   const query=quoted||words.join(' ');
   if (!query) return null;
   let files=(await diGoogle(request,env,{action:'search',query,mode:byName?'name':'fullText',limit:10})).files||[];
   if (!files.length && !byName) files=(await diGoogle(request,env,{action:'search',query,mode:'name',limit:10})).files||[];
   const items=files.map(f=>({ number:DI_GTYPE[f.mimeType]||'Drive file', title:f.name||'Untitled', detail:`${DI_GTYPE[f.mimeType]||f.mimeType} · modified ${diDate(f.modifiedTime)}`, excerpt:'', url:/^https:\/\//.test(String(f.webViewLink||''))?f.webViewLink:'', id:f.id }));
   let read=null;
-  if (files.length && DI_READ_RE.test(question)) read=await diGoogle(request,env,{action:'read',file_id:files[0].id,max_chars:30000});
+  // Read the first readable file (Docs, Sheets, Slides, text) — never a folder.
+  const readable=files.find(f=>/google-apps\.(document|spreadsheet|presentation)$|^text\/|json|markdown|csv/.test(f.mimeType))||files.find(f=>f.mimeType!=='application/vnd.google-apps.folder');
+  if (readable && DI_READ_RE.test(question)) {
+    read=await diGoogle(request,env,{action:'read',file_id:readable.id,max_chars:30000});
+    const i=items.findIndex(x=>x.id===readable.id); if (i>0) items.unshift(...items.splice(i,1));
+  }
   return { source:'Google Drive (live)', label:`${byName?'files named':'files containing'} “${query}”`, total:files.length, items, read };
 }
 

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { diClosed, diFacts, diRank } from '../src/shamar-worker.js';
+import { diClosed, diFacts, diRank, diKeywords, diSource } from '../src/shamar-worker.js';
 
 const record = overrides => ({
   id: crypto.randomUUID(),
@@ -50,4 +50,23 @@ test('retrieved prompt-like text remains inert record data', () => {
   const facts = diFacts('What requires attention?', diRank([untrusted]), [untrusted], null);
   assert.equal(facts.items[0].title, untrusted.title);
   assert.equal(typeof facts.items[0].title, 'string');
+});
+
+test('questions route to the right DI² source', () => {
+  assert.equal(diSource('Show my latest emails'), 'email');
+  assert.equal(diSource('Which email threads need a reply?'), 'email');
+  assert.equal(diSource('Find teachings about faith'), 'teachings');
+  assert.equal(diSource('Find Drive files named sermon'), 'drive');
+  assert.equal(diSource('Is there a PDF of the budget?'), 'drive');
+  assert.equal(diSource('What requires my attention?'), 'tasks');
+  assert.equal(diSource('What can DI work on now?'), 'tasks');
+});
+
+test('search keywords are sanitized so they cannot alter database filters', () => {
+  assert.deepEqual(diKeywords('Find teachings about faith', 'teachings'), ['faith']);
+  assert.deepEqual(diKeywords('Find Drive files named sermon', 'drive'), ['sermon']);
+  assert.deepEqual(diKeywords('Drive files named sermon,id.eq.x)*', 'drive'), ['sermon']);
+  assert.deepEqual(diKeywords('YARATHĒKĒ teachings on grēgoreō', 'teachings'), ['gregoreo']);
+  assert.deepEqual(diKeywords('Which email threads need a reply?', 'email'), []);
+  for (const w of diKeywords('a),or=(id.neq.0 drop; --')) assert.match(w, /^[a-z0-9]+$/);
 });

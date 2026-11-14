@@ -194,6 +194,9 @@ async function loadGoverned(){
   }
   governed=(data||[]).filter(t=>!HIDDEN_STATUSES.includes(String(t.status||'').toLowerCase()));
   renderGovernedLibrary();
+  // Deep link (?t=<teaching id>) so DI² citations open the exact teaching.
+  const linked=new URLSearchParams(location.search).get('t');
+  if(linked&&governed.some(t=>t.id===linked))openGoverned(linked);
 }
 
 function seriesList(){

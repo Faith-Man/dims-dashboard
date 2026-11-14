@@ -4,7 +4,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 // TASK-0218 — DI² Google Drive (read everything) + Google Docs (create/edit) for the owner's Gmail account.
 // GET  /di2-google/connect   → Google consent (owner clicks through himself)
 // GET  /di2-google/callback  → stores the refresh credential encrypted in Supabase Vault
-// POST /di2-google           → {action:'status'|'search'|'read'|'create_doc'|'replace_doc'|'append_doc', ...}
+// POST /di2-google           → {action:'status'|'search'|'read'|'create_doc'|'replace_doc'|'append_doc'|'replace_text', ...}
 //                              requires the caller's DOME session AND the DIMS administrator role.
 // Secrets are never logged or returned. Writes happen only when DI² sends them after the owner presses Save.
 const ID_RE = /^\d+-[a-z0-9]+\.apps\.googleusercontent\.com$/;
@@ -143,6 +143,18 @@ Deno.serve(async (req) => {
         const f = await (await g(`https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=${FIELDS}&supportsAllDrives=true`, { method: "POST", headers: { "content-type": `multipart/related; boundary=${boundary}` }, body })).json();
         console.log(JSON.stringify({ event: "di2_google_create_doc", id: f.id }));
         return json({ created: true, file: f });
+      }
+      case "replace_text": {
+        // Exact text swaps (used for KJV corrections) — keeps the Doc's formatting.
+        const id = String(b.file_id ?? "");
+        const pairs = (Array.isArray(b.pairs) ? b.pairs : []).filter((x: any) => typeof x?.from === "string" && typeof x?.to === "string" && x.from.length >= 6 && x.from.length <= 5000 && x.to.length <= 5000).slice(0, 50);
+        if (!/^[A-Za-z0-9_-]{10,}$/.test(id) || !pairs.length) return json({ error: "File id and pairs required" }, 400);
+        const meta = await (await g(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(id)}?fields=${FIELDS}&supportsAllDrives=true`)).json();
+        if (meta.mimeType !== GDOC) return json({ error: "DI\u00b2 only edits Google Docs" }, 400);
+        const r = await (await g(`https://docs.googleapis.com/v1/documents/${encodeURIComponent(id)}:batchUpdate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ requests: pairs.map((x: any) => ({ replaceAllText: { containsText: { text: x.from, matchCase: true }, replaceText: x.to } })) }) })).json();
+        const changed = (r.replies ?? []).reduce((n: number, x: any) => n + (x?.replaceAllText?.occurrencesChanged ?? 0), 0);
+        console.log(JSON.stringify({ event: "di2_google_replace_text", id, changed }));
+        return json({ updated: true, changed, file: meta });
       }
       case "replace_doc":
       case "append_doc": {

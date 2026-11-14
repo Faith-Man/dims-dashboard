@@ -234,7 +234,7 @@ async function diCommandBrief(request, env, projects, tasks) {
   const top=diRank(tasks.map(x=>({...x,record_type:'task'}))).slice(0,5);
   const noRac=open.filter(x=>x.system_rac==null);
   const overdue=open.map(x=>({...x,days:diDays(x.next_follow_up_date)})).filter(x=>x.days!==null&&x.days<0).sort((a,b)=>a.days-b.days);
-  const alerts=await diRest(request,env,'notifications?select=id,title,task_id,project_id,created_at&severity=eq.critical&read_at=is.null&dismissed_at=is.null&order=created_at.desc&limit=2000');
+  const alerts=await diRest(request,env,'notifications?select=id,title,task_id,project_id,created_at&severity=eq.critical&read_at=is.null&dismissed_at=is.null&order=created_at.desc&limit=10000');
   const byRecord=new Map();
   for (const a of alerts) { const k=a.task_id||a.project_id||a.title; if(!byRecord.has(k)) byRecord.set(k,a); }
   const asOf=new Date().toISOString();

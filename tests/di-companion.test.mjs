@@ -13,12 +13,21 @@ const record = overrides => ({
   ...overrides
 });
 
-test('executive queue positions outrank calculated suggestions', () => {
-  const override = record({ id: 'override', queue_position: 1, priority: 'low', readiness: 'blocked' });
+test('DEA queue positions outrank calculated suggestions', () => {
+  const ranked = record({ id: 'ranked', queue_position: 1, priority: 'low', readiness: 'blocked' });
   const suggestion = record({ id: 'suggestion', priority: 'high' });
-  const ranked = diRank([suggestion, override]);
-  assert.equal(ranked[0].id, 'override');
-  assert.equal(ranked[0].rank_basis, 'executive override');
+  const result = diRank([suggestion, ranked]);
+  assert.equal(result[0].id, 'ranked');
+  assert.equal(result[0].rank_basis, 'DEA rank');
+  assert.equal(result[1].rank_basis, 'DI calculation');
+});
+
+test('owner overrides are labeled as overrides, not as DEA ranks', () => {
+  const override = record({ id: 'override', queue_position: 1, dea_override_position: 1 });
+  const ranked = record({ id: 'ranked', queue_position: 2 });
+  const result = diRank([ranked, override]);
+  assert.equal(result[0].rank_basis, 'owner override');
+  assert.equal(result[1].rank_basis, 'DEA rank');
 });
 
 test('verified, cancelled, and deferred records stay out of execution ranking', () => {

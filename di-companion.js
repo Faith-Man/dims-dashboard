@@ -92,13 +92,13 @@
   button.className='di-launch'; button.type='button'; button.textContent='DI²'; button.setAttribute('aria-haspopup','dialog'); button.setAttribute('aria-label','Open DI² — Dominion1st Intelligence'); button.title='DI² — Divine Intelligence × Dominion1st Intelligence';
   const backdrop=document.createElement('div'); backdrop.className='di-backdrop';
   const panel=document.createElement('aside'); panel.className='di-panel'; panel.setAttribute('role','dialog'); panel.setAttribute('aria-modal','true'); panel.setAttribute('aria-label','DI² — Dominion1st Intelligence'); panel.setAttribute('aria-hidden','true');
-  panel.innerHTML=`<div class="di-head"><div><strong>DI² — Dominion1st Intelligence™</strong><small>${escapeHtml(moduleName)} · Read-only companion</small></div><div><button class="di-new" type="button">New</button> <button class="di-close" type="button" aria-label="Close DI² — Dominion1st Intelligence">Close</button></div></div><div class="di-status">TETELESTAI: certified live adapter · Other modules: status shown in answers</div><div class="di-log" aria-live="polite"></div><div class="di-starters"><button class="di-starter" type="button">What requires my attention?</button><button class="di-starter" type="button">What can DI work on now?</button><button class="di-starter" type="button">What is awaiting verification?</button></div><form class="di-form"><label for="diQuestion">Ask, analyze, explain, or direct DI² across DOME or this module</label><textarea id="diQuestion" required maxlength="1200"></textarea><div class="di-actions"><span class="di-disclaimer">Facts, calculations, and recommendations are labeled.</span><button class="di-send" type="submit">Ask</button></div></form>`;
+  panel.innerHTML=`<div class="di-head"><div><strong>DI² — Dominion1st Intelligence™</strong><small>${escapeHtml(moduleName)} · Read-only companion · KUBERNĒSIS Command Brief</small></div><div><button class="di-new" type="button">New</button> <button class="di-close" type="button" aria-label="Close DI² — Dominion1st Intelligence">Close</button></div></div><div class="di-status">TETELESTAI: certified live adapter · Other modules: status shown in answers</div><div class="di-log" aria-live="polite"></div><div class="di-starters"><button class="di-starter di-brief" type="button" data-preset="command_brief">👑 Command Brief</button><button class="di-starter" type="button">What requires my attention?</button><button class="di-starter" type="button">What can DI work on now?</button><button class="di-starter" type="button">What is awaiting verification?</button></div><form class="di-form"><label for="diQuestion">Ask, analyze, explain, or direct DI² across DOME or this module</label><textarea id="diQuestion" required maxlength="1200"></textarea><div class="di-actions"><span class="di-disclaimer">Facts, calculations, and recommendations are labeled.</span><button class="di-send" type="submit">Ask</button></div></form>`;
   document.body.append(backdrop,button,panel);
   const log=panel.querySelector('.di-log'), input=panel.querySelector('textarea'), close=panel.querySelector('.di-close');
   let previousFocus=null;
   function save(messages){sessionStorage.setItem(memoryKey,JSON.stringify(messages.slice(-12)))}
   function messages(){try{return JSON.parse(sessionStorage.getItem(memoryKey))||[]}catch(_){return[]}}
-  function render(){const rows=messages();log.innerHTML=rows.length?rows.map(m=>`<div class="di-message ${escapeHtml(m.role)}">${escapeHtml(m.text)}${m.citations?.length?`<ul class="di-citations">${m.citations.map(c=>`<li><a href="${escapeHtml(c.url)}">${escapeHtml(c.number)} — ${escapeHtml(c.title)}</a></li>`).join('')}</ul>`:''}</div>`).join(''):'<div class="di-message assistant">Ask about priorities, blockers, follow-ups, verification, or module availability. DI² will identify what is live, calculated, recommended, or unavailable.</div>';log.scrollTop=log.scrollHeight}
+  function render(){const rows=messages();log.innerHTML=rows.length?rows.map((m,i)=>`<div class="di-message ${escapeHtml(m.role)}" style="white-space:pre-wrap">${escapeHtml(m.text)}${m.ack&&!m.ack.done?`<div style="margin-top:10px"><button class="di-ack" type="button" data-index="${i}" style="border:1px solid #0c1475;background:#0c1475;color:#fff;border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer">✓ Acknowledge ${Number(m.ack.count)} alert${m.ack.count===1?'':'s'}</button></div>`:''}${m.citations?.length?`<ul class="di-citations">${m.citations.map(c=>`<li><a href="${escapeHtml(c.url)}">${escapeHtml(c.number)} — ${escapeHtml(c.title)}</a></li>`).join('')}</ul>`:''}</div>`).join(''):'<div class="di-message assistant">Ask about priorities, blockers, follow-ups, verification, or module availability. DI² will identify what is live, calculated, recommended, or unavailable.</div>';log.scrollTop=log.scrollHeight}
   function open(){previousFocus=document.activeElement;panel.setAttribute('aria-hidden','false');backdrop.classList.add('open');render();setTimeout(()=>input.focus(),0)}
   function shut(){panel.setAttribute('aria-hidden','true');backdrop.classList.remove('open');previousFocus?.focus()}
   button.addEventListener('click',open); close.addEventListener('click',shut); backdrop.addEventListener('click',shut);
@@ -113,18 +113,28 @@
     }
   });
   panel.querySelector('.di-new').addEventListener('click',()=>{sessionStorage.removeItem(memoryKey);render();input.focus()});
-  panel.querySelectorAll('.di-starter').forEach(b=>b.addEventListener('click',()=>{input.value=b.textContent;input.focus()}));
-  panel.querySelector('form').addEventListener('submit',async e=>{
-    e.preventDefault(); const question=input.value.trim(); if(!question)return;
-    const history=messages(); history.push({role:'user',text:question}); save(history); input.value=''; render();
+  panel.querySelectorAll('.di-starter').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.preset){ask('Command Brief',b.dataset.preset);return}input.value=b.textContent;input.focus()}));
+  log.addEventListener('click',async e=>{
+    const btn=e.target.closest('.di-ack');if(!btn)return;
+    const history=messages();const m=history[Number(btn.dataset.index)];if(!m?.ack)return;
+    const accessToken=token();if(!accessToken){history.push({role:'error',text:'Please sign in to acknowledge alerts.'});save(history);render();return}
+    btn.disabled=true;btn.textContent='Acknowledging…';
+    try{const r=await fetch('/api/di/acknowledge',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${accessToken}`},body:JSON.stringify({before:m.ack.before})});const d=await r.json();if(!r.ok)throw new Error(d.error||`Request failed (${r.status})`);m.ack.done=true;history.push({role:'assistant',text:`Acknowledged ${d.acknowledged} critical alert${d.acknowledged===1?'':'s'}. They are marked reviewed; no tasks were changed. New alerts will stand out from here on.`})}
+    catch(error){history.push({role:'error',text:`Acknowledge failed: ${error.message}`})}finally{save(history);render()}
+  });
+  async function ask(question,preset){
+    const history=messages(); history.push({role:'user',text:question}); save(history); render();
     const accessToken=token();
     if(!accessToken){history.push({role:'error',text:'An authorized DOME session is required before DI can read operational records. Please sign in, then try again.'});save(history);render();return}
     const send=panel.querySelector('.di-send');send.disabled=true;send.textContent='Working…';
     try{
       const selected=document.querySelector('[aria-selected="true"],[data-selected="true"]');
-      const response=await fetch('/api/di/query',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${accessToken}`},body:JSON.stringify({question,module:moduleName,page:location.pathname,selected_record:selected?.dataset?.recordId||null,history:history.slice(-6).map(({role,text})=>({role,text}))})});
+      const response=await fetch('/api/di/query',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${accessToken}`},body:JSON.stringify({question,preset:preset||null,module:moduleName,page:location.pathname,selected_record:selected?.dataset?.recordId||null,history:history.slice(-6).map(({role,text})=>({role,text}))})});
       const data=await response.json();if(!response.ok)throw new Error(data.error||`Request failed (${response.status})`);
-      history.push({role:'assistant',text:data.answer,citations:data.citations||[]});
+      history.push({role:'assistant',text:data.answer,citations:data.citations||[],ack:data.acknowledge||null});
     }catch(error){history.push({role:'error',text:`DI² is unavailable: ${error.message}`})}finally{save(history);render();send.disabled=false;send.textContent='Ask'}
+  }
+  panel.querySelector('form').addEventListener('submit',e=>{
+    e.preventDefault(); const question=input.value.trim(); if(!question)return; input.value=''; ask(question,null);
   });
 })();

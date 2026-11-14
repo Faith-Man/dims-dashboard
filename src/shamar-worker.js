@@ -14,7 +14,7 @@ const DI_MODULES = [
   ['TETELESTAI™','Projects, Tasks, and Mission Execution','certified-live'],
   ['OrEl™','Content Creation Studio','interface-only'],
   ['YARATHĒKĒ™','Wells of Knowledge','interface-only'],
-  ['SHAMAR™','Watch, Guard, and Peace & Safety Intelligence','interface-only'],
+  ['GRĒGOREŌ™','Watch — World Peace & Safety and End-Times Intelligence','interface-only'],
   ['OIKONOMOS™','Stewardship and Administration of Entrusted Resources','interface-only'],
   ['EKKLĒSIA™','The People of God','interface-only']
 ];
@@ -188,7 +188,8 @@ function diRank(records) {
     const aq=Number(a.queue_position), bq=Number(b.queue_position);
     if (aq > 0 || bq > 0) return aq > 0 && bq > 0 ? aq-bq : aq > 0 ? -1 : 1;
     return diScore(b)-diScore(a);
-  }).map((item,index) => ({ ...item, execution_rank:index+1, rank_basis:Number(item.queue_position)>0?'executive override':'DI calculation' }));
+  }).map((item,index) => ({ ...item, execution_rank:index+1,
+    rank_basis: item.dea_override_position != null ? 'owner override' : Number(item.queue_position) > 0 ? 'DEA rank' : 'DI calculation' }));
 }
 
 function diCitation(item) {
@@ -210,6 +211,71 @@ function diFacts(question, ranked, all, selectedRecord) {
   return { label, items:filtered.slice(0,10), total:filtered.length };
 }
 
+
+// ---- KUBERNĒSIS Command Brief (PROJ-0004 / TASK-0216) ----
+// A standing direction brief DI² prepares on request from the DIMS records: top DEA-ranked work with
+// reasons, items missing a RAC, overdue follow-ups, and unreviewed critical alerts. Read-only except
+// the separate acknowledge route, which only marks alerts as reviewed.
+const DI_BRIEF_RE = /command brief|brief me|kubern/i;
+
+async function diRest(request, env, path) {
+  const response = await fetch(`${env.SUPABASE_URL}/rest/v1/${path}`, {
+    headers: { apikey: env.SUPABASE_PUBLISHABLE_KEY, authorization: request.headers.get('authorization'), accept: 'application/json' }
+  });
+  if (!response.ok) throw new Error(`${path.split('?')[0]} adapter denied access (${response.status})`);
+  return response.json();
+}
+
+function diNum(x) { return x.task_number || x.project_number || 'Unnumbered'; }
+
+async function diCommandBrief(request, env, projects, tasks) {
+  const all=[...projects.map(x=>({...x,record_type:'project'})),...tasks.map(x=>({...x,record_type:'task'}))];
+  const open=all.filter(x=>!diClosed(x));
+  const top=diRank(tasks.map(x=>({...x,record_type:'task'}))).slice(0,5);
+  const noRac=open.filter(x=>x.system_rac==null);
+  const overdue=open.map(x=>({...x,days:diDays(x.next_follow_up_date)})).filter(x=>x.days!==null&&x.days<0).sort((a,b)=>a.days-b.days);
+  const alerts=await diRest(request,env,'notifications?select=id,title,task_id,project_id,created_at&severity=eq.critical&read_at=is.null&dismissed_at=is.null&order=created_at.desc&limit=2000');
+  const byRecord=new Map();
+  for (const a of alerts) { const k=a.task_id||a.project_id||a.title; if(!byRecord.has(k)) byRecord.set(k,a); }
+  const asOf=new Date().toISOString();
+  const lines=[];
+  lines.push('KUBERNĒSIS™ Command Brief — Live fact and Calculated result from DIMS records.');
+  lines.push('');
+  lines.push('1. Do next (DEA order):');
+  top.forEach((x,i)=>lines.push(`   ${i+1}. ${diNum(x)} — ${x.title} (RAC ${x.system_rac??'none'}). Why: ${x.dea_rank_reason||'ranked by DI calculation'}`));
+  lines.push('');
+  lines.push(`2. Missing a RAC (not prioritized until scored): ${noRac.length}`);
+  noRac.slice(0,5).forEach(x=>lines.push(`   • ${diNum(x)} — ${x.title}`));
+  lines.push('');
+  lines.push(`3. Overdue follow-ups: ${overdue.length}`);
+  overdue.slice(0,5).forEach(x=>lines.push(`   • ${diNum(x)} — ${x.title} (${-x.days} days overdue)`));
+  lines.push('');
+  lines.push(`4. Unreviewed critical alerts: ${alerts.length} alerts about ${byRecord.size} records.`);
+  [...byRecord.values()].slice(0,5).forEach(a=>lines.push(`   • ${String(a.title||'').slice(0,110)}`));
+  lines.push('');
+  lines.push(alerts.length ? 'DI recommendation — Review the items above, then acknowledge the alerts so new ones stand out. Acknowledging marks them reviewed; it changes no task.' : 'DI recommendation — No unreviewed critical alerts. Work the DEA order above.');
+  const citations=[...top,...noRac.slice(0,3),...overdue.slice(0,3)].filter((x,i,arr)=>arr.findIndex(y=>y.id===x.id)===i).slice(0,8).map(diCitation);
+  return { answer:lines.join('\n'), citations, acknowledge: alerts.length ? { count:alerts.length, before:asOf } : null };
+}
+
+async function handleAcknowledge(request, env) {
+  if (request.method !== 'POST') return json({ error:'Method not allowed' },405);
+  const user=await diUser(request,env);
+  if (!user) return json({ error:'Authorized DOME session required' },401);
+  let body; try { body=await request.json(); } catch (_) { return json({ error:'Invalid request body' },400); }
+  const before=new Date(body?.before||'');
+  if (Number.isNaN(before.getTime())) return json({ error:'A brief timestamp is required' },400);
+  const response=await fetch(`${env.SUPABASE_URL}/rest/v1/notifications?severity=eq.critical&read_at=is.null&dismissed_at=is.null&created_at=lte.${encodeURIComponent(before.toISOString())}`, {
+    method:'PATCH',
+    headers:{ apikey:env.SUPABASE_PUBLISHABLE_KEY, authorization:request.headers.get('authorization'), 'content-type':'application/json', prefer:'return=minimal,count=exact' },
+    body:JSON.stringify({ read_at:new Date().toISOString() })
+  });
+  if (!response.ok) return json({ error:`Acknowledge failed (${response.status})` },502);
+  const count=Number((response.headers.get('content-range')||'').split('/')[1])||0;
+  console.log(JSON.stringify({event:'di_brief_acknowledged',user_id:user.id,count,before:before.toISOString()}));
+  return json({ acknowledged:count });
+}
+
 async function handleDi(request, env) {
   if (request.method !== 'POST') return json({ error:'Method not allowed' },405);
   const user=await diUser(request,env);
@@ -218,17 +284,22 @@ async function handleDi(request, env) {
   try { body=await request.json(); } catch (_) { return json({ error:'Invalid request body' },400); }
   const question=String(body?.question||'').trim();
   if (!question || question.length>DI_MAX_QUESTION) return json({ error:'Question must be between 1 and 1200 characters' },400);
-  const fields='id,title,status,priority,queue_position,action_owner,next_action,readiness,risk_level,next_follow_up_date,target_date,percent_complete,verification_status,updated_at';
+  const fields='id,title,status,priority,queue_position,action_owner,next_action,readiness,risk_level,next_follow_up_date,target_date,percent_complete,verification_status,updated_at,system_rac,dea_rank_in_rac,dea_rank_reason,dea_override_position';
   const [projects,tasks]=await Promise.all([
     diTable(request,env,'projects',`project_number,${fields}`),
     diTable(request,env,'tasks',`task_number,project_id,${fields}`)
   ]);
+  if (body.preset==='command_brief' || DI_BRIEF_RE.test(question)) {
+    const brief=await diCommandBrief(request,env,projects,tasks);
+    console.log(JSON.stringify({event:'di_command_brief',user_id:user.id}));
+    return json({...brief,module_status:DI_MODULES.map(([name,role,integration])=>({name,role,integration})),mode:'command-brief'});
+  }
   const all=[...projects.map(x=>({...x,record_type:'project'})),...tasks.map(x=>({...x,record_type:'task'}))];
   const ranked=diRank(all);
   const facts=diFacts(question,ranked,all,body.selected_record||null);
   const citations=facts.items.slice(0,8).map(diCitation);
   const status=DI_MODULES.map(([name,role,integration])=>({name,role,integration}));
-  const factLines=facts.items.slice(0,8).map(x=>`${x.execution_rank?`#${x.execution_rank} `:''}${x.task_number||x.project_number}: ${x.title} | status=${x.status} | priority=${x.priority} | owner=${x.action_owner} | readiness=${x.readiness} | follow_up=${x.next_follow_up_date||'none'} | verification=${x.verification_status} | rank_basis=${x.rank_basis||'not ranked'}`);
+  const factLines=facts.items.slice(0,8).map(x=>`${x.execution_rank?`#${x.execution_rank} `:''}${x.task_number||x.project_number}: ${x.title} | status=${x.status} | priority=${x.priority} | owner=${x.action_owner} | readiness=${x.readiness} | follow_up=${x.next_follow_up_date||'none'} | verification=${x.verification_status} | RAC=${x.system_rac??'none'} | rank_basis=${x.rank_basis||'not ranked'} | why=${x.dea_rank_reason||'n/a'}`);
   let answer=`Live fact — TETELESTAI contains ${projects.length} projects and ${tasks.length} tasks visible to your authorized session.\n\nCalculated result — ${facts.total} ${facts.label}.\n\n${factLines.join('\n')||'No matching records were found.'}\n\nIntegration status — TETELESTAI is the only certified live adapter in this release. The other seven module adapters are not yet certified, so DI cannot truthfully answer from their authoritative records yet.`;
   if (env.AI && !/module.*(status|available|connected)/i.test(question)) {
     try {
@@ -248,6 +319,10 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === '/api/di/status') return json({service:'Dominion1st Intelligence™',mode:'read-only',modules:DI_MODULES.map(([name,role,integration])=>({name,role,integration}))});
+    if (url.pathname === '/api/di/acknowledge') {
+      try { return await handleAcknowledge(request,env); }
+      catch (error) { console.error(JSON.stringify({event:'di_ack_failed',error:String(error)})); return json({error:'DI could not acknowledge alerts'},503); }
+    }
     if (url.pathname === '/api/di/query') {
       try { return await handleDi(request,env); }
       catch (error) { console.error(JSON.stringify({event:'di_query_failed',error:String(error)})); return json({error:'DI could not retrieve authorized operational records'},503); }

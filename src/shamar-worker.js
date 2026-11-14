@@ -715,8 +715,10 @@ async function handleAction(request, env) {
     if (!/^[A-Za-z0-9_-]{10,}$/.test(String(p.file_id||'')) || !pairs.length) return json({ error:'Nothing to correct' },400);
     // Only exact KJV text may be written: every replacement must be a verse text from kjv_verses (checked on the server).
     for (const x of pairs) {
-      const words=x.to.split(/\s+/).slice(0,6).join(' ').replace(/[(),*]/g,'');
-      const hit=await diRest(request,env,`kjv_verses?select=verse&text=ilike.${encodeURIComponent(words.replace(/[%_]/g,''))}*&limit=1`);
+      // Opening words up to the first punctuation mark must begin a real KJV verse.
+      const lead=(x.to.match(/^[A-Za-z' ]+/)||[''])[0].trim();
+      if (lead.split(/\s+/).length<3) return json({ error:'A replacement is not KJV text; nothing was changed.' },400);
+      const hit=await diRest(request,env,`kjv_verses?select=verse&text=like.${encodeURIComponent(lead)}*&limit=1`);
       if (!hit.length) return json({ error:'A replacement is not KJV text; nothing was changed.' },400);
     }
     try {

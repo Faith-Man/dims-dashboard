@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { diClosed, diFacts, diRank, diKeywords, diSource } from '../src/shamar-worker.js';
+import { diClosed, diFacts, diRank, diKeywords, diSource, diParseDraft, DI_DRAFT_RE } from '../src/shamar-worker.js';
 
 const record = overrides => ({
   id: crypto.randomUUID(),
@@ -69,4 +69,20 @@ test('search keywords are sanitized so they cannot alter database filters', () =
   assert.deepEqual(diKeywords('YARATHĒKĒ teachings on grēgoreō', 'teachings'), ['gregoreo']);
   assert.deepEqual(diKeywords('Which email threads need a reply?', 'email'), []);
   for (const w of diKeywords('a),or=(id.neq.0 drop; --')) assert.match(w, /^[a-z0-9]+$/);
+});
+
+test('teaching draft requests are recognized, ordinary questions are not', () => {
+  assert.equal(DI_DRAFT_RE.test('Draft a teaching on the armor of God'), true);
+  assert.equal(DI_DRAFT_RE.test('Write a sermon about grace'), true);
+  assert.equal(DI_DRAFT_RE.test('Find teachings about faith'), false);
+  assert.equal(DI_DRAFT_RE.test('Write a message to John about Sunday'), false);
+  assert.equal(DI_DRAFT_RE.test('What requires my attention?'), false);
+});
+
+test('drafts parse into title, summary and body', () => {
+  const d = diParseDraft('# Walking in Dominion\nSummary: Dominion begins with identity.\n\n## Opening\n[SCRIPTURE] Genesis 1:26 ...');
+  assert.equal(d.title, 'Walking in Dominion');
+  assert.equal(d.summary, 'Dominion begins with identity.');
+  assert.match(d.content_md, /^## Opening/);
+  assert.equal(diParseDraft('just text').title, 'Untitled Teaching Draft');
 });

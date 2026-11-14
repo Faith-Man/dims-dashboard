@@ -196,6 +196,11 @@ async function loadGoverned(){
   renderGovernedLibrary();
   // Deep link (?t=<teaching id>) so DI² citations open the exact teaching.
   const linked=new URLSearchParams(location.search).get('t');
+  if(linked&&!governed.some(t=>t.id===linked)){
+    // A linked draft (e.g. saved by DI²) opens directly but stays out of the library list.
+    const hidden=(data||[]).find(t=>t.id===linked);
+    if(hidden){governed.push({...hidden,title:`${String(hidden.status).toUpperCase()==='DRAFT'?'[DRAFT] ':''}${hidden.title}`});}
+  }
   if(linked&&governed.some(t=>t.id===linked))openGoverned(linked);
 }
 

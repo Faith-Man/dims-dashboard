@@ -68,4 +68,10 @@ sb.auth.onAuthStateChange((event, session) => {
   }
 });
 
-void check();
+// Loaded as /dome-sign-in.js?optional (by the DI² orb), the panel is not forced on the page:
+// the orb asks for a fresh session token and opens the panel only when DI² needs a sign-in.
+// Asking supabase-js for the session also renews an expired token, so DI² keeps working
+// on pages (like DOME Home) that don't otherwise run Supabase.
+window.domeShowSignIn = showPanel;
+window.domeAccessToken = async () => { const { data } = await sb.auth.getSession(); return data?.session?.access_token || ''; };
+if (!new URL(import.meta.url).searchParams.has('optional')) void check();

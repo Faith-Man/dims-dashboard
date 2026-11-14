@@ -80,6 +80,11 @@
 
   const memoryKey = 'dominion1st-di-conversation-v1';
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  // Fresh token from the shared sign-in module (renews expired sessions); falls back to storage.
+  let signInModule=null;
+  const loadSignIn=()=>signInModule||(signInModule=import('/dome-sign-in.js?optional').catch(()=>null));
+  const freshToken=async()=>{try{await loadSignIn();if(window.domeAccessToken)return await window.domeAccessToken()}catch(_){}return token()};
+  const promptSignIn=async()=>{await loadSignIn();if(window.domeShowSignIn)window.domeShowSignIn()};
   const token = () => {
     for (let i=0;i<localStorage.length;i+=1) {
       const key=localStorage.key(i);
@@ -98,7 +103,7 @@
   let previousFocus=null;
   function save(messages){sessionStorage.setItem(memoryKey,JSON.stringify(messages.slice(-12)))}
   function messages(){try{return JSON.parse(sessionStorage.getItem(memoryKey))||[]}catch(_){return[]}}
-  function render(){const rows=messages();log.innerHTML=rows.length?rows.map((m,i)=>`<div class="di-message ${escapeHtml(m.role)}" style="white-space:pre-wrap">${escapeHtml(m.text)}${m.ack&&!m.ack.done?`<div style="margin-top:10px"><button class="di-ack" type="button" data-index="${i}" style="border:1px solid #0c1475;background:#0c1475;color:#fff;border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer">✓ Acknowledge ${Number(m.ack.count)} alert${m.ack.count===1?'':'s'}</button></div>`:''}${m.citations?.length?`<ul class="di-citations">${m.citations.map(c=>`<li><a href="${escapeHtml(c.url)}"${/^https:/.test(c.url)?' target="_blank" rel="noopener"':''}>${escapeHtml(c.number)} — ${escapeHtml(c.title)}</a></li>`).join('')}</ul>`:''}</div>`).join(''):'<div class="di-message assistant">Ask about priorities, blockers, follow-ups, verification, or module availability. DI² will identify what is live, calculated, recommended, or unavailable.</div>';log.scrollTop=log.scrollHeight}
+  function render(){const rows=messages();log.innerHTML=rows.length?rows.map((m,i)=>`<div class="di-message ${escapeHtml(m.role)}" style="white-space:pre-wrap">${escapeHtml(m.text)}${m.signin?`<div style="margin-top:10px"><button class="di-signin" type="button" style="border:1px solid #0c1475;background:#0c1475;color:#fff;border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer">Sign in</button></div>`:''}${m.ack&&!m.ack.done?`<div style="margin-top:10px"><button class="di-ack" type="button" data-index="${i}" style="border:1px solid #0c1475;background:#0c1475;color:#fff;border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer">✓ Acknowledge ${Number(m.ack.count)} alert${m.ack.count===1?'':'s'}</button></div>`:''}${m.citations?.length?`<ul class="di-citations">${m.citations.map(c=>`<li><a href="${escapeHtml(c.url)}"${/^https:/.test(c.url)?' target="_blank" rel="noopener"':''}>${escapeHtml(c.number)} — ${escapeHtml(c.title)}</a></li>`).join('')}</ul>`:''}</div>`).join(''):'<div class="di-message assistant">Ask about priorities, blockers, follow-ups, verification, or module availability. DI² will identify what is live, calculated, recommended, or unavailable.</div>';log.scrollTop=log.scrollHeight}
   function open(){previousFocus=document.activeElement;panel.setAttribute('aria-hidden','false');backdrop.classList.add('open');render();setTimeout(()=>input.focus(),0)}
   function shut(){panel.setAttribute('aria-hidden','true');backdrop.classList.remove('open');previousFocus?.focus()}
   button.addEventListener('click',open); close.addEventListener('click',shut); backdrop.addEventListener('click',shut);
@@ -115,22 +120,25 @@
   panel.querySelector('.di-new').addEventListener('click',()=>{sessionStorage.removeItem(memoryKey);render();input.focus()});
   panel.querySelectorAll('.di-starter').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.preset){ask('Command Brief',b.dataset.preset);return}input.value=b.textContent;input.focus()}));
   log.addEventListener('click',async e=>{
+    if(e.target.closest('.di-signin')){shut();promptSignIn();return}
     const btn=e.target.closest('.di-ack');if(!btn)return;
     const history=messages();const m=history[Number(btn.dataset.index)];if(!m?.ack)return;
-    const accessToken=token();if(!accessToken){history.push({role:'error',text:'Please sign in to acknowledge alerts.'});save(history);render();return}
+    const accessToken=await freshToken();if(!accessToken){history.push({role:'error',text:'Please sign in to acknowledge alerts.',signin:true});save(history);render();return}
     btn.disabled=true;btn.textContent='Acknowledging…';
     try{const r=await fetch('/api/di/acknowledge',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${accessToken}`},body:JSON.stringify({before:m.ack.before})});const d=await r.json();if(!r.ok)throw new Error(d.error||`Request failed (${r.status})`);m.ack.done=true;history.push({role:'assistant',text:`Acknowledged ${d.acknowledged} critical alert${d.acknowledged===1?'':'s'}. They are marked reviewed; no tasks were changed. New alerts will stand out from here on.`})}
     catch(error){history.push({role:'error',text:`Acknowledge failed: ${error.message}`})}finally{save(history);render()}
   });
   async function ask(question,preset){
     const history=messages(); history.push({role:'user',text:question}); save(history); render();
-    const accessToken=token();
-    if(!accessToken){history.push({role:'error',text:'An authorized DOME session is required before DI can read operational records. Please sign in, then try again.'});save(history);render();return}
+    const accessToken=await freshToken();
+    if(!accessToken){history.push({role:'error',text:'Please sign in so DI² can read your DIMS records. You only need to do this once on this device.',signin:true});save(history);render();return}
     const send=panel.querySelector('.di-send');send.disabled=true;send.textContent='Working…';
     try{
       const selected=document.querySelector('[aria-selected="true"],[data-selected="true"]');
       const response=await fetch('/api/di/query',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${accessToken}`},body:JSON.stringify({question,preset:preset||null,module:moduleName,page:location.pathname,selected_record:selected?.dataset?.recordId||null,history:history.slice(-6).map(({role,text})=>({role,text}))})});
-      const data=await response.json();if(!response.ok)throw new Error(data.error||`Request failed (${response.status})`);
+      const data=await response.json();
+      if(response.status===401){history.push({role:'error',text:'Your sign-in has expired. Please sign in again.',signin:true});return}
+      if(!response.ok)throw new Error(data.error||`Request failed (${response.status})`);
       history.push({role:'assistant',text:data.answer,citations:data.citations||[],ack:data.acknowledge||null});
     }catch(error){history.push({role:'error',text:`DI² is unavailable: ${error.message}`})}finally{save(history);render();send.disabled=false;send.textContent='Ask'}
   }

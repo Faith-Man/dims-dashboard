@@ -176,6 +176,8 @@ function renderContent(t){
     const m=lines[i].trim().match(CALLOUT_TAGS);
     if(!m){out.push(lines[i]);continue;}
     const body=[m[2]||''];
+    // A tag alone on its line followed by a blank line takes the next paragraph as its text.
+    if(!body[0].trim()){while(i+1<lines.length&&lines[i+1].trim()==='')i++;}
     while(i+1<lines.length&&lines[i+1].trim()!==''&&!CALLOUT_TAGS.test(lines[i+1].trim()))body.push(lines[++i]);
     const inner=body.join('\n').trim();
     const html=body.length>1?marked.parse(inner,{gfm:true}):`<p>${marked.parseInline(inner)}</p>`;

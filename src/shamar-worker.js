@@ -458,7 +458,7 @@ Rules:
 - Quote KJV wording exactly; if unsure of exact wording, use fewer verses rather than paraphrase.
 - Length: 1,200–2,000 words, with an opening, 3–4 developed sections, and a closing.
 - Include a biblical example, a natural-world illustration, and a real-world example.
-- Use these callouts, each starting on its own line with the tag in brackets and ending at a blank line: [SCRIPTURE], [WORD STUDY], [DOMINION PRINCIPLE], [KEY REVELATION], [KINGDOM APPLICATION], [REFLECTION], [DECLARATION], [PRAYER]. Use several, not all.
+- Use these callouts, each written as the tag in brackets followed IMMEDIATELY (same line or very next line, no blank line between) by its text, and ending at a blank line: [SCRIPTURE], [WORD STUDY], [DOMINION PRINCIPLE], [KEY REVELATION], [KINGDOM APPLICATION], [REFLECTION], [DECLARATION], [PRAYER]. Use several, not all.
 - Close with 3–5 reflection questions, then: "Love You! 💖 / You Have Dominion! 👑 / Jesus is Lord!!! ✝️ / — Michael 🛡️ Legacy".
 - Warm, bold, pastoral voice. Markdown headings (##) for sections.
 Output format exactly: first line "# <Title>", second line "Summary: <one sentence>", blank line, then the teaching body in Markdown. No other commentary.`;

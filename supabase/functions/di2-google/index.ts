@@ -134,14 +134,21 @@ Deno.serve(async (req) => {
         return json(await readFile(id, Math.min(Number(b.max_chars) || 30000, 100000)));
       }
       case "create_doc": {
-        const title = String(b.title ?? "").trim().slice(0, 200); const text = String(b.markdown ?? "");
+        const title = String(b.title ?? "").trim().slice(0, 200); const raw = String(b.markdown ?? "");
+        // Google's Markdown import scrambles 4-byte characters (emoji). Swap them for plain tokens on upload,
+        // then put the real characters back with an exact-text replace through the Docs API.
+        const astral = [...new Set(raw.match(/[\u{10000}-\u{10FFFF}]\uFE0F?/gu) ?? [])];
+        let text = raw; astral.forEach((e, i) => { text = text.split(e).join(`QQEMOJI${i}QQ`); });
         if (!title || !text.trim() || text.length > 200000) return json({ error: "Title and content required" }, 400);
         const meta: Record<string, unknown> = { name: title, mimeType: GDOC };
         if (typeof b.folder_id === "string" && /^[A-Za-z0-9_-]{10,}$/.test(b.folder_id)) meta.parents = [b.folder_id];
         const boundary = "di2" + crypto.randomUUID();
         const body = `--${boundary}\r\ncontent-type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${boundary}\r\ncontent-type: text/markdown; charset=UTF-8\r\n\r\n${text}\r\n--${boundary}--`;
         const f = await (await g(`https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=${FIELDS}&supportsAllDrives=true`, { method: "POST", headers: { "content-type": `multipart/related; boundary=${boundary}` }, body })).json();
-        console.log(JSON.stringify({ event: "di2_google_create_doc", id: f.id }));
+        if (astral.length && f.id) {
+          await g(`https://docs.googleapis.com/v1/documents/${encodeURIComponent(f.id)}:batchUpdate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ requests: astral.map((e, i) => ({ replaceAllText: { containsText: { text: `QQEMOJI${i}QQ`, matchCase: true }, replaceText: e } })) }) });
+        }
+        console.log(JSON.stringify({ event: "di2_google_create_doc", id: f.id, emoji: astral.length }));
         return json({ created: true, file: f });
       }
       case "replace_text": {

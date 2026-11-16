@@ -504,6 +504,7 @@ const DI_TEACH_STYLE = `You draft teachings for Pastor H. Michael Daniels (Domin
 Rules:
 - Every scripture cited is written out in full, King James Version, with the reference — never a reference alone.
 - Weave word meanings in right where that verse appears (do not collect them in a separate section): HEBREW for Old Testament verses, GREEK for New Testament verses — never Greek for an Old Testament verse. Give the original word, transliteration and meaning. Include a Strong's number ONLY if you are certain of it; otherwise leave the number out.
+- EVERY time a Greek or Hebrew word appears (word studies AND anywhere else in the text), write its transliteration and English meaning right beside it, e.g. θλῖψις (*thlipsis*, tribulation); a Hebrew or Greek word written in English letters also gets its English meaning beside it, e.g. *shorashim* (roots). Never leave a Greek/Hebrew word without its English.
 - Quote KJV wording exactly; if unsure of exact wording, use fewer verses rather than paraphrase.
 - Length: 1,200–2,000 words, with an opening, 3–4 developed sections, and a closing.
 - Include a biblical example, a natural-world illustration, and a real-world example.
@@ -611,7 +612,7 @@ async function diKjvCommand(request, env, question, user) {
 // ---- DI² Google Docs: create and revise (TASK-0218), saved only when the owner presses a button ----
 const DI_GDOC_RE = /\bgoogle ?docs?\b|\bgdocs?\b/i;
 const DI_GDOC_CREATE_RE = /\b(create|make|write|draft|start|new)\b[\s\S]{0,40}\bgoogle ?doc\b/i;
-const DI_EDIT_STYLE = 'You are an expert editor for Pastor H. Michael Daniels (Dominion1st Ministries). Apply the instruction to the document. Keep his voice, structure and everything the instruction does not touch. Scripture quotations stay exact KJV. Output ONLY the full revised document in Markdown, starting with "# <Title>". No commentary.';
+const DI_EDIT_STYLE = 'You are an expert editor for Pastor H. Michael Daniels (Dominion1st Ministries). Apply the instruction to the document. Keep his voice, structure and everything the instruction does not touch. Scripture quotations stay exact KJV. Every Greek or Hebrew word keeps (or gets) its transliteration and English meaning beside it, e.g. θλῖψις (*thlipsis*, tribulation). Output ONLY the full revised document in Markdown, starting with "# <Title>". No commentary.';
 
 // Like diParseDraft, but if the parsed body is suspiciously short, keep the whole reply as the body.
 function diParseDraftSafe(text) {
@@ -642,7 +643,7 @@ async function diGoogleDoc(request, env, body, question, user) {
       return diGdocAnswer(proposal, ai.model, ctx.kind==='gdoc_revision'?`Revised again — “${d.title}”.`:`Updated new Google Doc draft — “${d.title}”.`, null, null, kjv.text);
     }
     if (DI_GDOC_CREATE_RE.test(question)) {
-      const ai=await diAI(env,[{role:'system',content:'You write documents for Pastor H. Michael Daniels (Dominion1st Ministries) in his warm, bold voice. Scripture is written out in full KJV. Output ONLY the document in Markdown, first line "# <Title>". No commentary.'},{role:'user',content:`REQUEST: ${question}`}],6000);
+      const ai=await diAI(env,[{role:'system',content:'You write documents for Pastor H. Michael Daniels (Dominion1st Ministries) in his warm, bold voice. Scripture is written out in full KJV. Any Greek or Hebrew word gets its transliteration and English meaning beside it every time it appears. Output ONLY the document in Markdown, first line "# <Title>". No commentary.'},{role:'user',content:`REQUEST: ${question}`}],6000);
       if (!ai.text) throw new Error('no draft');
       const d=diParseDraftSafe(ai.text);
       const kjv=await diKjvApply(request,env,d.summary?`${d.summary}\n\n${d.content_md}`:d.content_md);

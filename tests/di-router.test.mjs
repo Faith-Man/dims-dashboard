@@ -52,5 +52,5 @@ test('combined search filters out unrelated DEA records', () => {
 test('messages in the same series sort numerically after relevance ranking', () => {
   const records=[6,2,5,1,4,3].map(n=>({title:`The Secret to Divine Healing Message ${n}`,series:'The Secret to Divine Healing',score:2610}));
   records.sort(diTeachingCompare);
-  assert.deepEqual(records.map(x=>x.title.match(/Message (\\d+)/)[1]),['1','2','3','4','5','6']);
+  assert.deepEqual(records.map(x=>x.title.match(/Message (\d+)/)[1]),['1','2','3','4','5','6']);
 });

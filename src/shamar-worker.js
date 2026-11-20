@@ -303,7 +303,7 @@ const DI_SOURCES = [
 ];
 const DI_EMAIL_RE = /\b(e-?mails?|inbox|mail|dmi|wrote me|sent me|replied|reply)\b/i;
 const DI_DRIVE_STRONG_RE = /\b(drive|folders?)\b/i;
-const DI_TEACH_RE = /\b(teach\w*|sermons?|scriptures?|verses?|yarath\w*|lessons?|bible stud\w*|perspectives?|diagnosis|principles?|series)\b/i;
+const DI_TEACH_RE = /\b(taught|teach\w*|preach(?:ed|ing|es)?|sermons?|messages?|scriptures?|verses?|yarath\w*|lessons?|bible stud\w*|perspectives?|diagnosis|principles?|series)\b|what did i say|my word on/i;
 const DI_DRIVE_RE = /\b(files?|documents?|docs?|pdfs?|spreadsheets?|sheets?|slides?|images?|photos?|videos?|recordings?)\b/i;
 const DI_STOP = new Set(('a an and any are about all as at be by can do does did find for from get give have how i in is it its list me my of on or our show search tell that the their them there these this to was what when where which who why with you your latest recent newest last new some please has had been were will would could should into than then just only most more '
   +'named called titled name title look looking need want see related regarding concerning mention mentions mentioning').split(/\s+/));
@@ -312,7 +312,7 @@ const DI_STOP = new Set(('a an and any are about all as at be by can do does did
 const DI_SOURCE_WORDS = {
   email: new Set('email emails mail inbox dmi message messages wrote sent replied reply threads thread need needs follow followup waiting'.split(' ')),
   drive: new Set('drive folder folders file files document documents doc docs pdf pdfs spreadsheet spreadsheets sheet sheets slide slides image images photo photos video videos recording recordings'.split(' ')),
-  teachings: new Set('teach teaching teachings taught sermon sermons scripture scriptures verse verses yaratheke lesson lessons bible study studies series library'.split(' '))
+  teachings: new Set('teach teaching teachings taught preach preached preaching message messages sermon sermons scripture scriptures verse verses yaratheke lesson lessons bible study studies series library'.split(' '))
 };
 
 function diKeywords(question, kind='teachings') {
@@ -326,7 +326,7 @@ function diSource(question) {
   if (DI_DRIVE_STRONG_RE.test(question)) return 'drive';
   if (DI_TEACH_RE.test(question)) return 'teachings';
   if (DI_DRIVE_RE.test(question)) return 'drive';
-  return 'tasks';
+  return 'both';
 }
 
 async function diRpc(request, env, fn, args) {
@@ -357,17 +357,34 @@ function diSnippet(text, words) {
   return `${start?'…':''}${plain.slice(start,start+240)}…`;
 }
 
+function diTeachingScore(t, words) {
+  const title=String(t.title||'').toLowerCase(), series=String(t.series||'').toLowerCase();
+  const summary=String(t.summary||'').toLowerCase(), body=String(t.content_md||'').toLowerCase();
+  const phrase=words.join(' ');
+  let score=0;
+  if (phrase && words.length>1) {
+    if (title.includes(phrase)) score+=1200;
+    if (series.includes(phrase)) score+=1000;
+    if (summary.includes(phrase)) score+=180;
+    if (body.includes(phrase)) score+=90;
+  }
+  for (const w of words) {
+    if (title.includes(w)) score+=110;
+    if (series.includes(w)) score+=95;
+    if (summary.includes(w)) score+=12;
+    if (body.includes(w)) score+=Math.min(8,body.split(w).length-1);
+  }
+  return score;
+}
+
 async function diTeachings(request, env, question) {
   const words=diKeywords(question,'teachings');
   const base='teachings?select=id,title,series,content_type,status,summary,updated_at,content_md';
-  const filter=words.length?`&or=(${words.flatMap(w=>[`title.ilike.*${w}*`,`summary.ilike.*${w}*`,`content_md.ilike.*${w}*`]).join(',')})`:'';
-  const rows=(await diRest(request,env,`${base}${filter}&order=updated_at.desc&limit=60`))
+  const filter=words.length?`&or=(${words.flatMap(w=>[`title.ilike.*${w}*`,`series.ilike.*${w}*`,`summary.ilike.*${w}*`,`content_md.ilike.*${w}*`]).join(',')})`:'';
+  const rows=(await diRest(request,env,`${base}${filter}&order=updated_at.desc&limit=500`))
     .filter(t=>!['draft','archived'].includes(String(t.status||'').toLowerCase()));
-  const scored=rows.map(t=>{
-    const title=String(t.title||'').toLowerCase(), body=String(t.content_md||'').toLowerCase();
-    const score=words.reduce((s,w)=>s+(title.includes(w)?20:0)+Math.min(10,body.split(w).length-1),0);
-    return {...t,score};
-  }).sort((a,b)=>b.score-a.score);
+  const scored=rows.map(t=>({...t,score:diTeachingScore(t,words)}))
+    .sort((a,b)=>b.score-a.score || String(a.title||'').localeCompare(String(b.title||''),undefined,{numeric:true}) || String(b.updated_at||'').localeCompare(String(a.updated_at||'')));
   const items=scored.slice(0,8).map(t=>({ number:t.id, title:t.title||'Untitled teaching', detail:`${t.content_type||'teaching'}${t.series?` · ${t.series}`:''} · ${t.status||'no status'} · updated ${diDate(t.updated_at)}`, excerpt:t.summary||diSnippet(t.content_md,words), url:`/yaratheke/?t=${encodeURIComponent(t.id)}` }));
   return { source:'YARATHĒKĒ™ teachings', label:words.length?`teachings mentioning ${words.join(', ')}`:'most recently updated teachings', total:rows.length, items };
 }
@@ -782,7 +799,7 @@ async function handleDi(request, env) {
   if (body.preset!=='command_brief' && (DI_DRAFT_RE.test(question) || (DI_TEACH_ID_RE.test(question) && DI_REVISE_RE.test(question)) || (ctxDraft && !ctxGdoc && DI_REVISE_RE.test(question)))) {
     return json({...(await diDraftTeaching(request,env,body,question,user)),module_status:diStatus()});
   }
-  if (body.preset!=='command_brief' && !DI_BRIEF_RE.test(question) && diSource(question)!=='tasks') {
+  if (body.preset!=='command_brief' && !DI_BRIEF_RE.test(question) && !['tasks','both'].includes(diSource(question))) {
     return json({...(await diAnswerSource(request,env,body,question,user)),module_status:diStatus()});
   }
   const fields='id,title,status,priority,queue_position,action_owner,next_action,readiness,risk_level,next_follow_up_date,target_date,percent_complete,verification_status,updated_at,system_rac,dea_rank_in_rac,dea_rank_reason,dea_override_position';
@@ -798,6 +815,16 @@ async function handleDi(request, env) {
   const all=[...projects.map(x=>({...x,record_type:'project'})),...tasks.map(x=>({...x,record_type:'task'}))];
   const ranked=diRank(all);
   const facts=diFacts(question,ranked,all,body.selected_record||null);
+  if (body.preset!=='command_brief' && diSource(question)==='both') {
+    let teachings=null;
+    try { teachings=await diTeachings(request,env,question); }
+    catch(error) { console.error(JSON.stringify({event:'di_combined_teachings_failed',error:String(error)})); }
+    const teachingItems=teachings?.items||[];
+    const taskItems=facts.items.slice(0,8);
+    const lines=[...teachingItems.map(x=>`Teaching: ${x.title} — ${x.detail}`),...taskItems.map(x=>`TETELESTAI: ${diNum(x)} — ${x.title}`)];
+    const citations=[...teachingItems.map(x=>({number:x.number,title:x.title,url:x.url})),...taskItems.map(diCitation)].slice(0,16);
+    return json({answer:`Live fact — Searched YARATHĒKĒ teachings and TETELESTAI projects/tasks because the request did not specify a source.\n\n${lines.join('\n')||'No matching records were found.'}${teachings?'':'\n\nTeaching search was unavailable; TETELESTAI results are shown.'}`,citations,module_status:diStatus(),mode:'read-combined'});
+  }
   const citations=facts.items.slice(0,8).map(diCitation);
   const status=diStatus();
   const factLines=facts.items.slice(0,8).map(x=>`${x.execution_rank?`#${x.execution_rank} `:''}${x.task_number||x.project_number}: ${x.title} | status=${x.status} | priority=${x.priority} | owner=${x.action_owner} | readiness=${x.readiness} | follow_up=${x.next_follow_up_date||'none'} | verification=${x.verification_status} | RAC=${x.system_rac??'none'} | rank_basis=${x.rank_basis||'not ranked'} | why=${x.dea_rank_reason||'n/a'}`);
@@ -816,7 +843,7 @@ async function handleDi(request, env) {
   return json({answer,citations,module_status:status,mode:env.AI?'grounded-ai-or-fallback':'deterministic-fallback',ai_model:aiModel});
 }
 
-export { DI_KJV_CHECK_RE, diClosed, diFacts, diRank, diKeywords, diSource, diParseDraft, diPlain, DI_DRAFT_RE, DI_GDOC_RE, DI_GDOC_CREATE_RE };
+export { diTeachingScore, DI_KJV_CHECK_RE, diClosed, diFacts, diRank, diKeywords, diSource, diParseDraft, diPlain, DI_DRAFT_RE, DI_GDOC_RE, DI_GDOC_CREATE_RE };
 
 export default {
   async fetch(request, env) {

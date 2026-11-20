@@ -114,6 +114,15 @@ style.textContent=`
   .read-pane .reader-toolbar .back-only{display:none}
   .read-pane .reader-toolbar{top:96px}
 }
+/* Wide screens (owner request 2026-11-19): the split view fills the page like the blue header,
+   the list gets more room, and the teaching stays at a comfortable reading width in the right column. */
+.read-pane .reader h2{font-size:clamp(1.7rem,2.4vw,2.3rem);line-height:1.15}
+@media(min-width:1280px){
+  .app:has(> .lib-split){max-width:none}
+  .lib-split{grid-template-columns:clamp(360px,24vw,460px) minmax(0,1fr)}
+  .read-pane .reader-toolbar,.read-pane .reader{max-width:960px;margin-left:auto;margin-right:auto}
+  .read-pane .reader-toolbar{margin-bottom:14px}
+}
 /* Reader layout: full-width article, toolbar, details line, bottom player bar */
 .reader-solo{max-width:820px;margin:0 auto}
 .reader-toolbar{position:sticky;top:96px;z-index:15;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:14px;padding:8px 10px;margin-bottom:14px;box-shadow:0 6px 18px rgba(12,32,117,.06)}

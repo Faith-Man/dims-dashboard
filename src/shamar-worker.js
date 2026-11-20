@@ -339,7 +339,7 @@ function diSource(question) {
 
 
 // Search only question-relevant TETELESTAI records; never substitute the DEA queue.
-const DI_RECORD_SKIP=new Set('task tasks project projects status open active pending progress current record records for dmi tetelestai workstream workstreams what which list show find about are the of'.split(' '));
+const DI_RECORD_SKIP=new Set('task tasks project projects status open active pending progress current record records for tetelestai workstream workstreams what which list show find about are the of'.split(' '));
 function diRecordWords(question) {
   return diKeywords(question,'records').filter(w=>!DI_RECORD_SKIP.has(w));
 }

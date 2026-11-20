@@ -120,7 +120,7 @@ style.textContent=`
 @media(min-width:1280px){
   .app:has(> .lib-split){max-width:none}
   .lib-split{grid-template-columns:clamp(360px,24vw,460px) minmax(0,1fr)}
-  .read-pane .reader-toolbar,.read-pane .reader{max-width:960px;margin-left:auto;margin-right:auto}
+  .read-pane .reader-toolbar,.read-pane .reader{max-width:960px;margin-left:0;margin-right:auto}
   .read-pane .reader-toolbar{margin-bottom:14px}
 }
 /* Reader layout: full-width article, toolbar, details line, bottom player bar */

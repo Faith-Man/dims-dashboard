@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { diSource, diKeywords, diTeachingScore, diTeachingCompare, diRecordIds, diRecordWords, diSearchRecords, diTaskFacts, diRoute, diParseRoute, diFindRecords, diOrderTeachings, diTeachingTotals, DI_MESSAGE_ONLY_RE, DI_ANSWER_RE } from '../src/shamar-worker.js';
+import { diSource, diKeywords, diTeachingScore, diTeachingCompare, diRecordIds, diRecordWords, diSearchRecords, diTaskFacts, diRoute, diParseRoute, diFindRecords, diOrderTeachings, diTeachingTotals, DI_MESSAGE_ONLY_RE, DI_ANSWER_RE, diDraftMessage } from '../src/shamar-worker.js';
 
 test('teaching intent routes to YARATHĒKĒ', () => {
   for (const q of ['What have I taught about divine healing?', 'What did I teach about healing?', 'What did I preach?', 'What have I preached?', 'Find my sermon', 'Find my message', 'Find my lesson', 'Find my series', 'what did I say about healing', 'my word on healing']) {
@@ -164,3 +164,37 @@ test('operational questions go to the TETELESTAI/DEA queue, topic questions stay
   assert.equal(diSource('What is the status of my healing series?'),'teachings');
 });
 
+
+// ---- TASK-0286 live re-run findings (2026-11-21) ----
+test('a question that names no source stays on teachings + TETELESTAI even if the model picks one', async () => {
+  for (const pick of [['teachings'],['tetelestai']]) {
+    const r=await diRoute(aiReturning(routeJson(pick,'healing')),'Tell me about healing?');
+    assert.equal(r.kind,'both',pick[0]); assert.equal(r.by,'ai+rules'); assert.deepEqual(r.terms,['healing']);
+  }
+  assert.equal((await diRoute(aiReturning(routeJson(['teachings'],'capital France')),'What is the capital of France?')).kind,'both');
+  assert.equal((await diRoute(aiReturning(routeJson(['teachings'],'healing')),'What have I taught about divine healing?')).kind,'teachings');
+});
+test('"open" tasks means unfinished: in_progress counts, reported_complete and complete do not', () => {
+  const rows=[['TASK-0098','in_progress','DMI-002 — Dedicated DMI Email Identity'],['TASK-0149','in_progress','DMI Phase 1'],['TASK-0150','open','DMI Phase 2'],['TASK-0151','open','DMI Phase 3'],
+    ['TASK-0217','reported_complete','DI² expansion step 1 — read teachings, DMI email'],['TASK-0021','complete','DMI-001 — Architecture']].map(([task_number,status,title])=>({record_type:'task',task_number,status,title}));
+  const f=diTaskFacts('What tasks are open for DMI?',rows,['dmi']);
+  assert.deepEqual(f.items.map(x=>x.task_number).sort(),['TASK-0098','TASK-0149','TASK-0150','TASK-0151']);
+  assert.equal(f.total,4);
+});
+test('message drafts are written by the pastor, KJV-checked, and never saved or sent', async () => {
+  const calls=[]; const realFetch=globalThis.fetch;
+  globalThis.fetch=async(url,opts={})=>{ calls.push({url:String(url),method:opts.method||'GET'});
+    return new Response(JSON.stringify([{book:'John',chapter:4,verse:24,text:'God is a Spirit: and they that worship him must worship him in spirit and in truth.'}]),{status:200}); };
+  let system='';
+  const env={SUPABASE_URL:'https://sb.test',SUPABASE_PUBLISHABLE_KEY:'k',AI:{run:async(model,{messages})=>{ system=messages[0].content;
+    return {response:'Beloved,\n\n“God is a Spirit: and they that worship him must worship in spirit and in truth” (John 4:24).\n\nPastor H. Michael Daniels'}; }}};
+  try {
+    const r=await diDraftMessage(new Request('https://x/',{headers:{authorization:'Bearer t'}}),env,'Write a message about the Holy Spirit');
+    assert.equal(r.mode,'draft-message');
+    assert.match(r.answer,/must worship him in spirit and in truth/);
+    assert.match(r.answer,/1 corrected/);
+    assert.match(r.answer,/nothing was saved or sent/);
+    assert.match(system,/He is the author and sender/); assert.match(system,/Never address the message to him/);
+    assert.ok(calls.every(c=>c.method==='GET' && c.url.includes('/rest/v1/kjv_verses')),'only reads the KJV table');
+  } finally { globalThis.fetch=realFetch; }
+});

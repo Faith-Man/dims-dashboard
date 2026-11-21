@@ -247,6 +247,8 @@ async function verifyMedProduction(request) {
   return { ok: failed.length === 0, checks, failed: failed.map(check => check.name) };
 }
 
+
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);

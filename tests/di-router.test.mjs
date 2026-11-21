@@ -221,3 +221,24 @@ test('general-knowledge answers carry no keyword-hit "sources" when the model fi
     assert.deepEqual(d.citations,[]);
   } finally { globalThis.fetch=realFetch; console.log=log; }
 });
+test('combined answers name TETELESTAI records and keep ministry context biblical', async () => {
+  const worker=(await import('../src/dome-worker.js')).default;
+  const realFetch=globalThis.fetch; let prompt='';
+  const ok=d=>new Response(JSON.stringify(d),{status:200,headers:{'content-type':'application/json'}});
+  globalThis.fetch=async(url)=>{ const u=String(url);
+    if(u.includes('/auth/v1/user')) return ok({id:'owner'});
+    if(u.includes('/rest/v1/projects')) return ok([{id:'p1',project_number:'PROJ-0049',title:'The Secret to Divine Healing — Companion Materials',status:'in_progress'}]);
+    if(u.includes('/rest/v1/teachings')) return ok([{id:'DIMS-TEACH-0082',title:'The Secret to Divine Healing — Message 1',series:'The Secret to Divine Healing',status:'published',summary:'healing',content_md:''}]);
+    return ok([]); };
+  const env={SUPABASE_URL:'https://sb.test',SUPABASE_PUBLISHABLE_KEY:'k',ASSETS:{fetch:()=>new Response('')},AI:{run:async(model,{messages})=>{
+    if(messages[0].content.startsWith('You route')) return {response:routeJson(['teachings'],'healing')};
+    prompt=messages[1].content; return {response:'Live fact — …'}; }}};
+  const log=console.log; console.log=()=>{};
+  try {
+    const d=await (await worker.fetch(new Request('https://x/api/di/query',{method:'POST',headers:{authorization:'Bearer t','content-type':'application/json'},body:JSON.stringify({question:'Tell me about healing?'})}),env)).json();
+    assert.equal(d.route.kind,'both');
+    assert.match(prompt,/naming the related projects\/tasks by record number/);
+    assert.match(prompt,/keep that context biblical and Christian/);
+    assert.match(prompt,/PROJ-0049/);
+  } finally { globalThis.fetch=realFetch; console.log=log; }
+});

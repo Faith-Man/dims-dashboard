@@ -91,6 +91,11 @@
 
   const memoryKey = 'dominion1st-di-conversation-v1';
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  // Fresh token from the shared sign-in module (renews expired sessions); falls back to storage.
+  let signInModule=null;
+  const loadSignIn=()=>signInModule||(signInModule=import('/dome-sign-in.js?optional').catch(()=>null));
+  const freshToken=async()=>{try{await loadSignIn();if(window.domeAccessToken)return await window.domeAccessToken()}catch(_){}return token()};
+  const promptSignIn=async()=>{await loadSignIn();if(window.domeShowSignIn)window.domeShowSignIn()};
   const token = () => {
     for (let i=0;i<localStorage.length;i+=1) {
       const key=localStorage.key(i);
@@ -103,13 +108,25 @@
   button.className='di-launch'; button.type='button'; button.textContent='✦ DI²'; button.setAttribute('aria-haspopup','dialog'); button.setAttribute('aria-label','Open DI²');
   const backdrop=document.createElement('div'); backdrop.className='di-backdrop';
   const panel=document.createElement('aside'); panel.className='di-panel'; panel.setAttribute('role','dialog'); panel.setAttribute('aria-modal','true'); panel.setAttribute('aria-label','DI² — Dominion1st Intelligence'); panel.setAttribute('aria-hidden','true');
-  panel.innerHTML=`<div class="di-head"><div><strong>DI² — Dominion1st Intelligence™</strong><small>${escapeHtml(moduleName)} · AI function for DIMS/DOME</small></div><div><button class="di-new" type="button">New</button> <button class="di-close" type="button" aria-label="Close DI²">Close</button></div></div><div class="di-status">TETELESTAI: certified live adapter · Other modules: status shown in answers</div><div class="di-log" aria-live="polite"></div><div class="di-starters"><button class="di-starter" type="button">What requires my attention?</button><button class="di-starter" type="button">What can DI² work on now?</button><button class="di-starter" type="button">What is awaiting verification?</button></div><form class="di-form"><label for="diQuestion">Ask, analyze, explain, or direct DI² across DOME or this module</label><textarea id="diQuestion" required maxlength="1200"></textarea><div class="di-actions"><span class="di-disclaimer">Facts, calculations, and recommendations are labeled.</span><button class="di-send" type="submit">DI²</button></div></form>`;
+  panel.innerHTML=`<div class="di-head"><div><strong>DI² — Dominion1st Intelligence™</strong><small>${escapeHtml(moduleName)} · Read-only companion · KUBERNĒSIS Command Brief</small></div><div><button class="di-new" type="button">New</button> <button class="di-close" type="button" aria-label="Close DI² — Dominion1st Intelligence">Close</button></div></div><div class="di-status">Reads: TETELESTAI · teachings · DMI email · Google Drive · Writes teachings & Google Docs only when you press Save</div><div class="di-log" aria-live="polite"></div><div class="di-starters"><button class="di-starter di-brief" type="button" data-preset="command_brief">👑 Command Brief</button><button class="di-starter" type="button">What requires my attention?</button><button class="di-starter" type="button">What can DI work on now?</button><button class="di-starter" type="button">What is awaiting verification?</button><button class="di-starter" type="button">Find teachings about faith</button><button class="di-starter" type="button">Show my latest emails</button><button class="di-starter" type="button">Which email threads need a reply?</button><button class="di-starter" type="button">Find Drive files named sermon</button><button class="di-starter" type="button">Draft a teaching on </button><button class="di-starter" type="button">Read my Drive file named &quot;&quot; and summarize it</button><button class="di-starter" type="button">Create a Google Doc with </button><button class="di-starter" type="button">Revise the Google Doc &quot;&quot;: </button><button class="di-starter" type="button">Check the scripture in </button></div><form class="di-form"><label for="diQuestion">Ask, analyze, explain, or direct DI² across DOME or this module</label><textarea id="diQuestion" required maxlength="1200"></textarea><div class="di-actions"><span class="di-disclaimer">Facts, calculations, and recommendations are labeled.</span><button class="di-send" type="submit">Ask</button></div></form>`;
   document.body.append(backdrop,button,panel);
   const log=panel.querySelector('.di-log'), input=panel.querySelector('textarea'), close=panel.querySelector('.di-close');
   let previousFocus=null;
   function save(messages){sessionStorage.setItem(memoryKey,JSON.stringify(messages.slice(-12)))}
   function messages(){try{return JSON.parse(sessionStorage.getItem(memoryKey))||[]}catch(_){return[]}}
-  function render(){const rows=messages();log.innerHTML=rows.length?rows.map(m=>`<div class="di-message ${escapeHtml(m.role)}">${escapeHtml(m.text)}${m.citations?.length?`<ul class="di-citations">${m.citations.map(c=>`<li><a href="${escapeHtml(c.url)}">${escapeHtml(c.number)} — ${escapeHtml(c.title)}</a></li>`).join('')}</ul>`:''}</div>`).join(''):'<div class="di-message assistant">Ask, analyze, explain, or direct across DOME or this module. DI² will identify what is live, calculated, recommended, or unavailable.</div>';log.scrollTop=log.scrollHeight}
+  // Light, safe formatting for DI² answers: text is escaped FIRST, then only these marks become tags.
+  function mdLite(text){
+    return escapeHtml(text).split('\n').map(line=>{
+      if(/^\s*-{3,}\s*$/.test(line))return '<hr style="border:0;border-top:1px solid #d9dfeb;margin:6px 0">';
+      let l=line.replace(/\\([\[\]*_#])/g,'$1');
+      const h=l.match(/^(#{1,6})\s+(.*)$/);
+      if(h)l=`<strong style="display:block;font-size:${h[1].length<=1?'1.08em':h[1].length===2?'1.02em':'.98em'};color:#0c1475;margin-top:4px">${h[2]}</strong>`;
+      else if(/^&gt;\s?/.test(l))l=`<span style="display:block;border-left:3px solid #c5a23b;padding-left:8px;color:#4a3b10">${l.replace(/^&gt;\s?/,'')}</span>`;
+      l=l.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/(^|[\s(“"])\*([^*\n]+)\*/g,'$1<em>$2</em>').replace(/^(\s*)- /,'$1• ');
+      return l;
+    }).join('\n');
+  }
+  function render(){const rows=messages();log.innerHTML=rows.length?rows.map((m,i)=>`<div class="di-message ${escapeHtml(m.role)}" style="white-space:pre-wrap">${m.role==='assistant'?mdLite(m.text):escapeHtml(m.text)}${m.proposal&&!m.proposal.done?`<div style="margin-top:10px">${(m.proposal.kind==='gdoc_fix'?[['fix','✅ Apply KJV corrections']]:/^teaching_/.test(m.proposal.kind)?[['teaching','💾 Save as draft teaching'],['gdoc','📄 Save as Google Doc']]:m.proposal.kind==='gdoc_revision'?[['gdoc','📄 Save as new Google Doc'],['replace','✏️ Replace original']]:[['gdoc','📄 Save as Google Doc']]).map(([act,label],k)=>`<button class="di-save" type="button" data-act="${act}" data-index="${i}" style="${k?'border:1px solid #0c1475;background:#fff;color:#0c1475;border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer;margin:4px 6px 0 0':'border:1px solid #0c1475;background:#0c1475;color:#fff;border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer;margin:4px 6px 0 0'}">${label}</button>`).join('')}<button class="di-discard" type="button" data-index="${i}" style="border:1px solid #0c1475;background:#fff;color:#0c1475;border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer;margin:4px 6px 0 0">Discard</button></div>`:''}${m.signin?`<div style="margin-top:10px"><button class="di-signin" type="button" style="border:1px solid #0c1475;background:#0c1475;color:#fff;border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer">Sign in</button></div>`:''}${m.ack&&!m.ack.done?`<div style="margin-top:10px"><button class="di-ack" type="button" data-index="${i}" style="border:1px solid #0c1475;background:#0c1475;color:#fff;border-radius:999px;padding:8px 14px;font-weight:800;cursor:pointer">✓ Acknowledge ${Number(m.ack.count)} alert${m.ack.count===1?'':'s'}</button></div>`:''}${m.citations?.length?`<ul class="di-citations">${m.citations.map(c=>`<li><a href="${escapeHtml(c.url)}"${/^https:/.test(c.url)?' target="_blank" rel="noopener"':''}>${escapeHtml(c.number)} — ${escapeHtml(c.title)}</a></li>`).join('')}</ul>`:''}</div>`).join(''):'<div class="di-message assistant">Ask about priorities, blockers, follow-ups, verification, or module availability. DI² will identify what is live, calculated, recommended, or unavailable.</div>';log.scrollTop=log.scrollHeight}
   function open(){previousFocus=document.activeElement;panel.setAttribute('aria-hidden','false');backdrop.classList.add('open');render();setTimeout(()=>input.focus(),0)}
   function shut(){panel.setAttribute('aria-hidden','true');backdrop.classList.remove('open');previousFocus?.focus()}
   button.addEventListener('click',open); close.addEventListener('click',shut); backdrop.addEventListener('click',shut);
@@ -124,18 +141,50 @@
     }
   });
   panel.querySelector('.di-new').addEventListener('click',()=>{sessionStorage.removeItem(memoryKey);render();input.focus()});
-  panel.querySelectorAll('.di-starter').forEach(b=>b.addEventListener('click',()=>{input.value=b.textContent;input.focus()}));
-  panel.querySelector('form').addEventListener('submit',async e=>{
-    e.preventDefault(); const question=input.value.trim(); if(!question)return;
-    const history=messages(); history.push({role:'user',text:question}); save(history); input.value=''; render();
-    const accessToken=token();
-    if(!accessToken){history.push({role:'error',text:'An authorized DOME session is required before DI² can read operational records. Please sign in, then try again.'});save(history);render();return}
+  panel.querySelectorAll('.di-starter').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.preset){ask('Command Brief',b.dataset.preset);return}input.value=b.textContent;input.focus()}));
+  log.addEventListener('click',async e=>{
+    if(e.target.closest('.di-signin')){shut();promptSignIn();return}
+    const disc=e.target.closest('.di-discard');
+    if(disc){const h=messages();const m=h[Number(disc.dataset.index)];if(m?.proposal){m.proposal.done=true;h.push({role:'assistant',text:'Draft discarded. Nothing was saved.'});save(h);render()}return}
+    const sv=e.target.closest('.di-save');
+    if(sv){
+      const h=messages();const m=h[Number(sv.dataset.index)];if(!m?.proposal)return;
+      const accessToken=await freshToken();if(!accessToken){h.push({role:'error',text:'Please sign in to save drafts.',signin:true});save(h);render();return}
+      sv.disabled=true;sv.textContent='Saving…';
+      const act=sv.dataset.act||'teaching';
+      if(act==='replace'&&!confirm('Replace the text of your original Google Doc? (Google Docs version history can restore it.)')){sv.disabled=false;sv.textContent='✏️ Replace original';return}
+      try{const action=act==='teaching'?'save_teaching':act==='replace'?'replace_google_doc':act==='fix'?'fix_google_doc':'create_google_doc';
+        const r=await fetch('/api/di/action',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${accessToken}`},body:JSON.stringify({action,proposal:m.proposal})});const d=await r.json();if(!r.ok)throw new Error(d.error||`Request failed (${r.status})`);
+        m.proposal.done=true;
+        if(action==='save_teaching')h.push({role:'assistant',text:`Saved as DRAFT ${d.id} — “${d.title}”. It stays hidden from the library until you publish it. To change it later, ask DI²: “revise ${d.id}: …”.`,citations:[{number:d.id,title:'Open the draft in YARATHĒKĒ™',url:d.url}]});
+        else if(action==='fix_google_doc')h.push({role:'assistant',text:`Applied ${d.changed} KJV correction${d.changed===1?'':'s'} to “${d.title}”. Its formatting is unchanged; Google Docs version history shows the before/after.`,citations:d.url?[{number:'Google Doc',title:d.title,url:d.url}]:[]});
+        else h.push({role:'assistant',text:action==='replace_google_doc'?`Replaced the text of your Google Doc “${d.title}”. Use File → Version history in Google Docs if you want the old version back.`:`Created Google Doc “${d.title}” in your Drive.`,citations:d.url?[{number:'Google Doc',title:d.title,url:d.url}]:[]});}
+      catch(error){h.push({role:'error',text:`Save failed: ${error.message}`})}finally{save(h);render()}
+      return
+    }
+    const btn=e.target.closest('.di-ack');if(!btn)return;
+    const history=messages();const m=history[Number(btn.dataset.index)];if(!m?.ack)return;
+    const accessToken=await freshToken();if(!accessToken){history.push({role:'error',text:'Please sign in to acknowledge alerts.',signin:true});save(history);render();return}
+    btn.disabled=true;btn.textContent='Acknowledging…';
+    try{const r=await fetch('/api/di/acknowledge',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${accessToken}`},body:JSON.stringify({before:m.ack.before})});const d=await r.json();if(!r.ok)throw new Error(d.error||`Request failed (${r.status})`);m.ack.done=true;history.push({role:'assistant',text:`Acknowledged ${d.acknowledged} critical alert${d.acknowledged===1?'':'s'}. They are marked reviewed; no tasks were changed. New alerts will stand out from here on.`})}
+    catch(error){history.push({role:'error',text:`Acknowledge failed: ${error.message}`})}finally{save(history);render()}
+  });
+  async function ask(question,preset){
+    const history=messages(); history.push({role:'user',text:question}); save(history); render();
+    const accessToken=await freshToken();
+    if(!accessToken){history.push({role:'error',text:'Please sign in so DI² can read your DIMS records. You only need to do this once on this device.',signin:true});save(history);render();return}
     const send=panel.querySelector('.di-send');send.disabled=true;send.textContent='Working…';
     try{
       const selected=document.querySelector('[aria-selected="true"],[data-selected="true"]');
-      const response=await fetch('/api/di/query',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${accessToken}`},body:JSON.stringify({question,module:moduleName,page:location.pathname,selected_record:selected?.dataset?.recordId||null,history:history.slice(-6).map(({role,text})=>({role,text}))})});
-      const data=await response.json();if(!response.ok)throw new Error(data.error||`Request failed (${response.status})`);
-      history.push({role:'assistant',text:data.answer,citations:data.citations||[]});
-    }catch(error){history.push({role:'error',text:`DI² is unavailable: ${error.message}`})}finally{save(history);render();send.disabled=false;send.textContent='DI²'}
+      const response=await fetch('/api/di/query',{method:'POST',headers:{'content-type':'application/json',authorization:`Bearer ${accessToken}`},body:JSON.stringify({question,preset:preset||null,draft_context:(()=>{const p=[...history].reverse().find(x=>x.proposal&&!x.proposal.done)?.proposal;return p?{kind:p.kind,id:p.id,title:p.title,content_md:String(p.content_md||'').slice(0,40000)}:null})(),module:moduleName,page:location.pathname,selected_record:selected?.dataset?.recordId||null,history:history.slice(-6).map(({role,text})=>({role,text}))})});
+      const data=await response.json();
+      if(response.status===401){history.push({role:'error',text:'Your sign-in has expired. Please sign in again.',signin:true});return}
+      if(!response.ok)throw new Error(data.error||`Request failed (${response.status})`);
+      if(data.proposal){for(const x of history)if(x.proposal&&!x.proposal.done)x.proposal.done=true}
+      history.push({role:'assistant',text:data.answer,citations:data.citations||[],ack:data.acknowledge||null,proposal:data.proposal||null});
+    }catch(error){history.push({role:'error',text:`DI² is unavailable: ${error.message}`})}finally{save(history);render();send.disabled=false;send.textContent='Ask'}
+  }
+  panel.querySelector('form').addEventListener('submit',e=>{
+    e.preventDefault(); const question=input.value.trim(); if(!question)return; input.value=''; ask(question,null);
   });
 })();

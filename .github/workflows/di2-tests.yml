@@ -1,0 +1,30 @@
+name: DI2 tests (no deployment)
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'di-companion.js'
+      - 'dome-sign-in.js'
+      - '.github/workflows/di2-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  di2-tests:
+    name: Node 22 DI2 tests (no deployment)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax-check browser scripts
+        run: node --check di-companion.js
+      - name: Run DI2 test suites
+        run: node --test tests/*.test.mjs

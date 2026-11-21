@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { diSource, diKeywords, diTeachingScore, diTeachingCompare, diRecordIds, diRecordWords, diSearchRecords, diTaskFacts, diRoute, diParseRoute, diFindRecords, diOrderTeachings, diTeachingTotals, DI_MESSAGE_ONLY_RE, DI_ANSWER_RE, diDraftMessage } from '../src/shamar-worker.js';
+import { diSource, diKeywords, diTeachingScore, diTeachingCompare, diRecordIds, diRecordWords, diSearchRecords, diTaskFacts, diRoute, diParseRoute, diFindRecords, diOrderTeachings, diTeachingTotals, DI_MESSAGE_ONLY_RE, DI_ANSWER_RE, DI_NONE_RELEVANT_RE, diDraftMessage } from '../src/shamar-worker.js';
 
 test('teaching intent routes to YARATHĒKĒ', () => {
   for (const q of ['What have I taught about divine healing?', 'What did I teach about healing?', 'What did I preach?', 'What have I preached?', 'Find my sermon', 'Find my message', 'Find my lesson', 'Find my series', 'what did I say about healing', 'my word on healing']) {
@@ -197,4 +197,27 @@ test('message drafts are written by the pastor, KJV-checked, and never saved or 
     assert.match(system,/He is the author and sender/); assert.match(system,/Never address the message to him/);
     assert.ok(calls.every(c=>c.method==='GET' && c.url.includes('/rest/v1/kjv_verses')),'only reads the KJV table');
   } finally { globalThis.fetch=realFetch; }
+});
+test('general-knowledge answers carry no keyword-hit "sources" when the model finds nothing relevant', async () => {
+  assert.match('DIMS search — No relevant records were found.\n\nGeneral knowledge — Paris.',DI_NONE_RELEVANT_RE);
+  assert.doesNotMatch('Live fact — PROJ-0049 …',DI_NONE_RELEVANT_RE);
+  const worker=(await import('../src/dome-worker.js')).default;
+  const realFetch=globalThis.fetch;
+  const ok=d=>new Response(JSON.stringify(d),{status:200,headers:{'content-type':'application/json'}});
+  globalThis.fetch=async(url)=>{ const u=String(url);
+    if(u.includes('/auth/v1/user')) return ok({id:'owner'});
+    if(u.includes('/rest/v1/tasks')) return ok([{id:'t1',task_number:'TASK-0156',title:'Retirement accounts review: iTrust Capital',status:'open'}]);
+    if(u.includes('/rest/v1/teachings')) return ok([{id:'DR-V2-L03',title:'The Four Industrial Revolutions',series:'The Dominion Revolution',status:'published',summary:'France and the capital of industry',content_md:''}]);
+    return ok([]); };
+  const env={SUPABASE_URL:'https://sb.test',SUPABASE_PUBLISHABLE_KEY:'k',ASSETS:{fetch:()=>new Response('')},AI:{run:async(model,{messages})=>
+    messages[0].content.startsWith('You route') ? {response:routeJson(['teachings'],'capital France')} : {response:'DIMS search — No relevant records were found.\n\nGeneral knowledge — The capital of France is Paris.'}}};
+  const log=console.log; console.log=()=>{};
+  try {
+    const r=await worker.fetch(new Request('https://x/api/di/query',{method:'POST',headers:{authorization:'Bearer t','content-type':'application/json'},body:JSON.stringify({question:'What is the capital of France?'})}),env);
+    const d=await r.json();
+    assert.equal(d.route.kind,'both');
+    assert.match(d.answer,/General knowledge — The capital of France is Paris/);
+    assert.doesNotMatch(d.answer,/Sources|TASK-0156|Industrial/);
+    assert.deepEqual(d.citations,[]);
+  } finally { globalThis.fetch=realFetch; console.log=log; }
 });

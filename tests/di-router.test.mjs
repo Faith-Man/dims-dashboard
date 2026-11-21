@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { diSource, diKeywords, diTeachingScore, diTeachingCompare, diRecordIds, diRecordWords, diSearchRecords, diTaskFacts, diRoute, diParseRoute, diFindRecords, diOrderTeachings, diTeachingTotals } from '../src/shamar-worker.js';
+import { diSource, diKeywords, diTeachingScore, diTeachingCompare, diRecordIds, diRecordWords, diSearchRecords, diTaskFacts, diRoute, diParseRoute, diFindRecords, diOrderTeachings, diTeachingTotals, DI_MESSAGE_ONLY_RE, DI_ANSWER_RE } from '../src/shamar-worker.js';
 
 test('teaching intent routes to YARATHĒKĒ', () => {
   for (const q of ['What have I taught about divine healing?', 'What did I teach about healing?', 'What did I preach?', 'What have I preached?', 'Find my sermon', 'Find my message', 'Find my lesson', 'Find my series', 'what did I say about healing', 'my word on healing']) {
@@ -10,6 +10,14 @@ test('teaching intent routes to YARATHĒKĒ', () => {
 test('unclear intent searches both sources', () => {
   assert.equal(diSource('divine healing'),'both');
   assert.equal(diSource('What is happening with healing?'),'both');
+});
+test('conversational questions request an AI synthesis instead of only a result list', () => {
+  for (const q of ['Tell me about healing','What is the Holy Spirit?','How does faith work?','Explain divine healing']) assert.equal(DI_ANSWER_RE.test(q),true,q);
+  assert.equal(DI_ANSWER_RE.test('Find my sermon about healing'),false);
+});
+test('short message requests use the conversational message draft path', () => {
+  for (const q of ['Write a message about the Holy Spirit','Draft a message on healing']) assert.equal(DI_MESSAGE_ONLY_RE.test(q),true,q);
+  assert.equal(DI_MESSAGE_ONLY_RE.test('Write a sermon about healing'),false);
 });
 test('explicit email and Drive intent retains routing', () => {
   assert.equal(diSource('find my inbox'),'email');

@@ -1,0 +1,34 @@
+name: Spartans1st daily message (live)
+
+# TASK-0177: pre-generate the live Spartans1st daily Word / Mindset / Declaration
+# just after midnight Oklahoma time, independent of the test Worker.
+# The live Worker (spartans1st-championship-git) creates and stores the day's
+# message on the first request; this job makes that first request.
+on:
+  schedule:
+    - cron: '10 5 * * *'   # 00:10 CDT
+    - cron: '10 6 * * *'   # 00:10 CST (the CDT run then just re-reads the stored message)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  warm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Request today's live daily message
+        run: |
+          for attempt in 1 2 3; do
+            body="$(curl --fail --silent --show-error --max-time 60 "https://spartans1st.dominion1st.org/api/daily?warm=$(date +%s)" || true)"
+            if printf '%s' "$body" | grep -q '"verse"'; then
+              echo "Live daily message ready:"
+              printf '%s' "$body" | head -c 300; echo
+              exit 0
+            fi
+            echo "Attempt ${attempt}: no message yet; retrying in 30s"
+            sleep 30
+          done
+          echo "::error::spartans1st.dominion1st.org did not return a daily message"
+          exit 1

@@ -189,8 +189,24 @@ async function handleMedAdmin(request, env) {
   }
 }
 
-async function verifyMedProduction(request) {
+// TASK-0176: the verifier used to fetch its own public address, which Cloudflare refuses for a
+// Worker calling its own workers.dev hostname, so every check failed even when MED was healthy.
+// It now calls this Worker's own handler directly (same responses visitors get, including the MED
+// page rewiring) and follows same-origin redirects such as /page.html -> /page like a browser.
+async function verifyMedProduction(request, selfFetch = fetch) {
   const origin = new URL(request.url).origin;
+  const fetch = async (input, init) => {
+    let url = String(input);
+    for (let hop = 0; hop < 4; hop += 1) {
+      const response = await selfFetch(url, init);
+      const location = response.status >= 300 && response.status < 400 ? response.headers.get('location') : null;
+      if (!location) return response;
+      const next = new URL(location, url);
+      if (next.origin !== origin) return response;
+      url = next.href;
+    }
+    return selfFetch(url, init);
+  };
   const caseId = '3c31f603-473f-4d33-aed8-e3fb03a49705';
   const suffix = `?case=${caseId}&runtime_contract=${encodeURIComponent(DOME_DEPLOY_MARKER)}`;
   const checks = [];
@@ -247,14 +263,14 @@ async function verifyMedProduction(request) {
   return { ok: failed.length === 0, checks, failed: failed.map(check => check.name) };
 }
 
-export default {
+const worker = {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     if (url.pathname === '/api/med/admin') return handleMedAdmin(request, env);
 
     if (url.pathname === '/api/dome/deploy') {
-      const medVerification = await verifyMedProduction(request);
+      const medVerification = await verifyMedProduction(request, (input, init) => worker.fetch(new Request(input, init), env, ctx));
       return Response.json({
         ok: medVerification.ok,
         worker: 'dome-dashboard',
@@ -282,3 +298,5 @@ export default {
     if (typeof shamarWorker.scheduled === 'function') return shamarWorker.scheduled(controller, env, ctx);
   }
 };
+
+export default worker;

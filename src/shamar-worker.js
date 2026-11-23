@@ -30,11 +30,32 @@ function diText(result) {
   return '';
 }
 
-async function diAI(env, messages, maxTokens = 1200) {
-  for (const model of DI_MODELS) {
+// DI² time limit (follow-up to TASK-0286): every AI call has a time budget. A slow model is abandoned and the
+// next one tries with the time left; when the budget is spent DI² returns no AI text, and every
+// caller then shows its plain evidence list instead of leaving the browser waiting until the
+// connection drops ("DI² is unavailable: Load failed"). Long drafts get a larger budget.
+const DI_AI_BUDGET_MS = 30000;
+const DI_AI_DRAFT_BUDGET_MS = 90000;
+const DI_AI_MIN_ATTEMPT_MS = 4000;
+const DI_AI_SHARES = [0.45, 0.35]; // first and second model; the last model gets whatever time is left
+
+function diWithin(promise, ms, label) {
+  let timer;
+  const timeout = new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms} ms`)), ms); });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
+async function diAI(env, messages, maxTokens = 1200, budgetMs = maxTokens > 2500 ? DI_AI_DRAFT_BUDGET_MS : DI_AI_BUDGET_MS) {
+  const deadline = Date.now() + budgetMs;
+  for (const [index, model] of DI_MODELS.entries()) {
+    const left = deadline - Date.now();
+    if (left < DI_AI_MIN_ATTEMPT_MS) { console.error(JSON.stringify({ event: 'di_ai_budget_spent', model, budget_ms: budgetMs })); break; }
+    // Each model gets a share, so a hung first model still leaves time for the fallbacks (30 s: ~13 s, ~10 s, rest).
+    const share = DI_AI_SHARES[index];
+    const attemptMs = share ? Math.min(left, Math.max(DI_AI_MIN_ATTEMPT_MS, Math.round(budgetMs * share))) : left;
     try {
       const big = model !== AI_MODEL;
-      const result = await env.AI.run(model, { messages, max_tokens: big ? Math.max(maxTokens, 2500) : maxTokens, temperature: 0.2, ...(model.includes('gpt-oss') ? { reasoning: { effort: 'low' } } : {}) });
+      const result = await diWithin(env.AI.run(model, { messages, max_tokens: big ? Math.max(maxTokens, 2500) : maxTokens, temperature: 0.2, ...(model.includes('gpt-oss') ? { reasoning: { effort: 'low' } } : {}) }), attemptMs, model);
       const text = diText(result).trim();
       if (text) return { text, model };
     } catch (error) { console.error(JSON.stringify({ event: 'di_model_fallback', model, error: String(error).slice(0, 300) })); }
@@ -1047,7 +1068,7 @@ async function handleDi(request, env) {
   return json({answer,citations,module_status:status,mode:env.AI?'grounded-ai-or-fallback':'deterministic-fallback',ai_model:aiModel,route:routeInfo});
 }
 
-export { diRoute, diParseRoute, diReconcileRoute, diRouteTerms, diFindRecords, diOrderTeachings, diTeachingTotals, diTeachingScore, diTeachingCompare, diRecordIds, diRecordWords, diSearchRecords, diTaskFacts, DI_KJV_CHECK_RE, diClosed, diOpen, diDraftMessage, diFacts, diRank, diKeywords, diSource, diParseDraft, diPlain, DI_DRAFT_RE, DI_MESSAGE_ONLY_RE, DI_ANSWER_RE, DI_NONE_RELEVANT_RE, DI_GDOC_RE, DI_GDOC_CREATE_RE };
+export { diAI, diRoute, diParseRoute, diReconcileRoute, diRouteTerms, diFindRecords, diOrderTeachings, diTeachingTotals, diTeachingScore, diTeachingCompare, diRecordIds, diRecordWords, diSearchRecords, diTaskFacts, DI_KJV_CHECK_RE, diClosed, diOpen, diDraftMessage, diFacts, diRank, diKeywords, diSource, diParseDraft, diPlain, DI_DRAFT_RE, DI_MESSAGE_ONLY_RE, DI_ANSWER_RE, DI_NONE_RELEVANT_RE, DI_GDOC_RE, DI_GDOC_CREATE_RE };
 
 export default {
   async fetch(request, env) {

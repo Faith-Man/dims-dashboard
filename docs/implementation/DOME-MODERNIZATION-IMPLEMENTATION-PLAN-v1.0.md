@@ -61,7 +61,7 @@ Resolve authority conflicts that affect implementation: Canonical Artifact Regis
 - Source-control constraints, indexes, functions, triggers, grants and RLS.
 - Add schema drift checking.
 
-### 1.3 OrAI hardening
+### 1.3 OrEl hardening
 - Add authentication/authorization, rate limits, quotas, request validation, safe errors, observability and prompt/model versioning.
 - Remove misleading offline current-intelligence fallback.
 - Disable autonomous AI “Now Word” generation.
@@ -113,7 +113,7 @@ Give Codex one controlled work package at a time. For each task it must read gov
 
 ## Immediate implementation order
 
-**Critical:** backup/restore verification → Supabase hardening → OrAI hardening → replayable migrations/drift control → stale schema reconciliation → production/archive separation.
+**Critical:** backup/restore verification → Supabase hardening → OrEl hardening → replayable migrations/drift control → stale schema reconciliation → production/archive separation.
 
 **High:** unified shell → seven module routes → shared domain/provenance → TETELESTAI → OrEl/YARATHĒKĒ → safe EKPOREUMA → DDBB→GEGRAPTAI → DI foundation.
 
@@ -131,7 +131,7 @@ Give Codex one controlled work package at a time. For each task it must read gov
 
 - inspect the current Supabase policy baseline and frontend write paths;
 - prepare source-controlled RLS/migration changes for review;
-- inspect OrAI and prepare hardening changes;
+- inspect OrEl and prepare hardening changes;
 - inventory stale table references;
 - design a dedicated production build/output boundary;
 - make no live destructive database changes until backup/restore verification and migration review are complete.

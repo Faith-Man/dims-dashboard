@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, x-client-info, apikey, content-type','Access-Control-Allow-Methods':'POST, OPTIONS'}
 const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{...cors,'Content-Type':'application/json'}})
-const racMatrix:any={I:{A:1,B:1,C:2,D:4},II:{A:1,B:2,C:3,D:4},III:{A:2,B:3,C:4,D:5},IV:{A:4,B:4,C:5,D:5}}
+const racMatrix:any={I:{A:1,B:1,C:2,D:3,E:4},II:{A:1,B:2,C:3,D:4,E:5},III:{A:2,B:3,C:4,D:5,E:5},IV:{A:3,B:4,C:5,D:5,E:5},V:{A:4,B:5,C:5,D:5,E:5}}
 Deno.serve(async(req)=>{if(req.method==='OPTIONS')return new Response('ok',{headers:cors});if(req.method!=='POST')return json({error:'POST required'},405)
  const auth=req.headers.get('Authorization');if(!auth)return json({error:'Authentication required'},401)
  const url=Deno.env.get('SUPABASE_URL')!,anon=Deno.env.get('SUPABASE_ANON_KEY')!,service=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!

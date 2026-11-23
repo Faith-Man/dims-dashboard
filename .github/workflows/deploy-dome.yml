@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'supabase/**'
 
 permissions:
   contents: read
@@ -39,27 +41,46 @@ jobs:
           echo
           echo "Cloudflare deploy hook accepted for ${GITHUB_SHA}."
 
-      - name: Verify current RAD and TETELESTAI production content
+      - name: Verify current RAD, TETELESTAI and MED production content
         env:
           BASE_URL: https://dome-dashboard.dominion1st-integrated-management-system-dims.workers.dev
         run: |
+          asset_file="${RUNNER_TEMP}/med-orb-canonical.jpg"
           for attempt in $(seq 1 40); do
             guide="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/rac-epi-apn-guide.html?deployment_check=${GITHUB_SHA}" || true)"
             table="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/projects-tasks.html?deployment_check=${GITHUB_SHA}" || true)"
-            ui="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/tetelestai-rac-ui-v3.js?deployment_check=${GITHUB_SHA}" || true)"
+            prefs="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/dims-ui-preferences.js?deployment_check=${GITHUB_SHA}" || true)"
+            med="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/med-marriage-evaluation-dome-secure.html?deployment_check=${GITHUB_SHA}" || true)"
+            companion="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/di-companion.js?deployment_check=${GITHUB_SHA}" || true)"
+            deploy="$(curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 "${BASE_URL}/api/dome/deploy?deployment_check=${GITHUB_SHA}" || true)"
+            rm -f "$asset_file"
+            curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 \
+              "${BASE_URL}/assets/med-orb-canonical.jpg?deployment_check=${GITHUB_SHA}" -o "$asset_file" || true
+            jpeg_magic="$(head -c 2 "$asset_file" 2>/dev/null | od -An -tx1 | tr -d ' \n')"
 
             if printf '%s' "$guide" | grep --fixed-strings --quiet 'Functional Risk Assessment Dome (RAD)' &&
                printf '%s' "$guide" | grep --fixed-strings --quiet 'EPI is retired as a separate priority layer.' &&
-               printf '%s' "$table" | grep --fixed-strings --quiet 'tetelestai-rac-ui-v3.js?v=1' &&
-               printf '%s' "$ui" | grep --fixed-strings --quiet 'RAC • DEA • APN Quick Brief' &&
-               ! printf '%s' "$ui" | grep --fixed-strings --quiet 'Execution Priority Index'; then
-              echo "Production verification passed for RAD Guide and TETELESTAI RAC UI."
+               printf '%s' "$table" | grep --fixed-strings --quiet 'dims-ui-preferences.js?v=1' &&
+               printf '%s' "$table" | grep --fixed-strings --quiet 'data-dims-view="list"' &&
+               printf '%s' "$table" | grep --fixed-strings --quiet 'data-dims-view="card"' &&
+               printf '%s' "$prefs" | grep --fixed-strings --quiet "const THEME_KEY = 'dims.theme';" &&
+               printf '%s' "$prefs" | grep --fixed-strings --quiet 'Dominion1st DOME™ / DIMS' &&
+               printf '%s' "$deploy" | grep --fixed-strings --quiet 'canonical-image' &&
+               printf '%s' "$med" | grep --fixed-strings --quiet 'MED™ — Secure Marriage Evaluation Dome' &&
+               ! printf '%s' "$med" | grep --fixed-strings --quiet 'data-med-orb-runtime="fallback-badge"' &&
+               printf '%s' "$companion" | grep --fixed-strings --quiet '/assets/med-orb-canonical.jpg' &&
+               test -s "$asset_file" &&
+               test "$jpeg_magic" = 'ffd8'; then
+              echo "Production verification passed for RAD, TETELESTAI and MED canonical image."
               exit 0
             fi
 
-            echo "Attempt ${attempt}/40: production is still stale; waiting 15 seconds..."
+            echo "Attempt ${attempt}/40: production MED canonical-image verification is not current yet. deploy_marker=$(printf '%s' "$deploy" | tr -d '\n' | head -c 240) jpeg_magic=${jpeg_magic:-missing}"
             sleep 15
           done
 
-          echo "::error::Cloudflare production stayed stale after deployment trigger. Check the deploy hook target/project configuration."
+          echo "Last /api/dome/deploy response (full):"
+          printf '%s\n' "$deploy"
+          echo "Failed MED runtime checks: $(printf '%s' "$deploy" | grep -o '"med_runtime_failed_checks":\[[^]]*\]' || echo 'not reported')"
+          echo "::error::Cloudflare production failed MED canonical-image verification. The deployment cannot be treated as successful until the secure MED page uses the canonical JPG and the fallback badge is absent."
           exit 1

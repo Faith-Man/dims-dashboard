@@ -3,6 +3,9 @@
   "governedBy": "TASK-0071 / TASK-0102 / TASK-0123 route reconciliation",
   "canonical": {
     "domeHome": "/prototypes/dome-eight-module-home/",
+    "domeArtHome": "/",
+    "domeFoundation": "/dome-foundation/",
+    "domeClassic": "/dome-classic.html",
     "gegraptai": "/gegraptai/",
     "neshamah": "/neshamah/",
     "tetelestai": "/tetelestai/",

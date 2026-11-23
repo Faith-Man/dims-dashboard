@@ -85,6 +85,10 @@
 !/orel/
 !/tetelestai/
 !/yaratheke/
+# DIMS-RUN-0002 Step 7: clickable official art. / is Art 1 (ring); the old home stays at /dome-classic.html.
+!/dome-classic.html
+!/dome-art/
+!/dome-foundation/
 # DOME Home lives under prototypes/; publish only that one prototype.
 !/prototypes/
 /prototypes/*

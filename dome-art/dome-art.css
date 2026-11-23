@@ -1,0 +1,44 @@
+/* DOME clickable official art (DIMS-RUN-0002 Step 7). Shared by / and /dome-foundation/. */
+:root{--art-bg:#050a24;--art-ink:#f4f1e6;--art-muted:#b9c2e6;--art-gold:#e9c95d;--art-line:rgba(233,201,93,.35)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--art-bg);color:var(--art-ink);font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:inherit}
+.art-page{display:flex;flex-direction:column;align-items:center;padding:10px 0 24px}
+.art-stage{position:relative;width:min(100vw,calc((100vh - 130px) * 1.5),1536px);aspect-ratio:3/2;margin:0 auto;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.art-stage picture,.art-stage img{display:block;width:100%;height:100%}
+.art-stage img{object-fit:contain}
+.art-hotspots{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.art-hotspots a{cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+.art-hit{fill:transparent;stroke:none;pointer-events:all}
+.art-glow{fill:var(--c);fill-opacity:0;stroke:var(--c);stroke-width:5;stroke-opacity:0;filter:url(#artGlow);pointer-events:none;transition:fill-opacity .35s ease,stroke-opacity .35s ease}
+/* Slow breathing that travels around the ring 01 -> 08, one module at a time, in each module's color. */
+.art-ring .art-glow{animation:art-breathe var(--cycle,28s) ease-in-out infinite;animation-delay:var(--delay,0s)}
+@keyframes art-breathe{0%,100%{fill-opacity:0;stroke-opacity:0}6%{fill-opacity:.16;stroke-opacity:.85}12.5%{fill-opacity:0;stroke-opacity:0}}
+/* DOME breathes on its own, slower and softer. */
+.art-slow .art-glow{animation:art-breathe-slow 11s ease-in-out infinite}
+@keyframes art-breathe-slow{0%,100%{fill-opacity:0;stroke-opacity:.05}50%{fill-opacity:.08;stroke-opacity:.5}}
+/* Hover, keyboard focus or tap: full glow. */
+.art-hotspots a:hover .art-glow,.art-hotspots a:focus-visible .art-glow,.art-hotspots a.is-active .art-glow{animation:none;fill-opacity:.22;stroke-opacity:1}
+.art-hotspots a:focus-visible .art-glow{stroke-width:7}
+.art-tip{position:absolute;transform:translate(-50%,-100%);pointer-events:none;background:rgba(5,10,36,.92);border:1px solid var(--tip,var(--art-gold));color:#fff;border-radius:10px;padding:7px 11px;font-size:clamp(11px,1.05vw,14px);line-height:1.25;white-space:nowrap;box-shadow:0 0 18px color-mix(in srgb,var(--tip,#e9c95d) 55%,transparent);opacity:0;transition:opacity .2s ease;z-index:3;max-width:80vw}
+.art-tip.show{opacity:1}
+.art-tip strong{display:block;font-size:1.05em;letter-spacing:.02em}
+.art-tip span{color:var(--art-muted)}
+.art-tools{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:12px auto 0;padding:0 16px}
+.art-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:8px 12px;border-radius:999px;border:1px solid var(--art-line);background:rgba(5,10,36,.78);color:var(--art-ink);font:600 13px/1 inherit;font-family:inherit;text-decoration:none;cursor:pointer;backdrop-filter:blur(6px)}
+.art-btn:hover,.art-btn:focus-visible{border-color:var(--art-gold);outline:none}
+.art-btn[aria-pressed="true"]{border-color:var(--art-gold);color:var(--art-gold)}
+.art-list{width:min(100%,1100px);margin:18px auto 0;padding:0 16px}
+.art-list h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--art-gold);margin:0 0 10px;font-weight:700}
+.art-list ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.art-list a{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--art-line);border-left:4px solid var(--c);border-radius:10px;background:rgba(255,255,255,.03);text-decoration:none;min-height:44px}
+.art-list a:hover,.art-list a:focus-visible{background:rgba(255,255,255,.07);outline:none;border-color:var(--c)}
+.art-list b{font-size:14px}
+.art-list small{display:block;color:var(--art-muted);font-size:12px;margin-top:2px}
+.art-list .num{font:700 12px/1 inherit;color:var(--c);min-width:20px}
+.art-foot{margin:18px auto 0;padding:0 16px;color:var(--art-muted);font-size:12px;text-align:center}
+.art-foot a{color:var(--art-gold)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.art-debug .art-glow{animation:none!important;fill-opacity:.25!important;stroke-opacity:1!important}
+@media (max-width:720px){.art-list ol{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){.art-ring .art-glow,.art-slow .art-glow{animation:none}.art-glow,.art-tip{transition:none}}

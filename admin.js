@@ -12,6 +12,7 @@ const emailEl = document.getElementById('email');
 const loginPasswordEl = document.getElementById('login-password');
 const passwordSignInBtn = document.getElementById('password-sign-in');
 const sendLinkBtn = document.getElementById('send-link');
+const forgotPasswordBtn = document.getElementById('forgot-password');
 const authMsg = document.getElementById('auth-msg');
 const signOutBtn = document.getElementById('sign-out');
 const newPasswordEl = document.getElementById('new-password');
@@ -31,12 +32,15 @@ const loadBtn = document.getElementById('load');
 const newBtn = document.getElementById('new');
 const saveMsg = document.getElementById('save-msg');
 
-function shouldReturnHome() {
-  return new URLSearchParams(window.location.search).get('return') === 'home';
+function safeReturnPath() {
+  const value = new URLSearchParams(window.location.search).get('return');
+  if (!value || value === 'home') return DOME_HOME;
+  const allowed = new Set(['tetelestai-automations.html', 'dmi-inbox.html']);
+  return allowed.has(value) ? `/${value}` : DOME_HOME;
 }
 
-function redirectToDomeHome() {
-  window.location.replace(DOME_HOME);
+function redirectAfterSignIn() {
+  window.location.replace(safeReturnPath());
 }
 
 // Fail closed: authenticated controls stay hidden until Supabase verifies the
@@ -45,17 +49,23 @@ let authResolved = false;
 toggleAuth(false);
 
 const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'PASSWORD_RECOVERY') {
+    toggleAuth(true);
+    securityMsg.textContent = 'Enter and confirm your new password below.';
+    return;
+  }
   if (event === 'INITIAL_SESSION' && !authResolved) return;
   if (event === 'SIGNED_OUT' || !session?.user) {
     toggleAuth(false);
     return;
   }
   if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-    if (shouldReturnHome()) {
-      redirectToDomeHome();
+    if (new URLSearchParams(window.location.search).get('recover') === '1') {
+      toggleAuth(true);
+      securityMsg.textContent = 'Enter and confirm your new password below.';
       return;
     }
-    toggleAuth(true);
+    redirectAfterSignIn();
   }
 });
 
@@ -66,11 +76,12 @@ async function initializeAuth() {
       toggleAuth(false);
       return;
     }
-    if (shouldReturnHome()) {
-      redirectToDomeHome();
+    if (new URLSearchParams(window.location.search).get('recover') === '1') {
+      toggleAuth(true);
+      securityMsg.textContent = 'Enter and confirm your new password below.';
       return;
     }
-    toggleAuth(true);
+    redirectAfterSignIn();
   } catch (error) {
     console.error('Auth initialization failed.', error);
     toggleAuth(false);
@@ -92,17 +103,29 @@ passwordSignInBtn.onclick = async () => {
     authMsg.textContent = `Error: ${error.message}`;
     return;
   }
-  authMsg.textContent = 'Signed in. Opening DOME Home...';
-  redirectToDomeHome();
+  authMsg.textContent = 'Signed in. Returning to your requested DIMS page...';
+  redirectAfterSignIn();
 };
 
 sendLinkBtn.onclick = async () => {
   const email = emailEl.value.trim();
   if (!email) { authMsg.textContent = 'Enter an email.'; return; }
   authMsg.textContent = 'Sending magic link...';
-  const emailRedirectTo = `${window.location.origin}${window.location.pathname}?return=home`;
+  const returnTarget = new URLSearchParams(window.location.search).get('return') || 'home';
+  const emailRedirectTo = `${window.location.origin}${window.location.pathname}?return=${encodeURIComponent(returnTarget)}`;
   const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo } });
   authMsg.textContent = error ? `Error: ${error.message}` : 'Check your email!';
+};
+
+forgotPasswordBtn.onclick = async () => {
+  const email = emailEl.value.trim();
+  if (!email) { authMsg.textContent = 'Enter your email address first.'; return; }
+  forgotPasswordBtn.disabled = true;
+  authMsg.textContent = 'Sending password-reset email...';
+  const redirectTo = `${window.location.origin}${window.location.pathname}?recover=1`;
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+  authMsg.textContent = error ? `Error: ${error.message}` : 'Password-reset email sent. Check your inbox and follow the secure link.';
+  setTimeout(() => { forgotPasswordBtn.disabled = false; }, error ? 60000 : 60000);
 };
 
 setPasswordBtn.onclick = async () => {

@@ -13,7 +13,6 @@
 !/command-alerts.html
 !/dashboard-v3.html
 !/dims-blueprint.html
-!/dmi-inbox.html
 !/enterprise-forms-package.html
 !/enterprise-forms.html
 !/executive-dashboard.html
@@ -65,3 +64,28 @@
 !/dims-enterprise-grid/
 !/glossary/
 !/teachings/
+
+# TASK-0071 additions (test branch). Each new public page or asset is listed on purpose.
+!/dashboard-v3-current.html
+!/dmi-inbox.html
+!/peace-safety-intelligence-tsi-review.html
+!/shamar-intelligence-dome.html
+!/shamar-tsi-evidence-timeline.html
+!/shamar-tsi-methodology.html
+!/tetelestai-automations.html
+!/dome-global-nav.js
+!/dome-sign-in.js
+!/tetelestai-auth-gate.js
+!/tetelestai-rac-meter-v2.css
+!/ekklesia/
+!/gegraptai/
+!/gregoreo/
+!/neshamah/
+!/oikonomos/
+!/orel/
+!/tetelestai/
+!/yaratheke/
+# DOME Home lives under prototypes/; publish only that one prototype.
+!/prototypes/
+/prototypes/*
+!/prototypes/dome-eight-module-home/

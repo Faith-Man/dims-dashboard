@@ -310,8 +310,12 @@ async function setFollowup(thread,kind,action){
  toast(action==='done'?'Marked done.':action==='snooze'?'Snoozed until tomorrow 8 AM.':'Dismissed.');await load()}
 
 // ---- Compose / Reply (TASK-0098) ----
-// Live-sending switch. ON since Michael's go (2026-10-03). Set to false to stop all sending from this page.
-const DMI_LIVE_SEND=true;
+// Live-sending switch. ON for DOME Live since Michael's go (2026-10-03).
+// TASK-0287: sending is allowed ONLY on the DOME Live production addresses. Every other address
+// (RAQIA, branch previews, local copies) stays in no-send mode, because they share the live Supabase/Gmail route.
+// To stop all sending everywhere, set DMI_LIVE_HOSTS to [].
+const DMI_LIVE_HOSTS=['dome-dashboard.dominion1st-integrated-management-system-dims.workers.dev','dims-dashboard.dominion1st-integrated-management-system-dims.workers.dev'];
+const DMI_LIVE_SEND=DMI_LIVE_HOSTS.includes(location.hostname);
 const OWN_MAILBOX='michael@dominion1st.org';
 const ADDR=/^[^\s@<>()",;:\\]+@[^\s@<>()",;:\\]+\.[^\s@<>()",;:\\]+$/;
 const validList=v=>!v||v.split(',').map(x=>x.trim()).filter(Boolean).every(x=>ADDR.test(((x.match(/<([^<>]+)>$/)||[,x])[1]).trim()));
@@ -355,7 +359,7 @@ function openComposer(opts={}){
  <label style="display:block;margin-top:8px">BCC</label><input type="text" id="sendBcc" autocomplete="off">
  <label style="display:block;margin-top:8px">Subject</label><input type="text" id="sendSubject" maxlength="998" value="${esc(opts.subject||'')}">
  <label style="display:block;margin-top:8px">Message</label><textarea id="sendBody" maxlength="100000" placeholder="Write your message…"></textarea>
- ${DMI_LIVE_SEND?'':'<div class="warn">Live sending is off. You can write and validate a draft; nothing can be sent from this page until Michael turns live sending on.</div>'}
+ ${DMI_LIVE_SEND?'':'<div class="warn">Live sending is off on this address (test/preview). You can write and validate a draft; nothing can be sent from here. Sending works only on DOME Live.</div>'}
  <div class="fu-actions"><button class="goldbtn" id="validateDraft" type="button">Validate draft</button><button class="act" id="sendDraft" type="button" disabled>${DMI_LIVE_SEND?'Send':'Send — live sending off'}</button><button class="act hidden" id="retrySend" type="button">Retry</button><button class="act hidden" id="checkSend" type="button">Check status</button><button class="act hidden" id="editDraft" type="button">Edit draft</button></div>
  <div id="draftState" class="from" style="margin-top:8px" data-state="draft">${SEND_LABEL.draft}</div>`);
  bindClose();

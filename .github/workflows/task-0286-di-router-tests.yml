@@ -1,0 +1,26 @@
+name: TASK-0286 DI2 Router Regression (test branch only)
+
+on:
+  push:
+    branches:
+      - task-0071-di2-neural-orb
+    paths:
+      - 'src/shamar-worker.js'
+      - 'tests/di-router.test.mjs'
+      - '.github/workflows/task-0286-di-router-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  router-tests:
+    name: Node 22 router tests (no deployment)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run TASK-0286 regression suite
+        run: node --test tests/di-router.test.mjs

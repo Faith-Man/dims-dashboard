@@ -19,6 +19,7 @@ function makeWorld(startMs) {
   const world = {
     now: startMs, seq: 0, items: new Map(), props: new Map(), triggers: [],
     dead: false, killAfterCopies: null, copies: 0, poisonIds: new Set(), mails: [],
+    lockHeld: false, triggerDelays: [], nameLookups: 0,
   };
   const tick = () => { if (world.dead) throw new Kill('killed'); world.now += 5; };
   const id = () => 'id' + (++world.seq);
@@ -34,7 +35,7 @@ function makeWorld(startMs) {
       getDateCreated: () => (tick(), new Date(rec.created)),
       getFiles: () => (tick(), iter(children(rec.id, 'file').map(wrapFile))),
       getFolders: () => (tick(), iter(children(rec.id, 'folder').map(wrapFolder))),
-      getFilesByName: (n) => (tick(), iter(children(rec.id, 'file').filter((f) => f.name === n).map(wrapFile))),
+      getFilesByName: (n) => (tick(), /\.json$/.test(n) || world.nameLookups++, iter(children(rec.id, 'file').filter((f) => f.name === n).map(wrapFile))),
       getFoldersByName: (n) => (tick(), iter(children(rec.id, 'folder').filter((f) => f.name === n).map(wrapFolder))),
       createFolder: (n) => (tick(), wrapFolder(addFolder(rec.id, n))),
       createFile: (n, content) => (tick(), wrapFile(addFile(rec.id, n, { content }))),
@@ -104,11 +105,11 @@ function makeWorld(startMs) {
       setProperty: (k, v) => { tick(); world.props.set(k, v); },
       deleteProperty: (k) => { tick(); world.props.delete(k); },
     }) },
-    LockService: { getScriptLock: () => ({ tryLock: () => true, releaseLock: () => {} }) },
+    LockService: { getScriptLock: () => ({ tryLock: () => !world.lockHeld, releaseLock: () => {} }) },
     ScriptApp: {
       getProjectTriggers: () => world.triggers.map((h) => ({ getHandlerFunction: () => h, _h: h })),
       deleteTrigger: (t) => { world.triggers.splice(world.triggers.indexOf(t._h), 1); },
-      newTrigger: (h) => ({ timeBased: () => ({ after: () => ({ create: () => world.triggers.push(h) }),
+      newTrigger: (h) => ({ timeBased: () => ({ after: (ms) => ({ create: () => { world.triggers.push(h); world.triggerDelays.push(ms); } }),
         everyMinutes: () => ({ create: () => world.triggers.push(h) }) }) }),
     },
     MailApp: { sendEmail: (to, subject, body) => world.mails.push({ to, subject, body }) },
@@ -343,4 +344,47 @@ test('notification: sends once per terminal state; watchdog restarts a stalled c
   c.checkRB001BackupNotification();
   assert.equal(world.mails.length, 1);
   assert.match(world.mails[0].subject, /FULL BACKUP VERIFIED/);
+});
+
+test('a worker that finds the lock held keeps the chain alive (fix 2026-11-25)', () => {
+  const world = makeWorld(T0);
+  seedSource(world);
+  const c = world.ctx;
+  c.startOrResumeRB001BackupJob();
+  world.triggers.length = 0;          // the only pending worker is the one now firing
+  world.lockHeld = true;              // another pass still owns the script lock
+  c.resumeRB001BackupJob();
+  assert.ok(world.triggers.includes('resumeRB001BackupJob'), 'skipped worker rescheduled itself');
+  world.lockHeld = false;
+  const job = drain(world);
+  assert.equal(job.verificationStatus, 'VERIFIED');
+});
+
+test('next worker is scheduled after a full pass can end', () => {
+  const world = makeWorld(T0);
+  seedSource(world);
+  const c = world.ctx;
+  c.startOrResumeRB001BackupJob();
+  const R = c.__RB001;
+  assert.ok(R.WORKER_DELAY_MS > R.SAFE_RUNTIME_MS + 30000,
+    'delay ' + R.WORKER_DELAY_MS + ' must exceed pass budget ' + R.SAFE_RUNTIME_MS + ' plus one slow item');
+  assert.ok(world.triggerDelays.every((ms) => ms === R.WORKER_DELAY_MS));
+});
+
+test('clean runs skip the per-file duplicate lookup; only a resumed window pays for it', () => {
+  const world = makeWorld(T0);
+  seedSource(world);
+  const c = world.ctx;
+  c.startOrResumeRB001BackupJob();
+  drain(world);
+  assert.equal(world.nameLookups, 0, 'no per-file lookups without a cut-off run');
+
+  const world2 = makeWorld(T0);
+  seedSource(world2);
+  world2.killAfterCopies = 10;
+  world2.ctx.startOrResumeRB001BackupJob();
+  const job = drain(world2);
+  assert.equal(job.verificationStatus, 'VERIFIED');
+  assert.ok(world2.nameLookups > 0 && world2.nameLookups < job.filesCopied,
+    'lookups only in the resume window: ' + world2.nameLookups);
 });

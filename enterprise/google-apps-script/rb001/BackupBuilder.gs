@@ -380,10 +380,12 @@ const RB001 = {
   RETENTION_PLAN_FILE: 'backup_retention_plan.json',
 
   WORKER_FUNCTION: 'resumeRB001BackupJob',
-  WORKER_DELAY_MS: 60000,
+  // fix 2026-11-25: must be longer than one pass (SAFE_RUNTIME_MS + slowest item),
+  // or the next worker fires while this pass still holds the lock.
+  WORKER_DELAY_MS: 240000,
   MAX_BATCH_ITEMS: 200,
   SAFE_RUNTIME_MS: 180000,
-  PERSIST_EVERY: 5,
+  PERSIST_EVERY_MS: 45000, // save job state by time, not every few items
   MAX_ITEM_ATTEMPTS: 3,
   MAX_CONSECUTIVE_WORKER_FAILURES: 5,
   STALE_HOURS: 26,
@@ -499,7 +501,9 @@ function resumeRB001BackupJob() {
   const lock = LockService.getScriptLock();
 
   if (!lock.tryLock(5000)) {
-    Logger.log('RB-001 worker skipped: another run owns the lock.');
+    // fix 2026-11-25: a skipped worker must not end the chain.
+    scheduleNextRB001Worker_();
+    Logger.log('RB-001 worker skipped: another run owns the lock; rescheduled.');
     return;
   }
 
@@ -534,6 +538,8 @@ function resumeRB001BackupJob() {
     persistRB001Job_(backupsRoot, job);
 
     const started = Date.now();
+    let lastPersist = started;
+    const destinationFolders = {}; // per-pass cache of destination Folder objects
 
     if (job.phase === 'COPY') {
       let processed = 0;
@@ -547,7 +553,7 @@ function resumeRB001BackupJob() {
         markRB001InFlight_(job, item);
 
         try {
-          processRB001Item_(job, item);
+          processRB001Item_(job, item, destinationFolders);
         } catch (err) {
           job.errors.push({
             at: new Date().toISOString(),
@@ -559,16 +565,23 @@ function resumeRB001BackupJob() {
         }
 
         job.queue.shift();
-        clearRB001InFlight_();
         if (job.resumeAdoptKey === item.type + ':' + item.sourceId) {
+          // Past the item the cut-off run was on: no more copies can already exist.
           job.resumeAdoptKey = null;
+          job.dedupeActive = false;
         }
         processed++;
 
-        if (processed % RB001.PERSIST_EVERY === 0) {
+        if (Date.now() - lastPersist >= RB001.PERSIST_EVERY_MS) {
           persistRB001Job_(backupsRoot, job);
+          lastPersist = Date.now();
         }
       }
+
+      // Clean end of the copy loop: everything done so far is saved below.
+      clearRB001InFlight_();
+      job.resumeAdoptKey = null;
+      job.dedupeActive = false;
 
       if (job.queue.length) {
         job.status = 'INTERRUPTED';
@@ -767,7 +780,7 @@ function normalizeRB001Job_(job) {
 // Copy phase
 // ------------------------------------------------------------
 
-function processRB001Item_(job, item) {
+function processRB001Item_(job, item, destinationFolders) {
   const key = item.type + ':' + item.sourceId;
 
   if (job.skipKeys.indexOf(key) >= 0) {
@@ -787,7 +800,7 @@ function processRB001Item_(job, item) {
   }
 
   if (item.type === 'file') {
-    processRB001FileItem_(job, item);
+    processRB001FileItem_(job, item, destinationFolders || {});
   }
 }
 
@@ -867,10 +880,11 @@ function processRB001FolderItem_(job, item) {
 }
 
 
-function processRB001FileItem_(job, item) {
+function processRB001FileItem_(job, item, destinationFolders) {
   const sourceFile = DriveApp.getFileById(item.sourceId);
   const destinationId = item.destinationId || ensureRB001DestPath_(job, item.pathKey || '');
-  const destination = DriveApp.getFolderById(destinationId);
+  const destination = destinationFolders[destinationId] ||
+    (destinationFolders[destinationId] = DriveApp.getFolderById(destinationId));
   const name = sourceFile.getName();
 
   if (job.legacyCounts) {
@@ -879,7 +893,11 @@ function processRB001FileItem_(job, item) {
       return;
     }
   } else {
-    let existing = findRB001TaggedCopy_(destination, name, sourceFile.getId());
+    // Only items between the last save and the item a cut-off run was on can
+    // already have a copy, so the lookup is skipped for everything else.
+    let existing = job.dedupeActive
+      ? findRB001TaggedCopy_(destination, name, sourceFile.getId())
+      : null;
 
     if (!existing && job.resumeAdoptKey === 'file:' + item.sourceId) {
       // This file was being copied when the last run was cut off. If an untagged
@@ -1053,6 +1071,7 @@ function recoverRB001InterruptedItem_(job) {
   const key = inflight.type + ':' + inflight.sourceId;
   job.itemAttempts[key] = Number(job.itemAttempts[key] || 0) + 1;
   job.resumeAdoptKey = key;
+  job.dedupeActive = true;
 
   if (job.itemAttempts[key] >= RB001.MAX_ITEM_ATTEMPTS && job.skipKeys.indexOf(key) < 0) {
     // The item may not be back in the queue yet (its folder is re-listed first),
@@ -1168,6 +1187,7 @@ function finalizeRB001Job_(backupsRoot, job) {
   delete manifest.destFolderCache;
   delete manifest.itemAttempts;
   delete manifest.resumeAdoptKey;
+  delete manifest.dedupeActive;
 
   writeJsonFile_(destination, RB001.MANIFEST_FILE, manifest);
 

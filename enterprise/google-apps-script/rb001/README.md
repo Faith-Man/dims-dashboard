@@ -23,7 +23,7 @@ These files are the updated copies of three files in the Apps Script project **D
 - **Weekly full.** Every Sunday, plus any day with no verified baseline or when the base full is about a week old. The full goes into `FULL_BACKUP_<date>_<id>`, including empty folders.
 - **To restore day X:** take the most recent FULL on or before X, then lay each INCR after it, in order, up to X.
 - **Backups excluded** by folder ID `1sW3qo0AovZ4MW74TpMUGPCEMfBDHlz2I` at any depth, and by the name `Backups` at the top level.
-- **Resume.** The next worker is scheduled at the *start* of every run, so a run that gets cut off is always followed up. Each copy is tagged `RB001-SRC:<id>` in its description, so a resumed run never copies a file twice. An item that cuts off a run 3 times is skipped and logged. The 5-minute notification check also restarts a job that has been idle for 20 minutes.
+- **Resume.** The next worker is scheduled at the *start* of every run, 4 minutes out (longer than one 3-minute pass), so a run that gets cut off is always followed up. A worker that finds another pass still holding the lock reschedules itself instead of ending the chain (both fixed live 2026-11-25). Job state is saved every 45 s instead of every 5 items. The per-file "is it already copied?" lookup runs only for the few items between the last save and a cut-off. Each copy is tagged `RB001-SRC:<id>` in its description, so a resumed run never copies a file twice. An item that cuts off a run 3 times is skipped and logged. The 5-minute notification check also restarts a job that has been idle for 20 minutes.
 - **Verification.** At the end, the engine counts the files and folders in the backup folder. The result is `status: COMPLETED` + `verificationStatus: VERIFIED` only when destination files = files copied = files eligible, destination folders = folders created, and there are no errors. Otherwise it is `COMPLETED_WITH_ERRORS` / `COUNT_MISMATCH`. Only VERIFIED backups are used as the next incremental baseline.
 - **The Nov 24 job** (schema 2.0) is resumed and finished under v3 with its original copy rules. It does not start over.
 - **Retention.** Keep the newest 7 completed backups, plus the newest full of each of the newest 4 weeks, plus every backup that a kept incremental needs to restore. The rest go to **Drive Trash** (30-day recovery); nothing is ever permanently deleted. The legacy `BACKUP_*` and `ENTERPRISE_BACKUP_*` folders from June and July are **never touched** and are only listed. **Default is DRY_RUN:** the plan is written to `Backups/backup_retention_plan.json` and nothing is trashed until the owner runs `enableRB001RetentionLive()`.
@@ -51,6 +51,9 @@ These files are the updated copies of three files in the Apps Script project **D
 - the legacy Nov 24 job finishes
 - retention in DRY_RUN and LIVE modes, with legacy folders untouched
 - notification de-duplication and the watchdog
+- a worker that finds the lock held keeps the chain going
+- the worker delay is longer than a pass
+- clean runs skip the per-file duplicate lookup
 
 ## Known limits
 

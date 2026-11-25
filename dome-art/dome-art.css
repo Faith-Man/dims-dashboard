@@ -4,7 +4,7 @@
 html,body{margin:0;background:var(--art-bg);color:var(--art-ink);font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif}
 a{color:inherit}
 .art-page{display:flex;flex-direction:column;align-items:center;padding:10px 0 24px}
-.art-stage{position:relative;width:min(100vw,calc((100vh - 130px) * 1.5),1536px);aspect-ratio:3/2;margin:0 auto;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.art-stage{position:relative;width:100%;aspect-ratio:3/2;margin:0 auto;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .art-stage picture,.art-stage img{display:block;width:100%;height:100%}
 .art-stage img{object-fit:contain}
 .art-hotspots{position:absolute;inset:0;width:100%;height:100%;overflow:visible}

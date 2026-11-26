@@ -9,7 +9,8 @@
   --bg:#eef5ff;--bg2:#f7faff;--panel:#ffffff;--line:#c8d8ff;--line2:#9db4ec;--ink:#0b1733;--muted:#5b6b8d;--soft:#f4f8ff;
   /* notice categories (bright, read on the navy dome) */
   --synced:#22c55e;--twoway:#38bdf8;--recovered:#a78bfa;--retry:#6f9cff;--stalled:#f5b83d;--conflict:#f97316;--failed:#ef4444;
-  --clear:#22c55e;--watch:#f5b83d;--alert:#ef4444;
+  --watcher:#ff5fa2;--info:#94a3b8;
+  --clear:#22c55e;--watch:#e8c766;--alert:#ef4444;
   color-scheme:light;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -117,16 +118,86 @@ a{color:var(--royal)}
 .foot{text-align:center;padding:14px 16px;font-style:italic;font-size:.8rem;color:var(--muted);border-top:1px solid var(--gold);background:linear-gradient(90deg,var(--bg),#fff,var(--bg))}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 
+/* ---------- heartbeat line (TASK-0322) ---------- */
+.beats{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:0 0 10px;padding:9px 12px;border-radius:14px;background:#fff;border:1px solid var(--line);font-size:.76rem;color:var(--ink)}
+.beats .lead{font-weight:700;color:var(--royal);letter-spacing:1px}
+.beat{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;border:1px solid color-mix(in srgb,var(--c) 55%,transparent);background:color-mix(in srgb,var(--c) 12%,#fff);white-space:nowrap}
+.beat b{font-weight:700;color:var(--ink)}
+.beat span{color:color-mix(in srgb,var(--c) 60%,#0b1733)}
+.beat[data-state="ok"]{--c:var(--clear)}.beat[data-state="late"]{--c:var(--stalled)}.beat[data-state="silent"]{--c:var(--alert)}.beat[data-state="waiting"]{--c:var(--info)}
+.beat[data-state="silent"]{font-weight:700}
+
+/* ---------- verdict core + coverage ring (TASK-0324/0325) ---------- */
+.core-orb{pointer-events:auto;cursor:pointer;color:#fff;font:inherit;padding:0}
+.core-orb:focus-visible{outline:3px solid var(--gold-bright);outline-offset:4px}
+.core[data-verdict="WATCHER_SILENT"] .pulse{animation-duration:4.8s;border-width:3px}
+.core[data-verdict="WATCHER_SILENT"] .core-orb{animation:slowGlow 4.8s ease-in-out infinite}
+@keyframes slowGlow{50%{box-shadow:0 0 80px rgba(239,68,68,.75),0 18px 40px rgba(0,0,0,.5),inset 0 -14px 30px rgba(0,0,0,.45)}}
+.core-tap{font-size:.6rem;color:var(--gold-bright);letter-spacing:1px;margin-top:5px;text-transform:uppercase}
+
+/* ---------- planet shapes (status never by colour alone) ---------- */
+.node .orbwrap{position:relative;width:86px;height:86px;margin:0 auto}
+.node .orb{width:100%;height:100%}
+.node .glyph{position:absolute;top:9px;left:50%;transform:translateX(-50%);font-size:.7rem;color:#06104a;opacity:.85;font-weight:800}
+.node[data-shape="ring"] .orb::after,.node[data-shape="dashed"] .orb::after,.node[data-shape="beat"] .orb::after{content:"";position:absolute;inset:-7px;border-radius:inherit;border:2px solid var(--c)}
+.node[data-shape="dashed"] .orb::after{border-style:dashed}
+.node[data-shape="beat"] .orb::after{border:4px double var(--c)}
+.node[data-shape="square"] .orb{border-radius:24%}
+.node[data-shape="diamond"] .orb{border-radius:20%;transform:rotate(45deg) scale(.84)}
+.node[data-shape="diamond"] .orb>*{transform:rotate(-45deg)}
+.node[data-shape="diamond"] .glyph{transform:none;top:auto;left:auto}
+.node[data-shape="hex"] .orb{border-radius:0;clip-path:polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%)}
+.node .orb{position:relative}
+.node .sub{display:block;font-size:.6rem;letter-spacing:.5px;color:#d9e7ff;margin-top:1px;text-shadow:0 2px 6px #000}
+.node .unread{top:-2px;right:-2px}
+.node.alert .orbwrap::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--c);opacity:0;animation:pulse 2.6s ease-out infinite}
+
+/* ---------- problem cards + digest (TASK-0324/0328) ---------- */
+.card{border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));border-left:5px solid var(--c);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:color-mix(in srgb,var(--c) 5%,#fff)}
+.card .item-title{font-size:.9rem}
+.card-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.act{display:inline-flex;align-items:center;gap:4px;min-height:34px;background:#fff;border:1px solid var(--royal);color:var(--royal);border-radius:9px;padding:6px 10px;font:600 .74rem 'Inter';cursor:pointer;text-decoration:none}
+.act:hover{background:var(--royal);color:#fff}
+.act.primary{background:var(--royal);color:#fff}
+.act:disabled{opacity:.5;cursor:default}
+.card-tools{display:flex;gap:6px;margin-left:auto}
+.digest{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:var(--soft)}
+.digest summary{list-style:none;cursor:pointer;padding:10px 12px;font-weight:600;font-size:.84rem;display:flex;align-items:center;gap:8px;min-height:44px}
+.digest summary::-webkit-details-marker{display:none}
+.digest summary .chev{margin-left:auto;color:var(--royal);transition:transform .2s}
+.digest[open] summary .chev{transform:rotate(90deg)}
+.digest summary small{color:var(--muted);font-weight:500}
+.digest .rows{padding:0 12px 6px}
+.sect{font:700 .66rem 'Inter';letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:4px 0 8px}
+
+/* ---------- coverage gap sheet ---------- */
+dialog.sheet{margin:auto;border:0;padding:0;border-radius:18px;width:min(560px,calc(100vw - 24px));max-height:min(82vh,720px);box-shadow:0 30px 80px rgba(8,21,95,.45);color:var(--ink)}
+dialog.sheet::backdrop{background:rgba(5,11,61,.55)}
+.sheet-head{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;background:linear-gradient(135deg,var(--navy-deep),var(--navy-2));color:#fff;border-bottom:3px solid var(--gold)}
+.sheet-head h3{font-family:'Cinzel',serif;font-size:.95rem;letter-spacing:2px}
+.sheet-head button{background:transparent;border:1px solid #8db0ff;color:#fff;border-radius:9px;min-width:40px;min-height:36px;font-size:.9rem;cursor:pointer}
+.sheet-body{padding:12px 16px 16px;overflow:auto}
+.gap{padding:10px 0;border-bottom:1px solid var(--line)}
+.gap:last-child{border-bottom:0}
+.gap.info{opacity:.8}
+.gap-state{font-size:.8rem;margin-top:3px;color:#33415f}
+
 @media (max-width:860px){.grid{grid-template-columns:1fr}}
 @media (max-width:640px){
   .wrap{padding:12px 16px 24px}.header,.nav{padding-left:16px;padding-right:16px}
   .stage{height:390px;border-radius:20px}
-  .core{width:136px;height:136px;margin:-68px 0 0 -68px}.core-orb{inset:18px}.pulse{inset:14px}
+  .core{width:150px;height:150px;margin:-75px 0 0 -75px}.core-orb{inset:18px}.pulse{inset:14px}
   .core-big{font-size:1.3rem;margin-top:3px}.core-state{font-size:.66rem;letter-spacing:1px}.core-small{font-size:.5rem;letter-spacing:.5px}
   .node{width:72px;height:84px;margin:-42px 0 0 -36px}.node .orb{width:52px;height:52px}.node .count{font-size:1.05rem}
-  .node .lbl{font-size:.55rem;letter-spacing:.8px}.node .unread{min-width:18px;height:18px;font-size:.6rem;top:-2px;right:-4px}
+  .node .lbl{font-size:.55rem;letter-spacing:.8px}.node .unread{min-width:18px;height:18px;font-size:.6rem;top:-6px;right:-8px}
+  .node .orbwrap{width:52px;height:52px}.node .glyph{top:4px;font-size:.55rem}.node .sub{font-size:.5rem}
+  .node[data-shape="ring"] .orb::after,.node[data-shape="dashed"] .orb::after,.node[data-shape="beat"] .orb::after{inset:-5px}
+  .core-tap{font-size:.5rem;margin-top:2px}
+  .core[data-verdict="WATCHER_SILENT"] .core-state,.core[data-verdict="UNKNOWN"] .core-state{font-size:.56rem;letter-spacing:.3px}.core-small{white-space:nowrap}
+  .beats{font-size:.7rem;padding:8px 10px}
+  .card-tools{margin-left:0}
 }
-@media (prefers-reduced-motion:reduce){.ring,.ticks,.pulse{animation:none}}
+@media (prefers-reduced-motion:reduce){.ring,.ticks,.pulse,.node.alert .orbwrap::before,.core-orb{animation:none!important}.digest summary .chev{transition:none}}
 </style>
 </head><body>
 <div class="header">
@@ -161,6 +232,8 @@ a{color:var(--royal)}
     <div class="stamp"><span id="stamp">—</span><button type="button" class="icon-btn" id="refreshBtn">↻ Refresh</button></div>
   </div>
 
+  <div class="beats" id="beats" aria-live="polite"><span class="lead">💓</span><span>Checking watchers…</span></div>
+
   <section class="stage" id="stage" aria-label="Sync activity orbit">
     <div class="plane">
       <svg class="ticks" viewBox="0 0 100 100" aria-hidden="true" id="ticks"></svg>
@@ -169,15 +242,21 @@ a{color:var(--royal)}
     <div class="core" aria-live="polite">
       <svg viewBox="0 0 250 250" id="gauge" aria-hidden="true"></svg>
       <div class="pulse"></div>
-      <div class="core-orb">
-        <div class="core-state" id="coreState">—</div>
-        <div class="core-big" id="coreBig">0</div>
-        <div class="core-small" id="coreSmall">notices</div>
-      </div>
+      <button type="button" class="core-orb" id="coreBtn" aria-haspopup="dialog" aria-controls="gapSheet">
+        <span class="core-state" id="coreState">CHECKING…</span>
+        <span class="core-big" id="coreBig">—</span>
+        <span class="core-small" id="coreSmall">in sync</span>
+        <span class="core-tap" id="coreTap">Tap for gaps</span>
+      </button>
     </div>
     <div id="nodes"></div>
   </section>
-  <div class="hint">Tap a planet to filter the notice feed · the orbit pauses while you hover</div>
+  <div class="hint">Tap the centre for coverage gaps · tap a planet to filter the feed · the orbit pauses while you hover</div>
+
+  <dialog class="sheet" id="gapSheet" aria-labelledby="gapTitle">
+    <div class="sheet-head"><h3 id="gapTitle">Coverage gaps</h3><button type="button" id="gapClose" aria-label="Close">✕</button></div>
+    <div class="sheet-body" id="gapBody"></div>
+  </dialog>
 
   <div class="grid">
     <section class="panel">
@@ -203,44 +282,67 @@ a{color:var(--royal)}
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const sb = createClient('https://sdquzhsylqpbhrmqjqgk.supabase.co', 'sb_publishable_volaz6N52Pc4rdh8a4dfEw_MjJ73How');
 
-// Notice categories written by dims_internal.di_watch_teaching_sync (DI Watcher v1).
+// Notice categories written by dims_internal.di_watch_teaching_sync (DI Watcher v1) and the
+// Orbit upkeep (teaching_sync_watcher_silent). "Synced" merges queue-worker and two-way
+// successes (TASK-0327); each planet also has its own shape and glyph so status is never
+// shown by colour alone.
 const CATS = [
-  { key: 'synced',    label: 'Synced',    color: 'var(--synced)' },
-  { key: 'twoway',    label: 'Two-way',   color: 'var(--twoway)' },
-  { key: 'recovered', label: 'Recovered', color: 'var(--recovered)' },
-  { key: 'retry',     label: 'Retrying',  color: 'var(--retry)' },
-  { key: 'stalled',   label: 'Stalled',   color: 'var(--stalled)' },
-  { key: 'conflict',  label: 'Conflict',  color: 'var(--conflict)' },
-  { key: 'failed',    label: 'Failed',    color: 'var(--failed)' }
+  { key: 'synced',    label: 'Synced',    color: 'var(--synced)',    glyph: '✓', shape: 'circle' },
+  { key: 'recovered', label: 'Recovered', color: 'var(--recovered)', glyph: '↺', shape: 'ring' },
+  { key: 'retry',     label: 'Retrying',  color: 'var(--retry)',     glyph: '⟳', shape: 'dashed' },
+  { key: 'stalled',   label: 'Stalled',   color: 'var(--stalled)',   glyph: 'Ⅱ', shape: 'square' },
+  { key: 'failed',    label: 'Failed',    color: 'var(--failed)',    glyph: '✕', shape: 'diamond' },
+  { key: 'conflict',  label: 'Conflict',  color: 'var(--conflict)',  glyph: '⇄', shape: 'hex' },
+  { key: 'watcher',   label: 'Watcher',   color: 'var(--watcher)',   glyph: '♥', shape: 'beat' }
 ];
 const CAT = Object.fromEntries(CATS.map(c => [c.key, c]));
 const QUEUE_COLOR = { queued: 'var(--retry)', processing: 'var(--twoway)', conflict: 'var(--conflict)', deferred: 'var(--stalled)', failed: 'var(--failed)' };
 const REFRESH_MS = 60000;
+const ET = 'America/New_York';
 
-const state = { hours: 24, filter: null, notices: [], queue: [], loading: false, timer: null };
+const state = {
+  hours: 24, filter: null, notices: [], queue: [], loading: false, timer: null,
+  health: null, healthError: null, gaps: [], libraryUpdated: new Map(),
+  registry: new Map(), failedJob: new Map(), pending: new Set(), openDays: new Set(), busy: new Set()
+};
 // Problem notices clear themselves once the underlying problem is fixed (see resolveProblems).
-const PROBLEM_CATS = new Set(['retry', 'stalled', 'conflict', 'failed']);
+const PROBLEM_CATS = new Set(['retry', 'stalled', 'conflict', 'failed', 'watcher']);
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function ago(d) {
+  if (!d) return '—';
+  const mins = Math.round((Date.now() - new Date(d)) / 60000);
+  return mins < 1 ? 'just now' : mins < 60 ? `${mins} min ago` : mins < 1440 ? `${Math.round(mins / 60)} h ago` : `${Math.round(mins / 1440)} d ago`;
+}
 function when(d) {
   if (!d) return '—';
-  const t = new Date(d), mins = Math.round((Date.now() - t) / 60000);
-  const rel = mins < 1 ? 'just now' : mins < 60 ? `${mins} min ago` : mins < 1440 ? `${Math.round(mins / 60)} h ago` : `${Math.round(mins / 1440)} d ago`;
-  return `${t.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} · ${rel}`;
+  return `${new Date(d).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} · ${ago(d)}`;
+}
+function shortDate(d) { return new Date(d).toLocaleDateString([], { month: 'short', day: 'numeric', timeZone: ET }); }
+function etDay(d) { return new Date(d).toLocaleDateString('en-CA', { timeZone: ET }); }
+function dayLabel(key) {
+  const today = etDay(Date.now()), yesterday = etDay(Date.now() - 864e5);
+  if (key === today) return 'today';
+  if (key === yesterday) return 'yesterday';
+  return 'on ' + new Date(key + 'T12:00:00Z').toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
 }
 function categoryOf(n) {
   switch (n.event_type) {
-    case 'teaching_sync_verified': return n.metadata?.writer === 'two_way_watcher' ? 'twoway' : 'synced';
+    case 'teaching_sync_verified': return 'synced';
     case 'teaching_sync_recovered': return 'recovered';
     case 'teaching_sync_retry': return 'retry';
     case 'teaching_sync_stalled': return 'stalled';
     case 'teaching_sync_conflict': return 'conflict';
     case 'teaching_sync_failed': return 'failed';
+    case 'teaching_sync_watcher_silent': return 'watcher';
     default: return null;
   }
 }
 function isAuthError(error) { return error && (error.status === 401 || /jwt|auth|permission/i.test(error.message || '')); }
+function docId(url) { const m = String(url || '').match(/\/d\/([a-zA-Z0-9_-]+)/); return m ? m[1] : null; }
+function readerUrl(id) { return '/yaratheke/?t=' + encodeURIComponent(id); }
+const isOpenProblem = n => PROBLEM_CATS.has(n.cat) && !n.resolved && n.status !== 'dismissed';
 
 /* ---------- data ---------- */
 async function load() {
@@ -251,7 +353,7 @@ async function load() {
   try {
     const since = new Date(Date.now() - state.hours * 3600e3).toISOString();
     const queueSince = new Date(Date.now() - 72 * 3600e3).toISOString();
-    const [notices, queue] = await Promise.all([
+    const [notices, queue, health, gaps] = await Promise.all([
       sb.from('notifications')
         .select('id,event_type,title,message,severity,status,metadata,created_at')
         .like('event_type', 'teaching_sync_%').gte('created_at', since)
@@ -261,18 +363,30 @@ async function load() {
         .like('source', 'TeachingArtifactSync%')
         .in('sync_status', ['queued', 'processing', 'conflict', 'deferred', 'failed'])
         .gte('created_at', queueSince)
-        .order('created_at', { ascending: false }).limit(50)
+        .order('created_at', { ascending: false }).limit(50),
+      // One call drives the verdict, heartbeat line and coverage ring (TASK-0322/0325).
+      sb.rpc('teaching_sync_health'),
+      sb.from('v_teaching_sync_coverage')
+        .select('teaching_id,title,teaching_status,sync_mode,doc_url,last_verified_sync_at,conflict_status,coverage_state')
+        .neq('coverage_state', 'in_sync')
     ]);
     const error = notices.error || queue.error;
     if (error) {
       if (isAuthError(error)) return showGate();
       throw error;
     }
+    // The verdict comes only from teaching_sync_health(). If it cannot be read the page says
+    // so; it never falls back to ALL CLEAR.
+    state.health = health.error ? null : health.data;
+    state.healthError = health.error ? (health.error.message || String(health.error)) : null;
+    state.gaps = gaps.error ? [] : (gaps.data || []);
+
     const list = (notices.data || []).map(n => ({ ...n, cat: categoryOf(n) })).filter(n => n.cat);
     const resolved = await resolveProblems(list, queue.data || [], since < queueSince ? since : queueSince);
     for (const n of list) n.resolved = resolved.notice(n);
     state.notices = list;
     state.queue = (queue.data || []).filter(q => !resolved.job(q));
+    await loadActionContext();
     render();
     document.getElementById('stamp').textContent = 'Updated ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
   } catch (err) {
@@ -287,6 +401,8 @@ async function load() {
 // Decide, from current state, whether each problem notice / held job is already fixed:
 //  - conflict: the conflict row is 'resolved' (or, for held jobs, the teaching's registry shows no conflict)
 //  - failed / retry / stalled / deferred: the job later verified, or the teaching synced successfully afterwards
+//  - watcher: that watcher is checking in on time again
+//  - anything the Orbit upkeep auto-resolved (metadata.auto_resolved_at)
 async function resolveProblems(notices, queue, earliest) {
   const problems = notices.filter(n => PROBLEM_CATS.has(n.cat));
   const held = queue.filter(q => ['conflict', 'deferred', 'failed'].includes(q.sync_status));
@@ -296,14 +412,16 @@ async function resolveProblems(notices, queue, earliest) {
   const none = Promise.resolve({ data: [] });
   const [conflicts, registry, verified, jobs] = await Promise.all([
     conflictIds.length ? sb.from('teaching_sync_conflicts').select('id,status').in('id', conflictIds) : none,
-    assets.length ? sb.from('asset_registry').select('asset_code,conflict_status,last_verified_sync_at').in('asset_code', assets) : none,
+    assets.length ? sb.from('asset_registry').select('asset_code,url,conflict_status,last_verified_sync_at').in('asset_code', assets) : none,
     assets.length ? sb.from('sync_log').select('asset_code,created_at').eq('sync_status', 'verified').in('asset_code', assets).gte('created_at', earliest) : none,
     jobIds.length ? sb.from('sync_log').select('id,sync_status').in('id', jobIds) : none
   ]);
   for (const r of [conflicts, registry, verified, jobs]) if (r.error) throw r.error;
   const conflictStatus = new Map((conflicts.data || []).map(r => [r.id, r.status]));
   const reg = new Map((registry.data || []).map(r => [r.asset_code, r]));
+  state.registry = reg;
   const jobStatus = new Map((jobs.data || []).map(r => [r.id, r.sync_status]));
+  const beatOk = new Map((state.health?.heartbeats || []).map(b => [b.component, b.state === 'ok']));
   const syncedAfter = (asset, t) => {
     const at = new Date(t).getTime();
     const r = reg.get(asset);
@@ -315,6 +433,8 @@ async function resolveProblems(notices, queue, earliest) {
     notice(n) {
       if (!PROBLEM_CATS.has(n.cat)) return false;
       const m = n.metadata || {}, asset = m.asset_code;
+      if (m.auto_resolved_at) return true;
+      if (n.cat === 'watcher') return !!m.component && beatOk.get(m.component) === true;
       if (n.cat === 'conflict') return m.conflict_id ? conflictStatus.get(m.conflict_id) === 'resolved' : !!asset && noConflict(asset);
       if (m.job_id && jobStatus.get(m.job_id) === 'verified') return true;
       return !!asset && syncedAfter(asset, n.created_at);
@@ -325,6 +445,91 @@ async function resolveProblems(notices, queue, earliest) {
       return false;
     }
   };
+}
+
+// Everything the card buttons and the gap list need: the registered Doc, the latest failed
+// job (the only thing Retry may re-queue), whether a job is already pending, and the library
+// edit time for "library newer than Doc".
+async function loadActionContext() {
+  const outOfSync = state.gaps.filter(g => g.coverage_state === 'out_of_sync').map(g => g.teaching_id);
+  const assets = [...new Set([...state.notices.filter(isOpenProblem).map(n => n.metadata?.asset_code), ...outOfSync].filter(Boolean))];
+  state.failedJob = new Map(); state.pending = new Set();
+  if (!assets.length) return;
+  const missingReg = assets.filter(a => !state.registry.has(a));
+  const none = Promise.resolve({ data: [] });
+  const [jobs, reg, lib] = await Promise.all([
+    sb.from('sync_log').select('id,asset_code,sync_status,message,created_at')
+      .in('asset_code', assets).like('source', 'TeachingArtifactSync%')
+      .in('sync_status', ['failed', 'queued', 'processing'])
+      .order('created_at', { ascending: false }).limit(200),
+    missingReg.length ? sb.from('asset_registry').select('asset_code,url,conflict_status,last_verified_sync_at').in('asset_code', missingReg) : none,
+    outOfSync.length ? sb.from('teachings').select('id,updated_at').in('id', outOfSync) : none
+  ]);
+  for (const r of reg.data || []) state.registry.set(r.asset_code, r);
+  state.libraryUpdated = new Map((lib.data || []).map(r => [r.id, r.updated_at]));
+  for (const j of jobs.data || []) {
+    if (j.sync_status === 'failed') { if (!state.failedJob.has(j.asset_code)) state.failedJob.set(j.asset_code, j); }
+    else state.pending.add(j.asset_code);
+  }
+}
+
+// Retry reuses the DI watcher's safe re-queue path: the latest FAILED job for the teaching goes
+// back to 'queued' for the hourly worker, which rewrites the teaching's already-registered Doc.
+// It is offered only when a Doc is registered, there is no open conflict and nothing is already
+// pending, so it can never create a second Doc.
+function canRetry(asset) {
+  const r = state.registry.get(asset);
+  return !!asset && !!r && !!docId(r.url) && (!r.conflict_status || r.conflict_status === 'none')
+    && state.failedJob.has(asset) && !state.pending.has(asset);
+}
+
+async function retry(asset, label) {
+  if (!canRetry(asset) || state.busy.has(asset)) return;
+  const job = state.failedJob.get(asset);
+  if (!confirm(`Retry ${label}?\n\nIts last failed sync job goes back in the queue. The hourly queue worker will rewrite its existing Google Doc (no new Doc is created).`)) return;
+  state.busy.add(asset); render();
+  try {
+    const pend = await sb.from('sync_log').select('id').eq('asset_code', asset).like('source', 'TeachingArtifactSync%')
+      .in('sync_status', ['queued', 'processing']).limit(1);
+    if (pend.error) throw pend.error;
+    if (pend.data?.length) { alert('A sync for this teaching is already waiting in the queue.'); return; }
+    const { data, error } = await sb.from('sync_log').update({
+      sync_status: 'queued',
+      source: 'TeachingArtifactSyncTrigger',
+      message: JSON.stringify({ event: 'requeued_after_failure', requeued_at: new Date().toISOString(),
+        requeued_by: 'Teaching Sync Orbit (owner, Retry now)', previous_message: job.message })
+    }).eq('id', job.id).eq('sync_status', 'failed').select('id');
+    if (error) throw error;
+    if (!data?.length) { alert('That job changed in the meantime. Refreshing.'); return; }
+    state.pending.add(asset);
+    alert(`${label} is queued. The queue worker runs hourly at :58.`);
+  } catch (err) {
+    alert('Retry failed: ' + (err.message || err));
+  } finally {
+    state.busy.delete(asset);
+    load();
+  }
+}
+
+function askDI(question) {
+  const launch = document.querySelector('.di-launch');
+  const panel = document.querySelector('.di-panel');
+  const input = panel?.querySelector('textarea');
+  const form = panel?.querySelector('form');
+  if (launch && input && form) {
+    if (panel.getAttribute('aria-hidden') !== 'false') launch.click();
+    input.value = question;
+    setTimeout(() => { form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); }, 60);
+    return;
+  }
+  navigator.clipboard?.writeText(question).catch(() => {});
+  alert('DI² is not available on this page right now. Your question was copied so you can paste it into DI²:\n\n' + question);
+}
+
+function whyQuestion(n) {
+  const m = n.metadata || {};
+  if (n.cat === 'watcher') return `Why did the teaching sync ${m.component === 'queue_worker' ? 'queue worker' : 'two-way watcher'} stop checking in (last check-in ${m.last_run_at ? when(m.last_run_at) : 'unknown'})? What should I check in Apps Script?`;
+  return `Why is teaching sync ${CAT[n.cat].label.toLowerCase()} for ${m.asset_code || 'this teaching'}? The notice says: "${n.message}". What caused it and what should I do?`;
 }
 
 async function setStatus(ids, status) {
@@ -339,55 +544,145 @@ async function setStatus(ids, status) {
 
 /* ---------- rendering ---------- */
 function counts() {
-  const c = Object.fromEntries(CATS.map(k => [k.key, { total: 0, unread: 0 }]));
+  const c = Object.fromEntries(CATS.map(k => [k.key, { total: 0, unread: 0, queue: 0, twoway: 0 }]));
   for (const n of state.notices) {
     // Problem planets show only open problems: resolved or dismissed ones drop to zero on their own.
-    if (PROBLEM_CATS.has(n.cat) && (n.resolved || n.status === 'dismissed')) continue;
-    c[n.cat].total++;
-    if (n.status === 'unread') c[n.cat].unread++;
+    if (PROBLEM_CATS.has(n.cat) && !isOpenProblem(n)) continue;
+    const v = c[n.cat];
+    v.total++;
+    if (n.status === 'unread') v.unread++;
+    if (n.cat === 'synced') { if (n.metadata?.writer === 'two_way_watcher') v.twoway++; else v.queue++; }
   }
   return c;
 }
 
-function health() {
-  const open = state.notices.filter(n => PROBLEM_CATS.has(n.cat) && !n.resolved && n.status !== 'dismissed');
-  if (open.some(n => n.severity === 'critical') || state.queue.some(q => q.sync_status === 'failed'))
-    return { label: 'ATTENTION', color: 'var(--alert)', glow: '#6b1630', shadow: 'rgba(239,68,68,.5)' };
-  if (open.some(n => n.severity === 'warning') || state.queue.some(q => q.sync_status === 'conflict' || q.sync_status === 'deferred'))
-    return { label: 'WATCH', color: 'var(--watch)', glow: '#6b5212', shadow: 'rgba(245,184,61,.5)' };
-  return { label: 'ALL CLEAR', color: 'var(--clear)', glow: '#0f5a3a', shadow: 'rgba(34,197,94,.45)' };
+const VERDICT = {
+  ALL_CLEAR:      { label: 'ALL CLEAR',      color: 'var(--clear)', glow: '#0f5a3a', shadow: 'rgba(34,197,94,.45)' },
+  ATTENTION:      { label: 'ATTENTION',      color: 'var(--watch)', glow: '#6b5212', shadow: 'rgba(232,199,102,.55)' },
+  WATCHER_SILENT: { label: 'WATCHER SILENT', color: 'var(--alert)', glow: '#6b1630', shadow: 'rgba(239,68,68,.55)' },
+  UNKNOWN:        { label: 'STATUS UNKNOWN', color: 'var(--info)',  glow: '#26345e', shadow: 'rgba(148,163,184,.4)' }
+};
+
+function renderBeats() {
+  const el = document.getElementById('beats');
+  const h = state.health;
+  if (!h) {
+    el.innerHTML = `<span class="lead">💓</span><span class="beat" data-state="waiting">⏳ <b>Watcher status unavailable</b>${state.healthError ? ' · ' + esc(state.healthError) : ''}</span>`;
+    return;
+  }
+  const beats = new Map((h.heartbeats || []).map(b => [b.component, b]));
+  const diAge = h.di_watcher_last_run ? (Date.now() - new Date(h.di_watcher_last_run)) / 60000 : null;
+  const diState = diAge == null ? 'awaiting_first_ping' : diAge <= 10 ? 'ok' : diAge <= 15 ? 'late' : 'silent';
+  const rows = [
+    ['Two-way watcher', beats.get('two_way_watcher')],
+    ['Queue worker', beats.get('queue_worker')],
+    ['DI watcher', { state: diState, last_run_at: h.di_watcher_last_run }]
+  ];
+  const ICON = { ok: '✅', late: '⚠️', silent: '⛔', waiting: '⏳' };
+  el.innerHTML = '<span class="lead">💓</span>' + rows.map(([label, b]) => {
+    const s = !b || b.state === 'awaiting_first_ping' || !b.last_run_at ? 'waiting' : b.state;
+    const text = s === 'waiting' ? 'waiting for first check-in' : s === 'silent' ? `silent · last ${ago(b.last_run_at)}` : ago(b.last_run_at) + (s === 'late' ? ' · late' : '');
+    return `<span class="beat" data-state="${s}" title="${esc(b?.label || label)}"><b>${label}</b> · <span>${esc(text)}</span> ${ICON[s]}</span>`;
+  }).join('');
 }
 
-function renderCore(c) {
-  const h = health(), core = document.querySelector('.core');
-  core.style.setProperty('--core-ink', h.color);
-  core.style.setProperty('--core-glow', h.glow);
-  core.style.setProperty('--core-shadow', h.shadow);
-  document.getElementById('coreState').textContent = h.label;
-  const pending = state.queue.filter(q => q.sync_status === 'queued' || q.sync_status === 'processing').length;
-  document.getElementById('coreBig').textContent = state.notices.length;
-  document.getElementById('coreSmall').textContent = `notices · ${pending} in queue`;
+function renderCore() {
+  const h = state.health, core = document.querySelector('.core');
+  const key = h && VERDICT[h.verdict] ? h.verdict : 'UNKNOWN';
+  const v = VERDICT[key];
+  core.dataset.verdict = key;
+  core.style.setProperty('--core-ink', v.color);
+  core.style.setProperty('--core-glow', v.glow);
+  core.style.setProperty('--core-shadow', v.shadow);
+  document.getElementById('coreState').textContent = v.label;
 
-  // Donut gauge: share of each category in the selected window.
-  const total = state.notices.length, R = 112, C = 2 * Math.PI * R, gap = total ? 3 : 0;
-  let offset = 0, arcs = `<circle cx="125" cy="125" r="${R}" fill="none" stroke="rgba(185,212,255,.18)" stroke-width="10"/>`;
-  if (total) for (const k of CATS) {
-    const len = (c[k.key].total / total) * C;
-    if (!len) continue;
-    arcs += `<circle cx="125" cy="125" r="${R}" fill="none" stroke="${k.color}" stroke-width="10" stroke-linecap="round"
-      stroke-dasharray="${Math.max(len - gap, 0.1)} ${C}" stroke-dashoffset="${-offset}" transform="rotate(-90 125 125)"
-      style="filter:drop-shadow(0 0 6px ${k.color})"/>`;
-    offset += len;
+  const cov = h?.coverage || { total: 0, in_sync: 0 };
+  const pending = state.queue.filter(q => q.sync_status === 'queued' || q.sync_status === 'processing').length;
+  document.getElementById('coreBig').textContent = h ? `${cov.in_sync} / ${cov.total}` : '—';
+  document.getElementById('coreSmall').textContent = h ? `in sync · ${pending} in queue` : 'could not check';
+  const gapCount = h ? (cov.total - cov.in_sync) : 0;
+  document.getElementById('coreTap').textContent = gapCount ? `Tap for ${gapCount} gap${gapCount === 1 ? '' : 's'}` : 'Tap for details';
+  document.getElementById('coreBtn').setAttribute('aria-label',
+    `${v.label}. ${h ? `${cov.in_sync} of ${cov.total} teachings in sync. ${gapCount} gaps.` : 'Status could not be checked.'} Open coverage gaps.`);
+
+  // Coverage ring: gold arc = share of teachings in sync.
+  const R = 112, C = 2 * Math.PI * R, frac = cov.total ? cov.in_sync / cov.total : 0;
+  document.getElementById('gauge').innerHTML =
+    `<circle cx="125" cy="125" r="${R}" fill="none" stroke="rgba(185,212,255,.18)" stroke-width="10"/>` +
+    (frac ? `<circle cx="125" cy="125" r="${R}" fill="none" stroke="var(--gold-bright)" stroke-width="10" stroke-linecap="round"
+      stroke-dasharray="${Math.max(frac * C - (frac < 1 ? 4 : 0), 0.1)} ${C}" transform="rotate(-90 125 125)"
+      style="filter:drop-shadow(0 0 7px rgba(232,199,102,.8))"/>` : '');
+}
+
+function gapWords(g) {
+  const lv = g.last_verified_sync_at;
+  switch (g.coverage_state) {
+    case 'conflict': return { text: 'Conflict — the Doc and the library both changed. Needs your review.', c: 'var(--conflict)', info: false };
+    case 'no_doc': return { text: 'No Google Doc registered yet — not backed up.', c: 'var(--stalled)', info: false };
+    case 'out_of_sync': {
+      const upd = state.libraryUpdated.get(g.teaching_id);
+      if (!lv) return { text: 'Never verified against its Google Doc.', c: 'var(--failed)', info: false };
+      if (upd && new Date(upd) > new Date(lv)) return { text: `Library newer than Doc — edited ${shortDate(upd)}, Doc last verified ${shortDate(lv)}.`, c: 'var(--failed)', info: false };
+      return { text: `Doc and library differ — last verified ${shortDate(lv)}.`, c: 'var(--failed)', info: false };
+    }
+    case 'not_enrolled':
+      return String(g.teaching_status).toLowerCase() === 'draft'
+        ? { text: 'Not backed up — draft. Informational; it is enrolled once it is published.', c: 'var(--info)', info: true }
+        : { text: 'Not enrolled in two-way sync yet.', c: 'var(--stalled)', info: false };
+    default: return { text: g.coverage_state, c: 'var(--info)', info: true };
   }
-  document.getElementById('gauge').innerHTML = arcs;
+}
+
+function actionButtons({ asset, label, doc, ask, withRetry }) {
+  let b = '';
+  if (doc) b += `<a class="act" href="${esc(doc)}" target="_blank" rel="noopener">📄 Open Doc</a>`;
+  if (asset) b += `<a class="act" href="${readerUrl(asset)}">📚 Open in YARATHĒKĒ</a>`;
+  if (withRetry && canRetry(asset)) {
+    b += `<button type="button" class="act primary" data-retry="${esc(asset)}" data-label="${esc(label)}"${state.busy.has(asset) ? ' disabled' : ''}>${state.busy.has(asset) ? '⏳ Queuing…' : '↻ Retry now'}</button>`;
+  } else if (withRetry && asset && state.pending.has(asset)) {
+    b += `<span class="tag" style="--c:var(--retry);align-self:center">Queued · worker runs at :58</span>`;
+  }
+  if (ask) b += `<button type="button" class="act" data-ask="${esc(ask)}">✨ Ask DI² why</button>`;
+  return b;
+}
+
+function wireActions(root) {
+  root.querySelectorAll('[data-retry]').forEach(b => b.addEventListener('click', () => retry(b.dataset.retry, b.dataset.label)));
+  root.querySelectorAll('[data-ask]').forEach(b => b.addEventListener('click', () => askDI(b.dataset.ask)));
+}
+
+function renderGaps() {
+  const body = document.getElementById('gapBody');
+  const h = state.health;
+  if (!h) { body.innerHTML = `<div class="err">Coverage could not be checked${state.healthError ? ': ' + esc(state.healthError) : ''}.</div>`; return; }
+  const cov = h.coverage || {};
+  const order = { conflict: 0, out_of_sync: 1, no_doc: 2, not_enrolled: 3 };
+  const rows = state.gaps.slice().sort((a, b) => {
+    const ia = gapWords(a).info, ib = gapWords(b).info;
+    return (ia - ib) || ((order[a.coverage_state] ?? 9) - (order[b.coverage_state] ?? 9)) || String(a.title).localeCompare(String(b.title));
+  });
+  const head = `<p class="gap-state" style="margin-bottom:8px"><b>${cov.in_sync} of ${cov.total}</b> teachings are in sync with their Google Docs.</p>`;
+  body.innerHTML = head + (rows.length ? rows.map(g => {
+    const w = gapWords(g);
+    return `<div class="gap${w.info ? ' info' : ''}">
+      <div class="item-title">${esc(g.title)}</div>
+      <div class="gap-state">${w.info ? 'ⓘ' : '⚠'} ${esc(w.text)}</div>
+      <div class="item-meta"><span class="tag" style="--c:${w.c}">${esc(g.coverage_state.replace(/_/g, ' '))}</span><span>${esc(g.teaching_id)}</span><span>${esc(g.teaching_status)}</span></div>
+      <div class="card-actions">${actionButtons({ asset: g.teaching_id, label: g.title, doc: docId(g.doc_url) ? g.doc_url : null,
+        withRetry: g.coverage_state === 'out_of_sync',
+        ask: w.info ? null : `Why is ${g.teaching_id} (${g.title}) ${g.coverage_state.replace(/_/g, ' ')}? ${w.text} What should I do?` })}</div>
+    </div>`;
+  }).join('') : '<div class="empty">No gaps. Every teaching matches its Google Doc.</div>');
+  wireActions(body);
 }
 
 function renderNodes(c) {
   const host = document.getElementById('nodes');
   if (!host.children.length) {
     host.innerHTML = CATS.map(k => `
-      <button type="button" class="node" data-cat="${k.key}" style="--c:${k.color}" aria-pressed="false">
-        <span class="orb"><span class="count">0</span></span><span class="lbl">${k.label}</span>
+      <button type="button" class="node" data-cat="${k.key}" data-shape="${k.shape}" style="--c:${k.color}" aria-pressed="false">
+        <span class="orbwrap"><span class="orb"><span class="glyph" aria-hidden="true">${k.glyph}</span><span class="count">0</span></span></span>
+        <span class="lbl">${k.label}</span>${k.key === 'synced' ? '<span class="sub"></span>' : ''}
       </button>`).join('');
     host.querySelectorAll('.node').forEach(b => b.addEventListener('click', () => {
       state.filter = state.filter === b.dataset.cat ? null : b.dataset.cat;
@@ -398,11 +693,14 @@ function renderNodes(c) {
     const k = b.dataset.cat, v = c[k];
     b.querySelector('.count').textContent = v.total;
     b.classList.toggle('zero', !v.total);
+    b.classList.toggle('alert', PROBLEM_CATS.has(k) && v.total > 0 && !reduceMotion);
     b.setAttribute('aria-pressed', String(state.filter === k));
-    b.setAttribute('aria-label', `${CAT[k].label}: ${v.total} notices, ${v.unread} unread`);
+    const sub = k === 'synced' ? ` (queue worker ${v.queue}, two-way ${v.twoway})` : '';
+    b.setAttribute('aria-label', `${CAT[k].label}: ${v.total} ${PROBLEM_CATS.has(k) ? 'open ' : ''}notices${sub}, ${v.unread} unread`);
+    if (k === 'synced') { const sb2 = b.querySelector('.sub'); sb2.textContent = `Q ${v.queue} · 2W ${v.twoway}`; b.title = `Queue worker ${v.queue} · Two-way ${v.twoway}`; }
     let badge = b.querySelector('.unread');
     if (v.unread) {
-      if (!badge) { badge = document.createElement('span'); badge.className = 'unread'; b.querySelector('.orb').appendChild(badge); }
+      if (!badge) { badge = document.createElement('span'); badge.className = 'unread'; b.querySelector('.orbwrap').appendChild(badge); }
       badge.textContent = v.unread;
     } else if (badge) badge.remove();
   });
@@ -425,32 +723,70 @@ function renderQueue() {
 }
 
 function renderChips(c) {
-  const chips = [{ key: null, label: 'All', n: state.notices.length }, ...CATS.filter(k => c[k.key].total).map(k => ({ key: k.key, label: k.label, n: c[k.key].total }))];
+  const visible = state.notices.filter(n => n.status !== 'dismissed');
+  const chips = [{ key: null, label: 'All', n: visible.length }, ...CATS.filter(k => c[k.key].total).map(k => ({ key: k.key, label: k.label, n: c[k.key].total }))];
   const el = document.getElementById('chips');
   el.innerHTML = chips.map(ch => `<button type="button" class="chip" data-cat="${ch.key ?? ''}" aria-pressed="${state.filter === ch.key}">${ch.label} · ${ch.n}</button>`).join('');
   el.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => { state.filter = b.dataset.cat || null; render(); }));
 }
 
+function problemCard(n) {
+  const k = CAT[n.cat], m = n.metadata || {}, asset = m.asset_code;
+  const reg = asset ? state.registry.get(asset) : null;
+  return `<div class="card" style="--c:${k.color}">
+    <div class="item-title">${n.status === 'unread' ? '<span class="dot" title="Unread"></span>' : ''}<span aria-hidden="true">${k.glyph}</span> ${esc(n.title)}</div>
+    <div class="item-msg">${esc(n.message)}</div>
+    <div class="item-meta"><span class="tag" style="--c:${k.color}">${k.label}</span>${n.severity === 'critical' ? '<span class="tag" style="--c:var(--failed)">Needs attention</span>' : ''}${asset ? `<span>${esc(asset)}</span>` : ''}<span>${when(n.created_at)}</span></div>
+    <div class="card-actions">
+      ${actionButtons({ asset, label: asset || n.title, doc: reg && docId(reg.url) ? reg.url : null, ask: whyQuestion(n),
+        withRetry: n.cat === 'failed' || n.cat === 'retry' || n.cat === 'stalled' })}
+      <span class="card-tools">
+        ${n.status === 'unread' ? `<button type="button" class="mini" data-act="read" data-id="${n.id}">Read</button>` : ''}
+        <button type="button" class="mini" data-act="dismissed" data-id="${n.id}" aria-label="Dismiss notice">✕</button>
+      </span>
+    </div></div>`;
+}
+
+function digestRow(n) {
+  const k = CAT[n.cat];
+  return `<div class="item${n.resolved ? ' resolved' : ''}"><div class="bar" style="--c:${k.color}"></div>
+    <div class="item-body">
+      <div class="item-title">${esc(n.title)}</div>
+      <div class="item-meta"><span class="tag" style="--c:${k.color}">${n.cat === 'synced' ? (n.metadata?.writer === 'two_way_watcher' ? 'Synced · two-way' : 'Synced · queue') : k.label}</span>${n.resolved ? '<span class="tag" style="--c:var(--synced)">✓ Resolved</span>' : ''}<span>${when(n.created_at)}</span></div>
+    </div>
+    <div class="actions"><button type="button" class="mini" data-act="dismissed" data-id="${n.id}" aria-label="Dismiss notice">✕</button></div></div>`;
+}
+
 function renderFeed() {
-  const list = state.notices.filter(n => n.status !== 'dismissed' && (!state.filter || n.cat === state.filter));
+  const vis = state.notices.filter(n => n.status !== 'dismissed' && (!state.filter || n.cat === state.filter));
+  const open = vis.filter(isOpenProblem);
+  const rest = vis.filter(n => !isOpenProblem(n));
   const el = document.getElementById('feed');
-  if (!list.length) {
+  if (!vis.length) {
     el.innerHTML = `<div class="empty">${state.filter ? 'No ' + CAT[state.filter].label.toLowerCase() + ' notices' : 'No notices'} in this window.</div>`;
   } else {
-    el.innerHTML = list.map(n => {
-      const k = CAT[n.cat];
-      return `<div class="item${n.resolved ? ' resolved' : ''}"><div class="bar" style="--c:${k.color}"></div>
-        <div class="item-body">
-          <div class="item-title">${n.status === 'unread' ? '<span class="dot" title="Unread"></span>' : ''}${esc(n.title)}</div>
-          <div class="item-msg">${esc(n.message)}</div>
-          <div class="item-meta"><span class="tag" style="--c:${k.color}">${k.label}</span>${n.resolved ? '<span class="tag" style="--c:var(--synced)">✓ Resolved</span>' : ''}${n.severity === 'critical' && !n.resolved ? '<span class="tag" style="--c:var(--failed)">Needs attention</span>' : ''}<span>${when(n.created_at)}</span></div>
-        </div>
-        <div class="actions">
-          ${n.status === 'unread' ? `<button type="button" class="mini" data-act="read" data-id="${n.id}">Read</button>` : ''}
-          <button type="button" class="mini" data-act="dismissed" data-id="${n.id}" aria-label="Dismiss notice">✕</button>
-        </div></div>`;
-    }).join('');
+    // Problems first, always above the digest (TASK-0324).
+    let html = open.length ? `<div class="sect">Needs attention · ${open.length}</div>` + open.map(problemCard).join('') : '';
+    const days = new Map();
+    for (const n of rest) { const d = etDay(n.created_at); if (!days.has(d)) days.set(d, []); days.get(d).push(n); }
+    if (days.size) html += `<div class="sect">Daily digest</div>`;
+    for (const [day, items] of days) {
+      const synced = new Set(items.filter(n => n.cat === 'synced').map(n => n.metadata?.asset_code || n.id)).size;
+      const recovered = items.filter(n => n.cat === 'recovered').length;
+      const resolved = items.filter(n => PROBLEM_CATS.has(n.cat)).length;
+      const lead = synced ? `✅ ${synced} teaching${synced === 1 ? '' : 's'} synced ${dayLabel(day)}`
+        : `✓ ${items.length} settled notice${items.length === 1 ? '' : 's'} ${dayLabel(day)}`;
+      const extra = [recovered ? `${recovered} recovered` : '', resolved ? `${resolved} resolved` : ''].filter(Boolean).join(' · ');
+      html += `<details class="digest" data-day="${day}"${state.openDays.has(day) ? ' open' : ''}>
+        <summary>${lead}${extra ? ` <small>· ${extra}</small>` : ''}<span class="chev" aria-hidden="true">▸</span></summary>
+        <div class="rows">${items.map(digestRow).join('')}</div></details>`;
+    }
+    el.innerHTML = html;
+    el.querySelectorAll('details.digest').forEach(d => d.addEventListener('toggle', () => {
+      if (d.open) state.openDays.add(d.dataset.day); else state.openDays.delete(d.dataset.day);
+    }));
     el.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => setStatus([b.dataset.id], b.dataset.act)));
+    wireActions(el);
   }
   const unread = state.notices.filter(n => n.status === 'unread' && (!state.filter || n.cat === state.filter));
   const all = document.getElementById('allReadBtn');
@@ -460,8 +796,15 @@ function renderFeed() {
 
 function render() {
   const c = counts();
-  renderCore(c); renderNodes(c); renderQueue(); renderChips(c); renderFeed();
+  renderBeats(); renderCore(); renderNodes(c); renderQueue(); renderChips(c); renderFeed();
+  if (document.getElementById('gapSheet')?.open) renderGaps();
   document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.win) === state.hours)));
+}
+
+function openGaps() {
+  const sheet = document.getElementById('gapSheet');
+  renderGaps();
+  if (sheet.showModal) sheet.showModal(); else sheet.setAttribute('open', '');
 }
 
 /* ---------- 3-D orbit motion ---------- */
@@ -532,6 +875,10 @@ async function boot() {
   app.appendChild(document.getElementById('dashTpl').content.cloneNode(true));
   document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => { state.hours = Number(b.dataset.win); load(); }));
   document.getElementById('refreshBtn').addEventListener('click', load);
+  const sheet = document.getElementById('gapSheet');
+  document.getElementById('coreBtn').addEventListener('click', openGaps);
+  document.getElementById('gapClose').addEventListener('click', () => sheet.close ? sheet.close() : sheet.removeAttribute('open'));
+  sheet.addEventListener('click', e => { if (e.target === sheet && sheet.close) sheet.close(); });
   buildTicks();
   render();
   startOrbit();

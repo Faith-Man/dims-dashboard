@@ -32,7 +32,26 @@
 * retry loop inside verifyTeachingPersistence_() below.
 */
 
+/**
+* TASK-0322: the hourly trigger handler. Runs the queue exactly as before,
+* then always checks in with the Orbit heartbeat (even when nothing was
+* queued). A heartbeat failure never affects the sync result.
+*/
 function processTeachingArtifactSyncQueue(limit) {
+var outcome = null;
+var failure = null;
+try {
+  outcome = processTeachingArtifactSyncQueueRun_(limit);
+  return outcome;
+} catch (err) {
+  failure = err;
+  throw err;
+} finally {
+  teachingSyncHeartbeatPing_('queue_worker', outcome, failure);
+}
+}
+
+function processTeachingArtifactSyncQueueRun_(limit) {
 // Time-driven triggers pass an event object, not a numeric limit.
 limit = (typeof limit === 'number' || typeof limit === 'string') ? Number(limit) : 10;
 if (!isFinite(limit) || limit < 1) limit = 10;
@@ -262,17 +281,20 @@ return {
 
 function writeDominion1stTeachingDocument_(doc, teaching) {
 var body = doc.getBody();
-body.clear();
 
 var ROYAL = '#14258F';
 var ELECTRIC = '#55C7FF';
 var GOLD = '#9C7A2E';
 var DARK = '#1A1A1A';
 
-var title = body.appendParagraph(teaching.title || 'Dominion1st Teaching');
+// TASK-0196: body.clear() threw "Can't remove the last paragraph in a
+// document section" on Docs that end in a list item (DIMS-TEACH-0076).
+// Keep one paragraph and reuse it as the title instead of removing it.
+var title = teachingSyncResetBodyKeepingOneParagraph_(body);
+title.setText(teaching.title || 'Dominion1st Teaching');
 title.setHeading(DocumentApp.ParagraphHeading.TITLE)
      .setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-title.editAsText().setForegroundColor(ROYAL).setBold(true);
+title.editAsText().setForegroundColor(ROYAL).setBold(true).setItalic(false);
 
 var meta = body.appendParagraph(teachingSyncMetaText_(teaching));
 meta.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
@@ -284,6 +306,22 @@ if (teaching.summary) {
 }
 
 appendTeachingMarkdown_(body, teaching.content_md, ROYAL, GOLD, DARK);
+}
+
+/**
+* TASK-0196: empty the body without ever removing its last paragraph.
+* A Docs section must end in a plain paragraph, so body.clear() and
+* removing the final element both fail when the Doc ends in a list item
+* (or a table). Append one plain paragraph, remove everything before it,
+* and return that kept paragraph for the caller to fill.
+*/
+function teachingSyncResetBodyKeepingOneParagraph_(body) {
+var keep = body.appendParagraph('');
+for (var i = body.getNumChildren() - 2; i >= 0; i--) {
+  body.getChild(i).removeFromParent();
+}
+keep.setHeading(DocumentApp.ParagraphHeading.NORMAL);
+return keep;
 }
 
 function teachingSyncMetaText_(teaching) {
@@ -609,6 +647,56 @@ for (var attempt = 0; ; attempt++) {
   var transient = code === 429 || code >= 500;
   if (!transient || attempt >= retryDelaysMs.length) return result;
   Utilities.sleep(retryDelaysMs[attempt]);
+}
+}
+
+/**
+* ==========================================================
+* TASK-0322 — Orbit heartbeat shared by the teaching workers.
+* ==========================================================
+* Calls public.teaching_sync_heartbeat_ping through the Supabase REST RPC
+* endpoint with the same service-role credential the workers already use.
+* Never throws: a missed ping must not break or fail the sync itself.
+*
+* Status is 'error' when the run threw, or when it was skipped / stopped by
+* the URL Fetch quota pause (the watcher is alive but not syncing).
+*/
+function teachingSyncHeartbeatPing_(component, outcome, failure) {
+try {
+  var o = outcome || {};
+  var results = o.results || [];
+  var quota = /quota/.test(String(o.skipped || '') + String(o.stopped || ''));
+  var errorText = failure ? String(failure && failure.message ? failure.message : failure)
+    : (quota ? String(o.skipped || o.stopped) : null);
+
+  var detail = { checked: 0, synced: 0, conflicts: 0, error: errorText };
+  if (component === 'queue_worker') {
+    detail.checked = Number(o.processed || 0);
+    detail.synced = results.filter(function(r) { return r && r.status === 'verified'; }).length;
+    detail.failed = results.filter(function(r) { return r && r.status === 'failed'; }).length;
+  } else {
+    detail.checked = Number(o.processed || 0) + Number(o.unchanged_skipped || 0);
+    detail.synced = results.filter(function(r) { return r && r.synchronized === true; }).length;
+    detail.conflicts = results.filter(function(r) { return r && /conflict/.test(String(r.action || '')); }).length;
+    detail.errors = results.filter(function(r) { return r && r.action === 'error'; }).length;
+    detail.deferred = Number(o.deferred || 0);
+  }
+  if (o.skipped) detail.skipped = o.skipped;
+
+  var result = teachingSyncRequest_(
+    'rpc/teaching_sync_heartbeat_ping',
+    'post',
+    { p_component: component, p_status: (failure || quota) ? 'error' : 'ok', p_detail: detail },
+    null
+  );
+  var code = Number(result && result.code);
+  if (code < 200 || code >= 300) {
+    console.warn('Heartbeat ping for ' + component + ' was refused. HTTP ' + code + ': ' + JSON.stringify(result && result.body));
+  } else if (result.body === false) {
+    console.warn('Heartbeat ping for ' + component + ': Supabase does not know this component.');
+  }
+} catch (pingErr) {
+  console.warn('Heartbeat ping for ' + component + ' failed (sync unaffected): ' + pingErr);
 }
 }
 

@@ -47,8 +47,28 @@
  */
 var TEACHING_TWO_WAY_GATE_PREFIX = 'TEACHING_TWO_WAY_GATE_';
 
+/**
+ * TASK-0322: the 15-minute trigger handler. Runs the watcher exactly as
+ * before, then always checks in with the Orbit heartbeat — even when nothing
+ * changed. teachingSyncHeartbeatPing_ (TeachingArtifactSyncExtension.gs)
+ * never throws, so a missed ping cannot break the sync.
+ */
 function processAutomaticTeachingTwoWaySync(limit) {
-  limit = (typeof limit === 'number' || typeof limit === 'string') ? Number(limit) : 25;
+  var outcome = null;
+  var failure = null;
+  try {
+    outcome = processAutomaticTeachingTwoWaySyncRun_(limit);
+    return outcome;
+  } catch (err) {
+    failure = err;
+    throw err;
+  } finally {
+    teachingSyncHeartbeatPing_('two_way_watcher', outcome, failure);
+  }
+}
+
+function processAutomaticTeachingTwoWaySyncRun_(limit) {
+  limit =(typeof limit === 'number' || typeof limit === 'string') ? Number(limit) : 25;
   if (!isFinite(limit) || limit < 1) limit = 25;
   limit = Math.floor(limit);
 

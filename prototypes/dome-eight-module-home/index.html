@@ -3,31 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DOME™ — Eight-Module Home Preview</title>
+<title>Explore DOME™ — Eight Operational Modules</title>
 <link rel="stylesheet" href="./styles.css">
 </head>
-<body>
+<body class="dome-orbit-explore">
 <header class="hero">
   <div>
-    <div class="eyebrow">DOMINION1ST™ · DOME™ · TASK-0102 CONTROLLED PREVIEW</div>
-    <h1>See. Command. Steward.</h1>
-    <p>The Main DOME is the everyday front door to eight ratified operational modules. Every screen teaches: plain English first, the biblical-language identity beside it, Scripture written out, and a concise statement of purpose.</p>
+    <div class="eyebrow">DOMINION1ST™ · EXPLORE DOME™</div>
+    <h1>Eight domains. One DOME.</h1>
+    <p>Explore the circular command surface, then read each domain’s Scripture, identity, and purpose below.</p>
   </div>
   <aside>
-    <strong>DI²</strong><span>Persistent cross-module intelligence</span>
-    <strong>KUBERNĒSIS™</strong><span>Governance / steering layer</span>
+    <a class="hero-home" href="/dome-foundation/">← Foundation Home</a>
+    <button class="hero-di" type="button" data-open-di2>Ask DI²</button>
+    <small>DI² serves across DOME · KUBERNĒSIS™ governs and steers.</small>
   </aside>
 </header>
 <main>
-<section class="today" aria-labelledby="today-title">
-  <div><span class="kicker">TODAY</span><h2 id="today-title">Executive orientation</h2><p>Verified priorities, alerts, follow-ups, and status summaries belong here without creating duplicate executive destinations.</p></div>
-  <a href="../../tetelestai/">Open TETELESTAI™ priorities</a>
-</section>
-
 <section class="dome-section" aria-labelledby="dome-title">
   <div class="section-head dome-intro">
-    <span class="kicker">MAIN DOME · EIGHT-MODULE ORBIT</span>
-    <h2 id="dome-title">One DOME. Eight operational authorities.</h2>
+    <span class="kicker">THE EIGHT-MODULE ORBIT</span>
+    <h2 id="dome-title">Choose where to go.</h2>
     <p>Select a module from the circular command surface. DI² remains persistent across the system; KUBERNĒSIS™ governs and steers without becoming a ninth module.</p>
   </div>
   <div class="dome-orbit" role="navigation" aria-label="Eight operational modules">
@@ -47,13 +43,14 @@
     <a class="orbit-node n7" href="../../oikonomos/"><em>07</em><strong>OIKONOMOS™</strong><span>Stewardship / Administration</span></a>
     <a class="orbit-node n8" href="../../ekklesia/"><em>08</em><strong>EKKLĒSIA™</strong><span>People / Assembly / Discipleship</span></a>
   </div>
+  <p class="orbit-help">Tap a domain to enter it, or <a href="#modules-title">read the module guide below</a>. <a href="../../tetelestai/">Open TETELESTAI™ priorities</a>.</p>
 </section>
 
 <section aria-labelledby="modules-title">
   <div class="section-head">
     <span class="kicker">OPERATE · EVERY SCREEN TEACHES</span>
     <h2 id="modules-title">Eight operational modules</h2>
-    <p>The circular DOME is the command surface. The cards below preserve the full governed language, original-language information, Scripture, purpose, and sub-DOME context for each module.</p>
+    <p>Each module has its own authority. Read its name, Scripture, and purpose, then enter when you are ready.</p>
   </div>
 
   <div class="modules" aria-label="Eight DOME module details">
@@ -146,7 +143,8 @@
   <div class="admin-links"><a href="../../mission-control.html">Continuity / Mission Control</a><a href="../../dashboard-v3-current.html">KUBERNĒSIS™ Gateway</a><a href="../../dims-blueprint.html">Governance / Architecture</a><a href="../../system-status.html">System Status</a><a href="../../enterprise-forms.html">Asset Registry / Forms</a><a href="../../institutional-queue.html">Institutional Queue</a><a href="../../glossary/">Terminology / Glossary</a></div>
 </section>
 </main>
-<footer><strong>Non-production Main DIMS/DOME test Home.</strong> Circular/orbital Main DOME treatment is now active for user review. Production remains unchanged until user sign-off.</footer>
+<footer><a href="/dome-foundation/">Foundation Home</a> · Explore DOME™ · Non-production test preview.</footer>
 <script src="../../dome-global-nav.js" defer></script>
+<script>document.querySelector('[data-open-di2]').addEventListener('click', () => document.querySelector('.di-launch')?.click());</script>
 </body>
 </html>

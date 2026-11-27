@@ -7,10 +7,10 @@
 <meta name="description" content="DOME™ foundation view: from Jesus Christ the foundation up to the eight modules. Select any module to open it.">
 <meta name="theme-color" content="#050a24">
 <link rel="preload" as="image" href="/dome-art/foundation-1536.webp" imagesrcset="/dome-art/foundation-768.webp 768w, /dome-art/foundation-1536.webp 1536w" imagesizes="100vw">
-<link rel="stylesheet" href="/dome-art/dome-art.css?v=2">
+<link rel="stylesheet" href="/dome-art/dome-art.css?v=3">
 </head>
-<body>
-<main class="art-page">
+<body class="dome-art-home">
+<main class="art-page foundation-page">
   <h1 class="sr-only">DOME™ — built on Jesus Christ the foundation: the dominion mandate, restoration, Dominion1st Ministry, DIMS, and the eight modules.</h1>
   <div class="art-stage">
     <picture>
@@ -19,14 +19,15 @@
     </picture>
   </div>
   <div class="art-tools">
-    <a class="art-btn" href="/">◎ Ring view</a>
+    <a class="art-btn" href="/prototypes/dome-eight-module-home/">◎ Explore the eight modules</a>
+    <button class="art-btn" type="button" data-open-di2>Ask DI²</button>
     <button class="art-btn" type="button" data-art-sound aria-pressed="false">🔈 Sound off</button>
   </div>
   <nav class="art-list" aria-label="DOME modules">
-    <h2>Modules</h2>
+    <h2>Explore modules and layers</h2>
     <ol></ol>
   </nav>
-  <p class="art-foot">“For other foundation can no man lay than that is laid, which is Jesus Christ.” — 1 Corinthians 3:11 · <a href="/">Ring view (home)</a></p>
+  <p class="art-foot">“For other foundation can no man lay than that is laid, which is Jesus Christ.” — 1 Corinthians 3:11 (KJV) · <a href="/prototypes/dome-eight-module-home/">Explore DOME</a></p>
 </main>
 <script>
 // DOME Official Art 2 — Foundation tiers. Destinations follow config/dome-routes.json.
@@ -50,5 +51,6 @@ window.DOME_ART = {
 </script>
 <script src="/dome-art/dome-art.js?v=1" defer></script>
 <script src="/dome-global-nav.js" defer></script>
+<script>document.querySelector('[data-open-di2]').addEventListener('click', () => document.querySelector('.di-launch')?.click());</script>
 </body>
 </html>

@@ -89,6 +89,8 @@
 !/dome-classic.html
 !/dome-art/
 !/dome-foundation/
+# TASK-0332: ring artwork page moved from / to /dome-ring/ (commit 0307b82); publish it so the Ring view switch works.
+!/dome-ring/
 # DOME Home lives under prototypes/; publish only that one prototype.
 !/prototypes/
 /prototypes/*

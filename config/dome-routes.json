@@ -1,10 +1,12 @@
 {
-  "version": 6,
+  "version": 7,
   "governedBy": "TASK-0071 / TASK-0102 / TASK-0123 route reconciliation",
   "canonical": {
-    "domeHome": "/prototypes/dome-eight-module-home/",
+    "domeHome": "/dome-foundation/",
     "domeArtHome": "/",
     "domeFoundation": "/dome-foundation/",
+    "domeExplore": "/prototypes/dome-eight-module-home/",
+    "domeRing": "/dome-ring/",
     "domeClassic": "/dome-classic.html",
     "gegraptai": "/gegraptai/",
     "neshamah": "/neshamah/",
@@ -22,7 +24,8 @@
     "blueprint": "/dims-blueprint.html"
   },
   "primary": [
-    {"key":"domeHome","label":"DOME Home","path":"/prototypes/dome-eight-module-home/"},
+    {"key":"domeHome","label":"DOME Home · Foundation","path":"/dome-foundation/"},
+    {"key":"domeExplore","label":"Explore DOME · Eight Modules","path":"/prototypes/dome-eight-module-home/"},
     {"key":"gegraptai","label":"GEGRAPTAI™","path":"/gegraptai/"},
     {"key":"neshamah","label":"NESHAMAH™","path":"/neshamah/"},
     {"key":"tetelestai","label":"TETELESTAI™","path":"/tetelestai/"},
@@ -55,6 +58,7 @@
     "/shamar-intelligence-dome.html":"/gregoreo/"
   },
   "currentUserSurfaces": [
+    "dome-foundation/index.html",
     "prototypes/dome-eight-module-home/index.html",
     "gegraptai/index.html",
     "neshamah/index.html",

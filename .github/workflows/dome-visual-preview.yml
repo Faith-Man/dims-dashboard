@@ -37,9 +37,9 @@ jobs:
           "$chrome" --headless=new --no-sandbox --hide-scrollbars --virtual-time-budget=5000 --window-size=390,844 \
             --screenshot=dome-preview/foundation-mobile.png http://127.0.0.1:8765/dome-foundation/
           "$chrome" --headless=new --no-sandbox --hide-scrollbars --virtual-time-budget=5000 --window-size=1440,900 \
-            --screenshot=dome-preview/explore-desktop.png http://127.0.0.1:8765/prototypes/dome-eight-module-home/#dome-title
+            --screenshot=dome-preview/explore-desktop.png http://127.0.0.1:8765/prototypes/dome-eight-module-home/
           "$chrome" --headless=new --no-sandbox --hide-scrollbars --virtual-time-budget=5000 --window-size=390,844 \
-            --screenshot=dome-preview/explore-mobile.png http://127.0.0.1:8765/prototypes/dome-eight-module-home/#dome-title
+            --screenshot=dome-preview/explore-mobile.png http://127.0.0.1:8765/prototypes/dome-eight-module-home/
           "$chrome" --headless=new --no-sandbox --hide-scrollbars --virtual-time-budget=5000 --window-size=390,6000 \
             --screenshot=dome-preview/module-guide-mobile.png http://127.0.0.1:8765/prototypes/dome-eight-module-home/
           python3 - <<'PY'

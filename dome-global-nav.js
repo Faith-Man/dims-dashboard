@@ -12,7 +12,8 @@
     {
       label: 'PRIMARY DOME MODULES',
       items: [
-        ['DOME Home', 'prototypes/dome-eight-module-home/'],
+        ['DOME Home · Foundation', 'dome-foundation/'],
+        ['Explore DOME · Eight Modules', 'prototypes/dome-eight-module-home/'],
         ['GEGRAPTAI™', 'gegraptai/'],
         ['NESHAMAH™', 'neshamah/'],
         ['TETELESTAI™', 'tetelestai/'],

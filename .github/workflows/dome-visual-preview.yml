@@ -1,0 +1,50 @@
+name: DOME visual preview
+
+on:
+  pull_request:
+    branches: [task-0071-di2-neural-orb]
+    paths:
+      - 'index.html'
+      - 'dome-foundation/**'
+      - 'dome-art/**'
+      - 'dome-global-nav.js'
+      - 'prototypes/dome-eight-module-home/**'
+      - '.github/workflows/dome-visual-preview.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture isolated static page previews
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/dome-preview-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..20}; do
+            if curl -fsS http://127.0.0.1:8765/dome-foundation/ >/dev/null; then break; fi
+            sleep 1
+          done
+          chrome="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          mkdir -p dome-preview
+          "$chrome" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=1440,900 \
+            --screenshot=dome-preview/foundation-desktop.png http://127.0.0.1:8765/dome-foundation/
+          "$chrome" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=390,844 \
+            --screenshot=dome-preview/foundation-mobile.png http://127.0.0.1:8765/dome-foundation/
+          "$chrome" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=1440,900 \
+            --screenshot=dome-preview/explore-desktop.png http://127.0.0.1:8765/prototypes/dome-eight-module-home/#dome-title
+          "$chrome" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=390,844 \
+            --screenshot=dome-preview/explore-mobile.png http://127.0.0.1:8765/prototypes/dome-eight-module-home/#dome-title
+          "$chrome" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --window-size=390,844 \
+            --screenshot=dome-preview/module-guide-mobile.png http://127.0.0.1:8765/prototypes/dome-eight-module-home/#modules-title
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: dome-visual-preview
+          path: dome-preview/*.png
+          if-no-files-found: error

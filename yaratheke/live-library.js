@@ -26,8 +26,9 @@ const type=t=>String(t.content_type||'').trim().toLowerCase();
 
 // Callout types and colors copied from the live YARATHĒKĒ reader (dims-dashboard Worker).
 // Writers mark a callout by starting a line with a tag, e.g. "[SCRIPTURE] ..." or "[DOMINION PRINCIPLE] ...".
-const CALLOUT_TAGS=/^\[(SCRIPTURE|FOUNDATION SCRIPTURES?|DOMINION PRINCIPLE|KEY REVELATION|WORD STUDY|KINGDOM APPLICATION|APPLICATION|REFLECTION|WARNING|DECLARATION|PRAYER|KINGDOM ASSIGNMENT)\]\s*(.*)$/i;
+const CALLOUT_TAGS=/^\[(SCRIPTURE|FOUNDATION SCRIPTURES?|DOMINION PRINCIPLE|KEY REVELATION|WORD STUDY|DOMINION APPLICATION|KINGDOM APPLICATION|APPLICATION|REFLECTION|WARNING|DECLARATION|PRAYER|KINGDOM ASSIGNMENT)\]\s*(.*)$/i;
 // Five callout colors (owner-approved 2026-11-11). Every tag still shows its own label;
+// 2026-11-27: [KINGDOM APPLICATION] renamed [DOMINION APPLICATION] (owner); old tag kept so unconverted teachings still render.
 // related tags share a color: Revelation → Principle; Reflection, Declaration, Prayer,
 // Assignment → Application; Foundation Scriptures → Scripture.
 function calloutClass(tag){

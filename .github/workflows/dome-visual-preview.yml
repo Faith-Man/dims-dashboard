@@ -40,8 +40,8 @@ jobs:
             --screenshot=dome-preview/explore-desktop.png http://127.0.0.1:8765/prototypes/dome-eight-module-home/#dome-title
           "$chrome" --headless=new --no-sandbox --hide-scrollbars --virtual-time-budget=5000 --window-size=390,844 \
             --screenshot=dome-preview/explore-mobile.png http://127.0.0.1:8765/prototypes/dome-eight-module-home/#dome-title
-          "$chrome" --headless=new --no-sandbox --hide-scrollbars --virtual-time-budget=5000 --window-size=390,844 \
-            --screenshot=dome-preview/module-guide-mobile.png http://127.0.0.1:8765/prototypes/dome-eight-module-home/#modules-title
+          "$chrome" --headless=new --no-sandbox --hide-scrollbars --virtual-time-budget=5000 --window-size=390,6000 \
+            --screenshot=dome-preview/module-guide-mobile.png http://127.0.0.1:8765/prototypes/dome-eight-module-home/
           python3 - <<'PY'
           from pathlib import Path
           minimum_bytes = {
